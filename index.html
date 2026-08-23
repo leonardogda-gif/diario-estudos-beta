@@ -810,6 +810,7 @@ async function syncWithDrive(opt={}){
 }
 
 function renderAll(){
+ try{if($("fDate"))saveRecordDraft(true)}catch(e){}
  populateCommonSelects();renderDashboard();renderRecordPage();renderPlans();renderReportPage();renderComplementaryList();renderSettingsChildren();renderResponsibles();renderChildrenCards();renderHistoryBatchRows();refreshHistoryActivityOptions();
  $("count").textContent=currentBncc().length;
  if($("familyName"))$("familyName").value=state.family.name||"";if($("social"))$("social").value=state.family.social||"";
@@ -924,40 +925,165 @@ function skillsFor(comp,stage,q=""){
 }
 function areaForComp(comp){for(let [a,cs] of Object.entries(AREAS))if(cs.some(x=>x.toLowerCase()===String(comp).toLowerCase()))return a;return""}
 
+
+const RECORD_DRAFT_PREFIX="DE_V42_RECORD_DRAFT_";
+let recordDraftTimer=null;
+
+function recordDraftKey(childId=activeChildId){
+ return childId?RECORD_DRAFT_PREFIX+childId:"";
+}
+function loadRecordDraft(childId=activeChildId){
+ if(!childId)return null;
+ try{
+   const d=JSON.parse(localStorage.getItem(recordDraftKey(childId)));
+   return d&&typeof d==="object"?d:null;
+ }catch(e){return null}
+}
+function clearRecordDraft(childId=activeChildId){
+ if(!childId)return;
+ localStorage.removeItem(recordDraftKey(childId));
+ clearTimeout(recordDraftTimer);
+}
+function currentSkillScope(){
+ return document.querySelector('input[name="skillScope"]:checked')?.value||"referencia";
+}
+function collectRecordDraft(){
+ if(!$("fDate")||!activeChildId)return null;
+ return {
+   version:1,
+   childId:activeChildId,
+   mode:editing?"edit":"new",
+   editingId:editing?.id||"",
+   savedAt:now(),
+   date:$("fDate")?.value||today(),
+   type:$("fType")?.value||"bncc",
+   search:$("globalSkillSearch")?.value||"",
+   scope:currentSkillScope(),
+   complementaryId:$("fComplementary")?.value||"",
+   area:$("fArea")?.value||"",
+   componente:$("fComp")?.value||"",
+   codigo:$("fCode")?.value||"",
+   habilidade:$("fSkill")?.value||"",
+   atividade:$("fActivity")?.value||"",
+   observacoes:$("fObs")?.value||"",
+   status:$("fStatus")?.value||"",
+   photoData:photoData||editing?.foto||""
+ };
+}
+function saveRecordDraft(immediate=false){
+ const run=()=>{
+   const d=collectRecordDraft();
+   if(!d)return;
+   try{
+     localStorage.setItem(recordDraftKey(d.childId),JSON.stringify(d));
+     const s=$("draftStatus");
+     if(s)s.textContent="Rascunho salvo automaticamente · "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+   }catch(e){
+     console.warn("Não foi possível salvar o rascunho:",e);
+     const s=$("draftStatus");
+     if(s)s.textContent="Rascunho não pôde ser salvo neste dispositivo.";
+   }
+ };
+ clearTimeout(recordDraftTimer);
+ if(immediate)run(); else recordDraftTimer=setTimeout(run,180);
+}
+function bindRecordDraft(){
+ const ids=["fDate","fType","globalSkillSearch","fComplementary","fArea","fComp","fSkill","fActivity","fObs","fStatus"];
+ ids.forEach(id=>{
+   const el=$(id);if(!el)return;
+   el.addEventListener("input",()=>saveRecordDraft(false));
+   el.addEventListener("change",()=>saveRecordDraft(true));
+ });
+ document.querySelectorAll('input[name="skillScope"]').forEach(el=>{
+   el.addEventListener("change",()=>saveRecordDraft(true));
+ });
+}
+function draftForCurrentForm(){
+ const d=loadRecordDraft(activeChildId);
+ if(!d)return null;
+ if(editing){
+   return d.mode==="edit"&&d.editingId===editing.id?d:null;
+ }
+ return d.mode==="new"?d:null;
+}
+function skillsForScope(comp,stage,scope,selectedCode=""){
+ let list=currentBncc().filter(x=>
+   String(x.componente).toLowerCase()===String(comp||"").toLowerCase() &&
+   habilidadeNoEscopo(x.codigo,stage||"",scope||"referencia")
+ );
+ if(selectedCode&&!list.some(x=>x.codigo===selectedCode)){
+   const chosen=currentBncc().find(x=>x.codigo===selectedCode);
+   if(chosen)list.unshift(chosen);
+ }
+ return list;
+}
+
 function renderRecordPage(){
  renderChildButtons("recordChildTabs","selectChild");
  let box=$("recordApp"),child=currentChild();if(!box)return;
  if(!child){box.innerHTML="<div class='card notice'>Cadastre uma criança em Configurações.</div>";return}
- let list=state.entries[child.id]||[],f=editing||{date:today(),type:"bncc",complementaryId:"",area:"",componente:"",codigo:"",habilidade:"",atividade:"",observacoes:"",status:"",foto:"",audio:""};
- let comps=AREAS[f.area]||[],skills=f.componente?skillsFor(f.componente,child.stage):[];
+
+ const draft=draftForCurrentForm();
+ let base=editing||{date:today(),type:"bncc",complementaryId:"",area:"",componente:"",codigo:"",habilidade:"",atividade:"",observacoes:"",status:"",foto:"",audio:""};
+ let f=draft?{
+   ...base,
+   date:draft.date||base.date,
+   type:draft.type||base.type,
+   complementaryId:draft.complementaryId??base.complementaryId,
+   area:draft.area??base.area,
+   componente:draft.componente??base.componente,
+   codigo:draft.codigo??base.codigo,
+   habilidade:draft.habilidade??base.habilidade,
+   atividade:draft.atividade??base.atividade,
+   observacoes:draft.observacoes??base.observacoes,
+   status:draft.status??base.status,
+   foto:draft.photoData||base.foto||""
+ }:base;
+
+ const scope=draft?.scope||"referencia";
+ const search=draft?.search||"";
+ photoData=draft?.photoData||photoData||editing?.foto||"";
+
+ let comps=AREAS[f.area]||[];
+ let skills=f.componente?skillsForScope(f.componente,child.stage,scope,f.codigo):[];
+
  box.innerHTML=`<div class="card"><h2>${editing?"Editar atividade":"Nova atividade"} — ${esc(child.name)}</h2><div class="grid">
  <div><label class="field">Data</label><input id="fDate" type="date" value="${esc(f.date)}"></div>
  <div><label class="field">Tipo</label><select id="fType" onchange="changeRecordType()"><option value="bncc" ${f.type!=="complementar"?"selected":""}>Habilidade BNCC</option><option value="complementar" ${f.type==="complementar"?"selected":""}>Atividade complementar</option></select></div>
  <div id="bnccSearch" class="full ${f.type==="complementar"?"hidden":""}">
 <label class="field">Buscar habilidade ou código</label>
-<input id="globalSkillSearch" placeholder="Ex.: fração, leitura, EF03MA..." oninput="refreshGlobalSearch()">
+<input id="globalSkillSearch" value="${esc(search)}" placeholder="Ex.: fração, leitura, EF03MA..." oninput="refreshGlobalSearch()">
 <div class="flex-search-options">
-<label><input type="radio" name="skillScope" value="referencia" checked onchange="refreshGlobalSearch()"> Ano de referência</label>
-<label><input type="radio" name="skillScope" value="proximos" onchange="refreshGlobalSearch()"> Anos próximos</label>
-<label><input type="radio" name="skillScope" value="todos" onchange="refreshGlobalSearch()"> Toda a BNCC</label>
+<label><input type="radio" name="skillScope" value="referencia" ${scope==="referencia"?"checked":""} onchange="refreshGlobalSearch()"> Ano de referência</label>
+<label><input type="radio" name="skillScope" value="proximos" ${scope==="proximos"?"checked":""} onchange="refreshGlobalSearch()"> Anos próximos</label>
+<label><input type="radio" name="skillScope" value="todos" ${scope==="todos"?"checked":""} onchange="refreshGlobalSearch()"> Toda a BNCC</label>
 </div>
-<select id="globalSkillResults" style="margin-top:6px" onchange="selectGlobalSkill()"><option value="">Digite para pesquisar...</option></select>
+<select id="globalSkillResults" style="margin-top:6px" onchange="selectGlobalSkill()"><option value="">${search.length>=2?"Resultados da busca...":"Digite para pesquisar..."}</option></select>
 <div id="globalSkillCount" class="meta"></div></div>
  <div id="compBlock" class="full ${f.type==="complementar"?"":"hidden"}"><label class="field">Atividade complementar</label><select id="fComplementary"><option value="">Selecione...</option>${state.complementaryActivities.map(x=>`<option value="${x.id}" ${x.id===f.complementaryId?"selected":""}>${esc(x.name)}${x.category?" — "+esc(x.category):""}</option>`).join("")}</select></div>
  <div id="bnccFields" class="${f.type==="complementar"?"hidden":""}" style="display:contents"><div><label class="field">Área</label><select id="fArea" onchange="areaChanged()"><option value="">Selecione...</option>${Object.keys(AREAS).map(x=>`<option ${x===f.area?"selected":""}>${esc(x)}</option>`).join("")}</select></div>
  <div><label class="field">Componente</label><select id="fComp" onchange="componentChanged()"><option value="">Selecione...</option>${comps.map(x=>`<option ${x===f.componente?"selected":""}>${esc(x)}</option>`).join("")}</select></div>
  <div><label class="field">Código BNCC</label><input id="fCode" readonly value="${esc(f.codigo)}"></div>
- <div class="full"><label class="field">Habilidade</label><select id="fSkill" onchange="skillChanged()"><option value="">Selecione...</option>${skills.map(x=>`<option data-code="${esc(x.codigo)}" value="${esc(x.descricao)}" ${x.descricao===f.habilidade?"selected":""}>${esc(x.codigo)} — ${esc(x.descricao)}</option>`).join("")}</select><div id="skillCount" class="meta">${skills.length} habilidade(s) compatível(is)</div></div></div>
- <div class="full"><label class="field">Atividade realizada</label><textarea id="fActivity" rows="3">${esc(f.atividade)}</textarea><div class="media-actions" style="margin-top:7px"><button type="button" id="dictationStartBtn" class="btn" onclick="startDictation()">Ditado por voz</button><button type="button" id="dictationStopBtn" class="btn danger hidden" onclick="stopDictation()">Parar ditado</button></div><div id="dictationStatus" class="media-status">Fale para preencher este campo sem precisar digitar.</div></div>
+ <div class="full"><label class="field">Habilidade</label><select id="fSkill" onchange="skillChanged()"><option value="">Selecione...</option>${skills.map(x=>`<option data-code="${esc(x.codigo)}" value="${esc(x.descricao)}" ${x.descricao===f.habilidade?"selected":""}>${esc(x.codigo)} — ${esc(anoBnccDoCodigo(x.codigo))} — ${esc(x.descricao)}</option>`).join("")}</select><div id="skillCount" class="meta">${skills.length} habilidade(s) no escopo selecionado</div></div></div>
+ <div class="full">
+   <label class="field">Atividade realizada</label>
+   <textarea id="fActivity" rows="3">${esc(f.atividade)}</textarea>
+   <div id="draftStatus" class="media-status">${draft?"Rascunho restaurado automaticamente.":"Rascunho salvo automaticamente neste dispositivo."}</div>
+ </div>
  <div class="full"><label class="field">Observações</label><textarea id="fObs" rows="2">${esc(f.observacoes)}</textarea></div>
  <div><label class="field">Avaliação *</label><select id="fStatus"><option value="">Selecione...</option><option ${f.status==="Dominado"?"selected":""}>Dominado</option><option ${f.status==="Em progresso"?"selected":""}>Em progresso</option><option ${f.status==="Precisa de revisão"?"selected":""}>Precisa de revisão</option></select></div>
- <div><label class="field">Foto</label><div class="media-actions"><label class="btn">Tirar foto<input type="file" accept="image/*" capture="environment" style="display:none" onchange="readPhoto(event)"></label><label class="btn">Escolher foto<input type="file" accept="image/*" style="display:none" onchange="readPhoto(event)"></label></div></div>
-
+ <div><label class="field">Foto</label><div class="media-actions">
+   <label class="btn" onclick="saveRecordDraft(true)">Tirar foto<input type="file" accept="image/*" capture="environment" style="display:none" onchange="readPhoto(event)"></label>
+   <label class="btn" onclick="saveRecordDraft(true)">Escolher foto<input type="file" accept="image/*" style="display:none" onchange="readPhoto(event)"></label>
+ </div></div>
  <div class="full"><div id="photoPreviewWrap">${f.foto?`<img id="photoPreviewImg" class="photo" src="${f.foto}">`:""}</div><div class="meta">* Avaliação obrigatória</div><button class="btn primary" onclick="saveEntry()">${editing?"Salvar alterações":"Registrar atividade"}</button>${editing?` <button class="btn" onclick="cancelEdit()">Cancelar</button>`:""}</div></div></div>
  <div class="card"><h3>Atividades registradas</h3><input id="recordSearch" placeholder="Buscar..." oninput="renderRecordList()"><div id="recordList"></div></div>`;
- renderRecordList()
+
+ bindRecordDraft();
+ if(search.length>=2)refreshGlobalSearch();
+ renderRecordList();
 }
-function changeRecordType(){let comp=$("fType").value==="complementar";$("bnccSearch")?.classList.toggle("hidden",comp);$("bnccFields")?.classList.toggle("hidden",comp);$("compBlock")?.classList.toggle("hidden",!comp)}
+function changeRecordType(){let comp=$("fType").value==="complementar";$("bnccSearch")?.classList.toggle("hidden",comp);$("bnccFields")?.classList.toggle("hidden",comp);$("compBlock")?.classList.toggle("hidden",!comp);saveRecordDraft(true)}
 function refreshGlobalSearch(){
  let child=currentChild(),q=$("globalSkillSearch")?.value.trim()||"";
  if(!child||!$("globalSkillResults"))return;
@@ -969,40 +1095,84 @@ function refreshGlobalSearch(){
  $("globalSkillCount").textContent=total+" resultado(s)"+(total>120?" · mostrando 120":"");
 }
 function selectGlobalSkill(){
- let o=$("globalSkillResults")?.selectedOptions?.[0];if(!o?.dataset.code)return;
- let comp=o.dataset.comp,area=areaForComp(comp),scope=document.querySelector('input[name="skillScope"]:checked')?.value||"referencia",child=currentChild();
+ let o=$("globalSkillResults")?.selectedOptions?.[0];
+ if(!o?.dataset.code)return;
+
+ let comp=o.dataset.comp;
+ let area=areaForComp(comp);
+ let scope=document.querySelector('input[name="skillScope"]:checked')?.value||"referencia";
+ let child=currentChild();
+
+ // Área e componente
  $("fArea").value=area;
  $("fComp").innerHTML='<option value="">Selecione...</option>'+(AREAS[area]||[]).map(x=>`<option>${esc(x)}</option>`).join("");
- if(!(AREAS[area]||[]).includes(comp))$("fComp").innerHTML+=`<option>${esc(comp)}</option>`;
+ if(!(AREAS[area]||[]).includes(comp)) $("fComp").innerHTML+=`<option>${esc(comp)}</option>`;
  $("fComp").value=comp;
- let list=currentBncc().filter(x=>String(x.componente).toLowerCase()===String(comp).toLowerCase()&&habilidadeNoEscopo(x.codigo,child?.stage||"",scope));
- if(!list.some(x=>x.codigo===o.dataset.code)){let chosen=currentBncc().find(x=>x.codigo===o.dataset.code);if(chosen)list.unshift(chosen)}
- $("fSkill").innerHTML='<option value="">Selecione...</option>'+list.map(x=>`<option data-code="${esc(x.codigo)}" value="${esc(x.descricao)}">${esc(x.codigo)} — ${esc(anoBnccDoCodigo(x.codigo))} — ${esc(x.descricao)}</option>`).join("");
- $("fSkill").value=o.dataset.desc;$("fCode").value=o.dataset.code;$("skillCount").textContent=list.length+" habilidade(s) no escopo selecionado";
+
+ // A lista de habilidades precisa respeitar o mesmo escopo usado na busca.
+ let list=currentBncc().filter(x=>
+   String(x.componente).toLowerCase()===String(comp).toLowerCase() &&
+   habilidadeNoEscopo(x.codigo,child?.stage||"",scope)
+ );
+
+ // Garante que a habilidade escolhida permaneça disponível mesmo em casos especiais.
+ if(!list.some(x=>x.codigo===o.dataset.code)){
+   let chosen=currentBncc().find(x=>x.codigo===o.dataset.code);
+   if(chosen) list.unshift(chosen);
+ }
+
+ $("fSkill").innerHTML='<option value="">Selecione...</option>'+list.map(x=>
+   `<option data-code="${esc(x.codigo)}" value="${esc(x.descricao)}">${esc(x.codigo)} — ${esc(anoBnccDoCodigo(x.codigo))} — ${esc(x.descricao)}</option>`
+ ).join("");
+
+ $("fSkill").value=o.dataset.desc;
+ $("fCode").value=o.dataset.code;
+ $("skillCount").textContent=list.length+" habilidade(s) no escopo selecionado";
+ saveRecordDraft(true);
 }
-function areaChanged(){let a=$("fArea").value;$("fComp").innerHTML='<option value="">Selecione...</option>'+(AREAS[a]||[]).map(x=>`<option>${esc(x)}</option>`).join("");$("fSkill").innerHTML='<option value="">Selecione...</option>';$("fCode").value=""}
+function areaChanged(){let a=$("fArea").value;$("fComp").innerHTML='<option value="">Selecione...</option>'+(AREAS[a]||[]).map(x=>`<option>${esc(x)}</option>`).join("");$("fSkill").innerHTML='<option value="">Selecione...</option>';$("fCode").value="";saveRecordDraft(true)}
 function componentChanged(){
- let comp=$("fComp").value,child=currentChild(),scope=document.querySelector('input[name="skillScope"]:checked')?.value||"referencia";
- let list=currentBncc().filter(x=>String(x.componente).toLowerCase()===String(comp).toLowerCase()&&habilidadeNoEscopo(x.codigo,child?.stage||"",scope));
- $("fSkill").innerHTML='<option value="">Selecione...</option>'+list.map(x=>`<option data-code="${esc(x.codigo)}" value="${esc(x.descricao)}">${esc(x.codigo)} — ${esc(anoBnccDoCodigo(x.codigo))} — ${esc(x.descricao)}</option>`).join("");
- $("skillCount").textContent=list.length+" habilidade(s) no escopo selecionado";$("fCode").value="";
+ let comp=$("fComp").value;
+ let child=currentChild();
+ let scope=document.querySelector('input[name="skillScope"]:checked')?.value||"referencia";
+ let list=currentBncc().filter(x=>
+   String(x.componente).toLowerCase()===String(comp).toLowerCase() &&
+   habilidadeNoEscopo(x.codigo,child?.stage||"",scope)
+ );
+ $("fSkill").innerHTML='<option value="">Selecione...</option>'+list.map(x=>
+   `<option data-code="${esc(x.codigo)}" value="${esc(x.descricao)}">${esc(x.codigo)} — ${esc(anoBnccDoCodigo(x.codigo))} — ${esc(x.descricao)}</option>`
+ ).join("");
+ $("skillCount").textContent=list.length+" habilidade(s) no escopo selecionado";
+ $("fCode").value="";
+ saveRecordDraft(true);
 }
-function skillChanged(){let o=$("fSkill").selectedOptions[0];$("fCode").value=o?.dataset.code||""}
+function skillChanged(){let o=$("fSkill").selectedOptions[0];$("fCode").value=o?.dataset.code||"";saveRecordDraft(true)}
 
 function readPhoto(ev){
- let f=ev.target.files[0];if(!f)return;let fr=new FileReader();fr.onload=()=>{let img=new Image();img.onload=()=>{let max=1200,s=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext("2d").drawImage(img,0,0,c.width,c.height);photoData=c.toDataURL("image/jpeg",.72);let wrap=$("photoPreviewWrap");if(wrap)wrap.innerHTML=`<img id="photoPreviewImg" class="photo" src="${photoData}">`};img.src=fr.result};fr.readAsDataURL(f)
+ saveRecordDraft(true);
+ let f=ev.target.files[0];
+ if(!f)return;
+
+ let fr=new FileReader();
+ fr.onload=()=>{
+   let img=new Image();
+   img.onload=()=>{
+     let max=1200,s=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement("canvas");
+     c.width=Math.round(img.width*s);
+     c.height=Math.round(img.height*s);
+     c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+     photoData=c.toDataURL("image/jpeg",.72);
+
+     let wrap=$("photoPreviewWrap");
+     if(wrap)wrap.innerHTML=`<img id="photoPreviewImg" class="photo" src="${photoData}">`;
+
+     // Guarda também a foto no rascunho. Se a página for recriada, os campos voltam.
+     saveRecordDraft(true);
+   };
+   img.src=fr.result;
+ };
+ fr.readAsDataURL(f);
 }
-let speechRecognition=null,dictationBaseText="",dictationFinalText="";
-function getSpeechRecognition(){
- const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return null;const rec=new SR();rec.lang="pt-BR";rec.continuous=true;rec.interimResults=true;
- rec.onstart=()=>{dictationBaseText=($("fActivity")?.value||"").trim();dictationFinalText="";$("dictationStartBtn")?.classList.add("hidden");$("dictationStopBtn")?.classList.remove("hidden");if($("dictationStatus"))$("dictationStatus").textContent="Ouvindo... fale normalmente."};
- rec.onresult=ev=>{let interim="";for(let i=ev.resultIndex;i<ev.results.length;i++){let t=ev.results[i][0].transcript.trim();if(ev.results[i].isFinal)dictationFinalText+=(dictationFinalText?" ":"")+t;else interim+=(interim?" ":"")+t}let parts=[dictationBaseText,dictationFinalText,interim].filter(Boolean);if($("fActivity"))$("fActivity").value=parts.join(" ")};
- rec.onerror=ev=>{if($("dictationStatus"))$("dictationStatus").textContent=ev.error==="not-allowed"?"Permissão do microfone negada. Libere o microfone no navegador.":"Não foi possível continuar o ditado."};
- rec.onend=()=>{$("dictationStartBtn")?.classList.remove("hidden");$("dictationStopBtn")?.classList.add("hidden");if($("dictationStatus"))$("dictationStatus").textContent=$("fActivity")?.value?.trim()?"Ditado concluído. Revise o texto antes de registrar.":"Ditado encerrado.";speechRecognition=null};return rec
-}
-function startDictation(){if(speechRecognition)return;speechRecognition=getSpeechRecognition();if(!speechRecognition)return alert("O ditado por voz não é suportado neste navegador. No Android, teste pelo Google Chrome atualizado.");try{speechRecognition.start()}catch(e){speechRecognition=null;alert("Não foi possível iniciar o ditado.")}}
-function stopDictation(){if(speechRecognition)try{speechRecognition.stop()}catch(e){}}
-async function startAudio(){startDictation()}function stopAudio(){stopDictation()}function clearAudio(){audioData=""}
 
 function saveEntry(){
  let type=$("fType").value,compId=$("fComplementary")?.value||"",comp=state.complementaryActivities.find(x=>x.id===compId),missing=[];
@@ -1016,11 +1186,22 @@ function saveEntry(){
    e.fotoVisibleDriveId="";
    e.fotoDriveId="";
  }
- let l=state.entries[activeChildId]||[];state.entries[activeChildId]=editing?l.map(x=>x.id===editing.id?e:x):[e,...l];editing=null;photoData="";audioData="";saveLocal();renderAll()
+ let savedChildId=activeChildId;
+ let l=state.entries[activeChildId]||[];state.entries[activeChildId]=editing?l.map(x=>x.id===editing.id?e:x):[e,...l];
+ editing=null;photoData="";audioData="";
+ clearRecordDraft(savedChildId);
+ saveLocal();
+ renderAll()
 }
 function renderRecordList(){let box=$("recordList");if(!box)return;let q=($("recordSearch")?.value||"").toLowerCase(),l=(state.entries[activeChildId]||[]).filter(x=>(x.atividade+" "+x.habilidade+" "+x.codigo+" "+x.observacoes).toLowerCase().includes(q));box.innerHTML=l.map(x=>`<div class="entry ${x.status==="Dominado"?"done":x.status==="Precisa de revisão"?"focus":"progress"}"><div class="meta">${fmtDate(x.date)} · ${esc(x.componente)} ${x.codigo?"· "+esc(x.codigo):""}</div><div class="entry-title">${esc(x.atividade)}</div>${x.habilidade?`<div class="skill">${esc(x.habilidade)}</div>`:""}${x.observacoes?`<div class="obs">${esc(x.observacoes)}</div>`:""}<span class="badge">${esc(x.status)}</span>${x.foto?`<br><img class="photo" src="${x.foto}">`:""}${x.audio?`<div class="audio-box"><audio controls src="${x.audio}"></audio></div>`:""}<div class="entry-actions"><button class="btn small" onclick="editEntry('${x.id}')">Editar</button><button class="btn danger small" onclick="deleteEntry('${x.id}')">Excluir</button></div></div>`).join("")||"<div class='notice'>Nenhum registro.</div>"}
-function editEntry(id){editing=(state.entries[activeChildId]||[]).find(x=>x.id===id);photoData=editing?.foto||"";audioData=editing?.audio||"";renderRecordPage();window.scrollTo({top:0,behavior:"smooth"})}
-function cancelEdit(){editing=null;photoData="";audioData="";renderRecordPage()}
+function editEntry(id){
+ clearRecordDraft(activeChildId);
+ editing=(state.entries[activeChildId]||[]).find(x=>x.id===id);
+ photoData=editing?.foto||"";audioData=editing?.audio||"";
+ renderRecordPage();saveRecordDraft(true);
+ window.scrollTo({top:0,behavior:"smooth"})
+}
+function cancelEdit(){clearRecordDraft(activeChildId);editing=null;photoData="";audioData="";renderRecordPage()}
 function deleteEntry(id){if(!confirm("Excluir este registro?"))return;state.entries[activeChildId]=(state.entries[activeChildId]||[]).filter(x=>x.id!==id);addTomb("entries",id);saveLocal();renderAll()}
 
 function addPlan(){let childId=$("planChild").value,title=$("planTitle").value.trim();if(!childId||!title)return alert("Escolha a criança e informe a atividade.");state.plans.push({id:uid(),childId,date:$("planDate").value||today(),type:$("planType").value,component:$("planComponent").value.trim(),title,notes:$("planNotes").value.trim(),createdAt:now(),updatedAt:now(),completedAt:""});$("planTitle").value="";$("planNotes").value="";saveLocal();renderPlans();renderDashboard()}
@@ -1091,6 +1272,10 @@ function init(){
 }
 window.addEventListener("load",init);
 window.addEventListener("focus",()=>{if(tokenValid())syncWithDrive({silent:true})});
+window.addEventListener("pagehide",()=>{try{saveRecordDraft(true)}catch(e){}});
+document.addEventListener("visibilitychange",()=>{
+ if(document.visibilityState==="hidden"){try{saveRecordDraft(true)}catch(e){}}
+});
 </script>
 </body>
 </html>
