@@ -129,7 +129,7 @@ h3{font-size:16px}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.2.1</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.2.2</p>
 </header>
 
 <main>
@@ -319,8 +319,10 @@ h3{font-size:16px}
           <div id="backendDetails" class="meta" style="margin-top:4px">
             Aguardando autenticação com o backend.
           </div>
+          <div id="backendFamilyInfo" class="meta" style="margin-top:8px"></div>
           <div class="toolbar" style="margin-top:9px">
             <button class="btn" onclick="testBackendConnection()">Testar backend</button>
+            <button id="linkFamilyBtn" class="btn success hidden" onclick="linkCurrentFamilyToBackend()">Vincular família atual ao backend</button>
           </div>
         </div>
 
@@ -342,6 +344,8 @@ const GOOGLE_SCOPES = "openid email profile https://www.googleapis.com/auth/driv
 const DRIVE_SYNC_FILE = "diario-estudos-beta.json";
 const BACKEND_URL = "https://diario-estudos-api.leonardo-gda.workers.dev";
 let backendProfile = null;
+const BACKEND_FAMILY_ID_KEY = "DE_V422_BACKEND_FAMILY_ID";
+const BACKEND_CHILD_MAP_KEY = "DE_V422_BACKEND_CHILD_MAP";
 const VISIBLE_DRIVE_ROOT_NAME = "Diário de Estudos";
 const VISIBLE_PHOTOS_FOLDER_NAME = "Fotos";
 const VISIBLE_ROOT_ID_KEY = "DE_V4_VISIBLE_ROOT_ID";
@@ -457,6 +461,165 @@ function rememberedGoogleEmail(){
 }
 
 
+
+function getBackendFamilyId(){
+  return localStorage.getItem(BACKEND_FAMILY_ID_KEY)||"";
+}
+function setBackendFamilyId(id){
+  if(id) localStorage.setItem(BACKEND_FAMILY_ID_KEY,id);
+  else localStorage.removeItem(BACKEND_FAMILY_ID_KEY);
+}
+function getBackendChildMap(){
+  try{
+    return JSON.parse(localStorage.getItem(BACKEND_CHILD_MAP_KEY)||"{}")||{};
+  }catch(e){return {}}
+}
+function setBackendChildMap(map){
+  localStorage.setItem(BACKEND_CHILD_MAP_KEY,JSON.stringify(map||{}));
+}
+function localFamilyReadyForBackend(){
+  return !!(state.family && (state.family.name||"").trim());
+}
+function backendFamilyFromProfile(){
+  const savedId=getBackendFamilyId();
+  if(savedId && backendProfile?.families?.length){
+    const found=backendProfile.families.find(f=>f.id===savedId);
+    if(found)return found;
+  }
+  return backendProfile?.families?.[0]||null;
+}
+function renderBackendFamilyState(){
+  const info=$("backendFamilyInfo");
+  const btn=$("linkFamilyBtn");
+  if(!info||!btn)return;
+
+  const fam=backendFamilyFromProfile();
+  const savedId=getBackendFamilyId();
+
+  if(!backendProfile?.user){
+    info.textContent="Faça login para verificar a família no backend.";
+    btn.classList.add("hidden");
+    return;
+  }
+
+  if(fam){
+    setBackendFamilyId(fam.id);
+    const childMap=getBackendChildMap();
+    const linkedChildren=Object.keys(childMap).length;
+    info.innerHTML=`Família vinculada: <b>${esc(fam.name||"")}</b> · ${linkedChildren} criança(s) mapeada(s) localmente.`;
+    btn.classList.add("hidden");
+    return;
+  }
+
+  if(savedId && !backendProfile?.families?.length){
+    info.textContent="Há um vínculo local salvo, mas a família não apareceu no backend. Use Testar backend para atualizar.";
+    btn.classList.add("hidden");
+    return;
+  }
+
+  if(localFamilyReadyForBackend()){
+    const childCount=state.family.children?.length||0;
+    info.innerHTML=`Família local encontrada: <b>${esc(state.family.name)}</b> · ${childCount} criança(s). Ainda não está no D1.`;
+    btn.classList.remove("hidden");
+  }else{
+    info.textContent="Preencha o nome da família antes de criar o vínculo no backend.";
+    btn.classList.add("hidden");
+  }
+}
+
+async function refreshBackendProfile(){
+  backendProfile=await backendFetch("/me");
+  setBackendStatus("conectado",true);
+  renderBackendFamilyState();
+  return backendProfile;
+}
+
+async function linkCurrentFamilyToBackend(){
+  if(!googleAccessToken){
+    alert("Entre com Google antes de vincular a família.");
+    return;
+  }
+  if(!localFamilyReadyForBackend()){
+    alert("Informe o nome da família em Configurações antes de continuar.");
+    return;
+  }
+
+  // Protege contra criação duplicada.
+  if(backendProfile?.families?.length){
+    renderBackendFamilyState();
+    alert("Sua conta já possui uma família no backend. Nenhuma nova família foi criada.");
+    return;
+  }
+
+  const children=state.family.children||[];
+  const msg=`Criar "${state.family.name}" no backend e vincular ${children.length} criança(s)?\n\nSeus registros de estudo ainda continuarão no Drive nesta versão.`;
+  if(!confirm(msg))return;
+
+  const btn=$("linkFamilyBtn");
+  if(btn){btn.disabled=true;btn.textContent="Vinculando..."}
+
+  try{
+    setBackendStatus("criando família...");
+    const created=await backendFetch("/families",{
+      method:"POST",
+      body:JSON.stringify({name:state.family.name})
+    });
+
+    const familyId=created?.family?.id;
+    if(!familyId)throw new Error("O backend não devolveu o ID da família.");
+
+    setBackendFamilyId(familyId);
+
+    const map=getBackendChildMap();
+    let linked=0;
+    let failed=[];
+
+    for(const child of children){
+      if(map[child.id]){
+        linked++;
+        continue;
+      }
+      try{
+        const createdChild=await backendFetch("/children",{
+          method:"POST",
+          body:JSON.stringify({
+            family_id:familyId,
+            name:child.name,
+            birth_date:child.birth||null,
+            reference_stage:child.stage||null,
+            notes:null
+          })
+        });
+        if(createdChild?.child?.id){
+          map[child.id]=createdChild.child.id;
+          setBackendChildMap(map);
+          linked++;
+        }else{
+          failed.push(child.name);
+        }
+      }catch(e){
+        console.error("Falha ao criar criança no backend:",child.name,e);
+        failed.push(child.name);
+      }
+    }
+
+    await refreshBackendProfile();
+
+    if(failed.length){
+      alert(`Família criada no backend.\n\n${linked} criança(s) vinculada(s).\nNão foi possível vincular agora: ${failed.join(", ")}.\n\nNenhum registro foi perdido.`);
+    }else{
+      alert(`Família vinculada com sucesso.\n${linked} criança(s) cadastrada(s) no backend.`);
+    }
+  }catch(e){
+    console.error(e);
+    setBackendStatus(e.message||"erro ao vincular família",false);
+    alert("Não foi possível vincular a família: "+(e.message||"erro desconhecido"));
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent="Vincular família atual ao backend"}
+    renderBackendFamilyState();
+  }
+}
+
 function setBackendStatus(message, ok=null){
   const el=$("backendStatus");
   if(el){
@@ -476,6 +639,7 @@ function setBackendStatus(message, ok=null){
       details.textContent=message;
     }
   }
+  try{renderBackendFamilyState()}catch(e){}
 }
 
 async function backendFetch(path, options={}){
@@ -514,8 +678,7 @@ async function connectBackend(){
 
   setBackendStatus("conectando...");
   try{
-    backendProfile=await backendFetch("/me");
-    setBackendStatus("conectado",true);
+    await refreshBackendProfile();
     return true;
   }catch(e){
     console.error("Backend:",e);
@@ -534,7 +697,7 @@ async function testBackendConnection(){
   const ok=await connectBackend();
 
   if(ok){
-    alert("Backend conectado com sucesso. Seu usuário foi reconhecido pelo D1.");
+    alert("Backend conectado com sucesso. Usuário e vínculo de família verificados no D1.");
   }else{
     alert("Não foi possível autenticar no backend. Veja o status exibido na tela.");
   }
@@ -917,7 +1080,7 @@ async function syncWithDrive(opt={}){
 
 function renderAll(){
  try{if($("fDate"))saveRecordDraft(true)}catch(e){}
- populateCommonSelects();renderDashboard();renderRecordPage();renderPlans();renderReportPage();renderComplementaryList();renderSettingsChildren();renderResponsibles();renderChildrenCards();renderHistoryBatchRows();refreshHistoryActivityOptions();
+ populateCommonSelects();renderDashboard();renderRecordPage();renderPlans();renderReportPage();renderComplementaryList();renderSettingsChildren();renderResponsibles();renderChildrenCards();renderHistoryBatchRows();refreshHistoryActivityOptions();renderBackendFamilyState();
  $("count").textContent=currentBncc().length;
  if($("familyName"))$("familyName").value=state.family.name||"";if($("social"))$("social").value=state.family.social||"";
 }
@@ -1356,7 +1519,7 @@ function makeBackup(){shareBackup()}
 function restoreBackup(ev){let f=ev.target.files[0];if(!f)return;let fr=new FileReader();fr.onload=()=>{try{let b=JSON.parse(fr.result),s=b.state||b;if(!s.family||!s.entries)throw new Error();if(!confirm("Restaurar este backup e substituir os dados locais?"))return;state={...state,...s};activeChildId=state.family.children[0]?.id||null;saveLocal();renderAll();alert("Backup restaurado.")}catch(e){alert("Backup inválido.")}};fr.readAsText(f)}
 
 function bindSettings(){
- $("familyName").onchange=()=>{state.family.name=$("familyName").value;state.family.updatedAt=now();saveLocal();renderDashboard()};
+ $("familyName").onchange=()=>{state.family.name=$("familyName").value;state.family.updatedAt=now();saveLocal();renderDashboard();renderBackendFamilyState()};
  $("social").onchange=()=>{state.family.social=$("social").value;state.family.updatedAt=now();saveLocal()};
 }
 function init(){
