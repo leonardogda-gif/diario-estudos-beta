@@ -129,7 +129,7 @@ h3{font-size:16px}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.2.1</p>
 </header>
 
 <main>
@@ -141,6 +141,7 @@ h3{font-size:16px}
           <div class="cloud-title">Google Drive</div>
           <div id="cloudStatus" class="cloud-status"><span class="sync-dot"></span>Aguardando login</div>
           <div id="cloudUser" class="cloud-user"></div>
+          <div id="backendStatus" class="cloud-user">Backend: aguardando login</div>
         </div>
       </div>
       <div class="toolbar">
@@ -312,6 +313,18 @@ h3{font-size:16px}
         <div class="notice"><label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer"><input id="rememberGoogle" type="checkbox" style="width:auto;margin-top:2px" onchange="setRememberGoogle(this.checked)"><span><b>Manter esta conta conectada neste dispositivo</b><br><span class="meta">O site guarda apenas a preferência de reconectar e o e-mail da conta. O token do Google não é salvo permanentemente.</span></span></label></div>
 
         <hr>
+        <h3>Backend do beta</h3>
+        <div class="drive-folder-card">
+          <div><b>Cloudflare + D1</b></div>
+          <div id="backendDetails" class="meta" style="margin-top:4px">
+            Aguardando autenticação com o backend.
+          </div>
+          <div class="toolbar" style="margin-top:9px">
+            <button class="btn" onclick="testBackendConnection()">Testar backend</button>
+          </div>
+        </div>
+
+        <hr>
         <h3>Backup manual</h3>
         <div class="toolbar">
           <button class="btn" onclick="shareBackup()">Compartilhar backup</button>
@@ -327,6 +340,8 @@ h3{font-size:16px}
 const GOOGLE_CLIENT_ID = "629410527657-f5b9r4o0jvcvf0517oracmhpvhsj19pn.apps.googleusercontent.com";
 const GOOGLE_SCOPES = "openid email profile https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.file";
 const DRIVE_SYNC_FILE = "diario-estudos-beta.json";
+const BACKEND_URL = "https://diario-estudos-api.leonardo-gda.workers.dev";
+let backendProfile = null;
 const VISIBLE_DRIVE_ROOT_NAME = "Diário de Estudos";
 const VISIBLE_PHOTOS_FOLDER_NAME = "Fotos";
 const VISIBLE_ROOT_ID_KEY = "DE_V4_VISIBLE_ROOT_ID";
@@ -441,6 +456,90 @@ function rememberedGoogleEmail(){
   return localStorage.getItem(GOOGLE_EMAIL_KEY) || "";
 }
 
+
+function setBackendStatus(message, ok=null){
+  const el=$("backendStatus");
+  if(el){
+    el.textContent="Backend: "+message;
+    if(ok===true) el.style.color="#2f6b4f";
+    else if(ok===false) el.style.color="#a14f43";
+    else el.style.color="";
+  }
+
+  const details=$("backendDetails");
+  if(details){
+    if(backendProfile?.user){
+      const fams=backendProfile.families?.length||0;
+      const inv=backendProfile.pendingInvites?.length||0;
+      details.innerHTML=`Conectado como <b>${esc(backendProfile.user.email||"")}</b> · ${fams} família(s) no backend · ${inv} convite(s) pendente(s).`;
+    }else{
+      details.textContent=message;
+    }
+  }
+}
+
+async function backendFetch(path, options={}){
+  if(!googleAccessToken) throw new Error("Faça login com Google primeiro.");
+
+  const headers={
+    ...(options.headers||{}),
+    "Authorization":"Bearer "+googleAccessToken
+  };
+
+  if(options.body && !headers["Content-Type"]){
+    headers["Content-Type"]="application/json";
+  }
+
+  const response=await fetch(BACKEND_URL+path,{
+    ...options,
+    headers
+  });
+
+  let data=null;
+  try{data=await response.json()}catch(e){}
+
+  if(!response.ok){
+    throw new Error(data?.error||data?.detail||("Backend HTTP "+response.status));
+  }
+
+  return data;
+}
+
+async function connectBackend(){
+  if(!googleAccessToken){
+    backendProfile=null;
+    setBackendStatus("aguardando login");
+    return false;
+  }
+
+  setBackendStatus("conectando...");
+  try{
+    backendProfile=await backendFetch("/me");
+    setBackendStatus("conectado",true);
+    return true;
+  }catch(e){
+    console.error("Backend:",e);
+    backendProfile=null;
+    setBackendStatus(e.message||"erro de conexão",false);
+    return false;
+  }
+}
+
+async function testBackendConnection(){
+  if(!googleAccessToken){
+    alert("Entre com Google antes de testar o backend.");
+    return;
+  }
+
+  const ok=await connectBackend();
+
+  if(ok){
+    alert("Backend conectado com sucesso. Seu usuário foi reconhecido pelo D1.");
+  }else{
+    alert("Não foi possível autenticar no backend. Veja o status exibido na tela.");
+  }
+}
+
 function setCloudStatus(kind,msg){if($("cloudStatus"))$("cloudStatus").innerHTML=`<span class="sync-dot ${kind||""}"></span>${esc(msg||"")}`}
 function updateAuthUI(){
  const ok=!!(googleAccessToken&&googleUser);
@@ -463,6 +562,10 @@ function updateAuthUI(){
    renderAll();
    const folderId=localStorage.getItem(VISIBLE_PHOTOS_ID_KEY);
    updateVisibleDriveStatus(folderId?"Pasta de fotos pronta no Meu Drive.":"A pasta será criada quando houver uma foto para sincronizar.");
+   if(!backendProfile) setBackendStatus("aguardando validação");
+ }else{
+   backendProfile=null;
+   setBackendStatus("aguardando login");
  }
 }
 function initGoogleAuth(){
@@ -481,6 +584,7 @@ function initGoogleAuth(){
     }
     updateAuthUI();
     await syncWithDrive({initial:true});
+    await connectBackend();
    }catch(e){console.error(e);setCloudStatus("error","Erro ao conectar com Drive")}
   }
  });
@@ -531,6 +635,8 @@ function tryAutomaticGoogleReconnect(){
 function googleLogout(){
   let t=googleAccessToken;
   googleAccessToken="";googleTokenExpiresAt=0;googleUser=null;driveFileId=null;
+  backendProfile=null;
+  setBackendStatus("aguardando login");
   localStorage.setItem(REMEMBER_GOOGLE_KEY,"0");
   localStorage.removeItem(GOOGLE_EMAIL_KEY);
   if(t&&window.google?.accounts?.oauth2)try{google.accounts.oauth2.revoke(t,()=>{})}catch(e){}
@@ -1263,6 +1369,7 @@ function init(){
  updateAuthUI();
  syncRememberCheckbox();
 
+ setBackendStatus("aguardando login");
  if(rememberGoogleEnabled()){
    setCloudStatus("busy","Preparando reconexão com Google...");
    tryAutomaticGoogleReconnect();
