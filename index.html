@@ -118,6 +118,13 @@ h3{font-size:16px}
 .ai-soon{background:#F3EFE3;border:1px dashed #B9B1A1;border-radius:8px;padding:9px;font-size:12px;color:#666157}
 @media(max-width:720px){.photo-import-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:480px){.photo-import-grid{grid-template-columns:1fr}}
+
+.settings-section{border:1px solid #E4DDCF;border-radius:10px;padding:14px;margin-top:12px;background:#FFFDF8}
+.settings-section h3{margin-top:0}
+.family-summary{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.family-summary .name{font-size:18px;font-weight:800}
+.tech-details{margin-top:10px}
+.tech-details summary{cursor:pointer;font-weight:700;color:#625F56}
 @media(max-width:780px){
  .dashboard-grid{grid-template-columns:1fr}
  .report-filters{grid-template-columns:1fr 1fr}
@@ -145,7 +152,7 @@ h3{font-size:16px}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.2.4.2</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.3</p>
 </header>
 
 <main>
@@ -298,122 +305,66 @@ h3{font-size:16px}
     </section>
 
     <section id="page-configuracoes" class="page">
-      <div class="card">
-        <h2>Família e responsáveis</h2>
-        <div class="profile-grid">
-          <div><label class="field">Nome da família</label><input id="familyName" placeholder="Ex.: Família Andrade"></div>
-          <div><label class="field">Local de socialização / comunidade</label><input id="social"></div>
-        </div>
-        <hr>
-        <h3>Responsáveis</h3>
-        <div class="notice">Cadastre quem acompanha a educação das crianças. O e-mail do responsável não precisa ser o mesmo usado no login Google.</div>
-        <div id="responsiblesList"></div>
-        <div class="grid" style="margin-top:10px">
-          <div><label class="field">Nome</label><input id="respName"></div>
-          <div><label class="field">E-mail</label><input id="respEmail" type="email"></div>
-          <div><label class="field">Relação</label><select id="respRelation"><option>Pai</option><option>Mãe</option><option>Responsável</option><option>Tutor(a)</option><option>Outro</option></select></div>
-          <div><label class="field">Telefone opcional</label><input id="respPhone" type="tel"></div>
-        </div>
-        <button class="btn success" onclick="addResponsible()">Adicionar responsável</button>
+<div class="card"><h2>Configurações</h2>
 
-        <hr>
-        <h3>Crianças</h3>
-        <div id="childrenCards"></div>
-        <div class="grid" style="margin-top:10px">
-          <div><label class="field">Nome</label><input id="childName"></div>
-          <div><label class="field">Nascimento</label><input id="childBirth" type="date"></div>
-          <div class="full"><label class="field">Ano de referência atual</label><select id="childStage"></select></div>
-        </div>
-        <button class="btn success" onclick="addChild()">Adicionar criança</button>
-
-        <hr>
-        <h3>Fotos no Google Drive</h3>
-        <div class="drive-folder-card">
-          <div><b>Pasta visível no Meu Drive</b></div>
-          <div class="meta" style="margin-top:4px">
-            As fotos podem ser organizadas em Diário de Estudos → Fotos → Criança → Ano → Mês.
-            Os dados internos do aplicativo continuam protegidos na área privada do app.
-          </div>
-          <div id="visibleDriveStatus" class="drive-folder-status">A pasta será criada quando houver uma foto para sincronizar.</div>
-          <div class="toolbar" style="margin-top:9px">
-            <button class="btn" onclick="organizeExistingPhotos()">Organizar fotos no Drive</button>
-            <button class="btn" onclick="openVisiblePhotosFolder()">Abrir pasta de fotos</button>
-          </div>
-        </div>
-
-        <hr>
-        <h3>Conta Google</h3>
-        <div class="notice"><label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer"><input id="rememberGoogle" type="checkbox" style="width:auto;margin-top:2px" onchange="setRememberGoogle(this.checked)"><span><b>Manter esta conta conectada neste dispositivo</b><br><span class="meta">O site guarda apenas a preferência de reconectar e o e-mail da conta. O token do Google não é salvo permanentemente.</span></span></label></div>
-
-        <hr>
-        <h3>Backend do beta</h3>
-        <div class="drive-folder-card">
-          <div><b>Cloudflare + D1</b></div>
-          <div id="backendDetails" class="meta" style="margin-top:4px">
-            Aguardando autenticação com o backend.
-          </div>
-          <div id="backendFamilyInfo" class="meta" style="margin-top:8px"></div>
-          <div id="backendFamilyChooser" class="hidden" style="margin-top:10px">
-            <label class="field">Família ativa neste dispositivo</label>
-            <select id="backendFamilySelect" onchange="selectBackendFamily(this.value)"></select>
-            <div class="meta" style="margin-top:5px">
-              Se a conta participa de mais de uma família, escolha qual deseja abrir neste dispositivo.
-            </div>
-          </div>
-          <div class="toolbar" style="margin-top:9px">
-            <button class="btn" onclick="testBackendConnection()">Testar backend</button>
-            <button id="linkFamilyBtn" class="btn success hidden" onclick="linkCurrentFamilyToBackend()">Vincular família atual ao backend</button>
-            <button id="syncFamilyBtn" class="btn hidden" onclick="syncFamilyFromBackend(true)">Atualizar família do backend</button>
-          </div>
-        </div>
-
-        <hr>
-        <h3>Membros da família</h3>
-        <div id="familyMembersBox" class="notice">Conecte o backend para carregar os membros.</div>
-
-        <div id="inviteMemberBox" class="hidden">
-          <div class="grid" style="margin-top:10px">
-            <div>
-              <label class="field">E-mail do responsável</label>
-              <input id="inviteEmail" type="email" placeholder="exemplo@gmail.com">
-            </div>
-            <div>
-              <label class="field">Permissão</label>
-              <select id="inviteRole">
-                <option value="responsavel">Responsável</option>
-                <option value="visualizador">Somente visualização</option>
-                <option value="admin">Administrador</option>
-              </select>
-            </div>
-          </div>
-          <button class="btn success" onclick="inviteFamilyMember()">Convidar responsável</button>
-        </div>
-
-        <div id="pendingInvitesBox" style="margin-top:10px"></div>
-
-        <hr>
-<h3>Fotos compartilhadas da família</h3>
-<div class="drive-folder-card"><div id="sharedPhotosStatus" class="meta">A pasta compartilhada ainda não foi verificada.</div>
-<div class="toolbar" style="margin-top:8px"><button class="btn" onclick="setupSharedFamilyPhotos()">Preparar/compartilhar pasta</button><button class="btn" onclick="openSharedFamilyPhotos()">Abrir pasta compartilhada</button></div></div>
-<hr>
-<h3>Possíveis crianças duplicadas</h3>
-<div id="duplicateChildrenBox" class="notice">Nenhuma duplicidade detectada.</div>
-<div class="toolbar" style="margin-top:8px">
-  <button id="reconcileChildrenBtn" class="btn" onclick="reconcileChildrenWithBackend(true)">Reconciliar crianças com o backend</button>
+<div class="settings-section">
+  <div class="family-summary">
+    <div><div class="meta">Família</div><div id="simpleFamilyName" class="name">Carregando...</div><div id="simpleFamilyRole" class="meta"></div></div>
+    <button id="editFamilyNameBtn" class="btn small hidden" onclick="editBackendFamilyName()">Editar nome</button>
+  </div>
+  <div id="familyChoiceSimple" class="hidden" style="margin-top:10px"><label class="field">Escolher família</label><select id="backendFamilySelect" onchange="selectBackendFamily(this.value)"></select></div>
 </div>
-<hr>
-<h3>Crianças arquivadas</h3>
-        <div id="archivedChildrenBox" class="notice">Nenhuma criança arquivada.</div>
 
-        <hr>
-        <h3>Backup manual</h3>
-        <div class="toolbar">
-          <button class="btn" onclick="shareBackup()">Compartilhar backup</button>
-          <button class="btn" onclick="makeBackup()">Salvar backup</button>
-          <label class="btn">Restaurar<input type="file" accept=".json" style="display:none" onchange="restoreBackup(event)"></label>
-        </div>
-      </div>
-    </section>
+<div class="settings-section">
+  <h3>Responsáveis com acesso</h3>
+  <div id="familyMembersBox" class="notice">Carregando membros...</div>
+  <div id="inviteMemberBox" class="hidden">
+    <div class="grid" style="margin-top:10px">
+      <div><label class="field">E-mail</label><input id="inviteEmail" type="email" placeholder="exemplo@gmail.com"></div>
+      <div><label class="field">Permissão</label><select id="inviteRole"><option value="responsavel">Responsável</option><option value="visualizador">Somente visualização</option><option value="admin">Administrador</option></select></div>
+    </div>
+    <button class="btn success" onclick="inviteFamilyMember()">Convidar responsável</button>
+  </div>
+  <div id="pendingInvitesBox" style="margin-top:10px"></div>
+</div>
+
+<div class="settings-section">
+  <h3>Crianças</h3>
+  <div class="notice">Este cadastro vem do backend da família e é compartilhado entre todos os responsáveis.</div>
+  <div id="childrenCards" style="margin-top:10px"></div>
+  <div id="addChildBackendBox" class="grid" style="margin-top:12px">
+    <div><label class="field">Nome</label><input id="childName"></div>
+    <div><label class="field">Nascimento</label><input id="childBirth" type="date"></div>
+    <div class="full"><label class="field">Ano de referência</label><select id="childStage"></select></div>
+  </div>
+  <button id="addChildBackendBtn" class="btn success" onclick="addChild()">Adicionar criança</button>
+  <div style="margin-top:14px"><h4 style="margin-bottom:6px">Arquivadas</h4><div id="archivedChildrenBox" class="notice">Nenhuma criança arquivada.</div></div>
+</div>
+
+<div class="settings-section">
+  <h3>Armazenamento</h3>
+  <div class="drive-folder-card">
+    <div><b>Google Drive</b></div>
+    <div class="meta" style="margin-top:4px">Fotos e conteúdo educacional continuam fora do banco D1 nesta fase.</div>
+    <div id="visibleDriveStatus" class="drive-folder-status">Aguardando Drive.</div>
+    <div id="sharedPhotosStatus" class="meta" style="margin-top:6px">Pasta compartilhada ainda não verificada.</div>
+    <div class="toolbar" style="margin-top:9px">
+      <button class="btn" onclick="setupSharedFamilyPhotos()">Preparar/compartilhar pasta</button>
+      <button class="btn" onclick="openSharedFamilyPhotos()">Abrir pasta</button>
+      <button class="btn" onclick="organizeExistingPhotos()">Organizar fotos existentes</button>
+    </div>
+  </div>
+</div>
+
+<div class="settings-section">
+  <h3>Conta Google</h3>
+  <div class="notice"><label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer"><input id="rememberGoogle" type="checkbox" style="width:auto;margin-top:2px" onchange="setRememberGoogle(this.checked)"><span><b>Manter esta conta conectada neste dispositivo</b><br><span class="meta">A preferência é salva localmente; o token Google não é armazenado permanentemente.</span></span></label></div>
+</div>
+
+<div class="settings-section"><h3>Backup</h3><div class="toolbar"><button class="btn" onclick="shareBackup()">Compartilhar backup</button><button class="btn" onclick="makeBackup()">Salvar backup</button><label class="btn">Restaurar<input type="file" accept=".json" style="display:none" onchange="restoreBackup(event)"></label></div></div>
+
+<details class="tech-details"><summary>Diagnóstico técnico do beta</summary><div class="drive-folder-card" style="margin-top:8px"><div id="backendDetails" class="meta">Aguardando backend.</div><div id="backendFamilyInfo" class="meta" style="margin-top:6px"></div><div id="backendFamilyChooser" class="hidden"></div><div class="toolbar" style="margin-top:8px"><button class="btn small" onclick="testBackendConnection()">Testar backend</button><button id="syncFamilyBtn" class="btn small hidden" onclick="syncFamilyFromBackend(true)">Atualizar família</button><button id="linkFamilyBtn" class="btn small hidden" onclick="linkCurrentFamilyToBackend()">Vincular família local</button></div></div></details>
+</div></section>
   </div>
 </main>
 
@@ -586,22 +537,13 @@ function backendFamilyFromProfile(){
 }
 
 function renderBackendFamilyChooser(){
-  const box=$("backendFamilyChooser");
-  const sel=$("backendFamilySelect");
-  if(!box||!sel)return;
-
+  const legacyBox=$("backendFamilyChooser"),simpleBox=$("familyChoiceSimple"),sel=$("backendFamilySelect");
+  if(!sel)return;
   const families=backendProfile?.families||[];
-
-  if(families.length<=1){
-    box.classList.add("hidden");
-    return;
-  }
-
-  box.classList.remove("hidden");
-  const active=localStorage.getItem(ACTIVE_BACKEND_FAMILY_KEY)||"";
-  sel.innerHTML=
-    `<option value="">Selecione uma família...</option>`+
-    families.map(f=>`<option value="${f.id}" ${f.id===active?"selected":""}>${esc(f.name)} · ${esc(roleLabel(f.role))}</option>`).join("");
+  if(legacyBox)legacyBox.classList.add("hidden");
+  if(simpleBox)simpleBox.classList.toggle("hidden",families.length<=1);
+  const active=localStorage.getItem(ACTIVE_BACKEND_FAMILY_KEY)||getBackendFamilyId()||"";
+  sel.innerHTML=families.map(f=>`<option value="${f.id}" ${f.id===active?"selected":""}>${esc(f.name)}</option>`).join("");
 }
 
 async function selectBackendFamily(familyId){
@@ -636,7 +578,22 @@ async function selectBackendFamily(familyId){
   }
 }
 
+function renderSimpleFamilySummary(){
+ const fam=currentBackendFamily(),nameEl=$("simpleFamilyName"),roleEl=$("simpleFamilyRole"),editBtn=$("editFamilyNameBtn"),addBtn=$("addChildBackendBtn"),addBox=$("addChildBackendBox");
+ if(!nameEl)return;
+ if(!backendProfile?.user){nameEl.textContent="Entre com Google";if(roleEl)roleEl.textContent="";if(editBtn)editBtn.classList.add("hidden");if(addBtn)addBtn.classList.add("hidden");if(addBox)addBox.classList.add("hidden");return}
+ if(!fam){nameEl.textContent="Nenhuma família selecionada";if(roleEl)roleEl.textContent="";if(editBtn)editBtn.classList.add("hidden");if(addBtn)addBtn.classList.add("hidden");if(addBox)addBox.classList.add("hidden");return}
+ nameEl.textContent=fam.name||"Família";if(roleEl)roleEl.textContent="Seu acesso: "+roleLabel(fam.role);
+ if(editBtn)editBtn.classList.toggle("hidden",fam.role!=="admin");
+ const canEdit=["admin","responsavel"].includes(fam.role);if(addBtn)addBtn.classList.toggle("hidden",!canEdit);if(addBox)addBox.classList.toggle("hidden",!canEdit);
+}
+async function editBackendFamilyName(){
+ const fam=currentBackendFamily();if(!fam||fam.role!=="admin")return alert("Somente administradores podem alterar o nome.");
+ const name=prompt("Nome da família:",fam.name||"");if(name===null||!name.trim())return;
+ try{await backendFetch(`/families/${encodeURIComponent(fam.id)}`,{method:"PATCH",body:JSON.stringify({name:name.trim()})});await refreshBackendProfile();await syncFamilyFromBackend(false);renderAll()}catch(e){alert("Não foi possível alterar o nome: "+e.message)}
+}
 function renderBackendFamilyState(){
+  renderSimpleFamilySummary();
   const info=$("backendFamilyInfo");
   const btn=$("linkFamilyBtn");
   if(!info||!btn)return;
@@ -826,6 +783,7 @@ function roleLabel(role){
   return role==="admin"?"Administrador":role==="visualizador"?"Somente visualização":"Responsável";
 }
 function renderBackendFamilyPanels(){
+  renderSimpleFamilySummary();
   renderBackendFamilyChooser();
   const membersBox=$("familyMembersBox");
   const inviteBox=$("inviteMemberBox");
@@ -1030,93 +988,22 @@ function mergeLocalChildData(keepId, removeId){
 }
 
 async function reconcileChildrenWithBackend(showMessage=false){
-  const fam=currentBackendFamily();
-  if(!fam)return false;
-
-  if(!backendChildren.length && !backendArchivedChildren.length){
-    await loadBackendFamilyData();
-  }
-
-  const map=getBackendChildMap();
-  const allRemote=[...backendChildren,...backendArchivedChildren];
-
-  for(const remote of allRemote){
-    // 1. Se já existe mapeamento válido para esse remoto, ele é o principal.
-    let mappedLocalId=Object.keys(map).find(localId=>
-      map[localId]===remote.id &&
-      state.family.children.some(c=>c.id===localId)
-    );
-
-    let matches=state.family.children.filter(local=>childMatchesRemote(local,remote));
-
-    // 2. Se não há mapa, reutiliza cadastro local compatível em vez de duplicar.
-    if(!mappedLocalId && matches.length){
-      mappedLocalId=matches[0].id;
-      map[mappedLocalId]=remote.id;
-    }
-
-    // 3. Se ainda não existe local, cria apenas uma vez.
-    if(!mappedLocalId){
-      mappedLocalId=uid();
-      const local={
-        id:mappedLocalId,
-        name:remote.name,
-        birth:remote.birth_date||"",
-        stage:remote.reference_stage||"Sem ano de referência",
-        stageHistory:[{
-          stage:remote.reference_stage||"Sem ano de referência",
-          startDate:"",
-          endDate:""
-        }],
-        archived:Number(remote.active)===0,
-        createdAt:now(),
-        updatedAt:now()
-      };
-      state.family.children.push(local);
-      map[mappedLocalId]=remote.id;
-      matches=[local];
-    }
-
-    // 4. Mescla duplicatas locais que representam exatamente a mesma criança remota.
-    const duplicates=state.family.children.filter(local=>
-      local.id!==mappedLocalId && childMatchesRemote(local,remote)
-    );
-
-    duplicates.forEach(dup=>{
-      mergeLocalChildData(mappedLocalId,dup.id);
-      delete map[dup.id];
-    });
-
-    const main=state.family.children.find(c=>c.id===mappedLocalId);
-    if(main){
-      main.name=remote.name||main.name;
-      main.birth=remote.birth_date||main.birth||"";
-      main.stage=remote.reference_stage||main.stage||"Sem ano de referência";
-      main.archived=Number(remote.active)===0;
-      main.updatedAt=now();
-    }
-  }
-
-  // Remove entradas de mapa que apontam para locais inexistentes.
-  Object.keys(map).forEach(localId=>{
-    if(!state.family.children.some(c=>c.id===localId))delete map[localId];
-  });
-
-  setBackendChildMap(map);
-  state.family.updatedAt=now();
-
-  const activeLocals=state.family.children.filter(c=>!c.archived);
-  if(!activeLocals.some(c=>c.id===activeChildId)){
-    activeChildId=activeLocals[0]?.id||null;
-  }
-
-  saveLocal();
-  renderAll();
-
-  if(showMessage){
-    alert("Crianças reconciliadas com o backend. Registros e planejamentos foram preservados.");
-  }
-  return true;
+ const fam=currentBackendFamily();if(!fam)return false;
+ if(!backendChildren.length&&!backendArchivedChildren.length)await loadBackendFamilyData();
+ const map=getBackendChildMap(),allRemote=[...backendChildren,...backendArchivedChildren],kept=new Set();
+ for(const remote of allRemote){
+   let localId=Object.keys(map).find(id=>map[id]===remote.id&&state.family.children.some(c=>c.id===id));
+   let local=localId?state.family.children.find(c=>c.id===localId):null;
+   if(!local){local=state.family.children.find(c=>childMatchesRemote(c,remote));if(local){localId=local.id;map[localId]=remote.id}}
+   if(!local){localId=uid();local={id:localId,name:remote.name,birth:remote.birth_date||"",stage:remote.reference_stage||"Sem ano de referência",stageHistory:[{stage:remote.reference_stage||"Sem ano de referência",startDate:"",endDate:""}],archived:Number(remote.active)===0,backendManaged:true,createdAt:now(),updatedAt:now()};state.family.children.push(local);map[localId]=remote.id}
+   const dups=state.family.children.filter(c=>c.id!==localId&&childMatchesRemote(c,remote));dups.forEach(d=>{mergeLocalChildData(localId,d.id);delete map[d.id]});
+   local=state.family.children.find(c=>c.id===localId);if(local){local.name=remote.name||"";local.birth=remote.birth_date||"";local.stage=remote.reference_stage||"Sem ano de referência";local.archived=Number(remote.active)===0;local.backendManaged=true;local.legacyOrphan=false;local.updatedAt=now();kept.add(localId)}
+ }
+ state.family.children.forEach(c=>{if(!kept.has(c.id)){c.archived=true;c.legacyOrphan=true}});
+ Object.keys(map).forEach(id=>{if(!state.family.children.some(c=>c.id===id))delete map[id]});
+ setBackendChildMap(map);state.family.name=fam.name||"Família";state.family.updatedAt=now();
+ const active=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan);if(!active.some(c=>c.id===activeChildId))activeChildId=active[0]?.id||null;
+ saveLocal();renderAll();if(showMessage)alert("Família e crianças atualizadas pelo backend.");return true;
 }
 
 async function syncFamilyFromBackend(showMessage=false){
@@ -1600,12 +1487,12 @@ async function syncWithDrive(opt={}){
 
 function renderAll(){
  try{if($("fDate"))saveRecordDraft(true)}catch(e){}
- populateCommonSelects();renderDashboard();renderRecordPage();renderPlans();renderReportPage();renderComplementaryList();renderSettingsChildren();renderResponsibles();renderChildrenCards();renderHistoryBatchRows();refreshHistoryActivityOptions();renderBackendFamilyState();renderBackendFamilyPanels();
+ populateCommonSelects();renderDashboard();renderRecordPage();renderPlans();renderReportPage();renderComplementaryList();renderSettingsChildren();renderChildrenCards();renderHistoryBatchRows();refreshHistoryActivityOptions();renderBackendFamilyState();renderBackendFamilyPanels();
  $("count").textContent=currentBncc().length;
- if($("familyName"))$("familyName").value=state.family.name||"";if($("social"))$("social").value=state.family.social||"";
+ renderSimpleFamilySummary();
 }
 function populateCommonSelects(){
- const opts=state.family.children.filter(c=>!c.archived).map(c=>`<option value="${c.id}">${esc(c.name)} — ${esc(c.stage)}</option>`).join("");
+ const opts=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${c.id}">${esc(c.name)} — ${esc(c.stage)}</option>`).join("");
  ["planChild","reportChild","historyChild","historyPhotoChild"].forEach(id=>{let e=$(id);if(e){let old=e.value;e.innerHTML=opts;if(old&&state.family.children.some(c=>c.id===old))e.value=old;else if(activeChildId)e.value=activeChildId}});
  $("childStage").innerHTML=STAGES.map(x=>`<option>${esc(x)}</option>`).join("");
  let comps=[...new Set(Object.values(state.entries).flat().map(x=>x.componente).filter(Boolean))].sort();
@@ -1613,7 +1500,7 @@ function populateCommonSelects(){
 }
 function renderChildButtons(targetId,onClickName="selectChild"){
  let box=$(targetId);if(!box)return;
- box.innerHTML=state.family.children.filter(c=>!c.archived).map(c=>`<button class="child ${c.id===activeChildId?"active":""}" onclick="${onClickName}('${c.id}')">${esc(c.name)}<br><small>${esc(c.stage)}</small></button>`).join("")||"<span class='notice'>Cadastre uma criança em Configurações.</span>";
+ box.innerHTML=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<button class="child ${c.id===activeChildId?"active":""}" onclick="${onClickName}('${c.id}')">${esc(c.name)}<br><small>${esc(c.stage)}</small></button>`).join("")||"<span class='notice'>Cadastre uma criança em Configurações.</span>";
 }
 function selectChild(id){activeChildId=id;editing=null;photoData="";audioData="";renderAll()}
 
@@ -1634,42 +1521,26 @@ function editResponsible(id){
 }
 function deleteResponsible(id){if(!confirm("Excluir este responsável?"))return;state.family.responsibles=state.family.responsibles.filter(x=>x.id!==id);state.family.updatedAt=now();saveLocal();renderResponsibles()}
 function renderChildrenCards(){
- const box=$("childrenCards");if(!box)return;
- box.innerHTML=state.family.children.filter(c=>!c.archived).map(c=>{let hist=(c.stageHistory||[]).slice().sort((a,b)=>String(b.startDate||"").localeCompare(String(a.startDate||"")));return `<div class="child-card"><h4>${esc(c.name)}</h4><div class="meta">${c.birth?"Nascimento: "+fmtDate(c.birth)+" · ":""}Ano atual: <b>${esc(c.stage||"Sem ano de referência")}</b></div>${hist.length?`<div class="timeline">${hist.map(h=>`<div class="timeline-item"><b>${esc(h.stage)}</b><div class="meta">Desde ${fmtDate(h.startDate||"")}${h.endDate?" até "+fmtDate(h.endDate):""}</div></div>`).join("")}</div>`:""}<div class="entry-actions"><button class="btn small" onclick="editChild('${c.id}')">Editar cadastro</button><button class="btn small" onclick="changeChildStage('${c.id}')">Alterar ano de referência</button>${getBackendChildMap()[c.id]&&canManageFamily()?`<button class="btn danger small" onclick="archiveBackendChild('${getBackendChildMap()[c.id]}','${c.id}')">Arquivar</button>`:`<button class="btn danger small" onclick="deleteChild('${c.id}')">Excluir</button>`}</div></div>`}).join("")||"<div class='notice'>Nenhuma criança cadastrada.</div>"
+ const box=$("childrenCards");if(!box)return;const role=currentBackendRole();
+ box.innerHTML=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>{const backendId=getBackendChildMap()[c.id]||"",canEdit=["admin","responsavel"].includes(role)&&backendId,canArchive=role==="admin"&&backendId;return `<div class="child-card"><h4>${esc(c.name)}</h4><div class="meta">${c.birth?"Nascimento: "+fmtDate(c.birth)+" · ":""}Ano atual: <b>${esc(c.stage||"Sem ano de referência")}</b></div><div class="entry-actions">${canEdit?`<button class="btn small" onclick="editChild('${c.id}')">Editar</button><button class="btn small" onclick="changeChildStage('${c.id}')">Alterar ano</button>`:""}${canArchive?`<button class="btn danger small" onclick="archiveBackendChild('${backendId}','${c.id}')">Arquivar</button>`:""}</div></div>`}).join("")||"<div class='notice'>Nenhuma criança ativa nesta família.</div>"
 }
-function editChild(id){const c=state.family.children.find(x=>x.id===id);if(!c)return;const name=prompt("Nome da criança:",c.name);if(name===null)return;const birth=prompt("Nascimento (AAAA-MM-DD):",c.birth||"");if(birth===null)return;c.name=name.trim()||c.name;c.birth=birth.trim();c.updatedAt=now();state.family.updatedAt=now();saveLocal();renderAll()}
-function changeChildStage(id){
- const c=state.family.children.find(x=>x.id===id);if(!c)return;const opts=STAGES.map((s,i)=>`${i}: ${s}`).join("\\n");const ans=prompt("Escolha o novo ano de referência:\\n\\n"+opts,String(Math.max(0,STAGES.indexOf(c.stage))));if(ans===null)return;const idx=parseInt(ans,10);if(Number.isNaN(idx)||!STAGES[idx])return alert("Opção inválida.");const next=STAGES[idx];if(next===c.stage)return;const start=prompt("A partir de qual data? (AAAA-MM-DD)",today());if(start===null)return;c.stageHistory??=[];const cur=c.stageHistory.find(x=>!x.endDate);if(cur)cur.endDate=start;c.stageHistory.push({stage:next,startDate:start,endDate:""});c.stage=next;c.updatedAt=now();state.family.updatedAt=now();saveLocal();renderAll()
+async function editChild(id){
+ const c=state.family.children.find(x=>x.id===id),backendId=getBackendChildMap()[id];if(!c||!backendId)return;
+ const name=prompt("Nome da criança:",c.name);if(name===null)return;const birth=prompt("Nascimento (AAAA-MM-DD):",c.birth||"");if(birth===null)return;
+ try{await backendFetch(`/children/${encodeURIComponent(backendId)}`,{method:"PATCH",body:JSON.stringify({name:name.trim()||c.name,birth_date:birth.trim(),reference_stage:c.stage||null})});await loadBackendFamilyData();await reconcileChildrenWithBackend(false)}catch(e){alert("Não foi possível editar: "+e.message)}
 }
-function renderSettingsChildren(){renderChildrenCards();renderResponsibles();}
+async function changeChildStage(id){
+ const c=state.family.children.find(x=>x.id===id),backendId=getBackendChildMap()[id];if(!c||!backendId)return;
+ const opts=STAGES.map((s,i)=>`${i}: ${s}`).join("\\n"),ans=prompt("Escolha o novo ano de referência:\\n\\n"+opts,String(Math.max(0,STAGES.indexOf(c.stage))));if(ans===null)return;
+ const idx=parseInt(ans,10);if(Number.isNaN(idx)||!STAGES[idx])return alert("Opção inválida.");const next=STAGES[idx];if(next===c.stage)return;const start=prompt("A partir de qual data? (AAAA-MM-DD)",today());if(start===null)return;
+ try{await backendFetch(`/children/${encodeURIComponent(backendId)}`,{method:"PATCH",body:JSON.stringify({name:c.name,birth_date:c.birth||null,reference_stage:next})});c.stageHistory??=[];const cur=c.stageHistory.find(x=>!x.endDate);if(cur)cur.endDate=start;c.stageHistory.push({stage:next,startDate:start,endDate:""});saveLocal();await loadBackendFamilyData();await reconcileChildrenWithBackend(false)}catch(e){alert("Não foi possível alterar o ano: "+e.message)}
+}
+function renderSettingsChildren(){renderChildrenCards();}
 
 async function addChild(){
- let name=$("childName").value.trim();if(!name)return alert("Informe o nome.");
- let stage=$("childStage").value||"Sem ano de referência";
- let start=prompt("Data de início deste ano de referência (AAAA-MM-DD)",today());if(start===null)return;
-
- let c={id:uid(),name,birth:$("childBirth").value,stage,stageHistory:[{stage,startDate:start||today(),endDate:""}],archived:false,createdAt:now(),updatedAt:now()};
- state.family.children.push(c);state.family.updatedAt=now();activeChildId=c.id;
- $("childName").value="";$("childBirth").value="";
- saveLocal();
-
- const fam=currentBackendFamily();
- if(fam && canEditFamily()){
-   try{
-     const created=await backendFetch("/children",{
-       method:"POST",
-       body:JSON.stringify({family_id:fam.id,name:c.name,birth_date:c.birth||null,reference_stage:c.stage||null,notes:null})
-     });
-     if(created?.child?.id){
-       const map=getBackendChildMap();map[c.id]=created.child.id;setBackendChildMap(map);
-       await loadBackendFamilyData();
-     }
-   }catch(e){
-     console.error("Criança criada localmente, mas backend falhou:",e);
-     alert("A criança foi criada neste dispositivo, mas não foi possível sincronizá-la com o backend agora.");
-   }
- }
- renderAll()
+ const fam=currentBackendFamily();if(!fam)return alert("Entre em uma família antes de cadastrar uma criança.");if(!canEditFamily())return alert("Sua permissão não permite cadastrar crianças.");
+ const name=$("childName").value.trim();if(!name)return alert("Informe o nome.");const birth=$("childBirth").value||"",stage=$("childStage").value||"Sem ano de referência",start=prompt("Data de início deste ano de referência (AAAA-MM-DD)",today());if(start===null)return;
+ try{const created=await backendFetch("/children",{method:"POST",body:JSON.stringify({family_id:fam.id,name,birth_date:birth||null,reference_stage:stage||null,notes:null})});if(!created?.child?.id)throw new Error("Cadastro não retornado pelo backend.");const localId=uid(),c={id:localId,name,birth,stage,stageHistory:[{stage,startDate:start||today(),endDate:""}],archived:false,backendManaged:true,createdAt:now(),updatedAt:now()};state.family.children.push(c);const map=getBackendChildMap();map[localId]=created.child.id;setBackendChildMap(map);activeChildId=localId;$("childName").value="";$("childBirth").value="";saveLocal();await loadBackendFamilyData();await reconcileChildrenWithBackend(false)}catch(e){alert("Não foi possível cadastrar: "+e.message)}
 }
 function addTomb(type,id){state.tombstones[type]??=[];state.tombstones[type].push({id,deletedAt:now()})}
 function deleteChild(id){
@@ -2107,10 +1978,7 @@ function shareBackup(){shareOrDownloadText(JSON.stringify(backupObject()),"diari
 function makeBackup(){shareBackup()}
 function restoreBackup(ev){let f=ev.target.files[0];if(!f)return;let fr=new FileReader();fr.onload=()=>{try{let b=JSON.parse(fr.result),s=b.state||b;if(!s.family||!s.entries)throw new Error();if(!confirm("Restaurar este backup e substituir os dados locais?"))return;state={...state,...s};activeChildId=state.family.children[0]?.id||null;saveLocal();renderAll();alert("Backup restaurado.")}catch(e){alert("Backup inválido.")}};fr.readAsText(f)}
 
-function bindSettings(){
- $("familyName").onchange=()=>{state.family.name=$("familyName").value;state.family.updatedAt=now();saveLocal();renderDashboard();renderBackendFamilyState()};
- $("social").onchange=()=>{state.family.social=$("social").value;state.family.updatedAt=now();saveLocal()};
-}
+function bindSettings(){}
 function init(){
  loadLocal();
  $("planDate").value=today();
