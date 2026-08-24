@@ -152,7 +152,7 @@ h3{font-size:16px}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.3</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.4</p>
 </header>
 
 <main>
@@ -342,14 +342,15 @@ h3{font-size:16px}
 </div>
 
 <div class="settings-section">
-  <h3>Armazenamento</h3>
+  <h3>Armazenamento da família</h3>
   <div class="drive-folder-card">
-    <div><b>Google Drive</b></div>
-    <div class="meta" style="margin-top:4px">Fotos e conteúdo educacional continuam fora do banco D1 nesta fase.</div>
+    <div><b>Google Drive compartilhado</b></div>
+    <div class="meta" style="margin-top:4px">Registros, planejamento, avaliações e fotos ficam no Drive compartilhado. O D1 mantém apenas cadastro, permissões e IDs técnicos.</div>
     <div id="visibleDriveStatus" class="drive-folder-status">Aguardando Drive.</div>
-    <div id="sharedPhotosStatus" class="meta" style="margin-top:6px">Pasta compartilhada ainda não verificada.</div>
+    <div id="sharedPhotosStatus" class="meta" style="margin-top:6px">Armazenamento compartilhado ainda não verificado.</div>
     <div class="toolbar" style="margin-top:9px">
-      <button class="btn" onclick="setupSharedFamilyPhotos()">Preparar/compartilhar pasta</button>
+      <button class="btn success" onclick="prepareSharedFamilyStorage(true)">Preparar armazenamento compartilhado</button>
+      <button class="btn" onclick="syncWithDrive({manual:true})">Sincronizar agora</button>
       <button class="btn" onclick="openSharedFamilyPhotos()">Abrir pasta</button>
       <button class="btn" onclick="organizeExistingPhotos()">Organizar fotos existentes</button>
     </div>
@@ -372,6 +373,12 @@ h3{font-size:16px}
 const GOOGLE_CLIENT_ID = "629410527657-f5b9r4o0jvcvf0517oracmhpvhsj19pn.apps.googleusercontent.com";
 const GOOGLE_SCOPES = "openid email profile https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.file";
 const DRIVE_SYNC_FILE = "diario-estudos-beta.json";
+const FAMILY_SHARED_DATA_FILE = "diario-familia.json";
+const FAMILY_SHARED_PHOTOS_FOLDER = "Fotos";
+const LEGACY_BACKUP_PREFIX = "DE_V44_LEGACY_BACKUP_";
+let sharedFamilyFolderId = "";
+let sharedFamilyDataFileId = "";
+let sharedFamilyPhotosFolderId = "";
 const BACKEND_URL = "https://diario-estudos-api.leonardo-gda.workers.dev";
 let backendProfile = null;
 const BACKEND_FAMILY_ID_KEY = "DE_V422_BACKEND_FAMILY_ID";
@@ -841,18 +848,202 @@ function renderBackendFamilyPanels(){
   }
 }
 
-async function persistFamilyDriveFolder(folderId){const fam=currentBackendFamily();if(!fam||!folderId)return;await backendFetch("/families/drive-folder",{method:"POST",body:JSON.stringify({family_id:fam.id,drive_folder_id:folderId})})}
-async function setupSharedFamilyPhotos(){
- const fam=currentBackendFamily();if(!fam)return alert("Vincule a família ao backend primeiro.");if(!canManageFamily())return alert("Somente administradores podem preparar o compartilhamento.");
- try{
-   const folderId=await ensureVisiblePhotosRoot();await persistFamilyDriveFolder(folderId);
-   const me=(backendProfile?.user?.email||"").toLowerCase();let shared=0,failed=[];
-   for(const m of backendMembers){const email=(m.email||"").toLowerCase();if(!email||email===me)continue;try{await apiFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(folderId)}/permissions?sendNotificationEmail=false`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"user",role:"writer",emailAddress:m.email})});shared++}catch(e){failed.push(m.email)}}
-   if($("sharedPhotosStatus"))$("sharedPhotosStatus").textContent=`Pasta preparada. Compartilhada com ${shared} membro(s)${failed.length?"; falhou para "+failed.join(", "):""}.`;
-   alert("Pasta de fotos preparada para compartilhamento.")
- }catch(e){alert("Não foi possível preparar a pasta: "+e.message)}
+
+async function getBackendFamilyStorage(){
+  const fam=currentBackendFamily();
+  if(!fam)return null;
+  const res=await backendFetch(`/families/${encodeURIComponent(fam.id)}`);
+  return res?.family||null;
 }
-async function openSharedFamilyPhotos(){const fam=currentBackendFamily();if(!fam)return alert("Nenhuma família vinculada.");try{const res=await backendFetch(`/families/${encodeURIComponent(fam.id)}`);const folderId=res?.family?.drive_folder_id||localStorage.getItem(VISIBLE_PHOTOS_ID_KEY)||"";if(!folderId)return alert("A pasta compartilhada ainda não foi configurada.");window.open(`https://drive.google.com/drive/folders/${encodeURIComponent(folderId)}`,"_blank","noopener")}catch(e){alert("Não foi possível abrir a pasta: "+e.message)}}
+
+async function persistFamilyDriveStorage(folderId,dataFileId){
+  const fam=currentBackendFamily();
+  if(!fam)return;
+  await backendFetch("/families/drive-storage",{
+    method:"POST",
+    body:JSON.stringify({
+      family_id:fam.id,
+      drive_folder_id:folderId,
+      drive_data_file_id:dataFileId
+    })
+  });
+}
+
+async function shareFolderWithFamilyMembers(folderId){
+  if(!folderId||!canManageFamily())return;
+  const me=(backendProfile?.user?.email||"").toLowerCase();
+
+  for(const m of backendMembers){
+    const email=(m.email||"").toLowerCase();
+    if(!email||email===me)continue;
+    try{
+      await apiFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(folderId)}/permissions?sendNotificationEmail=false`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          type:"user",
+          role:m.role==="visualizador"?"reader":"writer",
+          emailAddress:m.email
+        })
+      });
+    }catch(e){
+      console.warn("Permissão Drive para",m.email,e);
+    }
+  }
+}
+
+async function findVisibleFile(name,parentId,mimeType=null){
+  const safeName=escapeDriveQueryValue(name);
+  let q=`name='${safeName}' and trashed=false`;
+  if(parentId)q+=` and '${escapeDriveQueryValue(parentId)}' in parents`;
+  if(mimeType)q+=` and mimeType='${escapeDriveQueryValue(mimeType)}'`;
+
+  const fields=encodeURIComponent("files(id,name,mimeType,modifiedTime,parents)");
+  const res=await apiFetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=${fields}&pageSize=20&spaces=drive`);
+  const data=await res.json();
+  return data.files?.[0]||null;
+}
+
+async function createFamilySharedFolder(){
+  const fam=currentBackendFamily();
+  if(!fam)throw new Error("Nenhuma família ativa.");
+  const folder=await createVisibleFolder(`Diário de Estudos - ${fam.name}`);
+  if(!folder?.id)throw new Error("Não foi possível criar a pasta compartilhada.");
+  return folder.id;
+}
+
+async function createSharedJsonFile(parentId){
+  const res=await apiFetch("https://www.googleapis.com/drive/v3/files?fields=id,name,webViewLink",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      name:FAMILY_SHARED_DATA_FILE,
+      mimeType:"application/json",
+      parents:[parentId]
+    })
+  });
+  const meta=await res.json();
+  if(!meta?.id)throw new Error("Não foi possível criar o arquivo compartilhado.");
+
+  await apiFetch(`https://www.googleapis.com/upload/drive/v3/files/${meta.id}?uploadType=media`,{
+    method:"PATCH",
+    headers:{"Content-Type":"application/json;charset=utf-8"},
+    body:JSON.stringify({
+      version:1,
+      updatedAt:now(),
+      entries:[],
+      plans:[],
+      complementaryActivities:[],
+      tombstones:{entries:[],complementary:[],plans:[]}
+    })
+  });
+
+  return meta.id;
+}
+
+async function ensureSharedPhotosFolder(parentId){
+  if(sharedFamilyPhotosFolderId){
+    try{
+      const r=await apiFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(sharedFamilyPhotosFolderId)}?fields=id,name,trashed`);
+      const d=await r.json();
+      if(d?.id&&!d.trashed)return sharedFamilyPhotosFolderId;
+    }catch(e){}
+    sharedFamilyPhotosFolderId="";
+  }
+
+  let found=await findVisibleFolder(FAMILY_SHARED_PHOTOS_FOLDER,parentId);
+  if(!found)found=await createVisibleFolder(FAMILY_SHARED_PHOTOS_FOLDER,parentId);
+  sharedFamilyPhotosFolderId=found.id;
+  return found.id;
+}
+
+async function prepareSharedFamilyStorage(showMessage=false){
+  if(!tokenValid())throw new Error("Entre com Google primeiro.");
+  const fam=currentBackendFamily();
+  if(!fam)throw new Error("Nenhuma família ativa.");
+
+  let remoteFamily=await getBackendFamilyStorage();
+  let folderId=remoteFamily?.drive_folder_id||"";
+  let dataFileId=remoteFamily?.drive_data_file_id||"";
+
+  if(!folderId){
+    if(!canManageFamily()){
+      throw new Error("O administrador ainda precisa preparar o armazenamento compartilhado.");
+    }
+    folderId=await createFamilySharedFolder();
+  }
+
+  sharedFamilyFolderId=folderId;
+
+  if(canManageFamily()){
+    await shareFolderWithFamilyMembers(folderId);
+  }
+
+  if(dataFileId){
+    try{
+      const r=await apiFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(dataFileId)}?fields=id,name,trashed`);
+      const d=await r.json();
+      if(!d?.id||d.trashed)dataFileId="";
+    }catch(e){
+      dataFileId="";
+    }
+  }
+
+  if(!dataFileId){
+    const found=await findVisibleFile(FAMILY_SHARED_DATA_FILE,folderId,"application/json");
+    if(found)dataFileId=found.id;
+  }
+
+  if(!dataFileId){
+    if(currentBackendRole()==="visualizador"){
+      throw new Error("O arquivo compartilhado ainda não foi criado pelo administrador.");
+    }
+    dataFileId=await createSharedJsonFile(folderId);
+  }
+
+  sharedFamilyDataFileId=dataFileId;
+  await ensureSharedPhotosFolder(folderId);
+
+  if(canManageFamily()){
+    await persistFamilyDriveStorage(folderId,dataFileId);
+  }
+
+  localStorage.setItem(VISIBLE_ROOT_ID_KEY,folderId);
+  localStorage.setItem(VISIBLE_PHOTOS_ID_KEY,sharedFamilyPhotosFolderId);
+
+  updateVisibleDriveStatus("Drive compartilhado da família pronto.");
+  if($("sharedPhotosStatus")){
+    $("sharedPhotosStatus").textContent="Registros e fotos usam o mesmo armazenamento da família.";
+  }
+
+  if(showMessage){
+    alert("Armazenamento compartilhado preparado.");
+  }
+
+  return {
+    folderId,
+    dataFileId,
+    photosFolderId:sharedFamilyPhotosFolderId
+  };
+}
+
+async function setupSharedFamilyPhotos(){
+  try{
+    await prepareSharedFamilyStorage(true);
+  }catch(e){
+    alert("Não foi possível preparar o armazenamento: "+e.message);
+  }
+}
+
+async function openSharedFamilyPhotos(){
+  try{
+    const s=await prepareSharedFamilyStorage(false);
+    window.open(`https://drive.google.com/drive/folders/${encodeURIComponent(s.folderId)}`,"_blank","noopener");
+  }catch(e){
+    alert("Não foi possível abrir a pasta: "+e.message);
+  }
+}
+
 function normalizedChildName(name){return String(name||"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")}
 function findPossibleChildDuplicates(){
  const list=state.family.children.filter(c=>!c.archived),pairs=[];
@@ -987,6 +1178,42 @@ function mergeLocalChildData(keepId, removeId){
   if(activeChildId===removeId)activeChildId=keepId;
 }
 
+
+function backupAndRemoveLegacyLocalChildren(){
+  const legacy=state.family.children.filter(c=>c.legacyOrphan);
+  if(!legacy.length)return 0;
+
+  const ids=new Set(legacy.map(c=>c.id));
+  const backup={
+    createdAt:now(),
+    reason:"V4.4 - cadastros locais removidos da área ativa porque não existem no D1",
+    children:JSON.parse(JSON.stringify(legacy)),
+    entries:{},
+    plans:JSON.parse(JSON.stringify(state.plans.filter(p=>ids.has(p.childId))))
+  };
+
+  legacy.forEach(c=>{
+    if(state.entries[c.id]?.length){
+      backup.entries[c.id]=JSON.parse(JSON.stringify(state.entries[c.id]));
+    }
+  });
+
+  try{
+    localStorage.setItem(LEGACY_BACKUP_PREFIX+Date.now(),JSON.stringify(backup));
+  }catch(e){
+    console.warn("Backup local legado:",e);
+  }
+
+  state.family.children=state.family.children.filter(c=>!ids.has(c.id));
+  ids.forEach(id=>delete state.entries[id]);
+  state.plans=state.plans.filter(p=>!ids.has(p.childId));
+
+  const map=getBackendChildMap();
+  Object.keys(map).forEach(id=>{if(ids.has(id))delete map[id]});
+  setBackendChildMap(map);
+  return legacy.length;
+}
+
 async function reconcileChildrenWithBackend(showMessage=false){
  const fam=currentBackendFamily();if(!fam)return false;
  if(!backendChildren.length&&!backendArchivedChildren.length)await loadBackendFamilyData();
@@ -1000,6 +1227,7 @@ async function reconcileChildrenWithBackend(showMessage=false){
    local=state.family.children.find(c=>c.id===localId);if(local){local.name=remote.name||"";local.birth=remote.birth_date||"";local.stage=remote.reference_stage||"Sem ano de referência";local.archived=Number(remote.active)===0;local.backendManaged=true;local.legacyOrphan=false;local.updatedAt=now();kept.add(localId)}
  }
  state.family.children.forEach(c=>{if(!kept.has(c.id)){c.archived=true;c.legacyOrphan=true}});
+ backupAndRemoveLegacyLocalChildren();
  Object.keys(map).forEach(id=>{if(!state.family.children.some(c=>c.id===id))delete map[id]});
  setBackendChildMap(map);state.family.name=fam.name||"Família";state.family.updatedAt=now();
  const active=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan);if(!active.some(c=>c.id===activeChildId))activeChildId=active[0]?.id||null;
@@ -1153,8 +1381,8 @@ function initGoogleAuth(){
       localStorage.setItem(GOOGLE_EMAIL_KEY, googleUser.email);
     }
     updateAuthUI();
-    await syncWithDrive({initial:true});
     await connectBackend();
+    await syncWithDrive({initial:true});
    }catch(e){console.error(e);setCloudStatus("error","Erro ao conectar com Drive")}
   }
  });
@@ -1295,21 +1523,26 @@ async function ensureVisibleDriveRoot(){
   return found.id;
 }
 async function ensureVisiblePhotosRoot(){
+  if(currentBackendFamily()){
+    const s=await prepareSharedFamilyStorage(false);
+    return s.photosFolderId;
+  }
+
   let id=localStorage.getItem(VISIBLE_PHOTOS_ID_KEY)||"";
   if(id){
     try{
       const r=await apiFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(id)}?fields=id,name,trashed`);
       const f=await r.json();
-      if(f && !f.trashed) return id;
+      if(f&&!f.trashed)return id;
     }catch(e){
       localStorage.removeItem(VISIBLE_PHOTOS_ID_KEY);
     }
   }
+
   const rootId=await ensureVisibleDriveRoot();
   let found=await findVisibleFolder(VISIBLE_PHOTOS_FOLDER_NAME,rootId);
-  if(!found) found=await createVisibleFolder(VISIBLE_PHOTOS_FOLDER_NAME,rootId);
+  if(!found)found=await createVisibleFolder(VISIBLE_PHOTOS_FOLDER_NAME,rootId);
   localStorage.setItem(VISIBLE_PHOTOS_ID_KEY,found.id);
-  updateVisibleDriveStatus("Pasta de fotos pronta no Meu Drive.");
   return found.id;
 }
 function safeDriveFolderName(name){
@@ -1322,20 +1555,21 @@ function monthFolderName(date){
   return String(m||1).padStart(2,"0")+" - "+(names[(m||1)-1]||"Mês");
 }
 async function ensureFolderPathForEntry(entry){
-  const photosRoot=await ensureVisiblePhotosRoot();
+  const s=await prepareSharedFamilyStorage(false);
+  const photosRoot=s.photosFolderId;
   const child=state.family.children.find(c=>c.id===entry.childId);
   const childName=safeDriveFolderName(child?.name||"Criança");
 
   let childFolder=await findVisibleFolder(childName,photosRoot);
-  if(!childFolder) childFolder=await createVisibleFolder(childName,photosRoot);
+  if(!childFolder)childFolder=await createVisibleFolder(childName,photosRoot);
 
   const year=(String(entry.date||today()).slice(0,4)||String(new Date().getFullYear()));
   let yearFolder=await findVisibleFolder(year,childFolder.id);
-  if(!yearFolder) yearFolder=await createVisibleFolder(year,childFolder.id);
+  if(!yearFolder)yearFolder=await createVisibleFolder(year,childFolder.id);
 
   const month=monthFolderName(entry.date);
   let monthFolder=await findVisibleFolder(month,yearFolder.id);
-  if(!monthFolder) monthFolder=await createVisibleFolder(month,yearFolder.id);
+  if(!monthFolder)monthFolder=await createVisibleFolder(month,yearFolder.id);
 
   return monthFolder.id;
 }
@@ -1459,6 +1693,190 @@ async function downloadAsDataUrl(id){
  let r=await apiFetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`),b=await r.blob();
  return await new Promise((ok,fail)=>{let fr=new FileReader();fr.onload=()=>ok(fr.result);fr.onerror=fail;fr.readAsDataURL(b)})
 }
+
+function localToBackendChildId(localId){
+  return getBackendChildMap()[localId]||"";
+}
+
+function backendToLocalChildId(backendId){
+  const map=getBackendChildMap();
+  return Object.keys(map).find(localId=>map[localId]===backendId)||"";
+}
+
+function sharedEducationalPayload(){
+  const entries=[];
+
+  Object.entries(state.entries||{}).forEach(([localChildId,list])=>{
+    const backendChildId=localToBackendChildId(localChildId);
+    if(!backendChildId)return;
+
+    (list||[]).forEach(e=>{
+      const copy=JSON.parse(JSON.stringify(e));
+      copy.childId=backendChildId;
+      if(copy.fotoVisibleDriveId||copy.fotoDriveId)copy.foto="";
+      if(copy.audioDriveId)copy.audio="";
+      entries.push(copy);
+    });
+  });
+
+  const plans=(state.plans||[]).flatMap(p=>{
+    const backendChildId=localToBackendChildId(p.childId);
+    if(!backendChildId)return [];
+    return [{...JSON.parse(JSON.stringify(p)),childId:backendChildId}];
+  });
+
+  return {
+    version:1,
+    updatedAt:now(),
+    entries,
+    plans,
+    complementaryActivities:JSON.parse(JSON.stringify(state.complementaryActivities||[])),
+    tombstones:{
+      entries:JSON.parse(JSON.stringify(state.tombstones?.entries||[])),
+      complementary:JSON.parse(JSON.stringify(state.tombstones?.complementary||[])),
+      plans:JSON.parse(JSON.stringify(state.tombstones?.plans||[]))
+    }
+  };
+}
+
+function mergeSharedEducational(local,remote){
+  const tombs={
+    entries:newestTombstones(local.tombstones?.entries,remote?.tombstones?.entries),
+    complementary:newestTombstones(local.tombstones?.complementary,remote?.tombstones?.complementary),
+    plans:newestTombstones(local.tombstones?.plans,remote?.tombstones?.plans)
+  };
+
+  return {
+    version:1,
+    updatedAt:now(),
+    entries:mergeEntities(local.entries,remote?.entries,tombs.entries),
+    plans:mergeEntities(local.plans,remote?.plans,tombs.plans),
+    complementaryActivities:mergeEntities(
+      local.complementaryActivities,
+      remote?.complementaryActivities,
+      tombs.complementary
+    ),
+    tombstones:tombs
+  };
+}
+
+function applySharedEducational(shared){
+  const entries={};
+
+  (shared.entries||[]).forEach(e=>{
+    const localChildId=backendToLocalChildId(e.childId);
+    if(!localChildId)return;
+
+    const copy={...e,childId:localChildId};
+    (entries[localChildId]??=[]).push(copy);
+  });
+
+  Object.values(entries).forEach(a=>{
+    a.sort((x,y)=>String(y.date||"").localeCompare(String(x.date||"")));
+  });
+
+  state.family.children
+    .filter(c=>!c.archived&&!c.legacyOrphan)
+    .forEach(c=>{
+      if(!entries[c.id])entries[c.id]=[];
+    });
+
+  state.entries=entries;
+
+  state.plans=(shared.plans||[]).flatMap(p=>{
+    const localChildId=backendToLocalChildId(p.childId);
+    if(!localChildId)return [];
+    return [{...p,childId:localChildId}];
+  });
+
+  state.complementaryActivities=shared.complementaryActivities||[];
+
+  state.tombstones={
+    ...state.tombstones,
+    entries:shared.tombstones?.entries||[],
+    complementary:shared.tombstones?.complementary||[],
+    plans:shared.tombstones?.plans||[]
+  };
+}
+
+async function readSharedFamilyData(){
+  const s=await prepareSharedFamilyStorage(false);
+  const r=await apiFetch(
+    `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(s.dataFileId)}?alt=media`
+  );
+  const txt=await r.text();
+  if(!txt.trim())return null;
+
+  try{
+    return JSON.parse(txt);
+  }catch(e){
+    throw new Error("O arquivo compartilhado da família está inválido.");
+  }
+}
+
+async function writeSharedFamilyData(payload){
+  const s=await prepareSharedFamilyStorage(false);
+
+  if(currentBackendRole()==="visualizador"){
+    return;
+  }
+
+  await apiFetch(
+    `https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(s.dataFileId)}?uploadType=media`,
+    {
+      method:"PATCH",
+      headers:{"Content-Type":"application/json;charset=utf-8"},
+      body:JSON.stringify(payload)
+    }
+  );
+}
+
+async function syncSharedFamilyDrive(opt={}){
+  if(syncing||!tokenValid())return;
+
+  syncing=true;
+  setCloudStatus("busy","Sincronizando família...");
+
+  try{
+    await loadBackendFamilyData();
+    await reconcileChildrenWithBackend(false);
+
+    await ensureMediaRefs();
+    saveLocal(false);
+
+    const local=sharedEducationalPayload();
+    const remote=await readSharedFamilyData();
+    const merged=mergeSharedEducational(local,remote||{});
+
+    applySharedEducational(merged);
+    saveLocal(false);
+
+    if(currentBackendRole()!=="visualizador"){
+      await writeSharedFamilyData(merged);
+    }
+
+    localStorage.setItem("DE_V2_LAST_SYNC",merged.updatedAt);
+
+    setCloudStatus(
+      "online",
+      "Família sincronizada · "+
+      new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})
+    );
+
+    renderAll();
+    hydrateMedia();
+  }catch(e){
+    console.error(e);
+    setCloudStatus("error","Falha na sincronização compartilhada; dados locais preservados");
+
+    if(opt.manual){
+      alert("Não foi possível sincronizar agora: "+e.message);
+    }
+  }finally{
+    syncing=false;
+  }
+}
+
 function remotePayload(){
  let copy=JSON.parse(JSON.stringify(state));
  Object.values(copy.entries).flat().forEach(e=>{if(e.fotoVisibleDriveId||e.fotoDriveId)e.foto="";if(e.audioDriveId)e.audio=""});
@@ -1469,7 +1887,7 @@ async function uploadState(payload){
  await apiFetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`,{method:"PATCH",headers:{"Content-Type":"application/json;charset=utf-8"},body:JSON.stringify(payload)});
  localStorage.setItem("DE_V2_LAST_SYNC",payload.updatedAt)
 }
-async function syncWithDrive(opt={}){
+async function syncLegacyPrivateDrive(opt={}){
  if(syncing||!tokenValid())return;syncing=true;setCloudStatus("busy","Sincronizando...");
  try{
   await ensureMediaRefs();saveLocal(false);
@@ -1483,6 +1901,12 @@ async function syncWithDrive(opt={}){
   renderAll();hydrateMedia();
  }catch(e){console.error(e);setCloudStatus("error","Falha na sincronização; dados locais preservados");if(opt.manual)alert("Não foi possível sincronizar agora.")}
  finally{syncing=false}
+}
+async function syncWithDrive(opt={}){
+  if(currentBackendFamily()){
+    return await syncSharedFamilyDrive(opt);
+  }
+  return await syncLegacyPrivateDrive(opt);
 }
 
 function renderAll(){
