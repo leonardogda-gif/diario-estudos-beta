@@ -152,7 +152,7 @@ h3{font-size:16px}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.5.4</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.6.0</p>
 </header>
 
 <main>
@@ -363,13 +363,7 @@ h3{font-size:16px}
       <button id="syncSharedStorageBtn" class="btn hidden" onclick="syncWithDrive({manual:true})">Sincronizar agora</button>
       <button id="openSharedStorageBtn" class="btn hidden" onclick="openSharedFamilyPhotos()">Abrir no Drive</button>
     </div>
-    <details style="margin-top:10px">
-      <summary class="meta" style="cursor:pointer">Opções avançadas</summary>
-      <div class="toolbar" style="margin-top:8px">
-        <button class="btn small" onclick="organizeExistingPhotos()">Organizar fotos antigas</button>
-        <button class="btn small" onclick="repairSharedFamilyData()">Reparar/migrar registros antigos</button>
-      </div>
-    </details>
+
   </div>
 </div>
 
@@ -378,11 +372,9 @@ h3{font-size:16px}
   <div class="notice"><label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer"><input id="rememberGoogle" type="checkbox" style="width:auto;margin-top:2px" onchange="setRememberGoogle(this.checked)"><span><b>Manter esta conta conectada neste dispositivo</b><br><span class="meta">A preferência é salva localmente; o token Google não é armazenado permanentemente.</span></span></label></div>
 </div>
 
-<div class="settings-section"><h3>Backup</h3><div class="toolbar"><button class="btn" onclick="shareBackup()">Compartilhar backup</button><button class="btn" onclick="makeBackup()">Salvar backup</button><label class="btn">Restaurar<input type="file" accept=".json" style="display:none" onchange="restoreBackup(event)"></label></div></div>
 
-<div class="settings-section"><h3>Limpeza deste dispositivo</h3><div class="notice">Use somente durante o beta para remover dados antigos salvos neste navegador. Isso não apaga a família compartilhada do backend nem arquivos do Drive.</div><button class="btn danger" style="margin-top:10px" onclick="resetLocalBetaData()">Apagar dados locais antigos</button></div>
 
-<details class="tech-details"><summary>Diagnóstico técnico do beta</summary><div class="drive-folder-card" style="margin-top:8px"><div id="backendDetails" class="meta">Aguardando backend.</div><div id="backendFamilyInfo" class="meta" style="margin-top:6px"></div><div id="backendFamilyChooser" class="hidden"></div><div class="toolbar" style="margin-top:8px"><button class="btn small" onclick="testBackendConnection()">Testar backend</button><button id="syncFamilyBtn" class="btn small hidden" onclick="syncFamilyFromBackend(true)">Atualizar família</button><button id="linkFamilyBtn" class="btn small hidden" onclick="linkCurrentFamilyToBackend()">Vincular família local</button></div></div></details>
+<details class="tech-details"><summary>Diagnóstico técnico do beta</summary><div class="drive-folder-card" style="margin-top:8px"><div id="backendDetails" class="meta">Aguardando backend.</div><div id="backendFamilyInfo" class="meta" style="margin-top:6px"></div><div id="backendFamilyChooser" class="hidden"></div><div class="toolbar" style="margin-top:8px"><button class="btn small" onclick="testBackendConnection()">Testar backend</button><button id="syncFamilyBtn" class="btn small hidden" onclick="syncFamilyFromBackend(true)">Atualizar família</button><button id="linkFamilyBtn" class="btn small hidden" onclick="linkCurrentFamilyToBackend()">Vincular família local</button></div><hr style="margin:12px 0"><div class="meta">Ferramentas temporárias do beta</div><button class="btn danger small" style="margin-top:8px" onclick="resetLocalBetaData()">Apagar dados locais deste dispositivo</button></div></details>
 </div></section>
   </div>
 </main>
@@ -436,6 +428,7 @@ let state={
  bncc:null
 };
 let activeChildId=null,editing=null,photoData="",audioData="",mediaRecorder=null,mediaChunks=[],historyBatchRows=[];
+let photoTakenAt="",photoDateSource="";
 let saveEntryLocked=false;
 let googleTokenClient=null,googleAccessToken="",googleTokenExpiresAt=0,googleUser=null,driveFileId=null,syncing=false,syncTimer=null;
 
@@ -445,6 +438,67 @@ function uid(){return (crypto?.randomUUID?.()||Date.now().toString(36)+Math.rand
 function now(){return new Date().toISOString()}
 function today(){let d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function fmtDate(x){if(!x)return"";let p=x.split("-");return p.length===3?p[2]+"/"+p[1]+"/"+p[0]:x}
+function fmtDateTime(x){
+ if(!x)return "";
+ const d=new Date(x);if(Number.isNaN(d.getTime()))return String(x);
+ return d.toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
+}
+function isoDateFromTimestamp(x){
+ if(!x)return "";const d=new Date(x);if(Number.isNaN(d.getTime()))return "";
+ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function photoSourceLabel(src){return src==="exif"?"EXIF da foto":src==="file"?"data do arquivo":""}
+
+async function readPhotoTimestamp(file){
+ // JPEG EXIF DateTimeOriginal (0x9003). Se não houver, usa lastModified apenas como sugestão.
+ try{
+  const buf=await file.arrayBuffer(),v=new DataView(buf);
+  if(v.getUint16(0,false)!==0xFFD8)throw new Error("not jpeg");
+  let off=2;
+  while(off+4<v.byteLength){
+   if(v.getUint8(off)!==0xFF){off++;continue}
+   const marker=v.getUint8(off+1),len=v.getUint16(off+2,false);
+   if(marker===0xE1 && off+4+len<=v.byteLength){
+    const exif=off+4;
+    if(String.fromCharCode(...new Uint8Array(buf,exif,4))==="Exif"){
+     const tiff=exif+6,little=v.getUint16(tiff,false)===0x4949;
+     const u16=o=>v.getUint16(o,little),u32=o=>v.getUint32(o,little);
+     const ifd0=tiff+u32(tiff+4),n=u16(ifd0);
+     let exifIfd=0;
+     for(let i=0;i<n;i++){const e=ifd0+2+i*12;if(u16(e)===0x8769)exifIfd=tiff+u32(e+8)}
+     if(exifIfd){
+      const en=u16(exifIfd);
+      for(let i=0;i<en;i++){
+       const e=exifIfd+2+i*12,tag=u16(e),type=u16(e+2),count=u32(e+4);
+       if(tag===0x9003 && type===2 && count>=19){
+        const ptr=count<=4?e+8:tiff+u32(e+8);
+        let str="";for(let j=0;j<count-1&&ptr+j<v.byteLength;j++)str+=String.fromCharCode(v.getUint8(ptr+j));
+        const m=str.match(/(\d{4}):(\d{2}):(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/);
+        if(m)return {at:`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}`,source:"exif"};
+       }
+      }
+     }
+    }
+   }
+   if(!len||len<2)break;off+=2+len;
+  }
+ }catch(e){}
+ if(file.lastModified){return {at:new Date(file.lastModified).toISOString(),source:"file"}}
+ return {at:"",source:""};
+}
+function usePhotoDate(){
+ const d=isoDateFromTimestamp(photoTakenAt);if(!d)return;
+ if($("fDate"))$("fDate").value=d;
+ saveRecordDraft(true);
+ renderPhotoDateHint();
+}
+function renderPhotoDateHint(){
+ const wrap=$("photoPreviewWrap");if(!wrap||!photoData||!photoTakenAt)return;
+ let hint=$("photoDateHint");
+ if(!hint){hint=document.createElement("div");hint.id="photoDateHint";hint.className="meta";hint.style.marginTop="6px";wrap.appendChild(hint)}
+ const d=isoDateFromTimestamp(photoTakenAt),same=$("fDate")?.value===d;
+ hint.innerHTML=`Foto: ${esc(fmtDateTime(photoTakenAt))} · ${esc(photoSourceLabel(photoDateSource))}${same?" · <b>data da atividade</b>":` <button type="button" class="btn small" onclick="usePhotoDate()">Usar esta data</button>`}`;
+}
 function ts(x){return Date.parse(x||0)||0}
 function currentBncc(){return state.bncc?.length?state.bncc:BASE_BNCC}
 function currentChild(){
@@ -1076,13 +1130,17 @@ function renderSharedStorageStatus(ready=false,message=""){
 
 async function prepareSharedFamilyStorage(showMessage=false){
   if(!tokenValid())throw new Error("Entre com Google primeiro.");
-  renderSharedStorageStatus(false,"Configurando o Drive compartilhado...");
   const fam=currentBackendFamily();
   if(!fam)throw new Error("Nenhuma família ativa.");
 
   let remoteFamily=await getBackendFamilyStorage();
   let folderId=remoteFamily?.drive_folder_id||"";
   let dataFileId=remoteFamily?.drive_data_file_id||"";
+  if(showMessage && (!folderId || !dataFileId)){
+    const badge=$("sharedStorageBadge"),status=$("sharedStorageStatus");
+    if(status)status.textContent="Configurando o Drive compartilhado...";
+    if(badge){badge.textContent="Configurando";badge.className="badge progress";}
+  }
 
   if(!folderId){
     if(!canManageFamily()){
@@ -2061,7 +2119,8 @@ function sharedEntityIds(payload){
 }
 function missingLocalEntryIds(localPayload,remotePayload){
   const remoteIds=sharedEntityIds(remotePayload);
-  return (localPayload?.entries||[]).map(x=>x.id).filter(id=>id&&!remoteIds.has(id));
+  const tombIds=new Set([...(localPayload?.tombstones?.entries||[]),...(remotePayload?.tombstones?.entries||[])].map(x=>x.id));
+  return (localPayload?.entries||[]).map(x=>x.id).filter(id=>id&&!tombIds.has(id)&&!remoteIds.has(id));
 }
 function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
 
@@ -2151,7 +2210,7 @@ async function syncSharedFamilyDrive(opt={}){
       "Família sincronizada · "+
       new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})
     );
-    renderSharedStorageStatus(true,"Ativo · sincronizado agora.");
+    renderSharedStorageStatus(true,"Ativo · última sincronização "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})+".");
 
     renderAll();
     hydrateMedia();
@@ -2223,7 +2282,7 @@ function renderChildButtons(targetId,onClickName="selectChild"){
  box.innerHTML=children.map(c=>`<button class="child ${c.id===activeChildId?"active":""}" onclick="${onClickName}('${c.id}')">${esc(c.name)}<br><small>${esc(c.stage)}</small></button>`).join("")
    ||`<span class='notice'>${(backendProfile?.pendingInvites||[]).length?"Aceite o convite da família em Configurações.":"Cadastre uma família e uma criança em Configurações."}</span>`;
 }
-function selectChild(id){activeChildId=id;editing=null;photoData="";audioData="";renderAll()}
+function selectChild(id){activeChildId=id;editing=null;photoData="";audioData="";photoTakenAt="";photoDateSource="";renderAll()}
 
 function addResponsible(){
  const name=$("respName")?.value.trim()||"";if(!name)return alert("Informe o nome do responsável.");
@@ -2268,7 +2327,7 @@ async function addChild(){
  const name=$("childName").value.trim();if(!name)return alert("Informe o nome.");const birth=$("childBirth").value||"",stage=$("childStage").value||"Sem ano de referência",start=prompt("Data de início deste ano de referência (AAAA-MM-DD)",today());if(start===null)return;
  try{const created=await backendFetch("/children",{method:"POST",body:JSON.stringify({family_id:fam.id,name,birth_date:birth||null,reference_stage:stage||null,notes:null})});if(!created?.child?.id)throw new Error("Cadastro não retornado pelo backend.");const localId=uid(),c={id:localId,name,birth,stage,stageHistory:[{stage,startDate:start||today(),endDate:""}],archived:false,backendManaged:true,createdAt:now(),updatedAt:now()};state.family.children.push(c);const map=getBackendChildMap();map[localId]=created.child.id;setBackendChildMap(map);activeChildId=localId;$("childName").value="";$("childBirth").value="";saveLocal();await loadBackendFamilyData();await reconcileChildrenWithBackend(false)}catch(e){alert("Não foi possível cadastrar: "+e.message)}
 }
-function addTomb(type,id){state.tombstones[type]??=[];state.tombstones[type].push({id,deletedAt:now()})}
+function addTomb(type,id,extra={}){state.tombstones[type]??=[];const t={id,deletedAt:now(),...extra};state.tombstones[type]=state.tombstones[type].filter(x=>x.id!==id);state.tombstones[type].push(t);return t}
 function deleteChild(id){
  if(!confirm("Excluir esta criança e seus registros?"))return;
  state.family.children=state.family.children.filter(x=>x.id!==id);addTomb("children",id);
@@ -2375,7 +2434,9 @@ function collectRecordDraft(){
    atividade:$("fActivity")?.value||"",
    observacoes:$("fObs")?.value||"",
    status:$("fStatus")?.value||"",
-   photoData:photoData||editing?.foto||""
+   photoData:photoData||editing?.foto||"",
+   photoTakenAt:photoTakenAt||editing?.photoTakenAt||"",
+   photoDateSource:photoDateSource||editing?.photoDateSource||""
  };
 }
 function saveRecordDraft(immediate=false){
@@ -2451,6 +2512,8 @@ function renderRecordPage(){
  const scope=draft?.scope||"referencia";
  const search=draft?.search||"";
  photoData=draft?.photoData||photoData||editing?.foto||"";
+ photoTakenAt=draft?.photoTakenAt||photoTakenAt||editing?.photoTakenAt||"";
+ photoDateSource=draft?.photoDateSource||photoDateSource||editing?.photoDateSource||"";
 
  let comps=AREAS[f.area]||[];
  let skills=f.componente?skillsForScope(f.componente,child.stage,scope,f.codigo):[];
@@ -2488,6 +2551,7 @@ function renderRecordPage(){
  <div class="card"><h3>Atividades registradas</h3><input id="recordSearch" placeholder="Buscar..." oninput="renderRecordList()"><div id="recordList"></div></div>`;
 
  bindRecordDraft();
+ if(photoData&&photoTakenAt)renderPhotoDateHint();
  if(search.length>=2)refreshGlobalSearch();
  renderRecordList();
 }
@@ -2556,10 +2620,13 @@ function componentChanged(){
 }
 function skillChanged(){let o=$("fSkill").selectedOptions[0];$("fCode").value=o?.dataset.code||"";saveRecordDraft(true)}
 
-function readPhoto(ev){
+async function readPhoto(ev){
  saveRecordDraft(true);
  let f=ev.target.files[0];
  if(!f)return;
+ const meta=await readPhotoTimestamp(f);
+ photoTakenAt=meta.at||"";
+ photoDateSource=meta.source||"";
 
  let fr=new FileReader();
  fr.onload=()=>{
@@ -2572,22 +2639,19 @@ function readPhoto(ev){
      photoData=c.toDataURL("image/jpeg",.72);
 
      let wrap=$("photoPreviewWrap");
-     if(wrap)wrap.innerHTML=`<img id="photoPreviewImg" class="photo" src="${photoData}">`;
-
-     // Guarda também a foto no rascunho. Se a página for recriada, os campos voltam.
+     if(wrap){wrap.innerHTML=`<img id="photoPreviewImg" class="photo" src="${photoData}">`;renderPhotoDateHint();}
      saveRecordDraft(true);
    };
    img.src=fr.result;
  };
  fr.readAsDataURL(f);
 }
-
 function saveEntry(){
  if(saveEntryLocked)return;
  saveEntryLocked=true;
  try{
  let type=$("fType").value,compId=$("fComplementary")?.value||"",comp=state.complementaryActivities.find(x=>x.id===compId),missing=[];
- let e={id:editing?.id||uid(),childId:activeChildId,createdAt:editing?.createdAt||now(),updatedAt:now(),date:$("fDate").value,type,yearRefAtRecord:currentChild()?.stage||"",complementaryId:type==="complementar"?compId:"",
+ let e={id:editing?.id||uid(),childId:activeChildId,createdAt:editing?.createdAt||now(),updatedAt:now(),date:$("fDate").value,activityDateSource:(photoTakenAt&&isoDateFromTimestamp(photoTakenAt)===$("fDate").value)?(photoDateSource==="exif"?"photo_exif":"photo_file"):(editing?.activityDateSource||"manual"),photoTakenAt:photoTakenAt||editing?.photoTakenAt||"",photoDateSource:photoDateSource||editing?.photoDateSource||"",type,yearRefAtRecord:currentChild()?.stage||"",complementaryId:type==="complementar"?compId:"",
  area:type==="bncc"?$("fArea").value:"Atividades Complementares",componente:type==="bncc"?$("fComp").value:(comp?.category||"Atividade Complementar"),codigo:type==="bncc"?$("fCode").value:"",
  habilidade:type==="bncc"?$("fSkill").value:(comp?.name||""),atividade:$("fActivity").value.trim(),observacoes:$("fObs").value.trim(),status:$("fStatus").value,
  foto:photoData||editing?.foto||"",fotoDriveId:editing?.fotoDriveId||"",fotoVisibleDriveId:editing?.fotoVisibleDriveId||"",audio:editing?.audio||"",audioDriveId:editing?.audioDriveId||""};
@@ -2602,7 +2666,7 @@ function saveEntry(){
  }
  let l=state.entries[activeChildId]||[];state.entries[activeChildId]=editing?l.map(x=>x.id===editing.id?e:x):[e,...l];
  if(planIdToComplete)completePlanOccurrence(planIdToComplete,planOccurrenceDate);
- editing=null;photoData="";audioData="";
+ editing=null;photoData="";audioData="";photoTakenAt="";photoDateSource="";
  clearRecordDraft(savedChildId);
  saveLocal();
  // Não persiste novamente os campos usados no registro concluído.
@@ -2611,16 +2675,53 @@ function saveEntry(){
    saveEntryLocked=false;
  }
 }
-function renderRecordList(){let box=$("recordList");if(!box)return;let q=($("recordSearch")?.value||"").toLowerCase(),l=(state.entries[activeChildId]||[]).filter(x=>(x.atividade+" "+x.habilidade+" "+x.codigo+" "+x.observacoes).toLowerCase().includes(q));box.innerHTML=l.map(x=>`<div class="entry ${x.status==="Dominado"?"done":x.status==="Precisa de revisão"?"focus":"progress"}"><div class="meta">${fmtDate(x.date)} · ${esc(x.componente)} ${x.codigo?"· "+esc(x.codigo):""}</div><div class="entry-title">${esc(x.atividade)}</div>${x.habilidade?`<div class="skill">${esc(x.habilidade)}</div>`:""}${x.observacoes?`<div class="obs">${esc(x.observacoes)}</div>`:""}<span class="badge">${esc(x.status)}</span>${x.foto?`<br><img class="photo" src="${x.foto}">`:""}${x.audio?`<div class="audio-box"><audio controls src="${x.audio}"></audio></div>`:""}<div class="entry-actions"><button class="btn small" onclick="editEntry('${x.id}')">Editar</button><button class="btn danger small" onclick="deleteEntry('${x.id}')">Excluir</button></div></div>`).join("")||"<div class='notice'>Nenhum registro.</div>"}
+function renderRecordList(){
+ let box=$("recordList");if(!box)return;
+ let q=($("recordSearch")?.value||"").toLowerCase(),l=(state.entries[activeChildId]||[]).filter(x=>(x.atividade+" "+x.habilidade+" "+x.codigo+" "+x.observacoes).toLowerCase().includes(q));
+ box.innerHTML=l.map(x=>{
+   const dateSource=x.activityDateSource==="photo_exif"?"foto (EXIF)":x.activityDateSource==="photo_file"?"arquivo da foto":"informada pelo responsável";
+   const changed=x.updatedAt&&x.createdAt&&Math.abs(ts(x.updatedAt)-ts(x.createdAt))>1000;
+   return `<div class="entry ${x.status==="Dominado"?"done":x.status==="Precisa de revisão"?"focus":"progress"}">
+    <div class="meta">${fmtDate(x.date)} · ${esc(x.componente)} ${x.codigo?"· "+esc(x.codigo):""}</div>
+    <div class="entry-title">${esc(x.atividade)}</div>${x.habilidade?`<div class="skill">${esc(x.habilidade)}</div>`:""}${x.observacoes?`<div class="obs">${esc(x.observacoes)}</div>`:""}
+    <span class="badge">${esc(x.status)}</span>${x.foto?`<br><img class="photo" src="${x.foto}">`:""}${x.audio?`<div class="audio-box"><audio controls src="${x.audio}"></audio></div>`:""}
+    <details class="tech-details" style="margin-top:8px"><summary class="meta">Datas do registro</summary><div class="meta" style="margin-top:5px">Atividade: ${esc(fmtDate(x.date))} · origem: ${esc(dateSource)}<br>Registrado em: ${esc(fmtDateTime(x.createdAt))}${changed?`<br>Alterado em: ${esc(fmtDateTime(x.updatedAt))}`:""}${x.photoTakenAt?`<br>Foto: ${esc(fmtDateTime(x.photoTakenAt))} · ${esc(photoSourceLabel(x.photoDateSource))}`:""}</div></details>
+    <div class="entry-actions"><button class="btn small" onclick="editEntry('${x.id}')">Editar</button><button class="btn danger small" onclick="deleteEntry('${x.id}')">Excluir</button></div>
+   </div>`;
+ }).join("")||"<div class='notice'>Nenhum registro.</div>";
+}
 function editEntry(id){
  clearRecordDraft(activeChildId);
  editing=(state.entries[activeChildId]||[]).find(x=>x.id===id);
- photoData=editing?.foto||"";audioData=editing?.audio||"";
+ photoData=editing?.foto||"";audioData=editing?.audio||"";photoTakenAt=editing?.photoTakenAt||"";photoDateSource=editing?.photoDateSource||"";
  renderRecordPage();saveRecordDraft(true);
  window.scrollTo({top:0,behavior:"smooth"})
 }
-function cancelEdit(){clearRecordDraft(activeChildId);editing=null;photoData="";audioData="";renderRecordPage()}
-function deleteEntry(id){if(!confirm("Excluir este registro?"))return;state.entries[activeChildId]=(state.entries[activeChildId]||[]).filter(x=>x.id!==id);addTomb("entries",id);saveLocal();renderAll()}
+function cancelEdit(){clearRecordDraft(activeChildId);editing=null;photoData="";audioData="";photoTakenAt="";photoDateSource="";renderRecordPage()}
+async function deleteDriveMediaBestEffort(entry){
+ const ids=[entry?.fotoVisibleDriveId,entry?.fotoDriveId,entry?.audioDriveId].filter(Boolean);
+ for(const id of [...new Set(ids)]){
+  try{await apiFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(id)}`,{method:"DELETE"})}catch(e){console.warn("Não foi possível excluir mídia órfã",id,e)}
+ }
+}
+async function deleteEntry(id){
+ const entry=(state.entries[activeChildId]||[]).find(x=>x.id===id);if(!entry)return;
+ if(!confirm(`Excluir este registro da família?\n\n${entry.atividade||"Registro"}\n\nEle será removido para todos os responsáveis.`))return;
+ if(!confirm("Confirma a exclusão definitiva? Esta ação não poderá ser desfeita pelo aplicativo."))return;
+ const backendChildId=localToBackendChildId(activeChildId);
+ state.entries[activeChildId]=(state.entries[activeChildId]||[]).filter(x=>x.id!==id);
+ addTomb("entries",id,{childId:backendChildId||"",deletedBy:backendProfile?.user?.email||""});
+ saveLocal(false);renderAll(true);
+ setCloudStatus("pending","Exclusão aguardando sincronização");
+ try{
+   if(tokenValid()&&currentBackendFamily())await syncSharedFamilyDrive({manual:true});
+   // Só remove os arquivos físicos depois que a exclusão foi registrada no JSON compartilhado.
+   if(tokenValid())await deleteDriveMediaBestEffort(entry);
+ }catch(e){
+   console.error(e);
+   setCloudStatus("pending","Exclusão salva; será sincronizada quando possível");
+ }
+}
 
 
 function togglePlanRecurrenceOptions(){const mode=$("planRecurrence")?.value||"none";$("planWeekdaysBox")?.classList.toggle("hidden",mode!=="weekdays")}
