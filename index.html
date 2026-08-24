@@ -152,7 +152,7 @@ h3{font-size:16px}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.4</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.4.1</p>
 </header>
 
 <main>
@@ -352,7 +352,7 @@ h3{font-size:16px}
       <button class="btn success" onclick="prepareSharedFamilyStorage(true)">Preparar armazenamento compartilhado</button>
       <button class="btn" onclick="syncWithDrive({manual:true})">Sincronizar agora</button>
       <button class="btn" onclick="openSharedFamilyPhotos()">Abrir pasta</button>
-      <button class="btn" onclick="organizeExistingPhotos()">Organizar fotos existentes</button>
+      <button class="btn" onclick="organizeExistingPhotos()">Organizar fotos existentes</button><button class="btn" onclick="repairSharedFamilyData()">Reparar/migrar registros</button>
     </div>
   </div>
 </div>
@@ -1027,6 +1027,22 @@ async function prepareSharedFamilyStorage(showMessage=false){
   };
 }
 
+
+async function repairSharedFamilyData(){
+  if(!tokenValid())return alert("Entre com Google primeiro.");
+  try{
+    const result=recoverLegacyBackupsIntoCanonicalChildren();
+    await syncWithDrive({manual:true});
+    if(result.recoveredEntries||result.recoveredPlans){
+      alert(`Recuperados ${result.recoveredEntries} registro(s) antigo(s) e ${result.recoveredPlans} planejamento(s).`);
+    }else{
+      alert("Sincronização de reparo concluída.");
+    }
+  }catch(e){
+    alert("Não foi possível reparar/migrar os registros: "+e.message);
+  }
+}
+
 async function setupSharedFamilyPhotos(){
   try{
     await prepareSharedFamilyStorage(true);
@@ -1231,7 +1247,7 @@ async function reconcileChildrenWithBackend(showMessage=false){
  Object.keys(map).forEach(id=>{if(!state.family.children.some(c=>c.id===id))delete map[id]});
  setBackendChildMap(map);state.family.name=fam.name||"Família";state.family.updatedAt=now();
  const active=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan);if(!active.some(c=>c.id===activeChildId))activeChildId=active[0]?.id||null;
- saveLocal();renderAll();if(showMessage)alert("Família e crianças atualizadas pelo backend.");return true;
+ saveLocal(false);renderAll();if(showMessage)alert("Família e crianças atualizadas pelo backend.");return true;
 }
 
 async function syncFamilyFromBackend(showMessage=false){
@@ -1694,6 +1710,78 @@ async function downloadAsDataUrl(id){
  return await new Promise((ok,fail)=>{let fr=new FileReader();fr.onload=()=>ok(fr.result);fr.onerror=fail;fr.readAsDataURL(b)})
 }
 
+
+function normalizedFirstName(name){
+  return normalizedChildName(name).split(/\s+/).filter(Boolean)[0]||"";
+}
+
+function findCanonicalLocalChildForLegacy(legacyChild){
+  const active=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan);
+  let matches=active.filter(c=>normalizedChildName(c.name)===normalizedChildName(legacyChild.name));
+  if(matches.length===1)return matches[0];
+
+  const birth=String(legacyChild.birth||"").trim();
+  if(birth){
+    matches=active.filter(c=>String(c.birth||"").trim()===birth);
+    if(matches.length===1)return matches[0];
+  }
+
+  const first=normalizedFirstName(legacyChild.name);
+  if(first){
+    matches=active.filter(c=>normalizedFirstName(c.name)===first);
+    if(matches.length===1)return matches[0];
+  }
+  return null;
+}
+
+function recoverLegacyBackupsIntoCanonicalChildren(){
+  let recoveredEntries=0,recoveredPlans=0;
+  const keys=[];
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i);
+    if(key?.startsWith(LEGACY_BACKUP_PREFIX))keys.push(key);
+  }
+
+  for(const key of keys){
+    let backup=null;
+    try{backup=JSON.parse(localStorage.getItem(key)||"null")}catch(e){}
+    if(!backup||backup.migratedAt)continue;
+
+    let migratedAny=false;
+
+    for(const legacyChild of (backup.children||[])){
+      const target=findCanonicalLocalChildForLegacy(legacyChild);
+      if(!target)continue;
+
+      state.entries[target.id]??=[];
+      const known=new Set(state.entries[target.id].map(e=>e.id));
+
+      for(const e of (backup.entries?.[legacyChild.id]||[])){
+        if(!e?.id||known.has(e.id))continue;
+        state.entries[target.id].push({...e,childId:target.id,updatedAt:e.updatedAt||e.createdAt||now()});
+        known.add(e.id);
+        recoveredEntries++;
+        migratedAny=true;
+      }
+
+      for(const p of (backup.plans||[]).filter(x=>x.childId===legacyChild.id)){
+        if(state.plans.some(x=>x.id===p.id))continue;
+        state.plans.push({...p,childId:target.id,updatedAt:p.updatedAt||p.createdAt||now()});
+        recoveredPlans++;
+        migratedAny=true;
+      }
+    }
+
+    if(migratedAny){
+      backup.migratedAt=now();
+      try{localStorage.setItem(key,JSON.stringify(backup))}catch(e){}
+    }
+  }
+
+  if(recoveredEntries||recoveredPlans)saveLocal(false);
+  return {recoveredEntries,recoveredPlans};
+}
+
 function localToBackendChildId(localId){
   return getBackendChildMap()[localId]||"";
 }
@@ -1799,6 +1887,16 @@ function applySharedEducational(shared){
   };
 }
 
+
+function sharedEntityIds(payload){
+  return new Set((payload?.entries||[]).map(x=>x.id).filter(Boolean));
+}
+function missingLocalEntryIds(localPayload,remotePayload){
+  const remoteIds=sharedEntityIds(remotePayload);
+  return (localPayload?.entries||[]).map(x=>x.id).filter(id=>id&&!remoteIds.has(id));
+}
+function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
+
 async function readSharedFamilyData(){
   const s=await prepareSharedFamilyStorage(false);
   const r=await apiFetch(
@@ -1841,18 +1939,41 @@ async function syncSharedFamilyDrive(opt={}){
     await loadBackendFamilyData();
     await reconcileChildrenWithBackend(false);
 
+    recoverLegacyBackupsIntoCanonicalChildren();
+
     await ensureMediaRefs();
     saveLocal(false);
 
     const local=sharedEducationalPayload();
-    const remote=await readSharedFamilyData();
-    const merged=mergeSharedEducational(local,remote||{});
+
+    const remote1=await readSharedFamilyData();
+    let merged=mergeSharedEducational(local,remote1||{});
+
+    const remote2=await readSharedFamilyData();
+    merged=mergeSharedEducational(merged,remote2||{});
 
     applySharedEducational(merged);
     saveLocal(false);
 
     if(currentBackendRole()!=="visualizador"){
       await writeSharedFamilyData(merged);
+
+      await sleep(300);
+      let verify=await readSharedFamilyData();
+      const missing=missingLocalEntryIds(local,verify||{});
+
+      if(missing.length){
+        merged=mergeSharedEducational(mergeSharedEducational(local,verify||{}),merged);
+        await writeSharedFamilyData(merged);
+        await sleep(250);
+        verify=await readSharedFamilyData();
+      }
+
+      if(verify){
+        merged=mergeSharedEducational(merged,verify);
+        applySharedEducational(merged);
+        saveLocal(false);
+      }
     }
 
     localStorage.setItem("DE_V2_LAST_SYNC",merged.updatedAt);
@@ -1868,10 +1989,7 @@ async function syncSharedFamilyDrive(opt={}){
   }catch(e){
     console.error(e);
     setCloudStatus("error","Falha na sincronização compartilhada; dados locais preservados");
-
-    if(opt.manual){
-      alert("Não foi possível sincronizar agora: "+e.message);
-    }
+    if(opt.manual)alert("Não foi possível sincronizar agora: "+e.message);
   }finally{
     syncing=false;
   }
