@@ -152,7 +152,7 @@ h3{font-size:16px}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.5.1</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.5.2</p>
 </header>
 
 <main>
@@ -1174,6 +1174,43 @@ function renderDuplicateChildren(){
    <div class="meta" style="margin-top:4px">Use “Reconciliar crianças com o backend” para preservar registros e consolidar os cadastros compatíveis.</div>
  </div>`).join("");
 }
+
+async function inviteFamilyMember(){
+  const fam=currentBackendFamily();
+  if(!fam)return alert("Crie ou selecione uma família primeiro.");
+  if(!canManageFamily())return alert("Somente administradores podem convidar responsáveis.");
+
+  const email=String($("inviteEmail")?.value||"").trim().toLowerCase();
+  const role=String($("inviteRole")?.value||"responsavel");
+
+  if(!email || !email.includes("@")){
+    return alert("Informe um e-mail válido.");
+  }
+
+  const me=String(backendProfile?.user?.email||"").trim().toLowerCase();
+  if(email===me)return alert("Este e-mail já é o seu acesso.");
+
+  try{
+    const result=await backendFetch("/invites",{
+      method:"POST",
+      body:JSON.stringify({
+        family_id:fam.id,
+        email,
+        role
+      })
+    });
+
+    if($("inviteEmail"))$("inviteEmail").value="";
+    await refreshBackendProfile();
+    await loadBackendFamilyData();
+    renderAll();
+    alert("Convite criado para "+email+". Agora entre no Diário de Estudos com essa conta para aceitar o convite.");
+    return result;
+  }catch(e){
+    alert("Não foi possível criar o convite: "+e.message);
+  }
+}
+
 async function acceptInvite(id){
   try{
     const accepted=await backendFetch("/invites/accept",{method:"POST",body:JSON.stringify({invite_id:id})});
