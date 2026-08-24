@@ -100,8 +100,24 @@ h3{font-size:16px}
 .path-box b{display:block;font-size:18px}
 .drive-folder-card{background:#F3EFE3;border-radius:9px;padding:12px;margin-top:8px}
 .drive-folder-status{font-size:12px;color:#625F56;margin-top:6px}
+.member-row,.invite-row,.archived-child-row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid #E8E1D2}
+.member-row:last-child,.invite-row:last-child,.archived-child-row:last-child{border-bottom:0}
+.role-badge{display:inline-block;padding:2px 7px;border-radius:10px;background:#E9E4D8;font-size:11px;font-weight:800}
+.role-badge.admin{background:#17332A;color:#fff}
 @media(max-width:720px){.profile-grid,.path-grid{grid-template-columns:1fr}}
 
+
+.recurrence-box{background:#F7F3EA;border:1px solid #E2DCCD;border-radius:9px;padding:10px}
+.weekdays{display:flex;gap:6px;flex-wrap:wrap}
+.weekdays label{display:flex;align-items:center;gap:4px;background:#EEE8DA;border-radius:8px;padding:6px 8px;font-size:12px;cursor:pointer}
+.weekdays input{width:auto}
+.photo-import-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.photo-import-card{border:1px solid #E2DCCD;border-radius:8px;padding:9px;background:#FFFDF8}
+.photo-import-card img{width:100%;height:120px;object-fit:cover;border-radius:6px}
+.duplicate-card{border:1px solid #E3C3BC;background:#FFF4F1;border-radius:9px;padding:10px;margin-top:8px}
+.ai-soon{background:#F3EFE3;border:1px dashed #B9B1A1;border-radius:8px;padding:9px;font-size:12px;color:#666157}
+@media(max-width:720px){.photo-import-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.photo-import-grid{grid-template-columns:1fr}}
 @media(max-width:780px){
  .dashboard-grid{grid-template-columns:1fr}
  .report-filters{grid-template-columns:1fr 1fr}
@@ -129,7 +145,7 @@ h3{font-size:16px}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.2.2</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.2.4</p>
 </header>
 
 <main>
@@ -182,20 +198,22 @@ h3{font-size:16px}
     </section>
 
     <section id="page-planejamento" class="page">
-      <div class="card">
-        <h2>Planejamento</h2>
-        <div class="grid">
-          <div><label class="field">Criança</label><select id="planChild"></select></div>
-          <div><label class="field">Data planejada</label><input id="planDate" type="date"></div>
-          <div><label class="field">Tipo</label><select id="planType"><option value="bncc">BNCC</option><option value="complementar">Complementar</option></select></div>
-          <div><label class="field">Componente / categoria</label><input id="planComponent" placeholder="Ex.: Matemática"></div>
-          <div class="full"><label class="field">Atividade planejada</label><input id="planTitle" placeholder="Ex.: Frações equivalentes"></div>
-          <div class="full"><label class="field">Observações</label><textarea id="planNotes" rows="2"></textarea></div>
-        </div>
-        <button class="btn success" onclick="addPlan()">Adicionar ao planejamento</button>
-      </div>
-      <div class="card"><h3>Próximas atividades</h3><div id="plansList"></div></div>
-    </section>
+<div class="card"><h2>Planejamento</h2><div class="grid">
+<div><label class="field">Criança</label><select id="planChild"></select></div>
+<div><label class="field">Data inicial</label><input id="planDate" type="date"></div>
+<div><label class="field">Tipo</label><select id="planType"><option value="bncc">BNCC</option><option value="complementar">Complementar</option></select></div>
+<div><label class="field">Componente / categoria</label><input id="planComponent"></div>
+<div class="full"><label class="field">Atividade planejada</label><input id="planTitle"></div>
+<div class="full"><label class="field">Observações</label><textarea id="planNotes" rows="2"></textarea></div>
+<div class="full recurrence-box"><label class="field">Recorrência</label>
+<select id="planRecurrence" onchange="togglePlanRecurrenceOptions()"><option value="none">Não repetir</option><option value="daily">Todos os dias</option><option value="weekly">Semanal</option><option value="weekdays">Dias específicos da semana</option><option value="monthly">Mensal</option></select>
+<div id="planWeekdaysBox" class="hidden" style="margin-top:8px"><div class="weekdays">
+<label><input type="checkbox" value="1">Seg</label><label><input type="checkbox" value="2">Ter</label><label><input type="checkbox" value="3">Qua</label><label><input type="checkbox" value="4">Qui</label><label><input type="checkbox" value="5">Sex</label><label><input type="checkbox" value="6">Sáb</label><label><input type="checkbox" value="0">Dom</label>
+</div></div>
+<div style="margin-top:8px"><label class="field">Data final opcional</label><input id="planEndDate" type="date"></div></div>
+</div><button class="btn success" onclick="addPlan()">Adicionar ao planejamento</button></div>
+<div class="card"><h3>Próximas atividades</h3><div id="plansList"></div></div>
+</section>
 
     <section id="page-relatorios" class="page">
       <div class="card">
@@ -242,7 +260,22 @@ h3{font-size:16px}
         </div>
         <button class="btn success" onclick="savePeriodHistory()">Registrar período</button>
         <hr>
-        <h3>Importar CSV</h3>
+<h3>Registros antigos e BNCC</h3>
+<div class="notice">Para registros históricos, o código BNCC <b>não é obrigatório</b>. Data, atividade e avaliação são suficientes.</div>
+<div class="ai-soon" style="margin-top:8px">Classificação com IA preparada para a próxima etapa. Nesta versão, nenhum código é criado automaticamente.</div>
+<hr>
+<h3>Importar fotos antigas</h3>
+<div class="notice">Selecione várias fotos. O Diário usa a data do arquivo como sugestão e cria registros históricos sem exigir BNCC.</div>
+<div class="grid" style="margin-top:8px">
+<div><label class="field">Criança</label><select id="historyPhotoChild"></select></div>
+<div><label class="field">Avaliação padrão</label><select id="historyPhotoStatus"><option value="">Selecione...</option><option>Dominado</option><option>Em progresso</option><option>Precisa de revisão</option></select></div>
+<div class="full"><label class="field">Descrição padrão opcional</label><input id="historyPhotoActivity" placeholder="Ex.: Registro fotográfico de atividade"></div>
+</div>
+<label class="btn" style="margin-top:8px">Selecionar várias fotos<input type="file" accept="image/*" multiple style="display:none" onchange="prepareHistoricalPhotos(event)"></label>
+<div id="historicalPhotosPreview" class="photo-import-grid" style="margin-top:10px"></div>
+<div id="historicalPhotosActions" class="toolbar hidden" style="margin-top:10px"><button class="btn success" onclick="createHistoricalPhotoRecords()">Criar registros pelas fotos</button><button class="btn" onclick="clearHistoricalPhotoImport()">Cancelar</button></div>
+<hr>
+<h3>Importar CSV</h3>
         <div class="toolbar"><button class="btn" onclick="downloadHistoryTemplate()">Modelo CSV</button><label class="btn">Importar CSV<input type="file" accept=".csv,text/csv" style="display:none" onchange="importHistoryCSV(event)"></label></div>
       </div>
     </section>
@@ -323,8 +356,44 @@ h3{font-size:16px}
           <div class="toolbar" style="margin-top:9px">
             <button class="btn" onclick="testBackendConnection()">Testar backend</button>
             <button id="linkFamilyBtn" class="btn success hidden" onclick="linkCurrentFamilyToBackend()">Vincular família atual ao backend</button>
+            <button id="syncFamilyBtn" class="btn hidden" onclick="syncFamilyFromBackend(true)">Atualizar família do backend</button>
           </div>
         </div>
+
+        <hr>
+        <h3>Membros da família</h3>
+        <div id="familyMembersBox" class="notice">Conecte o backend para carregar os membros.</div>
+
+        <div id="inviteMemberBox" class="hidden">
+          <div class="grid" style="margin-top:10px">
+            <div>
+              <label class="field">E-mail do responsável</label>
+              <input id="inviteEmail" type="email" placeholder="exemplo@gmail.com">
+            </div>
+            <div>
+              <label class="field">Permissão</label>
+              <select id="inviteRole">
+                <option value="responsavel">Responsável</option>
+                <option value="visualizador">Somente visualização</option>
+                <option value="admin">Administrador</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn success" onclick="inviteFamilyMember()">Convidar responsável</button>
+        </div>
+
+        <div id="pendingInvitesBox" style="margin-top:10px"></div>
+
+        <hr>
+<h3>Fotos compartilhadas da família</h3>
+<div class="drive-folder-card"><div id="sharedPhotosStatus" class="meta">A pasta compartilhada ainda não foi verificada.</div>
+<div class="toolbar" style="margin-top:8px"><button class="btn" onclick="setupSharedFamilyPhotos()">Preparar/compartilhar pasta</button><button class="btn" onclick="openSharedFamilyPhotos()">Abrir pasta compartilhada</button></div></div>
+<hr>
+<h3>Possíveis crianças duplicadas</h3>
+<div id="duplicateChildrenBox" class="notice">Nenhuma duplicidade detectada.</div>
+<hr>
+<h3>Crianças arquivadas</h3>
+        <div id="archivedChildrenBox" class="notice">Nenhuma criança arquivada.</div>
 
         <hr>
         <h3>Backup manual</h3>
@@ -346,6 +415,10 @@ const BACKEND_URL = "https://diario-estudos-api.leonardo-gda.workers.dev";
 let backendProfile = null;
 const BACKEND_FAMILY_ID_KEY = "DE_V422_BACKEND_FAMILY_ID";
 const BACKEND_CHILD_MAP_KEY = "DE_V422_BACKEND_CHILD_MAP";
+let backendMembers = [];
+let backendChildren = [];
+let backendArchivedChildren = [];
+let historicalPhotoQueue = [];
 const VISIBLE_DRIVE_ROOT_NAME = "Diário de Estudos";
 const VISIBLE_PHOTOS_FOLDER_NAME = "Fotos";
 const VISIBLE_ROOT_ID_KEY = "DE_V4_VISIBLE_ROOT_ID";
@@ -531,6 +604,11 @@ async function refreshBackendProfile(){
   backendProfile=await backendFetch("/me");
   setBackendStatus("conectado",true);
   renderBackendFamilyState();
+  if(backendProfile?.families?.length){
+    await loadBackendFamilyData();
+  }else{
+    renderBackendFamilyPanels();
+  }
   return backendProfile;
 }
 
@@ -604,6 +682,7 @@ async function linkCurrentFamilyToBackend(){
     }
 
     await refreshBackendProfile();
+    await loadBackendFamilyData();
 
     if(failed.length){
       alert(`Família criada no backend.\n\n${linked} criança(s) vinculada(s).\nNão foi possível vincular agora: ${failed.join(", ")}.\n\nNenhum registro foi perdido.`);
@@ -617,6 +696,248 @@ async function linkCurrentFamilyToBackend(){
   }finally{
     if(btn){btn.disabled=false;btn.textContent="Vincular família atual ao backend"}
     renderBackendFamilyState();
+  }
+}
+
+
+function currentBackendFamily(){
+  return backendFamilyFromProfile();
+}
+function currentBackendRole(){
+  return currentBackendFamily()?.role||"";
+}
+function canManageFamily(){
+  return currentBackendRole()==="admin";
+}
+function canEditFamily(){
+  return ["admin","responsavel"].includes(currentBackendRole());
+}
+async function loadBackendFamilyData(){
+  const fam=currentBackendFamily();
+  if(!fam){
+    backendMembers=[];
+    backendChildren=[];
+    backendArchivedChildren=[];
+    renderBackendFamilyPanels();
+    return;
+  }
+
+  const [membersRes, childrenRes, archivedRes] = await Promise.all([
+    backendFetch(`/family-members?family_id=${encodeURIComponent(fam.id)}`),
+    backendFetch(`/children?family_id=${encodeURIComponent(fam.id)}`),
+    backendFetch(`/children?family_id=${encodeURIComponent(fam.id)}&include_archived=1`)
+  ]);
+
+  backendMembers=membersRes.members||[];
+  backendChildren=(childrenRes.children||[]).filter(c=>Number(c.active)!==0);
+  backendArchivedChildren=(archivedRes.children||[]).filter(c=>Number(c.active)===0);
+  renderBackendFamilyPanels();
+}
+function roleLabel(role){
+  return role==="admin"?"Administrador":role==="visualizador"?"Somente visualização":"Responsável";
+}
+function renderBackendFamilyPanels(){
+  const membersBox=$("familyMembersBox");
+  const inviteBox=$("inviteMemberBox");
+  const pendingBox=$("pendingInvitesBox");
+  const archivedBox=$("archivedChildrenBox");
+  const syncBtn=$("syncFamilyBtn");
+  const fam=currentBackendFamily();
+
+  if(syncBtn) syncBtn.classList.toggle("hidden",!fam);
+
+  if(!fam){
+    if(membersBox)membersBox.innerHTML="Vincule uma família ao backend para gerenciar membros.";
+    if(inviteBox)inviteBox.classList.add("hidden");
+    if(pendingBox)pendingBox.innerHTML="";
+    if(archivedBox)archivedBox.innerHTML="Nenhuma criança arquivada.";
+    return;
+  }
+
+  if(membersBox){
+    membersBox.className="";
+    membersBox.innerHTML=backendMembers.length
+      ? backendMembers.map(m=>`<div class="member-row">
+          <div><b>${esc(m.name||m.email||"Usuário")}</b><div class="meta">${esc(m.email||"")}</div></div>
+          <span class="role-badge ${m.role==="admin"?"admin":""}">${esc(roleLabel(m.role))}</span>
+        </div>`).join("")
+      : "<div class='notice'>Nenhum membro carregado.</div>";
+  }
+
+  if(inviteBox)inviteBox.classList.toggle("hidden",!canManageFamily());
+
+  if(pendingBox){
+    const invites=backendProfile?.pendingInvites||[];
+    pendingBox.innerHTML=invites.length
+      ? `<div class="notice"><b>Convites recebidos</b>${invites.map(i=>`
+          <div class="invite-row">
+            <div><b>${esc(i.family_name||"Família")}</b><div class="meta">${esc(roleLabel(i.role))}</div></div>
+            <div class="toolbar">
+              <button class="btn small success" onclick="acceptInvite('${i.id}')">Aceitar</button>
+              <button class="btn small" onclick="declineInvite('${i.id}')">Recusar</button>
+            </div>
+          </div>`).join("")}</div>`
+      : "";
+  }
+
+  renderDuplicateChildren();
+
+  if(archivedBox){
+    archivedBox.className="";
+    archivedBox.innerHTML=backendArchivedChildren.length
+      ? backendArchivedChildren.map(c=>`<div class="archived-child-row">
+          <div><b>${esc(c.name)}</b><div class="meta">${esc(c.reference_stage||"Sem ano de referência")}</div></div>
+          ${canManageFamily()?`<button class="btn small success" onclick="restoreBackendChild('${c.id}')">Restaurar</button>`:""}
+        </div>`).join("")
+      : "<div class='notice'>Nenhuma criança arquivada.</div>";
+  }
+}
+
+async function persistFamilyDriveFolder(folderId){const fam=currentBackendFamily();if(!fam||!folderId)return;await backendFetch("/families/drive-folder",{method:"POST",body:JSON.stringify({family_id:fam.id,drive_folder_id:folderId})})}
+async function setupSharedFamilyPhotos(){
+ const fam=currentBackendFamily();if(!fam)return alert("Vincule a família ao backend primeiro.");if(!canManageFamily())return alert("Somente administradores podem preparar o compartilhamento.");
+ try{
+   const folderId=await ensureVisiblePhotosRoot();await persistFamilyDriveFolder(folderId);
+   const me=(backendProfile?.user?.email||"").toLowerCase();let shared=0,failed=[];
+   for(const m of backendMembers){const email=(m.email||"").toLowerCase();if(!email||email===me)continue;try{await apiFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(folderId)}/permissions?sendNotificationEmail=false`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"user",role:"writer",emailAddress:m.email})});shared++}catch(e){failed.push(m.email)}}
+   if($("sharedPhotosStatus"))$("sharedPhotosStatus").textContent=`Pasta preparada. Compartilhada com ${shared} membro(s)${failed.length?"; falhou para "+failed.join(", "):""}.`;
+   alert("Pasta de fotos preparada para compartilhamento.")
+ }catch(e){alert("Não foi possível preparar a pasta: "+e.message)}
+}
+async function openSharedFamilyPhotos(){const fam=currentBackendFamily();if(!fam)return alert("Nenhuma família vinculada.");try{const res=await backendFetch(`/families/${encodeURIComponent(fam.id)}`);const folderId=res?.family?.drive_folder_id||localStorage.getItem(VISIBLE_PHOTOS_ID_KEY)||"";if(!folderId)return alert("A pasta compartilhada ainda não foi configurada.");window.open(`https://drive.google.com/drive/folders/${encodeURIComponent(folderId)}`,"_blank","noopener")}catch(e){alert("Não foi possível abrir a pasta: "+e.message)}}
+function normalizedChildName(name){return String(name||"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")}
+function findPossibleChildDuplicates(){const list=backendChildren.filter(c=>Number(c.active)!==0),pairs=[];for(let i=0;i<list.length;i++)for(let j=i+1;j<list.length;j++){const a=list[i],b=list[j],sameName=normalizedChildName(a.name)===normalizedChildName(b.name),sameBirth=a.birth_date&&b.birth_date&&a.birth_date===b.birth_date;if(sameName&&(sameBirth||!a.birth_date||!b.birth_date))pairs.push([a,b])}return pairs}
+function renderDuplicateChildren(){const box=$("duplicateChildrenBox");if(!box)return;const pairs=findPossibleChildDuplicates();if(!pairs.length){box.className="notice";box.textContent="Nenhuma duplicidade detectada.";return}box.className="";box.innerHTML=pairs.map(([a,b])=>`<div class="duplicate-card"><b>Possível duplicidade: ${esc(a.name)}</b><div class="meta">Cadastro A: ${esc(a.birth_date||"sem nascimento")} · ${esc(a.reference_stage||"sem ano")}</div><div class="meta">Cadastro B: ${esc(b.birth_date||"sem nascimento")} · ${esc(b.reference_stage||"sem ano")}</div>${canManageFamily()?`<div class="toolbar" style="margin-top:8px"><button class="btn small success" onclick="mergeBackendChildren('${a.id}','${b.id}')">Unificar</button><button class="btn small" onclick="ignoreDuplicatePair('${a.id}','${b.id}')">Manter separadas</button></div>`:""}</div>`).join("")}
+function ignoreDuplicatePair(a,b){localStorage.setItem("DE_V424_IGNORE_DUP_"+[a,b].sort().join("_"),"1");alert("Mantidas como crianças separadas neste dispositivo.")}
+async function mergeBackendChildren(keepId,mergeId){if(!canManageFamily())return alert("Somente administradores podem unificar crianças.");if(!confirm("Unificar estes dois cadastros? O secundário será arquivado e os vínculos futuros apontarão para a criança principal."))return;try{await backendFetch("/children/merge",{method:"POST",body:JSON.stringify({keep_id:keepId,merge_id:mergeId})});const map=getBackendChildMap();Object.keys(map).forEach(localId=>{if(map[localId]===mergeId)map[localId]=keepId});setBackendChildMap(map);await loadBackendFamilyData();await syncFamilyFromBackend(false);alert("Cadastros unificados. Nenhum registro foi apagado.")}catch(e){alert("Não foi possível unificar: "+e.message)}}
+
+async function inviteFamilyMember(){
+  const fam=currentBackendFamily();
+  if(!fam)return alert("Nenhuma família vinculada ao backend.");
+  if(!canManageFamily())return alert("Somente administradores podem convidar membros.");
+
+  const email=$("inviteEmail")?.value.trim()||"";
+  const role=$("inviteRole")?.value||"responsavel";
+  if(!email)return alert("Informe o e-mail do responsável.");
+
+  try{
+    await backendFetch("/invites",{
+      method:"POST",
+      body:JSON.stringify({family_id:fam.id,email,role})
+    });
+    if($("inviteEmail"))$("inviteEmail").value="";
+    alert("Convite criado. Quando essa pessoa entrar com esse mesmo e-mail Google, o convite aparecerá para ela.");
+  }catch(e){
+    alert("Não foi possível criar o convite: "+e.message);
+  }
+}
+async function acceptInvite(id){
+  try{
+    await backendFetch("/invites/accept",{method:"POST",body:JSON.stringify({invite_id:id})});
+    await refreshBackendProfile();
+    await loadBackendFamilyData();
+    await syncFamilyFromBackend(false);
+    alert("Convite aceito. A família foi vinculada à sua conta.");
+  }catch(e){alert("Não foi possível aceitar o convite: "+e.message)}
+}
+async function declineInvite(id){
+  try{
+    await backendFetch("/invites/decline",{method:"POST",body:JSON.stringify({invite_id:id})});
+    await refreshBackendProfile();
+    alert("Convite recusado.");
+  }catch(e){alert("Não foi possível recusar o convite: "+e.message)}
+}
+async function archiveBackendChild(backendChildId, localChildId){
+  if(!canManageFamily())return alert("Somente administradores podem arquivar crianças.");
+  const child=backendChildren.find(c=>c.id===backendChildId);
+  if(!child)return;
+
+  if(!confirm(`Arquivar ${child.name}?\n\nEla sairá das telas principais, mas os dados serão preservados e poderão ser restaurados.`))return;
+
+  try{
+    await backendFetch(`/children/${encodeURIComponent(backendChildId)}/archive`,{method:"POST"});
+    // Arquiva localmente sem apagar registros.
+    const local=state.family.children.find(c=>c.id===localChildId);
+    if(local)local.archived=true;
+    saveLocal();
+    await loadBackendFamilyData();
+    renderAll();
+    alert("Criança arquivada. Os dados foram preservados.");
+  }catch(e){alert("Não foi possível arquivar: "+e.message)}
+}
+async function restoreBackendChild(backendChildId){
+  if(!canManageFamily())return alert("Somente administradores podem restaurar crianças.");
+  try{
+    await backendFetch(`/children/${encodeURIComponent(backendChildId)}/restore`,{method:"POST"});
+    const map=getBackendChildMap();
+    const localId=Object.keys(map).find(k=>map[k]===backendChildId);
+    if(localId){
+      const local=state.family.children.find(c=>c.id===localId);
+      if(local)local.archived=false;
+    }
+    saveLocal();
+    await loadBackendFamilyData();
+    renderAll();
+    alert("Criança restaurada.");
+  }catch(e){alert("Não foi possível restaurar: "+e.message)}
+}
+async function syncFamilyFromBackend(showMessage=false){
+  const fam=currentBackendFamily();
+  if(!fam)return;
+
+  try{
+    if(!backendChildren.length && !backendArchivedChildren.length){
+      await loadBackendFamilyData();
+    }
+
+    // Família do backend passa a ser referência para nome e membros.
+    state.family.name=fam.name||state.family.name||"Família";
+    const map=getBackendChildMap();
+
+    const allRemote=[...backendChildren,...backendArchivedChildren];
+    for(const rc of allRemote){
+      let localId=Object.keys(map).find(k=>map[k]===rc.id);
+      let local=localId?state.family.children.find(c=>c.id===localId):null;
+
+      // Para outra conta Google, cria o cadastro local a partir do backend.
+      if(!local){
+        localId=uid();
+        local={
+          id:localId,
+          name:rc.name,
+          birth:rc.birth_date||"",
+          stage:rc.reference_stage||"Sem ano de referência",
+          stageHistory:[{stage:rc.reference_stage||"Sem ano de referência",startDate:"",endDate:""}],
+          archived:Number(rc.active)===0,
+          createdAt:now(),
+          updatedAt:now()
+        };
+        state.family.children.push(local);
+        map[localId]=rc.id;
+      }else{
+        local.name=rc.name||local.name;
+        local.birth=rc.birth_date||local.birth||"";
+        local.stage=rc.reference_stage||local.stage||"Sem ano de referência";
+        local.archived=Number(rc.active)===0;
+        local.updatedAt=now();
+      }
+    }
+
+    setBackendChildMap(map);
+    state.family.updatedAt=now();
+
+    // Se a criança ativa atual foi arquivada, troca para outra ativa.
+    const activeLocals=state.family.children.filter(c=>!c.archived);
+    if(!activeLocals.some(c=>c.id===activeChildId)){
+      activeChildId=activeLocals[0]?.id||null;
+    }
+
+    saveLocal();
+    renderAll();
+    if(showMessage)alert("Família e crianças atualizadas a partir do backend.");
+  }catch(e){
+    console.error(e);
+    if(showMessage)alert("Não foi possível atualizar a família: "+e.message);
   }
 }
 
@@ -1080,13 +1401,13 @@ async function syncWithDrive(opt={}){
 
 function renderAll(){
  try{if($("fDate"))saveRecordDraft(true)}catch(e){}
- populateCommonSelects();renderDashboard();renderRecordPage();renderPlans();renderReportPage();renderComplementaryList();renderSettingsChildren();renderResponsibles();renderChildrenCards();renderHistoryBatchRows();refreshHistoryActivityOptions();renderBackendFamilyState();
+ populateCommonSelects();renderDashboard();renderRecordPage();renderPlans();renderReportPage();renderComplementaryList();renderSettingsChildren();renderResponsibles();renderChildrenCards();renderHistoryBatchRows();refreshHistoryActivityOptions();renderBackendFamilyState();renderBackendFamilyPanels();
  $("count").textContent=currentBncc().length;
  if($("familyName"))$("familyName").value=state.family.name||"";if($("social"))$("social").value=state.family.social||"";
 }
 function populateCommonSelects(){
- const opts=state.family.children.map(c=>`<option value="${c.id}">${esc(c.name)} — ${esc(c.stage)}</option>`).join("");
- ["planChild","reportChild","historyChild"].forEach(id=>{let e=$(id);if(e){let old=e.value;e.innerHTML=opts;if(old&&state.family.children.some(c=>c.id===old))e.value=old;else if(activeChildId)e.value=activeChildId}});
+ const opts=state.family.children.filter(c=>!c.archived).map(c=>`<option value="${c.id}">${esc(c.name)} — ${esc(c.stage)}</option>`).join("");
+ ["planChild","reportChild","historyChild","historyPhotoChild"].forEach(id=>{let e=$(id);if(e){let old=e.value;e.innerHTML=opts;if(old&&state.family.children.some(c=>c.id===old))e.value=old;else if(activeChildId)e.value=activeChildId}});
  $("childStage").innerHTML=STAGES.map(x=>`<option>${esc(x)}</option>`).join("");
  let comps=[...new Set(Object.values(state.entries).flat().map(x=>x.componente).filter(Boolean))].sort();
  if($("reportComponent"))$("reportComponent").innerHTML='<option value="">Todos</option>'+comps.map(x=>`<option>${esc(x)}</option>`).join("");
@@ -1115,7 +1436,7 @@ function editResponsible(id){
 function deleteResponsible(id){if(!confirm("Excluir este responsável?"))return;state.family.responsibles=state.family.responsibles.filter(x=>x.id!==id);state.family.updatedAt=now();saveLocal();renderResponsibles()}
 function renderChildrenCards(){
  const box=$("childrenCards");if(!box)return;
- box.innerHTML=state.family.children.map(c=>{let hist=(c.stageHistory||[]).slice().sort((a,b)=>String(b.startDate||"").localeCompare(String(a.startDate||"")));return `<div class="child-card"><h4>${esc(c.name)}</h4><div class="meta">${c.birth?"Nascimento: "+fmtDate(c.birth)+" · ":""}Ano atual: <b>${esc(c.stage||"Sem ano de referência")}</b></div>${hist.length?`<div class="timeline">${hist.map(h=>`<div class="timeline-item"><b>${esc(h.stage)}</b><div class="meta">Desde ${fmtDate(h.startDate||"")}${h.endDate?" até "+fmtDate(h.endDate):""}</div></div>`).join("")}</div>`:""}<div class="entry-actions"><button class="btn small" onclick="editChild('${c.id}')">Editar cadastro</button><button class="btn small" onclick="changeChildStage('${c.id}')">Alterar ano de referência</button><button class="btn danger small" onclick="deleteChild('${c.id}')">Excluir</button></div></div>`}).join("")||"<div class='notice'>Nenhuma criança cadastrada.</div>"
+ box.innerHTML=state.family.children.filter(c=>!c.archived).map(c=>{let hist=(c.stageHistory||[]).slice().sort((a,b)=>String(b.startDate||"").localeCompare(String(a.startDate||"")));return `<div class="child-card"><h4>${esc(c.name)}</h4><div class="meta">${c.birth?"Nascimento: "+fmtDate(c.birth)+" · ":""}Ano atual: <b>${esc(c.stage||"Sem ano de referência")}</b></div>${hist.length?`<div class="timeline">${hist.map(h=>`<div class="timeline-item"><b>${esc(h.stage)}</b><div class="meta">Desde ${fmtDate(h.startDate||"")}${h.endDate?" até "+fmtDate(h.endDate):""}</div></div>`).join("")}</div>`:""}<div class="entry-actions"><button class="btn small" onclick="editChild('${c.id}')">Editar cadastro</button><button class="btn small" onclick="changeChildStage('${c.id}')">Alterar ano de referência</button>${getBackendChildMap()[c.id]&&canManageFamily()?`<button class="btn danger small" onclick="archiveBackendChild('${getBackendChildMap()[c.id]}','${c.id}')">Arquivar</button>`:`<button class="btn danger small" onclick="deleteChild('${c.id}')">Excluir</button>`}</div></div>`}).join("")||"<div class='notice'>Nenhuma criança cadastrada.</div>"
 }
 function editChild(id){const c=state.family.children.find(x=>x.id===id);if(!c)return;const name=prompt("Nome da criança:",c.name);if(name===null)return;const birth=prompt("Nascimento (AAAA-MM-DD):",c.birth||"");if(birth===null)return;c.name=name.trim()||c.name;c.birth=birth.trim();c.updatedAt=now();state.family.updatedAt=now();saveLocal();renderAll()}
 function changeChildStage(id){
@@ -1123,11 +1444,33 @@ function changeChildStage(id){
 }
 function renderSettingsChildren(){renderChildrenCards();renderResponsibles();}
 
-function addChild(){
+async function addChild(){
  let name=$("childName").value.trim();if(!name)return alert("Informe o nome.");
- let stage=$("childStage").value||"Sem ano de referência";let start=prompt("Data de início deste ano de referência (AAAA-MM-DD)",today());if(start===null)return;
- let c={id:uid(),name,birth:$("childBirth").value,stage,stageHistory:[{stage,startDate:start||today(),endDate:""}],createdAt:now(),updatedAt:now()};
- state.family.children.push(c);state.family.updatedAt=now();activeChildId=c.id;$("childName").value="";$("childBirth").value="";saveLocal();renderAll()
+ let stage=$("childStage").value||"Sem ano de referência";
+ let start=prompt("Data de início deste ano de referência (AAAA-MM-DD)",today());if(start===null)return;
+
+ let c={id:uid(),name,birth:$("childBirth").value,stage,stageHistory:[{stage,startDate:start||today(),endDate:""}],archived:false,createdAt:now(),updatedAt:now()};
+ state.family.children.push(c);state.family.updatedAt=now();activeChildId=c.id;
+ $("childName").value="";$("childBirth").value="";
+ saveLocal();
+
+ const fam=currentBackendFamily();
+ if(fam && canEditFamily()){
+   try{
+     const created=await backendFetch("/children",{
+       method:"POST",
+       body:JSON.stringify({family_id:fam.id,name:c.name,birth_date:c.birth||null,reference_stage:c.stage||null,notes:null})
+     });
+     if(created?.child?.id){
+       const map=getBackendChildMap();map[c.id]=created.child.id;setBackendChildMap(map);
+       await loadBackendFamilyData();
+     }
+   }catch(e){
+     console.error("Criança criada localmente, mas backend falhou:",e);
+     alert("A criança foi criada neste dispositivo, mas não foi possível sincronizá-la com o backend agora.");
+   }
+ }
+ renderAll()
 }
 function addTomb(type,id){state.tombstones[type]??=[];state.tombstones[type].push({id,deletedAt:now()})}
 function deleteChild(id){
@@ -1451,11 +1794,14 @@ function saveEntry(){
  foto:photoData||editing?.foto||"",fotoDriveId:editing?.fotoDriveId||"",fotoVisibleDriveId:editing?.fotoVisibleDriveId||"",audio:editing?.audio||"",audioDriveId:editing?.audioDriveId||""};
  if(!e.date)missing.push("Data");if(type==="bncc"){if(!e.area)missing.push("Área");if(!e.componente)missing.push("Componente");if(!e.codigo)missing.push("Código BNCC");if(!e.habilidade)missing.push("Habilidade")}else if(!e.habilidade)missing.push("Atividade complementar");if(!e.atividade)missing.push("Atividade realizada");if(!e.status)missing.push("Avaliação");
  if(missing.length)return alert("Preencha antes de registrar:\n\n• "+missing.join("\n• "));
+ if(planIdToComplete)completePlanOccurrence(planIdToComplete,planOccurrenceDate);
  if(photoData && editing?.foto && photoData!==editing.foto){
    e.fotoVisibleDriveId="";
    e.fotoDriveId="";
  }
  let savedChildId=activeChildId;
+ let planIdToComplete=editing?.planId||"";
+ let planOccurrenceDate=editing?.planOccurrenceDate||editing?.date||"";
  let l=state.entries[activeChildId]||[];state.entries[activeChildId]=editing?l.map(x=>x.id===editing.id?e:x):[e,...l];
  editing=null;photoData="";audioData="";
  clearRecordDraft(savedChildId);
@@ -1473,10 +1819,39 @@ function editEntry(id){
 function cancelEdit(){clearRecordDraft(activeChildId);editing=null;photoData="";audioData="";renderRecordPage()}
 function deleteEntry(id){if(!confirm("Excluir este registro?"))return;state.entries[activeChildId]=(state.entries[activeChildId]||[]).filter(x=>x.id!==id);addTomb("entries",id);saveLocal();renderAll()}
 
-function addPlan(){let childId=$("planChild").value,title=$("planTitle").value.trim();if(!childId||!title)return alert("Escolha a criança e informe a atividade.");state.plans.push({id:uid(),childId,date:$("planDate").value||today(),type:$("planType").value,component:$("planComponent").value.trim(),title,notes:$("planNotes").value.trim(),createdAt:now(),updatedAt:now(),completedAt:""});$("planTitle").value="";$("planNotes").value="";saveLocal();renderPlans();renderDashboard()}
-function renderPlans(){let box=$("plansList");if(!box)return;let childId=$("planChild")?.value||activeChildId,l=state.plans.filter(x=>!x.completedAt&&(!childId||x.childId===childId)).sort((a,b)=>a.date.localeCompare(b.date));box.innerHTML=l.map(p=>`<div class="plan-card"><div class="plan-date">${fmtDate(p.date)} · ${esc(state.family.children.find(c=>c.id===p.childId)?.name||"")}</div><div class="entry-title">${esc(p.title)}</div>${p.component?`<div class="skill">${esc(p.component)}</div>`:""}${p.notes?`<div class="obs">${esc(p.notes)}</div>`:""}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">Registrar como concluída</button><button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`).join("")||"<div class='notice'>Nenhuma atividade planejada.</div>"}
-function startPlan(id){let p=state.plans.find(x=>x.id===id);if(!p)return;activeChildId=p.childId;editing={id:uid(),childId:p.childId,date:p.date,type:p.type,complementaryId:"",area:"",componente:p.component,codigo:"",habilidade:"",atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),planId:p.id};showPage("registro");renderRecordPage()}
+
+function togglePlanRecurrenceOptions(){const mode=$("planRecurrence")?.value||"none";$("planWeekdaysBox")?.classList.toggle("hidden",mode!=="weekdays")}
+function selectedPlanWeekdays(){return [...document.querySelectorAll("#planWeekdaysBox input[type=checkbox]:checked")].map(x=>parseInt(x.value,10))}
+function nextPlanDate(plan,fromDate){
+ const mode=plan.recurrence||"none";if(mode==="none")return "";
+ let d=parseISO(fromDate||plan.nextDate||plan.date||today());
+ if(mode==="daily")d.setDate(d.getDate()+1);
+ else if(mode==="weekly")d.setDate(d.getDate()+7);
+ else if(mode==="monthly")d.setMonth(d.getMonth()+1);
+ else if(mode==="weekdays"){
+   const days=(plan.weekdays||[]).map(Number);if(!days.length)return "";
+   for(let i=1;i<=8;i++){let n=new Date(d);n.setDate(d.getDate()+i);if(days.includes(n.getDay())){d=n;break}}
+ }
+ const next=iso(d);if(plan.endDate&&next>plan.endDate)return "";return next
+}
+function addPlan(){
+ let childId=$("planChild").value,title=$("planTitle").value.trim();if(!childId||!title)return alert("Escolha a criança e informe a atividade.");
+ const recurrence=$("planRecurrence")?.value||"none",weekdays=recurrence==="weekdays"?selectedPlanWeekdays():[];
+ if(recurrence==="weekdays"&&!weekdays.length)return alert("Escolha pelo menos um dia da semana.");
+ const start=$("planDate").value||today();
+ state.plans.push({id:uid(),childId,date:start,nextDate:start,type:$("planType").value,component:$("planComponent").value.trim(),title,notes:$("planNotes").value.trim(),recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],createdAt:now(),updatedAt:now(),completedAt:""});
+ $("planTitle").value="";$("planNotes").value="";saveLocal();renderPlans();renderDashboard()
+}
+function renderPlans(){
+ let box=$("plansList");if(!box)return;let childId=$("planChild")?.value||activeChildId;
+ let l=state.plans.filter(x=>!x.completedAt&&(!childId||x.childId===childId)&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
+ box.innerHTML=l.map(p=>`<div class="plan-card"><div class="plan-date">Próxima: ${fmtDate(p.nextDate||p.date)} · ${esc(state.family.children.find(c=>c.id===p.childId)?.name||"")}</div><div class="entry-title">${esc(p.title)}</div>${p.component?`<div class="skill">${esc(p.component)}</div>`:""}<div class="meta">${p.recurrence&&p.recurrence!=="none"?`Recorrência: ${esc(p.recurrence==="daily"?"diária":p.recurrence==="weekly"?"semanal":p.recurrence==="monthly"?"mensal":"dias específicos")}`:"Atividade única"}</div>${p.notes?`<div class="obs">${esc(p.notes)}</div>`:""}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">Registrar como concluída</button>${p.recurrence!=="none"?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular ocorrência</button>`:""}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`).join("")||"<div class='notice'>Nenhuma atividade planejada.</div>"
+}
+function startPlan(id){let p=state.plans.find(x=>x.id===id);if(!p)return;activeChildId=p.childId;editing={id:uid(),childId:p.childId,date:p.nextDate||p.date,type:p.type,complementaryId:"",area:"",componente:p.component,codigo:"",habilidade:"",atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),planId:p.id,planOccurrenceDate:p.nextDate||p.date};showPage("registro");renderRecordPage()}
+function completePlanOccurrence(planId,occurrenceDate){const p=state.plans.find(x=>x.id===planId);if(!p)return;p.occurrences??=[];p.occurrences.push({date:occurrenceDate,status:"completed",updatedAt:now()});if(p.recurrence==="none"){p.completedAt=now();p.nextDate=""}else{p.nextDate=nextPlanDate(p,occurrenceDate);if(!p.nextDate)p.completedAt=now()}p.updatedAt=now()}
+function skipPlanOccurrence(id){const p=state.plans.find(x=>x.id===id);if(!p)return;const current=p.nextDate||p.date;if(!confirm(`Pular a ocorrência de ${fmtDate(current)}?`))return;p.occurrences??=[];p.occurrences.push({date:current,status:"skipped",updatedAt:now()});p.nextDate=nextPlanDate(p,current);if(!p.nextDate)p.completedAt=now();p.updatedAt=now();saveLocal();renderPlans();renderDashboard()}
 function deletePlan(id){state.plans=state.plans.filter(x=>x.id!==id);addTomb("plans",id);saveLocal();renderPlans();renderDashboard()}
+
 
 function renderReportPage(){
  let childId=$("reportChild")?.value||activeChildId;if(!childId)return;
@@ -1501,6 +1876,21 @@ function saveHistoryBatch(){let childId=$("historyChild").value,statusDefault=$(
 function refreshHistoryActivityOptions(){let s=$("histPeriodActivity");if(s)s.innerHTML='<option value="">Selecione...</option>'+state.complementaryActivities.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("")}
 function parseISO(s){let[y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)}function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function savePeriodHistory(){let childId=$("historyChild").value,start=$("histPeriodStart").value,end=$("histPeriodEnd").value,act=state.complementaryActivities.find(x=>x.id===$("histPeriodActivity").value),freq=+$("histPeriodFreq").value,status=$("histPeriodStatus").value,desc=$("histPeriodDesc").value.trim();if(!childId||!start||!end||!act||!status)return alert("Preencha criança, período, atividade e avaliação.");let s=parseISO(start),e=parseISO(end);if(e<s)return alert("Período inválido.");let offsets=[0,2,4,1,3].slice(0,freq),created=[];for(let w=new Date(s);w<=e;w.setDate(w.getDate()+7)){let mon=new Date(w);mon.setDate(mon.getDate()-mon.getDay()+1);for(let o of offsets){let d=new Date(mon);d.setDate(mon.getDate()+o);if(d<s||d>e)continue;created.push({id:uid(),childId,createdAt:now(),updatedAt:now(),date:iso(d),type:"complementar",complementaryId:act.id,area:"Atividades Complementares",componente:act.category||"Atividade Complementar",codigo:"",habilidade:act.name,atividade:desc||act.name,observacoes:"Registro histórico por período",status,foto:"",audio:""})}}state.entries[childId]=[...created,...(state.entries[childId]||[])];saveLocal();renderAll();alert(created.length+" registros criados.")}
+
+function fileDateToISO(file){const d=new Date(file.lastModified||Date.now());return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function prepareHistoricalPhotos(ev){
+ const files=[...(ev.target.files||[])];if(!files.length)return;historicalPhotoQueue=[];let pending=files.length;
+ files.forEach(file=>{const fr=new FileReader();fr.onload=()=>{const img=new Image();img.onload=()=>{const max=1200,s=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext("2d").drawImage(img,0,0,c.width,c.height);historicalPhotoQueue.push({id:uid(),name:file.name,date:fileDateToISO(file),data:c.toDataURL("image/jpeg",.72)});pending--;if(!pending)renderHistoricalPhotoQueue()};img.src=fr.result};fr.readAsDataURL(file)})
+}
+function renderHistoricalPhotoQueue(){const box=$("historicalPhotosPreview");if(!box)return;historicalPhotoQueue.sort((a,b)=>a.date.localeCompare(b.date));box.innerHTML=historicalPhotoQueue.map((p,i)=>`<div class="photo-import-card"><img src="${p.data}"><label class="field">Data sugerida</label><input type="date" value="${p.date}" onchange="historicalPhotoQueue[${i}].date=this.value"><div class="meta">${esc(p.name)}</div></div>`).join("");$("historicalPhotosActions")?.classList.toggle("hidden",!historicalPhotoQueue.length)}
+function clearHistoricalPhotoImport(){historicalPhotoQueue=[];if($("historicalPhotosPreview"))$("historicalPhotosPreview").innerHTML="";$("historicalPhotosActions")?.classList.add("hidden")}
+function createHistoricalPhotoRecords(){
+ const childId=$("historyPhotoChild")?.value||"",status=$("historyPhotoStatus")?.value||"",activity=($("historyPhotoActivity")?.value||"").trim()||"Registro fotográfico de atividade";
+ if(!childId)return alert("Escolha a criança.");if(!status)return alert("Escolha uma avaliação padrão.");if(!historicalPhotoQueue.length)return alert("Selecione fotos.");
+ const created=historicalPhotoQueue.map(p=>({id:uid(),childId,createdAt:now(),updatedAt:now(),date:p.date||today(),type:"bncc",area:"",componente:"",codigo:"",habilidade:"",atividade:activity,observacoes:"Importado a partir de foto antiga. BNCC não classificada.",status,foto:p.data,fotoDriveId:"",fotoVisibleDriveId:"",audio:"",audioDriveId:"",yearRefAtRecord:state.family.children.find(c=>c.id===childId)?.stage||""}));
+ state.entries[childId]=[...created,...(state.entries[childId]||[])];clearHistoricalPhotoImport();saveLocal();renderAll();alert(`${created.length} registro(s) histórico(s) criados. Você pode classificar a BNCC depois.`)
+}
+
 function downloadHistoryTemplate(){shareOrDownloadText("data;tipo;atividade;componente;codigo;habilidade;observacoes;avaliacao\n2025-03-10;bncc;Leitura;Língua Portuguesa;EF03LP00;Habilidade;Registro antigo;Dominado","modelo_historico.csv","text/csv","Modelo de histórico")}
 function parseCsvLine(line,sep){let out=[],cur="",q=false;for(let i=0;i<line.length;i++){let c=line[i];if(c==='"'){if(q&&line[i+1]==='"'){cur+='"';i++}else q=!q}else if(c===sep&&!q){out.push(cur);cur=""}else cur+=c}out.push(cur);return out}
 function importHistoryCSV(ev){let file=ev.target.files[0],childId=$("historyChild").value;if(!file||!childId)return;let fr=new FileReader();fr.onload=()=>{try{let lines=fr.result.replace(/^\uFEFF/,"").split(/\r?\n/).filter(Boolean),sep=lines[0].includes(";")?";":",",h=parseCsvLine(lines[0],sep).map(x=>x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")),idx=n=>h.indexOf(n),created=[];for(let i=1;i<lines.length;i++){let p=parseCsvLine(lines[i],sep),at=(p[idx("atividade")]||"").trim(),st=(p[idx("avaliacao")]||"").trim();if(!at)continue;if(!st)throw new Error("Linha "+(i+1)+" sem avaliação");let type=(p[idx("tipo")]||"bncc").toLowerCase()==="complementar"?"complementar":"bncc";created.push({id:uid(),childId,createdAt:now(),updatedAt:now(),date:(p[idx("data")]||today()).trim(),type,area:type==="complementar"?"Atividades Complementares":"",componente:(p[idx("componente")]||"").trim(),codigo:type==="bncc"?(p[idx("codigo")]||"").trim():"",habilidade:(p[idx("habilidade")]||"").trim(),atividade:at,observacoes:(p[idx("observacoes")]||"").trim(),status:st,foto:"",audio:""})}state.entries[childId]=[...created,...(state.entries[childId]||[])];saveLocal();renderAll();alert("Histórico importado.")}catch(e){alert("Erro no CSV: "+e.message)}};fr.readAsText(file,"UTF-8")}
