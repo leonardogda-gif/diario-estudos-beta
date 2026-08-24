@@ -152,7 +152,7 @@ h3{font-size:16px}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.5.3</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.5.4</p>
 </header>
 
 <main>
@@ -2011,6 +2011,20 @@ function applySharedEducational(shared){
 
     const copy={...e,childId:localChildId};
     (entries[localChildId]??=[]).push(copy);
+  });
+
+  // Proteção contra perda de registros: se um registro local (ex.: recém-criado)
+  // não veio de volta no payload mesclado (childId ainda não mapeado no backend,
+  // atraso de propagação no Drive etc.), ele é preservado aqui em vez de ser
+  // apagado pela substituição total de state.entries logo abaixo. Registros
+  // com tombstone (excluídos de fato) continuam sendo removidos normalmente.
+  const tombIds=new Set((shared.tombstones?.entries||[]).map(t=>t.id));
+  Object.entries(state.entries||{}).forEach(([childId,list])=>{
+    (list||[]).forEach(e=>{
+      if(!e?.id||tombIds.has(e.id))return;
+      const already=(entries[childId]||[]).some(x=>x.id===e.id);
+      if(!already)(entries[childId]??=[]).push(e);
+    });
   });
 
   Object.values(entries).forEach(a=>{
