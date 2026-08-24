@@ -145,7 +145,7 @@ h3{font-size:16px}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.2.4</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.2.4.1</p>
 </header>
 
 <main>
@@ -391,6 +391,9 @@ h3{font-size:16px}
 <hr>
 <h3>Possíveis crianças duplicadas</h3>
 <div id="duplicateChildrenBox" class="notice">Nenhuma duplicidade detectada.</div>
+<div class="toolbar" style="margin-top:8px">
+  <button id="reconcileChildrenBtn" class="btn" onclick="reconcileChildrenWithBackend(true)">Reconciliar crianças com o backend</button>
+</div>
 <hr>
 <h3>Crianças arquivadas</h3>
         <div id="archivedChildrenBox" class="notice">Nenhuma criança arquivada.</div>
@@ -606,6 +609,7 @@ async function refreshBackendProfile(){
   renderBackendFamilyState();
   if(backendProfile?.families?.length){
     await loadBackendFamilyData();
+    await reconcileChildrenWithBackend(false);
   }else{
     renderBackendFamilyPanels();
   }
@@ -806,30 +810,33 @@ async function setupSharedFamilyPhotos(){
 }
 async function openSharedFamilyPhotos(){const fam=currentBackendFamily();if(!fam)return alert("Nenhuma família vinculada.");try{const res=await backendFetch(`/families/${encodeURIComponent(fam.id)}`);const folderId=res?.family?.drive_folder_id||localStorage.getItem(VISIBLE_PHOTOS_ID_KEY)||"";if(!folderId)return alert("A pasta compartilhada ainda não foi configurada.");window.open(`https://drive.google.com/drive/folders/${encodeURIComponent(folderId)}`,"_blank","noopener")}catch(e){alert("Não foi possível abrir a pasta: "+e.message)}}
 function normalizedChildName(name){return String(name||"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")}
-function findPossibleChildDuplicates(){const list=backendChildren.filter(c=>Number(c.active)!==0),pairs=[];for(let i=0;i<list.length;i++)for(let j=i+1;j<list.length;j++){const a=list[i],b=list[j],sameName=normalizedChildName(a.name)===normalizedChildName(b.name),sameBirth=a.birth_date&&b.birth_date&&a.birth_date===b.birth_date;if(sameName&&(sameBirth||!a.birth_date||!b.birth_date))pairs.push([a,b])}return pairs}
-function renderDuplicateChildren(){const box=$("duplicateChildrenBox");if(!box)return;const pairs=findPossibleChildDuplicates();if(!pairs.length){box.className="notice";box.textContent="Nenhuma duplicidade detectada.";return}box.className="";box.innerHTML=pairs.map(([a,b])=>`<div class="duplicate-card"><b>Possível duplicidade: ${esc(a.name)}</b><div class="meta">Cadastro A: ${esc(a.birth_date||"sem nascimento")} · ${esc(a.reference_stage||"sem ano")}</div><div class="meta">Cadastro B: ${esc(b.birth_date||"sem nascimento")} · ${esc(b.reference_stage||"sem ano")}</div>${canManageFamily()?`<div class="toolbar" style="margin-top:8px"><button class="btn small success" onclick="mergeBackendChildren('${a.id}','${b.id}')">Unificar</button><button class="btn small" onclick="ignoreDuplicatePair('${a.id}','${b.id}')">Manter separadas</button></div>`:""}</div>`).join("")}
-function ignoreDuplicatePair(a,b){localStorage.setItem("DE_V424_IGNORE_DUP_"+[a,b].sort().join("_"),"1");alert("Mantidas como crianças separadas neste dispositivo.")}
-async function mergeBackendChildren(keepId,mergeId){if(!canManageFamily())return alert("Somente administradores podem unificar crianças.");if(!confirm("Unificar estes dois cadastros? O secundário será arquivado e os vínculos futuros apontarão para a criança principal."))return;try{await backendFetch("/children/merge",{method:"POST",body:JSON.stringify({keep_id:keepId,merge_id:mergeId})});const map=getBackendChildMap();Object.keys(map).forEach(localId=>{if(map[localId]===mergeId)map[localId]=keepId});setBackendChildMap(map);await loadBackendFamilyData();await syncFamilyFromBackend(false);alert("Cadastros unificados. Nenhum registro foi apagado.")}catch(e){alert("Não foi possível unificar: "+e.message)}}
-
-async function inviteFamilyMember(){
-  const fam=currentBackendFamily();
-  if(!fam)return alert("Nenhuma família vinculada ao backend.");
-  if(!canManageFamily())return alert("Somente administradores podem convidar membros.");
-
-  const email=$("inviteEmail")?.value.trim()||"";
-  const role=$("inviteRole")?.value||"responsavel";
-  if(!email)return alert("Informe o e-mail do responsável.");
-
-  try{
-    await backendFetch("/invites",{
-      method:"POST",
-      body:JSON.stringify({family_id:fam.id,email,role})
-    });
-    if($("inviteEmail"))$("inviteEmail").value="";
-    alert("Convite criado. Quando essa pessoa entrar com esse mesmo e-mail Google, o convite aparecerá para ela.");
-  }catch(e){
-    alert("Não foi possível criar o convite: "+e.message);
-  }
+function findPossibleChildDuplicates(){
+ const list=state.family.children.filter(c=>!c.archived),pairs=[];
+ for(let i=0;i<list.length;i++)for(let j=i+1;j<list.length;j++){
+   const a=list[i],b=list[j];
+   const sameName=normalizedChildName(a.name)===normalizedChildName(b.name);
+   const ab=String(a.birth||"").trim(),bb=String(b.birth||"").trim();
+   const sameBirth=ab&&bb&&ab===bb;
+   const sameStage=String(a.stage||"")===String(b.stage||"");
+   if(sameName&&(sameBirth||(!ab&&!bb&&sameStage)))pairs.push([a,b]);
+ }
+ return pairs;
+}
+function renderDuplicateChildren(){
+ const box=$("duplicateChildrenBox");if(!box)return;
+ const pairs=findPossibleChildDuplicates();
+ if(!pairs.length){
+   box.className="notice";
+   box.textContent="Nenhuma duplicidade local detectada.";
+   return;
+ }
+ box.className="";
+ box.innerHTML=pairs.map(([a,b])=>`<div class="duplicate-card">
+   <b>Possível duplicidade local: ${esc(a.name)}</b>
+   <div class="meta">Cadastro A: ${esc(a.birth||"sem nascimento")} · ${esc(a.stage||"sem ano")}</div>
+   <div class="meta">Cadastro B: ${esc(b.birth||"sem nascimento")} · ${esc(b.stage||"sem ano")}</div>
+   <div class="meta" style="margin-top:4px">Use “Reconciliar crianças com o backend” para preservar registros e consolidar os cadastros compatíveis.</div>
+ </div>`).join("");
 }
 async function acceptInvite(id){
   try{
@@ -881,6 +888,147 @@ async function restoreBackendChild(backendChildId){
     alert("Criança restaurada.");
   }catch(e){alert("Não foi possível restaurar: "+e.message)}
 }
+
+function childMatchesRemote(local, remote){
+  if(!local||!remote)return false;
+  const sameName=normalizedChildName(local.name)===normalizedChildName(remote.name);
+  if(!sameName)return false;
+
+  const lb=String(local.birth||"").trim();
+  const rb=String(remote.birth_date||"").trim();
+  if(lb && rb)return lb===rb;
+
+  // Quando nascimento não existe em um dos lados, ano de referência ajuda a evitar falso positivo.
+  const ls=String(local.stage||"").trim();
+  const rs=String(remote.reference_stage||"").trim();
+  return !ls || !rs || ls===rs;
+}
+
+function mergeLocalChildData(keepId, removeId){
+  if(!keepId||!removeId||keepId===removeId)return;
+  const keep=state.family.children.find(c=>c.id===keepId);
+  const rem=state.family.children.find(c=>c.id===removeId);
+  if(!keep||!rem)return;
+
+  // Preserva todos os registros da criança removida.
+  const keepEntries=state.entries[keepId]||[];
+  const removeEntries=state.entries[removeId]||[];
+  const existingIds=new Set(keepEntries.map(x=>x.id));
+  state.entries[keepId]=[
+    ...keepEntries,
+    ...removeEntries.filter(x=>!existingIds.has(x.id)).map(x=>({...x,childId:keepId}))
+  ];
+  delete state.entries[removeId];
+
+  // Preserva planejamentos.
+  state.plans.forEach(p=>{if(p.childId===removeId)p.childId=keepId});
+
+  // Mantém o histórico de ano mais completo.
+  keep.stageHistory??=[];
+  const histIds=new Set(keep.stageHistory.map(h=>`${h.stage}|${h.startDate}|${h.endDate}`));
+  (rem.stageHistory||[]).forEach(h=>{
+    const k=`${h.stage}|${h.startDate}|${h.endDate}`;
+    if(!histIds.has(k))keep.stageHistory.push(h);
+  });
+
+  keep.birth=keep.birth||rem.birth||"";
+  keep.stage=keep.stage||rem.stage||"";
+  keep.updatedAt=now();
+
+  state.family.children=state.family.children.filter(c=>c.id!==removeId);
+  if(activeChildId===removeId)activeChildId=keepId;
+}
+
+async function reconcileChildrenWithBackend(showMessage=false){
+  const fam=currentBackendFamily();
+  if(!fam)return false;
+
+  if(!backendChildren.length && !backendArchivedChildren.length){
+    await loadBackendFamilyData();
+  }
+
+  const map=getBackendChildMap();
+  const allRemote=[...backendChildren,...backendArchivedChildren];
+
+  for(const remote of allRemote){
+    // 1. Se já existe mapeamento válido para esse remoto, ele é o principal.
+    let mappedLocalId=Object.keys(map).find(localId=>
+      map[localId]===remote.id &&
+      state.family.children.some(c=>c.id===localId)
+    );
+
+    let matches=state.family.children.filter(local=>childMatchesRemote(local,remote));
+
+    // 2. Se não há mapa, reutiliza cadastro local compatível em vez de duplicar.
+    if(!mappedLocalId && matches.length){
+      mappedLocalId=matches[0].id;
+      map[mappedLocalId]=remote.id;
+    }
+
+    // 3. Se ainda não existe local, cria apenas uma vez.
+    if(!mappedLocalId){
+      mappedLocalId=uid();
+      const local={
+        id:mappedLocalId,
+        name:remote.name,
+        birth:remote.birth_date||"",
+        stage:remote.reference_stage||"Sem ano de referência",
+        stageHistory:[{
+          stage:remote.reference_stage||"Sem ano de referência",
+          startDate:"",
+          endDate:""
+        }],
+        archived:Number(remote.active)===0,
+        createdAt:now(),
+        updatedAt:now()
+      };
+      state.family.children.push(local);
+      map[mappedLocalId]=remote.id;
+      matches=[local];
+    }
+
+    // 4. Mescla duplicatas locais que representam exatamente a mesma criança remota.
+    const duplicates=state.family.children.filter(local=>
+      local.id!==mappedLocalId && childMatchesRemote(local,remote)
+    );
+
+    duplicates.forEach(dup=>{
+      mergeLocalChildData(mappedLocalId,dup.id);
+      delete map[dup.id];
+    });
+
+    const main=state.family.children.find(c=>c.id===mappedLocalId);
+    if(main){
+      main.name=remote.name||main.name;
+      main.birth=remote.birth_date||main.birth||"";
+      main.stage=remote.reference_stage||main.stage||"Sem ano de referência";
+      main.archived=Number(remote.active)===0;
+      main.updatedAt=now();
+    }
+  }
+
+  // Remove entradas de mapa que apontam para locais inexistentes.
+  Object.keys(map).forEach(localId=>{
+    if(!state.family.children.some(c=>c.id===localId))delete map[localId];
+  });
+
+  setBackendChildMap(map);
+  state.family.updatedAt=now();
+
+  const activeLocals=state.family.children.filter(c=>!c.archived);
+  if(!activeLocals.some(c=>c.id===activeChildId)){
+    activeChildId=activeLocals[0]?.id||null;
+  }
+
+  saveLocal();
+  renderAll();
+
+  if(showMessage){
+    alert("Crianças reconciliadas com o backend. Registros e planejamentos foram preservados.");
+  }
+  return true;
+}
+
 async function syncFamilyFromBackend(showMessage=false){
   const fam=currentBackendFamily();
   if(!fam)return;
@@ -890,51 +1038,12 @@ async function syncFamilyFromBackend(showMessage=false){
       await loadBackendFamilyData();
     }
 
-    // Família do backend passa a ser referência para nome e membros.
     state.family.name=fam.name||state.family.name||"Família";
-    const map=getBackendChildMap();
+    await reconcileChildrenWithBackend(false);
 
-    const allRemote=[...backendChildren,...backendArchivedChildren];
-    for(const rc of allRemote){
-      let localId=Object.keys(map).find(k=>map[k]===rc.id);
-      let local=localId?state.family.children.find(c=>c.id===localId):null;
-
-      // Para outra conta Google, cria o cadastro local a partir do backend.
-      if(!local){
-        localId=uid();
-        local={
-          id:localId,
-          name:rc.name,
-          birth:rc.birth_date||"",
-          stage:rc.reference_stage||"Sem ano de referência",
-          stageHistory:[{stage:rc.reference_stage||"Sem ano de referência",startDate:"",endDate:""}],
-          archived:Number(rc.active)===0,
-          createdAt:now(),
-          updatedAt:now()
-        };
-        state.family.children.push(local);
-        map[localId]=rc.id;
-      }else{
-        local.name=rc.name||local.name;
-        local.birth=rc.birth_date||local.birth||"";
-        local.stage=rc.reference_stage||local.stage||"Sem ano de referência";
-        local.archived=Number(rc.active)===0;
-        local.updatedAt=now();
-      }
+    if(showMessage){
+      alert("Família e crianças atualizadas a partir do backend.");
     }
-
-    setBackendChildMap(map);
-    state.family.updatedAt=now();
-
-    // Se a criança ativa atual foi arquivada, troca para outra ativa.
-    const activeLocals=state.family.children.filter(c=>!c.archived);
-    if(!activeLocals.some(c=>c.id===activeChildId)){
-      activeChildId=activeLocals[0]?.id||null;
-    }
-
-    saveLocal();
-    renderAll();
-    if(showMessage)alert("Família e crianças atualizadas a partir do backend.");
   }catch(e){
     console.error(e);
     if(showMessage)alert("Não foi possível atualizar a família: "+e.message);
@@ -1414,7 +1523,7 @@ function populateCommonSelects(){
 }
 function renderChildButtons(targetId,onClickName="selectChild"){
  let box=$(targetId);if(!box)return;
- box.innerHTML=state.family.children.map(c=>`<button class="child ${c.id===activeChildId?"active":""}" onclick="${onClickName}('${c.id}')">${esc(c.name)}<br><small>${esc(c.stage)}</small></button>`).join("")||"<span class='notice'>Cadastre uma criança em Configurações.</span>";
+ box.innerHTML=state.family.children.filter(c=>!c.archived).map(c=>`<button class="child ${c.id===activeChildId?"active":""}" onclick="${onClickName}('${c.id}')">${esc(c.name)}<br><small>${esc(c.stage)}</small></button>`).join("")||"<span class='notice'>Cadastre uma criança em Configurações.</span>";
 }
 function selectChild(id){activeChildId=id;editing=null;photoData="";audioData="";renderAll()}
 
@@ -1794,15 +1903,15 @@ function saveEntry(){
  foto:photoData||editing?.foto||"",fotoDriveId:editing?.fotoDriveId||"",fotoVisibleDriveId:editing?.fotoVisibleDriveId||"",audio:editing?.audio||"",audioDriveId:editing?.audioDriveId||""};
  if(!e.date)missing.push("Data");if(type==="bncc"){if(!e.area)missing.push("Área");if(!e.componente)missing.push("Componente");if(!e.codigo)missing.push("Código BNCC");if(!e.habilidade)missing.push("Habilidade")}else if(!e.habilidade)missing.push("Atividade complementar");if(!e.atividade)missing.push("Atividade realizada");if(!e.status)missing.push("Avaliação");
  if(missing.length)return alert("Preencha antes de registrar:\n\n• "+missing.join("\n• "));
- if(planIdToComplete)completePlanOccurrence(planIdToComplete,planOccurrenceDate);
+ let savedChildId=activeChildId;
+ let planIdToComplete=editing?.planId||"";
+ let planOccurrenceDate=editing?.planOccurrenceDate||editing?.date||"";
  if(photoData && editing?.foto && photoData!==editing.foto){
    e.fotoVisibleDriveId="";
    e.fotoDriveId="";
  }
- let savedChildId=activeChildId;
- let planIdToComplete=editing?.planId||"";
- let planOccurrenceDate=editing?.planOccurrenceDate||editing?.date||"";
  let l=state.entries[activeChildId]||[];state.entries[activeChildId]=editing?l.map(x=>x.id===editing.id?e:x):[e,...l];
+ if(planIdToComplete)completePlanOccurrence(planIdToComplete,planOccurrenceDate);
  editing=null;photoData="";audioData="";
  clearRecordDraft(savedChildId);
  saveLocal();
