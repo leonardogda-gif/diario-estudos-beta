@@ -174,7 +174,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.6.7</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.6.9</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -442,6 +442,7 @@ let sharedFamilyDataFileId = "";
 let sharedFamilyPhotosFolderId = "";
 const BACKEND_URL = "https://diario-estudos-api.leonardo-gda.workers.dev";
 let backendProfile = null;
+let lastBackendError = "";
 const BACKEND_FAMILY_ID_KEY = "DE_V422_BACKEND_FAMILY_ID";
 const ACTIVE_BACKEND_FAMILY_KEY = "DE_V4242_ACTIVE_BACKEND_FAMILY";
 const BACKEND_CHILD_MAP_KEY = "DE_V422_BACKEND_CHILD_MAP";
@@ -854,10 +855,22 @@ async function refreshBackendProfile(){
   backendProfile=await backendFetch("/me");
   setBackendStatus("conectado",true);
   renderBackendFamilyState();
+
   const fam=backendFamilyFromProfile();
+
   if(fam){
-    await loadBackendFamilyData();
-    await reconcileChildrenWithBackend(false);
+    try{
+      await loadBackendFamilyData();
+    }catch(e){
+      console.error("Falha ao carregar dados da família:",e);
+      setCloudStatus("error","Falha ao carregar dados da família");
+    }
+
+    try{
+      await reconcileChildrenWithBackend(false);
+    }catch(e){
+      console.error("Falha ao reconciliar crianças:",e);
+    }
   }else{
     backendMembers=[];
     backendChildren=[];
@@ -865,7 +878,13 @@ async function refreshBackendProfile(){
     clearEducationalStateWithoutBackendFamily();
     renderBackendFamilyPanels();
   }
-  await refreshSharedStorageVisualState();
+
+  try{
+    await refreshSharedStorageVisualState();
+  }catch(e){
+    console.error("Falha ao verificar armazenamento compartilhado:",e);
+  }
+
   return backendProfile;
 }
 
@@ -1849,7 +1868,11 @@ async function backendFetch(path, options={}){
   try{data=await response.json()}catch(e){}
 
   if(!response.ok){
-    throw new Error(data?.error||data?.detail||("Backend HTTP "+response.status));
+    const detail=data?.error||data?.detail||data?.message||("Backend HTTP "+response.status);
+    const err=new Error(detail);
+    err.status=response.status;
+    err.payload=data;
+    throw err;
   }
 
   return data;
@@ -1858,18 +1881,22 @@ async function backendFetch(path, options={}){
 async function connectBackend(){
   if(!googleAccessToken){
     backendProfile=null;
+    lastBackendError="Faça login com Google primeiro.";
     setBackendStatus("aguardando login");
     return false;
   }
 
+  lastBackendError="";
   setBackendStatus("conectando...");
+
   try{
     await refreshBackendProfile();
     return true;
   }catch(e){
-    console.error("Backend:",e);
+    console.error("Falha de autenticação do backend:",e);
+    lastBackendError=`${e?.status?`HTTP ${e.status} · `:""}${e?.message||"erro de conexão"}`;
     backendProfile=null;
-    setBackendStatus(e.message||"erro de conexão",false);
+    setBackendStatus(lastBackendError,false);
     return false;
   }
 }
@@ -1880,12 +1907,34 @@ async function testBackendConnection(){
     return;
   }
 
-  const ok=await connectBackend();
+  try{
+    setBackendStatus("testando conexão atual...");
+    const live=await backendFetch("/me");
 
-  if(ok){
-    alert("Backend conectado com sucesso. Usuário e vínculo de família verificados no D1.");
-  }else{
-    alert("Não foi possível autenticar no backend. Veja o status exibido na tela.");
+    backendProfile=live;
+    lastBackendError="";
+    setBackendStatus("conectado",true);
+
+    const families=live?.families||[];
+    alert(
+      "Backend conectado com sucesso.\n\n"+
+      `Conta: ${live?.user?.email||googleUser?.email||"não identificada"}\n`+
+      `Famílias retornadas agora: ${families.length}`
+    );
+
+    await refreshBackendProfile();
+    renderAll(true);
+  }catch(e){
+    lastBackendError=`${e?.status?`HTTP ${e.status} · `:""}${e?.message||"erro desconhecido"}`;
+    console.error("Teste live do backend:",e);
+    setBackendStatus(lastBackendError,false);
+    setCloudStatus("error","Backend não conectado");
+
+    alert(
+      "O backend respondeu com erro na conexão atual:\n\n"+
+      lastBackendError+
+      "\n\nEsse é o erro que precisamos corrigir; os dados de família que apareciam antes podiam estar carregados de uma sessão anterior."
+    );
   }
 }
 
@@ -2631,17 +2680,31 @@ async function syncLegacyPrivateDrive(opt={}){
 async function syncWithDrive(opt={}){
   let fam=currentBackendFamily();
 
-  // Em alguns carregamentos o token Google já existe, mas o perfil/família
-  // do backend ainda não terminou de ser resolvido. Antes de mostrar
-  // "Aguardando família", consulta o backend novamente uma vez.
   if(!fam && googleAccessToken){
-    try{
-      if(!backendProfile?.user || !(backendProfile?.families||[]).length){
-        await refreshBackendProfile();
+    if(!backendProfile?.user){
+      const ok=await connectBackend();
+      if(!ok){
+        setCloudStatus("error","Backend não conectado");
+        return;
       }
+    }
+
+    fam=currentBackendFamily();
+    const families=backendProfile?.families||[];
+
+    if(!fam && families.length===1){
+      localStorage.setItem(ACTIVE_BACKEND_FAMILY_KEY,families[0].id);
+      setBackendFamilyId(families[0].id);
       fam=currentBackendFamily();
-    }catch(e){
-      console.error("Não foi possível atualizar a família antes da sincronização:",e);
+
+      if(fam){
+        try{
+          await loadBackendFamilyData();
+          await reconcileChildrenWithBackend(false);
+        }catch(e){
+          console.error("Falha ao restaurar vínculo da família:",e);
+        }
+      }
     }
   }
 
@@ -2659,14 +2722,6 @@ async function syncWithDrive(opt={}){
   if(families.length>1){
     setCloudStatus("pending","Selecione uma família");
     return;
-  }
-
-  if(families.length===1){
-    // Auto-reparo do vínculo local caso o ID salvo tenha ficado obsoleto.
-    localStorage.setItem(ACTIVE_BACKEND_FAMILY_KEY,families[0].id);
-    setBackendFamilyId(families[0].id);
-    fam=currentBackendFamily();
-    if(fam)return await syncSharedFamilyDrive(opt);
   }
 
   setCloudStatus("offline","Aguardando vínculo com uma família");
