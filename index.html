@@ -88,8 +88,8 @@ h3{font-size:16px}
 .media-status{font-size:11px;color:#6A675D;margin-top:5px}
 
 .profile-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.responsible-card,.child-card{border:1px solid #E2DCCD;border-radius:9px;padding:12px;margin-top:9px;background:#FFFDF8}
-.responsible-card h4,.child-card h4{margin:0 0 6px;font-size:14px}
+.child-card{border:1px solid #E2DCCD;border-radius:9px;padding:12px;margin-top:9px;background:#FFFDF8}
+.child-card h4{margin:0 0 6px;font-size:14px}
 .timeline{border-left:3px solid #D8D1C2;margin:8px 0 0 7px;padding-left:12px}
 .timeline-item{position:relative;padding:4px 0 8px}
 .timeline-item:before{content:"";position:absolute;left:-18px;top:8px;width:8px;height:8px;border-radius:50%;background:#6B8CAE}
@@ -174,7 +174,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.6.3</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.6.4</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -379,6 +379,9 @@ body.app-authenticated .cloud-card{display:none!important}
 <div class="settings-section">
   <h3>Crianças</h3>
   <div class="notice">Este cadastro vem do backend da família e é compartilhado entre todos os responsáveis.</div>
+
+  <div id="duplicateChildrenBox" class="hidden" style="margin-top:10px"></div>
+
   <div id="childrenCards" style="margin-top:10px"></div>
   <div id="addChildBackendBox" class="grid" style="margin-top:12px">
     <div><label class="field">Nome</label><input id="childName"></div>
@@ -427,7 +430,7 @@ body.app-authenticated .cloud-card{display:none!important}
 const GOOGLE_CLIENT_ID = "629410527657-f5b9r4o0jvcvf0517oracmhpvhsj19pn.apps.googleusercontent.com";
 const GOOGLE_SCOPES = "openid email profile https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.appdata";
 const GOOGLE_PICKER_APP_ID = "629410527657";
-const GOOGLE_PICKER_API_KEY = "AIzaSyBzUYFK_EzCqU2U4B4UMBRHWs-QsyByHKc";
+const GOOGLE_PICKER_API_KEY = "AIzaSyDyKazsHTfiqb5mQuTK14FsBq8AIafWNy4";
 let googlePickerReady = false;
 let googlePickerLoading = false;
 const DRIVE_SYNC_FILE = "diario-estudos-beta.json";
@@ -1512,18 +1515,30 @@ function findPossibleChildDuplicates(){
 function renderDuplicateChildren(){
  const box=$("duplicateChildrenBox");if(!box)return;
  const pairs=findPossibleChildDuplicates();
+
  if(!pairs.length){
-   box.className="notice";
-   box.textContent="Nenhuma duplicidade local detectada.";
+   box.className="hidden";
+   box.innerHTML="";
    return;
  }
- box.className="";
- box.innerHTML=pairs.map(([a,b])=>`<div class="duplicate-card">
-   <b>Possível duplicidade local: ${esc(a.name)}</b>
-   <div class="meta">Cadastro A: ${esc(a.birth||"sem nascimento")} · ${esc(a.stage||"sem ano")}</div>
-   <div class="meta">Cadastro B: ${esc(b.birth||"sem nascimento")} · ${esc(b.stage||"sem ano")}</div>
-   <div class="meta" style="margin-top:4px">Use “Reconciliar crianças com o backend” para preservar registros e consolidar os cadastros compatíveis.</div>
- </div>`).join("");
+
+ box.className="notice";
+ box.innerHTML=`
+   <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap">
+     <div>
+       <b>⚠️ Possível duplicidade de criança</b>
+       <div class="meta" style="margin-top:3px">
+         Encontramos cadastros que parecem representar a mesma criança. Revise antes de continuar registrando atividades.
+       </div>
+     </div>
+     <button class="btn small" onclick="reconcileChildrenWithBackend(true)">Reconciliar agora</button>
+   </div>
+   ${pairs.map(([a,b])=>`<div class="duplicate-card">
+     <b>${esc(a.name)}</b>
+     <div class="meta">Cadastro A: ${esc(a.birth||"sem nascimento")} · ${esc(a.stage||"sem ano")}</div>
+     <div class="meta">Cadastro B: ${esc(b.birth||"sem nascimento")} · ${esc(b.stage||"sem ano")}</div>
+   </div>`).join("")}
+ `;
 }
 
 async function inviteFamilyMember(){
@@ -2597,22 +2612,6 @@ function renderChildButtons(targetId,onClickName="selectChild"){
 }
 function selectChild(id){activeChildId=id;editing=null;photoData="";audioData="";photoTakenAt="";photoDateSource="";renderAll()}
 
-function addResponsible(){
- const name=$("respName")?.value.trim()||"";if(!name)return alert("Informe o nome do responsável.");
- state.family.responsibles??=[];
- state.family.responsibles.push({id:uid(),name,email:$("respEmail")?.value.trim()||"",relation:$("respRelation")?.value||"Responsável",phone:$("respPhone")?.value.trim()||"",createdAt:now(),updatedAt:now()});
- state.family.updatedAt=now();["respName","respEmail","respPhone"].forEach(id=>{if($(id))$(id).value=""});saveLocal();renderResponsibles()
-}
-function renderResponsibles(){
- const box=$("responsiblesList");if(!box)return;state.family.responsibles??=[];
- box.innerHTML=state.family.responsibles.map(r=>`<div class="responsible-card"><h4>${esc(r.name)}</h4><div class="meta">${esc(r.relation||"Responsável")}${r.email?" · "+esc(r.email):""}${r.phone?" · "+esc(r.phone):""}</div><div class="entry-actions"><button class="btn small" onclick="editResponsible('${r.id}')">Editar</button><button class="btn danger small" onclick="deleteResponsible('${r.id}')">Excluir</button></div></div>`).join("")||"<div class='notice'>Nenhum responsável cadastrado.</div>"
-}
-function editResponsible(id){
- const r=state.family.responsibles.find(x=>x.id===id);if(!r)return;
- const name=prompt("Nome:",r.name);if(name===null)return;const email=prompt("E-mail:",r.email||"");if(email===null)return;const rel=prompt("Relação:",r.relation||"Responsável");if(rel===null)return;const phone=prompt("Telefone:",r.phone||"");if(phone===null)return;
- Object.assign(r,{name:name.trim()||r.name,email:email.trim(),relation:rel.trim()||"Responsável",phone:phone.trim(),updatedAt:now()});state.family.updatedAt=now();saveLocal();renderResponsibles()
-}
-function deleteResponsible(id){if(!confirm("Excluir este responsável?"))return;state.family.responsibles=state.family.responsibles.filter(x=>x.id!==id);state.family.updatedAt=now();saveLocal();renderResponsibles()}
 function renderChildrenCards(){
  const box=$("childrenCards");if(!box)return;
  if(!currentBackendFamily()){
