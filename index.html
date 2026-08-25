@@ -174,7 +174,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.6.9</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.6.10</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -1518,6 +1518,9 @@ async function openSharedFamilyPhotos(){
   }
 }
 
+function normalizedChildName(name){
+ return normalizeChildName(name);
+}
 function normalizeChildName(name){
  return String(name||"")
    .normalize("NFD")
