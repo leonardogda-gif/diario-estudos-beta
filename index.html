@@ -174,7 +174,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.6.10</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.6.11</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -1518,9 +1518,6 @@ async function openSharedFamilyPhotos(){
   }
 }
 
-function normalizedChildName(name){
- return normalizeChildName(name);
-}
 function normalizeChildName(name){
  return String(name||"")
    .normalize("NFD")
@@ -1702,7 +1699,7 @@ async function restoreBackendChild(backendChildId){
 
 function childMatchesRemote(local, remote){
   if(!local||!remote)return false;
-  const sameName=normalizedChildName(local.name)===normalizedChildName(remote.name);
+  const sameName=normalizeChildName(local.name)===normalizeChildName(remote.name);
   if(!sameName)return false;
 
   const lb=String(local.birth||"").trim();
@@ -2346,12 +2343,12 @@ async function downloadAsDataUrl(id){
 
 
 function normalizedFirstName(name){
-  return normalizedChildName(name).split(/\s+/).filter(Boolean)[0]||"";
+  return normalizeChildName(name).split(/\s+/).filter(Boolean)[0]||"";
 }
 
 function findCanonicalLocalChildForLegacy(legacyChild){
   const active=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan);
-  let matches=active.filter(c=>normalizedChildName(c.name)===normalizedChildName(legacyChild.name));
+  let matches=active.filter(c=>normalizeChildName(c.name)===normalizeChildName(legacyChild.name));
   if(matches.length===1)return matches[0];
 
   const birth=String(legacyChild.birth||"").trim();
@@ -2635,7 +2632,7 @@ async function syncSharedFamilyDrive(opt={}){
     renderSharedStorageStatus(true,"Ativo · última sincronização "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})+".");
 
     renderAll();
-    hydrateMedia();
+    hydrateMedia().catch(e=>console.error("Falha ao carregar mídias após sincronização:",e));
   }catch(e){
     console.error(e);
     if(e?.code==="DRIVE_PICKER_REQUIRED" || e?.message==="DRIVE_PICKER_REQUIRED"){
@@ -2730,13 +2727,38 @@ async function syncWithDrive(opt={}){
   setCloudStatus("offline","Aguardando vínculo com uma família");
 }
 
+function safeRenderStep(name,fn){
+ try{
+   return fn();
+ }catch(e){
+   console.error(`Falha ao renderizar ${name}:`,e);
+   return null;
+ }
+}
+
 function renderAll(skipDraftSave=false){
  if(!skipDraftSave){
-   try{if($("fDate"))saveRecordDraft(true)}catch(e){}
+   safeRenderStep("rascunho do registro",()=>{if($("fDate"))saveRecordDraft(true)});
  }
- populateCommonSelects();renderDashboard();renderRecordPage();renderPlans();renderReportPage();renderComplementaryList();renderSettingsChildren();renderChildrenCards();renderHistoryBatchRows();refreshHistoryActivityOptions();renderBackendFamilyState();renderBackendFamilyPanels();
- $("count").textContent=currentBncc().length;
- renderSimpleFamilySummary();
+
+ safeRenderStep("seletores",populateCommonSelects);
+ safeRenderStep("início",renderDashboard);
+ safeRenderStep("registro",renderRecordPage);
+ safeRenderStep("planejamento",renderPlans);
+ safeRenderStep("relatórios",renderReportPage);
+ safeRenderStep("atividades complementares",renderComplementaryList);
+ safeRenderStep("configurações das crianças",renderSettingsChildren);
+ safeRenderStep("cartões das crianças",renderChildrenCards);
+ safeRenderStep("histórico em lote",renderHistoryBatchRows);
+ safeRenderStep("opções do histórico",refreshHistoryActivityOptions);
+ safeRenderStep("estado da família",renderBackendFamilyState);
+ safeRenderStep("painéis da família",renderBackendFamilyPanels);
+ safeRenderStep("resumo da família",renderSimpleFamilySummary);
+
+ safeRenderStep("contador BNCC",()=>{
+   const el=$("count");
+   if(el)el.textContent=currentBncc().length;
+ });
 }
 function populateCommonSelects(){
  const availableChildren=currentBackendFamily()
