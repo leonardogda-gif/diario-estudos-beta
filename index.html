@@ -174,7 +174,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.6.6</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.6.7</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -1906,6 +1906,8 @@ function compactCloudStatus(msg){
 
  if(/sincronizando|sincronizar|sincroniza[cç][aã]o em andamento/i.test(s))return "Sincronizando…";
  if(/aguardando vínculo/i.test(s))return "Aguardando família";
+ if(/selecione uma família/i.test(s))return "Selecione uma família";
+ if(/backend não conectado/i.test(s))return "Backend desconectado";
  if(/conecte o drive/i.test(s))return "Drive precisa ser conectado";
  if(/falha|erro/i.test(s))return "Erro de sincronização";
  if(/conectado|online/i.test(s))return "Drive ativo";
@@ -1973,8 +1975,12 @@ function initGoogleAuth(){
       localStorage.setItem(GOOGLE_EMAIL_KEY, googleUser.email);
     }
     updateAuthUI();
-    await connectBackend();
-    await syncWithDrive({initial:true});
+    const backendOK=await connectBackend();
+    if(backendOK){
+      await syncWithDrive({initial:true});
+    }else{
+      setCloudStatus("error","Backend não conectado");
+    }
    }catch(e){console.error(e);setCloudStatus("error","Erro ao conectar com Drive")}
   }
  });
@@ -2623,11 +2629,47 @@ async function syncLegacyPrivateDrive(opt={}){
  finally{syncing=false}
 }
 async function syncWithDrive(opt={}){
-  if(currentBackendFamily()){
+  let fam=currentBackendFamily();
+
+  // Em alguns carregamentos o token Google já existe, mas o perfil/família
+  // do backend ainda não terminou de ser resolvido. Antes de mostrar
+  // "Aguardando família", consulta o backend novamente uma vez.
+  if(!fam && googleAccessToken){
+    try{
+      if(!backendProfile?.user || !(backendProfile?.families||[]).length){
+        await refreshBackendProfile();
+      }
+      fam=currentBackendFamily();
+    }catch(e){
+      console.error("Não foi possível atualizar a família antes da sincronização:",e);
+    }
+  }
+
+  if(fam){
     return await syncSharedFamilyDrive(opt);
   }
+
+  if(!backendProfile?.user){
+    setCloudStatus("error","Backend não conectado");
+    return;
+  }
+
+  const families=backendProfile?.families||[];
+
+  if(families.length>1){
+    setCloudStatus("pending","Selecione uma família");
+    return;
+  }
+
+  if(families.length===1){
+    // Auto-reparo do vínculo local caso o ID salvo tenha ficado obsoleto.
+    localStorage.setItem(ACTIVE_BACKEND_FAMILY_KEY,families[0].id);
+    setBackendFamilyId(families[0].id);
+    fam=currentBackendFamily();
+    if(fam)return await syncSharedFamilyDrive(opt);
+  }
+
   setCloudStatus("offline","Aguardando vínculo com uma família");
-  return;
 }
 
 function renderAll(skipDraftSave=false){
