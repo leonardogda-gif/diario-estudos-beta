@@ -203,7 +203,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.7.4 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.8 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -514,7 +514,7 @@ let state={
  tombstones:{entries:[],children:[],complementary:[],plans:[]},
  bncc:null
 };
-let activeChildId=null,editing=null,photoData="",audioData="",mediaRecorder=null,mediaChunks=[],historyBatchRows=[];
+let activeChildId=null,editing=null,recordFormOpen=false,photoData="",audioData="",mediaRecorder=null,mediaChunks=[],historyBatchRows=[];
 let photoTakenAt="",photoDateSource="";
 let saveEntryLocked=false;
 let googleTokenClient=null,googleAccessToken="",googleTokenExpiresAt=0,googleUser=null,driveFileId=null,syncing=false,syncTimer=null;
@@ -1342,7 +1342,7 @@ async function continueFamilyStorageSetup(){
 function renderSharedStorageStatus(ready=false,message="",needsPicker=false){
   const simpleContinue=$("familyStorageContinueBtn");
   if(simpleContinue){
-    simpleContinue.classList.toggle("hidden",!!ok);
+    simpleContinue.classList.toggle("hidden",!!ready);
     simpleContinue.textContent="Continuar";
   }
 
@@ -2975,7 +2975,7 @@ function renderChildButtons(targetId,onClickName="selectChild"){
  box.innerHTML=children.map(c=>`<button class="child ${c.id===activeChildId?"active":""}" onclick="${onClickName}('${c.id}')">${esc(c.name)}<br><small>${esc(c.stage)}</small></button>`).join("")
    ||`<span class='notice'>${(backendProfile?.pendingInvites||[]).length?"Aceite o convite da família em Configurações.":"Cadastre uma família e uma criança em Configurações."}</span>`;
 }
-function selectChild(id){activeChildId=id;editing=null;photoData="";audioData="";photoTakenAt="";photoDateSource="";renderAll()}
+function selectChild(id){activeChildId=id;editing=null;recordFormOpen=false;photoData="";audioData="";photoTakenAt="";photoDateSource="";renderAll(true)}
 
 function renderChildrenCards(){
  const box=$("childrenCards");if(!box)return;
@@ -3182,10 +3182,35 @@ function skillsForScope(comp,stage,scope,selectedCode=""){
  return list;
 }
 
+function startNewRecord(){
+ clearRecordDraft(activeChildId);
+ editing=null;
+ recordFormOpen=true;
+ photoData="";
+ audioData="";
+ photoTakenAt="";
+ photoDateSource="";
+ renderRecordPage();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
 function renderRecordPage(){
  renderChildButtons("recordChildTabs","selectChild");
  let box=$("recordApp"),child=currentChild();if(!box)return;
  if(!child){box.innerHTML="<div class='card notice'>Cadastre uma criança em Configurações.</div>";return}
+
+ if(!editing&&!recordFormOpen){
+   box.innerHTML=`<div class="card">
+     <div class="toolbar" style="justify-content:space-between;align-items:center">
+       <h3 style="margin:0">Atividades registradas</h3>
+       <button class="btn success" onclick="startNewRecord()">+ Novo registro</button>
+     </div>
+     <input id="recordSearch" placeholder="Buscar..." oninput="renderRecordList()" style="margin-top:12px">
+     <div id="recordList"></div>
+   </div>`;
+   renderRecordList();
+   return;
+ }
 
  const draft=draftForCurrentForm();
  let base=editing||{date:today(),type:"bncc",complementaryId:"",area:"",componente:"",codigo:"",habilidade:"",atividade:"",observacoes:"",status:"",foto:"",audio:""};
@@ -3242,8 +3267,8 @@ function renderRecordPage(){
    <label class="btn" onclick="saveRecordDraft(true)">Tirar foto<input type="file" accept="image/*" capture="environment" style="display:none" onchange="readPhoto(event)"></label>
    <label class="btn" onclick="saveRecordDraft(true)">Escolher foto<input type="file" accept="image/*" style="display:none" onchange="readPhoto(event)"></label>
  </div></div>
- <div class="full"><div id="photoPreviewWrap">${f.foto?`<img id="photoPreviewImg" class="photo" src="${f.foto}">`:""}</div><div class="meta">* Avaliação obrigatória</div><button class="btn primary" onclick="saveEntry()">${editing?"Salvar alterações":"Salvar registro"}</button>${editing?` <button class="btn" onclick="cancelEdit()">Cancelar</button>`:""}</div></div></div>
- <div class="card"><h3>Atividades registradas</h3><input id="recordSearch" placeholder="Buscar..." oninput="renderRecordList()"><div id="recordList"></div></div>`;
+ <div class="full"><div id="photoPreviewWrap">${f.foto?`<img id="photoPreviewImg" class="photo" src="${f.foto}">`:""}</div><div class="meta">* Avaliação obrigatória</div><button class="btn primary" onclick="saveEntry()">${editing?"Salvar alterações":"Salvar registro"}</button> <button class="btn" onclick="cancelEdit()">Cancelar</button></div></div></div>
+ <div class="card"><div class="toolbar" style="justify-content:space-between;align-items:center"><h3 style="margin:0">Atividades registradas</h3><button class="btn success" onclick="startNewRecord()">+ Novo registro</button></div><input id="recordSearch" placeholder="Buscar..." oninput="renderRecordList()" style="margin-top:12px"><div id="recordList"></div></div>`;
 
  bindRecordDraft();
  if(photoData&&photoTakenAt)renderPhotoDateHint();
@@ -3361,7 +3386,7 @@ function saveEntry(){
  }
  let l=state.entries[activeChildId]||[];state.entries[activeChildId]=editing?l.map(x=>x.id===editing.id?e:x):[e,...l];
  if(planIdToComplete)completePlanOccurrence(planIdToComplete,planOccurrenceDate);
- editing=null;photoData="";audioData="";photoTakenAt="";photoDateSource="";
+ editing=null;recordFormOpen=false;photoData="";audioData="";photoTakenAt="";photoDateSource="";
  clearRecordDraft(savedChildId);
  saveLocal();
  // Não persiste novamente os campos usados no registro concluído.
@@ -3420,11 +3445,12 @@ function viewEntry(id,childId=""){
 function editEntry(id){
  clearRecordDraft(activeChildId);
  editing=(state.entries[activeChildId]||[]).find(x=>x.id===id);
+ recordFormOpen=true;
  photoData=editing?.foto||"";audioData=editing?.audio||"";photoTakenAt=editing?.photoTakenAt||"";photoDateSource=editing?.photoDateSource||"";
- renderRecordPage();saveRecordDraft(true);
+ renderRecordPage();
  window.scrollTo({top:0,behavior:"smooth"})
 }
-function cancelEdit(){clearRecordDraft(activeChildId);editing=null;photoData="";audioData="";photoTakenAt="";photoDateSource="";renderRecordPage()}
+function cancelEdit(){clearRecordDraft(activeChildId);editing=null;recordFormOpen=false;photoData="";audioData="";photoTakenAt="";photoDateSource="";renderRecordPage()}
 async function deleteDriveMediaBestEffort(entry){
  const ids=[entry?.fotoVisibleDriveId,entry?.fotoDriveId,entry?.audioDriveId].filter(Boolean);
  for(const id of [...new Set(ids)]){
@@ -3478,7 +3504,7 @@ function renderPlans(){
  let l=state.plans.filter(x=>!x.completedAt&&(!childId||x.childId===childId)&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
  box.innerHTML=l.map(p=>`<div class="plan-card"><div class="plan-date">Próxima: ${fmtDate(p.nextDate||p.date)} · ${esc(state.family.children.find(c=>c.id===p.childId)?.name||"")}</div><div class="entry-title">${esc(p.title)}</div>${p.component?`<div class="skill">${esc(p.component)}</div>`:""}<div class="meta">${p.recurrence&&p.recurrence!=="none"?`Recorrência: ${esc(p.recurrence==="daily"?"diária":p.recurrence==="weekly"?"semanal":p.recurrence==="monthly"?"mensal":"dias específicos")}`:"Atividade única"}</div>${p.notes?`<div class="obs">${esc(p.notes)}</div>`:""}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">Registrar como concluída</button>${p.recurrence!=="none"?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular ocorrência</button>`:""}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`).join("")||"<div class='notice'>Nenhuma atividade planejada.</div>"
 }
-function startPlan(id){let p=state.plans.find(x=>x.id===id);if(!p)return;activeChildId=p.childId;editing={id:uid(),childId:p.childId,date:p.nextDate||p.date,type:p.type,complementaryId:"",area:"",componente:p.component,codigo:"",habilidade:"",atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),planId:p.id,planOccurrenceDate:p.nextDate||p.date};showPage("registro");renderRecordPage()}
+function startPlan(id){let p=state.plans.find(x=>x.id===id);if(!p)return;activeChildId=p.childId;recordFormOpen=true;editing={id:uid(),childId:p.childId,date:p.nextDate||p.date,type:p.type,complementaryId:"",area:"",componente:p.component,codigo:"",habilidade:"",atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),planId:p.id,planOccurrenceDate:p.nextDate||p.date};showPage("registro");renderRecordPage()}
 function completePlanOccurrence(planId,occurrenceDate){const p=state.plans.find(x=>x.id===planId);if(!p)return;p.occurrences??=[];p.occurrences.push({date:occurrenceDate,status:"completed",updatedAt:now()});if(p.recurrence==="none"){p.completedAt=now();p.nextDate=""}else{p.nextDate=nextPlanDate(p,occurrenceDate);if(!p.nextDate)p.completedAt=now()}p.updatedAt=now()}
 function skipPlanOccurrence(id){const p=state.plans.find(x=>x.id===id);if(!p)return;const current=p.nextDate||p.date;if(!confirm(`Pular a ocorrência de ${fmtDate(current)}?`))return;p.occurrences??=[];p.occurrences.push({date:current,status:"skipped",updatedAt:now()});p.nextDate=nextPlanDate(p,current);if(!p.nextDate)p.completedAt=now();p.updatedAt=now();saveLocal();renderPlans();renderDashboard()}
 function deletePlan(id){state.plans=state.plans.filter(x=>x.id!==id);addTomb("plans",id);saveLocal();renderPlans();renderDashboard()}
@@ -3576,7 +3602,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "4.7.2";
+const APP_VERSION = "4.8";
 let appSwRegistration = null;
 let appUpdateWorker = null;
 
