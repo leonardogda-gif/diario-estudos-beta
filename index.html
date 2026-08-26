@@ -203,7 +203,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.8 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.9 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -2399,23 +2399,11 @@ function monthFolderName(date){
   return String(m||1).padStart(2,"0")+" - "+(names[(m||1)-1]||"Mês");
 }
 async function ensureFolderPathForEntry(entry){
+  // V4.9: todas as fotos novas ficam diretamente na pasta Fotos oficial.
+  // A criança/data continuam vinculadas ao registro no JSON; não criamos
+  // mais subpastas Criança/Ano/Mês. Estruturas antigas permanecem intactas.
   const s=await prepareSharedFamilyStorage(false);
-  const photosRoot=s.photosFolderId;
-  const child=state.family.children.find(c=>c.id===entry.childId);
-  const childName=safeDriveFolderName(child?.name||"Criança");
-
-  let childFolder=await findVisibleFolder(childName,photosRoot);
-  if(!childFolder)childFolder=await createVisibleFolder(childName,photosRoot);
-
-  const year=(String(entry.date||today()).slice(0,4)||String(new Date().getFullYear()));
-  let yearFolder=await findVisibleFolder(year,childFolder.id);
-  if(!yearFolder)yearFolder=await createVisibleFolder(year,childFolder.id);
-
-  const month=monthFolderName(entry.date);
-  let monthFolder=await findVisibleFolder(month,yearFolder.id);
-  if(!monthFolder)monthFolder=await createVisibleFolder(month,yearFolder.id);
-
-  return monthFolder.id;
+  return s.photosFolderId;
 }
 async function createVisibleFile(name,mime,parentId){
   const res=await apiFetch("https://www.googleapis.com/drive/v3/files?fields=id,name,webViewLink",{
@@ -2429,7 +2417,10 @@ async function uploadVisiblePhoto(entry){
   if(!entry?.foto?.startsWith("data:")) return "";
   const parentId=await ensureFolderPathForEntry(entry);
   const cleanDate=String(entry.date||today()).replace(/-/g,"");
-  const filename=`${cleanDate}_${safeDriveFolderName(entry.atividade||"atividade").slice(0,55)}_${entry.id.slice(0,8)}.jpg`;
+  const child=state.family.children.find(c=>c.id===entry.childId);
+  const childPart=safeDriveFolderName(child?.name||"crianca").slice(0,30);
+  const activityPart=safeDriveFolderName(entry.atividade||"atividade").slice(0,45);
+  const filename=`${cleanDate}_${childPart}_${activityPart}_${entry.id}.jpg`;
   const meta=await createVisibleFile(filename,"image/jpeg",parentId);
   const blob=await (await fetch(entry.foto)).blob();
   await apiFetch(`https://www.googleapis.com/upload/drive/v3/files/${meta.id}?uploadType=media`,{
@@ -2461,26 +2452,26 @@ async function organizeExistingPhotos(){
   const all=Object.values(state.entries||{}).flat();
   const pending=all.filter(e=>e.foto?.startsWith("data:")&&!e.fotoVisibleDriveId);
   if(!pending.length){
-    updateVisibleDriveStatus("Todas as fotos disponíveis já estão organizadas.");
-    return alert("Não há fotos pendentes para organizar.");
+    updateVisibleDriveStatus("Todas as fotos disponíveis já foram enviadas.");
+    return alert("Não há fotos pendentes para enviar.");
   }
-  if(!confirm(`Organizar ${pending.length} foto(s) na pasta visível do Google Drive?`)) return;
-  updateVisibleDriveStatus(`Organizando ${pending.length} foto(s)...`);
+  if(!confirm(`Enviar ${pending.length} foto(s) pendente(s) para a pasta Fotos oficial?`)) return;
+  updateVisibleDriveStatus(`Enviando ${pending.length} foto(s)...`);
   let done=0;
   for(const e of pending){
     try{
       e.fotoVisibleDriveId=await uploadVisiblePhoto(e);
       e.updatedAt=now();
       done++;
-      updateVisibleDriveStatus(`Organizando fotos... ${done}/${pending.length}`);
+      updateVisibleDriveStatus(`Enviando fotos... ${done}/${pending.length}`);
     }catch(err){
       console.error("Falha ao organizar foto",e.id,err);
     }
   }
   saveLocal();
   scheduleSync();
-  updateVisibleDriveStatus(`${done} foto(s) organizada(s) no Meu Drive.`);
-  alert(`${done} foto(s) organizada(s) na pasta visível.`);
+  updateVisibleDriveStatus(`${done} foto(s) enviada(s) para a pasta Fotos.`);
+  alert(`${done} foto(s) enviada(s) para a pasta Fotos.`);
 }
 
 async function createFile(name,mime="application/json"){
@@ -2494,7 +2485,7 @@ async function uploadMediaData(dataUrl,name,mime){
 async function ensureMediaRefs(){
  for(const list of Object.values(state.entries)){
   for(const e of list){
-   // Fotos: cópia visível e organizada no Meu Drive.
+   // Fotos: cópia visível diretamente na pasta Fotos oficial da família.
    if(e.foto?.startsWith("data:")&&!e.fotoVisibleDriveId){
      try{
        e.fotoVisibleDriveId=await uploadVisiblePhoto(e);
@@ -3602,7 +3593,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "4.8";
+const APP_VERSION = "4.9";
 let appSwRegistration = null;
 let appUpdateWorker = null;
 
