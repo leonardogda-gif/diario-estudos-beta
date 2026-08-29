@@ -864,7 +864,6 @@ async function selectBackendFamily(familyId){
   renderBackendFamilyState();
 
   try{
-    const beforeSync=sharedEducationalPayload();
     await loadBackendFamilyData();
     await syncFamilyFromBackend(false);
     renderAll();
@@ -2896,6 +2895,7 @@ async function syncSharedFamilyDrive(opt={}){
     await ensureMediaRefs();
     saveLocal(false);
 
+    const beforeSync=sharedEducationalPayload();
     const local=sharedEducationalPayload();
 
     const remote1=await readSharedFamilyData();
