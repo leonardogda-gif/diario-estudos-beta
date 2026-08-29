@@ -1,22 +1,20 @@
-DIÁRIO DE ESTUDOS — v4.18
+DIÁRIO DE ESTUDOS — v5.0 TESTE IA
 
-PUBLICAÇÃO
-Substitua no GitHub Pages:
+Arquivos deste pacote:
 - index.html
 - sw.js
 - version.json
 - manifest.json
-- LEIA-ME.txt
-- mantenha as pastas icons/ e videos/
 
-NOVIDADES v4.18 — CRIANÇAS
-- Prevenção de cadastro duplicado: nomes/cadastros semelhantes geram aviso antes de criar.
-- Possíveis duplicidades aparecem em Configurações > Crianças.
-- O Administrador pode escolher qual cadastro manter e mesclar o outro.
-- Registros e planejamentos locais da criança duplicada são transferidos para a mantida.
-- O cadastro duplicado é arquivado, não apagado.
-- A ação Excluir foi renomeada para Arquivar para refletir o comportamento real.
-- Crianças arquivadas continuam restauráveis.
+COMO PUBLICAR
+1. No GitHub, substitua os arquivos de mesmo nome pelos arquivos deste pacote.
+2. NÃO apague as pastas icons/ e videos/.
+3. Aguarde o GitHub Pages publicar.
+4. Abra o Diário, faça login e crie/abra um novo registro.
+5. Digite a atividade realizada.
+6. Use a janela “Teste da IA — BNCC”.
 
-Mantidas as funcionalidades anteriores, incluindo Ajuda e vídeo de instalação.
-Não é necessário alterar Worker nem D1.
+IMPORTANTE
+- Este frontend espera o Worker 0.7.1-beta já publicado.
+- A IA não salva automaticamente nenhum código BNCC.
+- O botão “Usar esta habilidade” apenas preenche o formulário; revise antes de salvar.
