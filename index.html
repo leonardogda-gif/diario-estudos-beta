@@ -224,7 +224,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.17 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.18 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -2018,6 +2018,37 @@ function findPossibleChildDuplicates(){
  }
  return hits.sort((x,y)=>y.score-x.score);
 }
+async function mergeDuplicateChildren(keepId,removeId){
+ if(!canManageFamily())return alert("Somente o Administrador pode mesclar crianças.");
+ if(!keepId||!removeId||keepId===removeId)return;
+ const keep=state.family.children.find(c=>c.id===keepId),rem=state.family.children.find(c=>c.id===removeId);
+ if(!keep||!rem)return alert("Não foi possível localizar os dois cadastros.");
+ const keepBackend=getBackendChildMap()[keepId]||"",removeBackend=getBackendChildMap()[removeId]||"";
+ const entryCount=(state.entries[removeId]||[]).length;
+ const planCount=(state.plans||[]).filter(p=>p.childId===removeId).length;
+ const msg=`Mesclar "${rem.name}" em "${keep.name}"?\n\nSerão transferidos ${entryCount} registro(s) e ${planCount} planejamento(s). O cadastro "${rem.name}" será arquivado.\n\nEsta ação não apaga os registros transferidos.`;
+ if(!confirm(msg))return;
+ try{
+   mergeLocalChildData(keepId,removeId);
+   const map=getBackendChildMap();
+   if(removeBackend)delete map[removeId];
+   setBackendChildMap(map);
+   saveLocal();
+   // Primeiro grava o conteúdo educacional já consolidado no Drive.
+   if(tokenValid()){
+     try{await syncSharedFamilyDrive({manual:false})}catch(syncErr){console.warn("Sincronização após mesclagem:",syncErr)}
+   }
+   // Depois arquiva o cadastro duplicado no backend. O cadastro principal permanece ativo.
+   if(removeBackend)await backendFetch(`/children/${encodeURIComponent(removeBackend)}/archive`,{method:"POST"});
+   await loadBackendFamilyData();
+   await reconcileChildrenWithBackend(false);
+   renderAll();
+   alert(`Cadastros mesclados. "${keep.name}" foi mantida e "${rem.name}" foi arquivada.`);
+ }catch(e){
+   alert("Não foi possível concluir a mesclagem: "+e.message);
+ }
+}
+
 function renderDuplicateChildren(){
  const box=$("duplicateChildrenBox");if(!box)return;
  const pairs=findPossibleChildDuplicates();
@@ -2041,6 +2072,10 @@ function renderDuplicateChildren(){
      <div class="meta" style="margin-top:6px">Cadastro A: ${esc(x.a.birth||"sem nascimento")} · ${esc(x.a.stage||"sem ano")}</div>
      <div class="meta">Cadastro B: ${esc(x.b.birth||"sem nascimento")} · ${esc(x.b.stage||"sem ano")}</div>
      ${x.birthConflict?`<div class="meta" style="margin-top:4px;color:#94473C">Datas de nascimento diferentes: confirme manualmente antes de consolidar.</div>`:""}
+     <div class="entry-actions" style="margin-top:8px">
+       <button class="btn small success" onclick="mergeDuplicateChildren('${x.a.id}','${x.b.id}')">Manter ${esc(x.a.name)}</button>
+       <button class="btn small" onclick="mergeDuplicateChildren('${x.b.id}','${x.a.id}')">Manter ${esc(x.b.name)}</button>
+     </div>
    </div>`).join("")}
  `;
 }
@@ -2106,7 +2141,7 @@ async function archiveBackendChild(backendChildId, localChildId){
   const child=backendChildren.find(c=>c.id===backendChildId);
   if(!child)return;
 
-  if(!confirm(`Excluir ${child.name} da família?\n\nEla sairá das telas do aplicativo. Durante o beta, o cadastro ficará preservado tecnicamente no backend para evitar perda acidental.`))return;
+  if(!confirm(`Arquivar ${child.name}?\n\nEla sairá das telas principais, mas o cadastro e os dados serão preservados e poderão ser restaurados.`))return;
 
   try{
     await backendFetch(`/children/${encodeURIComponent(backendChildId)}/archive`,{method:"POST"});
@@ -3256,7 +3291,7 @@ function renderChildrenCards(){
    return;
  }
  const role=currentBackendRole();
- box.innerHTML=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>{const backendId=getBackendChildMap()[c.id]||"",canEdit=role==="admin"&&backendId,canArchive=role==="admin"&&backendId;return `<div class="child-card"><h4>${esc(c.name)}</h4><div class="meta">${c.birth?"Nascimento: "+fmtDate(c.birth)+" · ":""}Ano atual: <b>${esc(c.stage||"Sem ano de referência")}</b></div><div class="entry-actions">${canEdit?`<button class="btn small" onclick="editChild('${c.id}')">Editar</button><button class="btn small" onclick="changeChildStage('${c.id}')">Alterar ano</button>`:""}${canArchive?`<button class="btn danger small" onclick="archiveBackendChild('${backendId}','${c.id}')">Excluir</button>`:""}</div></div>`}).join("")||"<div class='notice'>Nenhuma criança ativa nesta família.</div>"
+ box.innerHTML=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>{const backendId=getBackendChildMap()[c.id]||"",canEdit=role==="admin"&&backendId,canArchive=role==="admin"&&backendId;return `<div class="child-card"><h4>${esc(c.name)}</h4><div class="meta">${c.birth?"Nascimento: "+fmtDate(c.birth)+" · ":""}Ano atual: <b>${esc(c.stage||"Sem ano de referência")}</b></div><div class="entry-actions">${canEdit?`<button class="btn small" onclick="editChild('${c.id}')">Editar</button><button class="btn small" onclick="changeChildStage('${c.id}')">Alterar ano</button>`:""}${canArchive?`<button class="btn danger small" onclick="archiveBackendChild('${backendId}','${c.id}')">Arquivar</button>`:""}</div></div>`}).join("")||"<div class='notice'>Nenhuma criança ativa nesta família.</div>"
 }
 async function editChild(id){
  const c=state.family.children.find(x=>x.id===id),backendId=getBackendChildMap()[id];if(!c||!backendId)return;
@@ -3273,7 +3308,15 @@ function renderSettingsChildren(){renderChildrenCards();}
 
 async function addChild(){
  const fam=currentBackendFamily();if(!fam)return alert("Entre em uma família antes de cadastrar uma criança.");if(!canEditFamily())return alert("Sua permissão não permite cadastrar crianças.");
- const name=$("childName").value.trim();if(!name)return alert("Informe o nome.");const birth=$("childBirth").value||"",stage=$("childStage").value||"Sem ano de referência",start=prompt("Data de início deste ano de referência (AAAA-MM-DD)",today());if(start===null)return;
+ const name=$("childName").value.trim();if(!name)return alert("Informe o nome.");
+ const birth=$("childBirth").value||"",stage=$("childStage").value||"Sem ano de referência";
+ const similar=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>({c,hit:duplicateConfidence({name,birth,stage},c)})).filter(x=>x.hit&&x.hit.score>=45).sort((a,b)=>b.hit.score-a.hit.score)[0];
+ if(similar){
+   const c=similar.c;
+   const extra=c.birth?`\nNascimento: ${c.birth}`:"";
+   if(!confirm(`Já existe uma criança com cadastro parecido:\n\n${c.name}${extra}\n${c.stage||""}\n\nDeseja cadastrar outra criança mesmo assim?`))return;
+ }
+ const start=prompt("Data de início deste ano de referência (AAAA-MM-DD)",today());if(start===null)return;
  try{const created=await backendFetch("/children",{method:"POST",body:JSON.stringify({family_id:fam.id,name,birth_date:birth||null,reference_stage:stage||null,notes:null})});if(!created?.child?.id)throw new Error("Cadastro não retornado pelo backend.");const localId=uid(),c={id:localId,name,birth,stage,stageHistory:[{stage,startDate:start||today(),endDate:""}],archived:false,backendManaged:true,createdAt:now(),updatedAt:now()};state.family.children.push(c);const map=getBackendChildMap();map[localId]=created.child.id;setBackendChildMap(map);activeChildId=localId;$("childName").value="";$("childBirth").value="";saveLocal();await loadBackendFamilyData();await reconcileChildrenWithBackend(false)}catch(e){alert("Não foi possível cadastrar: "+e.message)}
 }
 function addTomb(type,id,extra={}){state.tombstones[type]??=[];const t={id,deletedAt:now(),...extra};state.tombstones[type]=state.tombstones[type].filter(x=>x.id!==id);state.tombstones[type].push(t);return t}
@@ -3986,7 +4029,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "4.17";
+const APP_VERSION = "4.18";
 let appSwRegistration = null;
 let appUpdateWorker = null;
 

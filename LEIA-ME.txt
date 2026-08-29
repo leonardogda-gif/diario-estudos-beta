@@ -1,21 +1,22 @@
-DIÁRIO DE ESTUDOS — v4.17
+DIÁRIO DE ESTUDOS — v4.18
 
-PUBLICAÇÃO NO GITHUB PAGES
-Substitua/envie:
+PUBLICAÇÃO
+Substitua no GitHub Pages:
 - index.html
 - sw.js
 - version.json
 - manifest.json
 - LEIA-ME.txt
-- pasta videos/ com como-instalar-app.mp4
+- mantenha as pastas icons/ e videos/
 
-Mantenha a pasta icons/ que já existe no repositório.
+NOVIDADES v4.18 — CRIANÇAS
+- Prevenção de cadastro duplicado: nomes/cadastros semelhantes geram aviso antes de criar.
+- Possíveis duplicidades aparecem em Configurações > Crianças.
+- O Administrador pode escolher qual cadastro manter e mesclar o outro.
+- Registros e planejamentos locais da criança duplicada são transferidos para a mantida.
+- O cadastro duplicado é arquivado, não apagado.
+- A ação Excluir foi renomeada para Arquivar para refletir o comportamento real.
+- Crianças arquivadas continuam restauráveis.
 
-NOVIDADE v4.17
-- Nova opção Mais > Ajuda e instalação.
-- Tutorial em vídeo mostrando como instalar o Diário como aplicativo.
-- O vídeo fica hospedado no próprio GitHub Pages em videos/como-instalar-app.mp4.
-- O vídeo não faz parte do cache obrigatório do PWA, evitando adicionar cerca de 8 MB à instalação/offline.
-
-Mantidas as funcionalidades da v4.16.
+Mantidas as funcionalidades anteriores, incluindo Ajuda e vídeo de instalação.
 Não é necessário alterar Worker nem D1.

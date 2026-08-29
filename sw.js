@@ -1,4 +1,4 @@
-const CACHE_NAME = "diario-estudos-v4.17";
+const CACHE_NAME = "diario-estudos-v4.18";
 const APP_SHELL = [
   "./",
   "./index.html",
