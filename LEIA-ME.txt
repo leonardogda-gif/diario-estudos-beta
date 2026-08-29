@@ -1,12 +1,13 @@
-DIÁRIO DE ESTUDOS — v4.11
+DIÁRIO DE ESTUDOS — v4.12
 
 PUBLICAÇÃO
-- Não alterar D1.
-- Não alterar Worker 0.6.2-beta.
-- No GitHub Pages substituir index.html, sw.js, version.json, manifest.json e LEIA-ME.txt.
-- Manter a pasta icons/ existente.
+- Substitua no GitHub Pages: index.html, sw.js, version.json, manifest.json e LEIA-ME.txt.
+- Mantenha a pasta icons/ existente.
+- Não é necessário alterar o Worker 0.6.2-beta nem o D1 para esta versão.
 
 NOVIDADES
-- Manutenção informa que a BNCC é fornecida pelo aplicativo: 1.826 códigos, atualizada em agosto de 2026.
-- Busca BNCC agora é cache-first: mostra resultados locais imediatamente e atualiza em paralelo pelo Worker quando online.
-- Indicador informa quando o resultado vem do cache, está atualizando ou já foi atualizado.
+- Sincronização com conclusão mais clara e resumo de registros atualizados.
+- Removida a sincronização automática apenas por voltar/focar a janela; permanecem login, salvar/alterar, retorno da internet e botão manual.
+- O status de sincronização só é concluído depois da etapa de carregamento das mídias.
+- Manutenção: botão para baixar o modelo CSV de códigos personalizados da família.
+- Inicialização protegida por tela "Abrindo Diário de Estudos…" para evitar a piscada da tela de login durante a tentativa de reconexão automática.

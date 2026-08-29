@@ -65,6 +65,10 @@ h3{font-size:16px}
 .login-gate{max-width:580px;margin:38px auto;text-align:center;padding:28px}
 .login-gate svg{width:52px;height:52px;fill:none;stroke:#17332A;stroke-width:1.6}
 .login-gate h2{margin:12px 0 7px}
+.auth-boot{position:fixed;inset:0;z-index:3000;background:#EFEAE0;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
+.auth-boot-card{background:#FFFDF8;border-radius:14px;padding:24px 28px;box-shadow:0 4px 18px rgba(0,0,0,.08);font-weight:800;color:#17332A}
+body.auth-checking #loginGate,body.auth-checking #protectedApp{visibility:hidden!important}
+body:not(.auth-checking) #authBoot{display:none!important}
 .child{border:0;border-radius:8px;padding:9px 12px;background:#E3EBDD;font-size:13px;font-weight:800;cursor:pointer}
 .child.active{background:#17332A;color:#fff}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
@@ -197,13 +201,13 @@ body.app-authenticated .cloud-card{display:none!important}
 
 </style>
 </head>
-<body>
+<body class="auth-checking">
 <header>
   <div class="brand">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.11 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.12 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -227,6 +231,7 @@ body.app-authenticated .cloud-card{display:none!important}
   </div>
 </header>
 
+<div id="authBoot" class="auth-boot"><div class="auth-boot-card">Abrindo Diário de Estudos…</div></div>
 <main>
   <div class="cloud-card no-print">
     <div class="cloud-layout">
@@ -366,7 +371,7 @@ body.app-authenticated .cloud-card{display:none!important}
         <hr>
         <h3>Códigos personalizados da família</h3>
         <div class="notice">Use esta opção somente para códigos próprios que não fazem parte da BNCC oficial. Eles ficam disponíveis para esta família junto com os códigos oficiais.</div>
-        <div class="toolbar" style="margin-top:10px"><label class="btn">Importar novos códigos CSV<input type="file" accept=".csv,text/csv" style="display:none" onchange="importCustomBnccCSV(event)"></label></div>
+        <div class="toolbar" style="margin-top:10px"><button class="btn" onclick="downloadCustomBnccTemplate()">Baixar modelo CSV</button><label class="btn">Importar novos códigos CSV<input type="file" accept=".csv,text/csv" style="display:none" onchange="importCustomBnccCSV(event)"></label></div>
         <div class="meta" style="margin-top:7px">Códigos personalizados: <b id="count">0</b></div>
         <hr>
         <h3>Atividades complementares</h3>
@@ -859,6 +864,7 @@ async function selectBackendFamily(familyId){
   renderBackendFamilyState();
 
   try{
+    const beforeSync=sharedEducationalPayload();
     await loadBackendFamilyData();
     await syncFamilyFromBackend(false);
     renderAll();
@@ -2248,6 +2254,11 @@ document.addEventListener("click",e=>{
  const panel=$("headerCloudDetails"),bar=$("headerCloud");
  if(panel&&!panel.classList.contains("hidden")&&!panel.contains(e.target)&&!bar?.contains(e.target))panel.classList.add("hidden");
 });
+let authBootFinished=false;
+function finishAuthBoot(){
+ authBootFinished=true;
+ document.body.classList.remove("auth-checking");
+}
 function updateAuthUI(){
  const onlineAuth=!!(googleAccessToken&&googleUser);
  const offlineAuth=!onlineAuth&&offlineSessionAvailable();
@@ -2306,7 +2317,7 @@ function initGoogleAuth(){
   // do not roll previously granted broad scopes into new access tokens.
   include_granted_scopes:false,
   callback:async r=>{
-   if(r.error){setCloudStatus("error","Login não autorizado");return}
+   if(r.error){setCloudStatus("error","Login não autorizado");finishAuthBoot();updateAuthUI();return}
    googleAccessToken=r.access_token||"";googleTokenExpiresAt=Date.now()+((r.expires_in||3600)-60)*1000;
    try{
     let res=await apiFetch("https://www.googleapis.com/oauth2/v3/userinfo");
@@ -2316,13 +2327,14 @@ function initGoogleAuth(){
       localStorage.setItem(LAST_GOOGLE_AUTH_AT_KEY, now());
     }
     updateAuthUI();
+    finishAuthBoot();
     const backendOK=await connectBackend();
     if(backendOK){
       await syncWithDrive({initial:true});
     }else{
       setCloudStatus("error","Backend não conectado");
     }
-   }catch(e){console.error(e);setCloudStatus("error","Erro ao conectar com Drive")}
+   }catch(e){console.error(e);setCloudStatus("error","Erro ao conectar com Drive");finishAuthBoot();updateAuthUI()}
   }
  });
 }
@@ -2858,6 +2870,17 @@ async function writeSharedFamilyData(payload){
   );
 }
 
+function entryVersionMap(payload){
+ const map=new Map();
+ for(const e of (payload?.entries||[])){if(e?.id)map.set(e.id,String(e.updatedAt||e.createdAt||""))}
+ return map;
+}
+function countEntryChanges(beforePayload,afterPayload){
+ const before=entryVersionMap(beforePayload),after=entryVersionMap(afterPayload);
+ let n=0;
+ after.forEach((v,id)=>{if(!before.has(id)||before.get(id)!==v)n++});
+ return n;
+}
 async function syncSharedFamilyDrive(opt={}){
   if(syncing||!tokenValid())return;
 
@@ -2907,15 +2930,15 @@ async function syncSharedFamilyDrive(opt={}){
 
     localStorage.setItem("DE_V2_LAST_SYNC",merged.updatedAt);
 
+    const changedEntries=countEntryChanges(beforeSync,merged);
+    renderAll();
+    try{await hydrateMedia()}catch(e){console.error("Falha ao carregar mídias após sincronização:",e)}
+    const syncTime=new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
     setCloudStatus(
       "online",
-      "Família sincronizada · "+
-      new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})
+      `Sincronizado · ${syncTime} · ${changedEntries} registro${changedEntries===1?"":"s"} atualizado${changedEntries===1?"":"s"}`
     );
-    renderSharedStorageStatus(true,"Ativo · última sincronização "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})+".");
-
-    renderAll();
-    hydrateMedia().catch(e=>console.error("Falha ao carregar mídias após sincronização:",e));
+    renderSharedStorageStatus(true,`Ativo · última sincronização ${syncTime} · ${changedEntries} registro${changedEntries===1?"":"s"} atualizado${changedEntries===1?"":"s"}.`);
   }catch(e){
     console.error(e);
     if(e?.code==="DRIVE_PICKER_REQUIRED" || e?.message==="DRIVE_PICKER_REQUIRED"){
@@ -3687,6 +3710,10 @@ function addComplementaryActivity(){let name=$("compActivityName").value.trim();
 function renderComplementaryList(){let b=$("complementaryList");if(!b)return;b.innerHTML=state.complementaryActivities.map(x=>`<div class="entry"><div class="entry-title">${esc(x.name)}</div><div class="skill">${esc(x.category||"")}</div><div class="obs">${esc(x.description||"")}</div><button class="btn danger small" onclick="deleteComplementaryActivity('${x.id}')">Excluir</button></div>`).join("")||"<div class='notice'>Nenhuma atividade complementar.</div>"}
 function deleteComplementaryActivity(id){if(!confirm("Excluir esta atividade complementar da lista?"))return;state.complementaryActivities=state.complementaryActivities.filter(x=>x.id!==id);addTomb("complementary",id);saveLocal();renderAll()}
 
+function downloadCustomBnccTemplate(){
+ const csv="codigo;componente;area;serie;abrange_varias_series;descricao\nFAM001;Atividade personalizada;Área personalizada;3º ano;Não;Descrição do código personalizado da família";
+ shareOrDownloadText(csv,"modelo_codigos_personalizados.csv","text/csv;charset=utf-8","Modelo de códigos personalizados");
+}
 function importCustomBnccCSV(ev){
  let file=ev.target.files[0];if(!file)return;
  let fr=new FileReader();
@@ -3746,12 +3773,14 @@ function init(){
  if(rememberGoogleEnabled()){
    setCloudStatus("busy","Preparando reconexão com Google...");
    tryAutomaticGoogleReconnect();
+   setTimeout(()=>{if(!authBootFinished){finishAuthBoot();updateAuthUI()}},3500);
  }else{
    setCloudStatus("","Aguardando login");
+   finishAuthBoot();
  }
 }
 window.addEventListener("load",init);
-window.addEventListener("focus",()=>{if(tokenValid())syncWithDrive({silent:true});else if(!navigator.onLine)updateAuthUI()});
+window.addEventListener("focus",()=>{if(!navigator.onLine)updateAuthUI()});
 window.addEventListener("offline",()=>{restoreBackendProfileForOffline();updateAuthUI();setCloudStatus("pending","Sem internet · alterações ficam neste dispositivo")});
 window.addEventListener("online",()=>{if(tokenValid()){setCloudStatus("busy","Internet voltou · sincronizando...");syncWithDrive({silent:true})}else{setCloudStatus("pending","Internet voltou · reconecte o Google para sincronizar");tryAutomaticGoogleReconnect()}});
 window.addEventListener("pagehide",()=>{try{saveRecordDraft(true)}catch(e){}});
@@ -3767,7 +3796,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "4.11";
+const APP_VERSION = "4.12";
 let appSwRegistration = null;
 let appUpdateWorker = null;
 
