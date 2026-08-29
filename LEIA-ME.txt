@@ -1,0 +1,12 @@
+DIÁRIO DE ESTUDOS — v4.11
+
+PUBLICAÇÃO
+- Não alterar D1.
+- Não alterar Worker 0.6.2-beta.
+- No GitHub Pages substituir index.html, sw.js, version.json, manifest.json e LEIA-ME.txt.
+- Manter a pasta icons/ existente.
+
+NOVIDADES
+- Manutenção informa que a BNCC é fornecida pelo aplicativo: 1.826 códigos, atualizada em agosto de 2026.
+- Busca BNCC agora é cache-first: mostra resultados locais imediatamente e atualiza em paralelo pelo Worker quando online.
+- Indicador informa quando o resultado vem do cache, está atualizando ou já foi atualizado.
