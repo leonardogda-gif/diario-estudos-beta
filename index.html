@@ -255,6 +255,32 @@ body.app-authenticated .cloud-card{display:none!important}
  .record-actions{display:grid;grid-template-columns:1fr 1fr}.record-actions .btn{width:100%;min-height:42px}.record-actions .btn.primary{grid-column:1/-1}
 }
 
+
+/* v5.3 — feedback visual da sugestão BNCC selecionada */
+.ai-suggestion{transition:border-color .16s ease,background .16s ease,box-shadow .16s ease}
+.ai-suggestion.selected{
+  border:2px solid #16734d;
+  background:#edf8f1;
+  box-shadow:0 0 0 2px rgba(22,115,77,.08);
+}
+.ai-suggestion.selected .ai-suggestion-code{color:#075c3c}
+.ai-suggestion .btn.ai-selected-btn{
+  background:#16734d!important;
+  color:#fff!important;
+  border-color:#16734d!important;
+  cursor:default;
+}
+.ai-selection-confirm{
+  margin-top:10px;
+  padding:9px 11px;
+  border-radius:9px;
+  background:#e9f6ee;
+  border:1px solid #b8ddc6;
+  color:#075c3c;
+  font-size:12px;
+  font-weight:800;
+}
+
 </style>
 </head>
 <body class="auth-checking">
@@ -263,7 +289,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.1 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v5.4 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -3550,10 +3576,14 @@ function componentArea(component){
  return "";
 }
 function groupedComponentOptions(selected=""){
+ const unique=[...new Set(
+   Object.values(AREAS)
+     .flat()
+     .map(x=>String(x||"").trim())
+     .filter(Boolean)
+ )].sort((a,b)=>a.localeCompare(b,"pt-BR",{sensitivity:"base"}));
  return '<option value="">Selecione o componente (opcional)</option>'+
-   Object.entries(AREAS).map(([area,components])=>
-     `<optgroup label="${esc(area)}">${(components||[]).map(c=>`<option value="${esc(c)}" ${String(c)===String(selected)?"selected":""}>${esc(c)}</option>`).join("")}</optgroup>`
-   ).join("");
+   unique.map(c=>`<option value="${esc(c)}" ${String(c)===String(selected)?"selected":""}>${esc(c)}</option>`).join("");
 }
 function updateRecordPreview(){
  const side=$("recordPreview");
@@ -3646,7 +3676,7 @@ function renderRecordPage(){
         <select id="fComp" onchange="componentChanged()">${groupedComponentOptions(f.componente)}</select>
         <select id="fArea" class="hidden" aria-hidden="true"><option value=""></option>${Object.keys(AREAS).map(x=>`<option value="${esc(x)}" ${x===f.area?"selected":""}>${esc(x)}</option>`).join("")}</select>
       </div>
-      <div class="ai-explain">Quanto mais específico o componente, menos candidatos da BNCC a IA precisa analisar. Se deixar em branco, a IA procura de forma mais ampla.</div>
+      <div class="ai-explain">Se souber o componente, selecione-o para deixar a busca mais específica. Se não souber, deixe em branco — a IA procura em toda a BNCC compatível com o ano.</div>
       <button id="aiBnccTestBtn" type="button" class="btn ai-primary-btn" onclick="testAiBnccSuggestion()">✨ Sugerir habilidade BNCC</button>
       <div id="aiBnccTestStatus" class="meta" style="margin-top:7px">A atividade é suficiente. O componente é opcional.</div>
       <div id="aiBnccTestResults" class="ai-test-results"></div>
@@ -3744,61 +3774,85 @@ function refreshGlobalSearch(){
  const seq=++bnccSearchSequence;
  const q=$("globalSkillSearch")?.value.trim()||"";
  if(!$("globalSkillResults"))return;
+
  if(q.length<2){
-   $("globalSkillResults").innerHTML='<option>Digite pelo menos 2 caracteres...</option>';
+   $("globalSkillResults").innerHTML='<option value="">Digite pelo menos 2 caracteres...</option>';
    if($("globalSkillCount"))$("globalSkillCount").textContent="";
+   saveRecordDraft(false);
    return;
  }
+
  const cached=filterCachedBncc({q});
  if(cached.length){
    renderGlobalBnccResults(cached,navigator.onLine?"cache local · atualizando...":"cache offline");
  }else{
-   $("globalSkillResults").innerHTML='<option>Buscando na BNCC...</option>';
+   $("globalSkillResults").innerHTML='<option value="">Buscando na BNCC...</option>';
    if($("globalSkillCount"))$("globalSkillCount").textContent=navigator.onLine?"Consultando BNCC...":"Nenhum resultado disponível no cache offline";
  }
- if(navigator.onLine&&googleAccessToken)bnccSearchTimer=setTimeout(()=>runGlobalBnccSearch(q,seq),180);
+
+ if(navigator.onLine){
+   bnccSearchTimer=setTimeout(()=>runGlobalBnccSearch(q,seq),180);
+ }
  saveRecordDraft(false);
 }
 async function runGlobalBnccSearch(q,seq){
  const child=currentChild();
  if(!child||seq!==bnccSearchSequence)return;
- let list=await fetchBnccSkills({q,limit:300});
- if(seq!==bnccSearchSequence)return;
- renderGlobalBnccResults(list,"resultado atualizado");
+ try{
+   const list=await fetchBnccSkills({q,limit:300});
+   if(seq!==bnccSearchSequence)return;
+   renderGlobalBnccResults(list,"resultado atualizado");
+ }catch(e){
+   console.warn("Busca manual BNCC:",e);
+   if(seq!==bnccSearchSequence)return;
+   const cached=filterCachedBncc({q});
+   if(cached.length){
+     renderGlobalBnccResults(cached,"cache local");
+   }else{
+     $("globalSkillResults").innerHTML='<option value="">Não foi possível consultar a BNCC.</option>';
+     if($("globalSkillCount"))$("globalSkillCount").textContent="Tente novamente quando estiver online.";
+   }
+ }
  saveRecordDraft(false);
 }
 async function selectGlobalSkill(){
- let o=$("globalSkillResults")?.selectedOptions?.[0];
+ const o=$("globalSkillResults")?.selectedOptions?.[0];
  if(!o?.dataset.code)return;
 
- let comp=o.dataset.comp;
- let area=o.dataset.area||areaForComp(comp);
- let scope=document.querySelector('input[name="skillScope"]:checked')?.value||"referencia";
- let child=currentChild();
+ selectedAiBnccIndex=-1;
+ latestAiBnccSuggestions.forEach((item,i)=>{
+   $(`aiSuggestionCard${i}`)?.classList.remove("selected");
+   const btn=$(`aiSuggestionBtn${i}`);
+   if(btn){btn.textContent="Usar esta habilidade";btn.classList.remove("ai-selected-btn");btn.disabled=false;}
+ });
+ if($("aiSelectionConfirm"))$("aiSelectionConfirm").innerHTML="";
 
- if(area && !$("fArea").querySelector(`option[value="${CSS.escape(area)}"]`)){
-   $("fArea").innerHTML+=`<option value="${esc(area)}">${esc(area)}</option>`;
+ const comp=String(o.dataset.comp||"").trim();
+ const area=String(o.dataset.area||areaForComp(comp)||componentArea(comp)||"").trim();
+ const code=String(o.dataset.code||"").trim();
+ const desc=String(o.dataset.desc||"").trim();
+ const year=String(o.dataset.year||"").trim();
+
+ if($("fArea"))$("fArea").value=area;
+
+ // Mantém o dropdown principal simples e alfabético.
+ if($("fComp")){
+   const exists=Array.from($("fComp").options).some(opt=>String(opt.value).toLowerCase()===comp.toLowerCase());
+   if(comp && !exists)$("fComp").insertAdjacentHTML("beforeend",`<option value="${esc(comp)}">${esc(comp)}</option>`);
+   $("fComp").value=comp;
  }
- $("fArea").value=area;
 
- let knownComps=AREAS[area]||[];
- $("fComp").innerHTML='<option value="">Selecione...</option>'+knownComps.map(x=>`<option>${esc(x)}</option>`).join("");
- if(!knownComps.some(x=>x.toLowerCase()===String(comp).toLowerCase()))$("fComp").innerHTML+=`<option>${esc(comp)}</option>`;
- $("fComp").value=comp;
-
- let list=await fetchBnccSkills({component:comp,limit:300});
- list=list.filter(x=>habilidadeNoEscopo(x.codigo,child?.stage||"",scope));
- if(!list.some(x=>x.codigo===o.dataset.code)){
-   list.unshift({codigo:o.dataset.code,componente:comp,area,serie:o.dataset.year||"",descricao:o.dataset.desc});
+ if($("fSkill")){
+   $("fSkill").innerHTML=
+     '<option value="">Selecione...</option>'+
+     `<option data-code="${esc(code)}" value="${esc(desc)}" selected>${esc(code)} — ${esc(year||anoBnccDoCodigo(code))} — ${esc(desc)}</option>`;
+   $("fSkill").value=desc;
  }
- $("fSkill").innerHTML='<option value="">Selecione...</option>'+list.map(x=>
-   `<option data-code="${esc(x.codigo)}" value="${esc(x.descricao)}">${esc(x.codigo)} — ${esc(x.serie||anoBnccDoCodigo(x.codigo))} — ${esc(x.descricao)}</option>`
- ).join("");
 
- $("fSkill").value=o.dataset.desc;
- $("fCode").value=o.dataset.code;
- $("skillCount").textContent=list.length+" habilidade(s) no escopo selecionado";
+ if($("fCode"))$("fCode").value=code;
+ if($("skillCount"))$("skillCount").textContent="Habilidade escolhida manualmente";
  saveRecordDraft(true);
+ updateRecordPreview();
 }
 function areaChanged(){
  let a=$("fArea").value;
@@ -3838,6 +3892,7 @@ function skillChanged(){
 
 
 let latestAiBnccSuggestions=[];
+let selectedAiBnccIndex=-1;
 
 async function testAiBnccSuggestion(){
  const child=currentChild();
@@ -3854,6 +3909,7 @@ async function testAiBnccSuggestion(){
  const area=String($("fArea")?.value||"").trim();
 
  latestAiBnccSuggestions=[];
+ selectedAiBnccIndex=-1;
  if(box)box.innerHTML="";
  if(status)status.textContent="Consultando D1 e Gemini…";
  if(btn){btn.disabled=true;btn.innerHTML='<span class="ai-spinner"></span> Analisando';}
@@ -3876,15 +3932,16 @@ async function testAiBnccSuggestion(){
    if(status)status.textContent=`${latestAiBnccSuggestions.length} sugestão(ões) · ${data?.candidate_count??"?"} candidatos enviados à IA`;
 
    if(box)box.innerHTML=latestAiBnccSuggestions.map((s,i)=>`
-     <div class="ai-suggestion">
+     <div class="ai-suggestion" id="aiSuggestionCard${i}">
        <div class="ai-suggestion-code">${esc(s.code||"")}</div>
        <div class="meta">${esc(s.curricular_component||"")}${s.school_year?" · "+esc(s.school_year):""}</div>
        <div style="margin-top:6px">${esc(s.description||"")}</div>
        <div class="toolbar" style="margin-top:8px">
-         <button type="button" class="btn success small" onclick="applyAiBnccSuggestion(${i})">Usar esta habilidade</button>
+         <button type="button" id="aiSuggestionBtn${i}" class="btn success small" onclick="applyAiBnccSuggestion(${i})">Usar esta habilidade</button>
        </div>
      </div>
    `).join("")+`
+     <div id="aiSelectionConfirm"></div>
      <div class="ai-usage">
        Tokens — entrada: <b>${usage.prompt_tokens??"n/d"}</b> · saída: <b>${usage.output_tokens??"n/d"}</b> · total: <b>${usage.total_tokens??"n/d"}</b>${usage.thoughts_tokens!=null?` · pensamento: <b>${usage.thoughts_tokens}</b>`:""}
      </div>`;
@@ -3900,6 +3957,24 @@ async function testAiBnccSuggestion(){
 function applyAiBnccSuggestion(index){
  const s=latestAiBnccSuggestions[index];
  if(!s)return;
+
+ selectedAiBnccIndex=index;
+ latestAiBnccSuggestions.forEach((item,i)=>{
+   const card=$(`aiSuggestionCard${i}`);
+   const btn=$(`aiSuggestionBtn${i}`);
+   const selected=i===index;
+   card?.classList.toggle("selected",selected);
+   if(btn){
+     btn.textContent=selected?"✓ Selecionada":"Usar esta habilidade";
+     btn.classList.toggle("ai-selected-btn",selected);
+     btn.disabled=selected;
+   }
+ });
+ const confirm=$("aiSelectionConfirm");
+ if(confirm){
+   confirm.innerHTML=`<div class="ai-selection-confirm">✓ ${esc(s.code||"Habilidade")} selecionada para este registro.</div>`;
+ }
+
  const area=String(s.knowledge_area||"").trim();
  const comp=String(s.curricular_component||"").trim();
  const code=String(s.code||"").trim();
@@ -3913,11 +3988,7 @@ function applyAiBnccSuggestion(index){
  }
 
  if($("fComp")){
-   const known=AREAS[area]||[];
-   $("fComp").innerHTML='<option value="">Selecione...</option>'+known.map(x=>`<option>${esc(x)}</option>`).join("");
-   if(comp&&!known.some(x=>x.toLowerCase()===comp.toLowerCase())){
-     $("fComp").insertAdjacentHTML("beforeend",`<option value="${esc(comp)}">${esc(comp)}</option>`);
-   }
+   $("fComp").innerHTML=groupedComponentOptions(comp);
    $("fComp").value=comp;
  }
 
@@ -4270,7 +4341,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.1";
+const APP_VERSION = "5.4";
 let appSwRegistration = null;
 let appUpdateWorker = null;
 

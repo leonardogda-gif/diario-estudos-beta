@@ -1,29 +1,28 @@
-DIÁRIO DE ESTUDOS — v5.1
+DIÁRIO DE ESTUDOS — v5.4
 
-O mesmo index.html atende PC e celular.
-O layout muda automaticamente pela largura da tela usando CSS responsivo (@media).
+CORREÇÃO
+Ao clicar em “Usar esta habilidade” em uma sugestão da IA:
+- o componente sugerido continua sendo selecionado;
+- o dropdown NÃO é mais reduzido aos componentes da área sugerida;
+- a lista completa de componentes permanece disponível;
+- a lista continua única, sem duplicações e em ordem alfabética;
+- o usuário pode trocar depois para qualquer outro componente.
 
-PC / tela larga:
-- formulário à esquerda
-- dicas, prévia e explicação da IA à direita
+A correção reaproveita groupedComponentOptions(comp), evitando duas lógicas diferentes para montar o mesmo dropdown.
 
-Celular / tela estreita:
-- tudo vira uma coluna
-- botões aumentam e se reorganizam
-- nenhum segundo site é necessário
+Mantido da v5.3:
+- feedback visual da habilidade selecionada;
+- botão “✓ Selecionada”;
+- confirmação do código BNCC;
+- busca manual;
+- área oculta/inferida;
+- layout responsivo PC/celular.
 
-Mudanças:
-- título apenas “Registrar”
-- Área não aparece mais para o usuário
-- Componente é opcional e fica dentro do cartão da IA
-- escolher Componente infere a Área automaticamente
-- dropdown de componentes agrupado por área
-- busca manual e seleção final ficam em Opções avançadas
+SUBSTITUA NO GITHUB
+- index.html
+- sw.js
+- version.json
+- manifest.json
 
-Substitua no GitHub:
-index.html
-sw.js
-manifest.json
-version.json
-
-Não apague icons/ ou videos/.
+Não apague icons/ nem videos/.
+Worker continua 0.7.1-beta.
