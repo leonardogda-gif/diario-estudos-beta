@@ -1,20 +1,29 @@
-DIÁRIO DE ESTUDOS — v5.0 TESTE IA
+DIÁRIO DE ESTUDOS — v5.1
 
-Arquivos deste pacote:
-- index.html
-- sw.js
-- version.json
-- manifest.json
+O mesmo index.html atende PC e celular.
+O layout muda automaticamente pela largura da tela usando CSS responsivo (@media).
 
-COMO PUBLICAR
-1. No GitHub, substitua os arquivos de mesmo nome pelos arquivos deste pacote.
-2. NÃO apague as pastas icons/ e videos/.
-3. Aguarde o GitHub Pages publicar.
-4. Abra o Diário, faça login e crie/abra um novo registro.
-5. Digite a atividade realizada.
-6. Use a janela “Teste da IA — BNCC”.
+PC / tela larga:
+- formulário à esquerda
+- dicas, prévia e explicação da IA à direita
 
-IMPORTANTE
-- Este frontend espera o Worker 0.7.1-beta já publicado.
-- A IA não salva automaticamente nenhum código BNCC.
-- O botão “Usar esta habilidade” apenas preenche o formulário; revise antes de salvar.
+Celular / tela estreita:
+- tudo vira uma coluna
+- botões aumentam e se reorganizam
+- nenhum segundo site é necessário
+
+Mudanças:
+- título apenas “Registrar”
+- Área não aparece mais para o usuário
+- Componente é opcional e fica dentro do cartão da IA
+- escolher Componente infere a Área automaticamente
+- dropdown de componentes agrupado por área
+- busca manual e seleção final ficam em Opções avançadas
+
+Substitua no GitHub:
+index.html
+sw.js
+manifest.json
+version.json
+
+Não apague icons/ ou videos/.

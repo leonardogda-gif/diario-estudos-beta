@@ -227,6 +227,34 @@ body.app-authenticated .cloud-card{display:none!important}
 .ai-spinner{display:inline-block;width:13px;height:13px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:aiSpin .7s linear infinite}
 @keyframes aiSpin{to{transform:rotate(360deg)}}
 
+
+/* v5.1 — Registro simplificado + IA + layout responsivo */
+.record-shell{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:18px;align-items:start}
+.record-main{min-width:0}.record-side{display:flex;flex-direction:column;gap:12px}
+.record-side-card{border:1px solid #e5ded0;border-radius:12px;background:#fff;padding:14px;box-shadow:0 2px 8px rgba(24,40,32,.05)}
+.record-side-card h3{margin:0 0 10px;font-size:15px;color:#17332A}.record-side-card p{margin:5px 0}
+.record-side-card .tip{display:grid;grid-template-columns:26px 1fr;gap:8px;align-items:start;margin:10px 0}
+.record-side-card .tip-icon{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#F3EFE7}
+.record-form-card{padding:16px}.record-title-row{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px}
+.record-title-row h2{margin:0}.record-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.record-grid .full{grid-column:1/-1}
+.ai-main-card{border:1px solid #cbdccf;background:#f5faf6;border-radius:12px;padding:13px;margin-top:8px}
+.ai-main-card .ai-help-title{font-weight:800;color:#17332A;margin-bottom:5px}.ai-component-wrap{max-width:560px}.ai-component-wrap select{background:#fff}
+.ai-explain{font-size:12px;color:#5f675f;margin-top:7px;line-height:1.45}
+.ai-primary-btn{width:100%;margin-top:12px;background:#075c3c!important;color:#fff!important;border-color:#075c3c!important;font-weight:800}
+.bncc-advanced{border:1px solid #e5ded0;border-radius:10px;background:#fff;margin-top:12px}
+.bncc-advanced summary{cursor:pointer;padding:11px 12px;font-weight:800;color:#26352e}.bncc-advanced-body{padding:0 12px 12px}
+.preview-chip{display:inline-block;padding:3px 8px;border-radius:999px;background:#eef5ef;font-size:11px;margin:2px 3px 2px 0}
+.preview-code{display:inline-block;padding:3px 7px;border-radius:7px;background:#f2efe8;font-weight:800;font-size:11px;margin-top:5px}
+.record-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:14px}
+.record-actions .btn.primary{background:#075c3c;color:white;border-color:#075c3c}
+@media(max-width:900px){.record-shell{grid-template-columns:1fr}.record-side{grid-row:auto}.record-side-card{box-shadow:none}}
+@media(max-width:640px){
+ .record-form-card{padding:12px}.record-grid{grid-template-columns:1fr}.record-grid .full{grid-column:1}
+ .record-title-row{align-items:flex-start}.record-title-row h2{font-size:20px}.ai-main-card{padding:11px}.ai-primary-btn{min-height:44px}
+ .record-side{gap:9px}.record-side-card{padding:12px}
+ .record-actions{display:grid;grid-template-columns:1fr 1fr}.record-actions .btn{width:100%;min-height:42px}.record-actions .btn.primary{grid-column:1/-1}
+}
+
 </style>
 </head>
 <body class="auth-checking">
@@ -235,7 +263,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.0 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v5.1 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -3512,6 +3540,42 @@ function startNewRecord(){
  window.scrollTo({top:0,behavior:"smooth"});
 }
 
+
+function componentArea(component){
+ const needle=String(component||"").trim().toLowerCase();
+ if(!needle)return "";
+ for(const [area,components] of Object.entries(AREAS)){
+   if((components||[]).some(c=>String(c).trim().toLowerCase()===needle))return area;
+ }
+ return "";
+}
+function groupedComponentOptions(selected=""){
+ return '<option value="">Selecione o componente (opcional)</option>'+
+   Object.entries(AREAS).map(([area,components])=>
+     `<optgroup label="${esc(area)}">${(components||[]).map(c=>`<option value="${esc(c)}" ${String(c)===String(selected)?"selected":""}>${esc(c)}</option>`).join("")}</optgroup>`
+   ).join("");
+}
+function updateRecordPreview(){
+ const side=$("recordPreview");
+ if(!side)return;
+ const activity=String($("fActivity")?.value||"").trim();
+ const date=$("fDate")?.value||"";
+ const comp=$("fComp")?.value||"";
+ const area=$("fArea")?.value||componentArea(comp);
+ const code=$("fCode")?.value||"";
+ const type=$("fType")?.value==="complementar"?"Atividade complementar":"Habilidade BNCC";
+ const dateTxt=date?date.split("-").reverse().join("/"):"";
+ side.innerHTML=`
+   <div class="meta">${dateTxt?`📅 ${esc(dateTxt)} · `:""}${esc(type)}</div>
+   <div style="margin-top:7px">${activity?esc(activity):'<span class="meta">A prévia aparece conforme você escreve.</span>'}</div>
+   <div style="margin-top:7px">
+     ${area?`<span class="preview-chip">${esc(area)}</span>`:""}
+     ${comp?`<span class="preview-chip">${esc(comp)}</span>`:""}
+   </div>
+   ${code?`<span class="preview-code">${esc(code)}</span>`:""}
+ `;
+}
+
 function renderRecordPage(){
  renderChildButtons("recordChildTabs","selectChild");
  let box=$("recordApp"),child=currentChild();if(!box)return;
@@ -3559,55 +3623,110 @@ function renderRecordPage(){
    skills.unshift({codigo:f.codigo,componente:f.componente,area:f.area,serie:f.yearRefAtRecord||"",descricao:f.habilidade});
  }
 
- box.innerHTML=`<div class="card"><h2>${editing?"Editar atividade":"Nova atividade"} — ${esc(child.name)}</h2><div class="grid">
- <div><label class="field">Data <span class="required-mark">*</span></label><input id="fDate" type="date" value="${esc(f.date)}"></div>
- <div><label class="field">Tipo <span class="required-mark">*</span></label><select id="fType" onchange="changeRecordType()"><option value="bncc" ${f.type!=="complementar"?"selected":""}>Habilidade BNCC</option><option value="complementar" ${f.type==="complementar"?"selected":""}>Atividade complementar</option></select></div>
- <div id="compBlock" class="full ${f.type==="complementar"?"":"hidden"}"><label class="field">Atividade complementar <span class="required-mark">*</span></label><select id="fComplementary"><option value="">Selecione...</option>${state.complementaryActivities.map(x=>`<option value="${x.id}" ${x.id===f.complementaryId?"selected":""}>${esc(x.name)}${x.category?" — "+esc(x.category):""}</option>`).join("")}</select></div>
- <div id="bnccFieldsTop" class="${f.type==="complementar"?"hidden":""}" style="display:contents"><div><label class="field">Área (opcional)</label><select id="fArea" onchange="areaChanged()"><option value="">Selecione...</option>${Object.keys(AREAS).map(x=>`<option ${x===f.area?"selected":""}>${esc(x)}</option>`).join("")}</select></div>
- <div><label class="field">Componente (opcional)</label><select id="fComp" onchange="componentChanged()"><option value="">Selecione...</option>${comps.map(x=>`<option ${x===f.componente?"selected":""}>${esc(x)}</option>`).join("")}</select></div></div>
- <div id="bnccSearch" class="full ${f.type==="complementar"?"hidden":""}">
-<label class="field">Buscar habilidade ou código (opcional)</label>
-<input id="globalSkillSearch" value="${esc(search)}" placeholder="Ex.: fração, leitura, EF03MA..." oninput="refreshGlobalSearch()">
-<div class="flex-search-options">
-<label><input type="radio" name="skillScope" value="referencia" ${scope==="referencia"?"checked":""} onchange="refreshGlobalSearch()"> Ano de referência</label>
-<label><input type="radio" name="skillScope" value="proximos" ${scope==="proximos"?"checked":""} onchange="refreshGlobalSearch()"> Anos próximos</label>
-<label><input type="radio" name="skillScope" value="todos" ${scope==="todos"?"checked":""} onchange="refreshGlobalSearch()"> Toda a BNCC</label>
-</div>
-<select id="globalSkillResults" style="margin-top:6px" onchange="selectGlobalSkill()"><option value="">${search.length>=2?"Resultados da busca...":"Digite para pesquisar..."}</option></select>
-<div id="globalSkillCount" class="meta"></div></div>
- <div id="bnccFieldsBottom" class="${f.type==="complementar"?"hidden":""}" style="display:contents"><div><label class="field">Código BNCC (opcional)</label><input id="fCode" readonly value="${esc(f.codigo)}"></div>
- <div class="full"><label class="field">Habilidade (opcional)</label><select id="fSkill" onchange="skillChanged()"><option value="">Selecione...</option>${skills.map(x=>`<option data-code="${esc(x.codigo)}" value="${esc(x.descricao)}" ${x.descricao===f.habilidade?"selected":""}>${esc(x.codigo)} — ${esc(anoBnccDoCodigo(x.codigo))} — ${esc(x.descricao)}</option>`).join("")}</select><div id="skillCount" class="meta">${skills.length} habilidade(s) no escopo selecionado</div></div></div>
- <div class="full">
-   <label class="field">Atividade realizada <span class="required-mark">*</span></label>
-   <textarea id="fActivity" rows="3">${esc(f.atividade)}</textarea>
-   <div id="draftStatus" class="media-status">${draft?"Rascunho restaurado automaticamente.":"Rascunho salvo automaticamente neste dispositivo."}</div>
-   <div id="aiBnccTestBox" class="ai-test-box ${f.type==="complementar"?"hidden":""}">
-     <div class="ai-test-head">
-       <div>
-         <b>✨ Janela de teste da IA — BNCC</b>
-         <div class="meta">O ano vem da criança. Área e componente são opcionais.</div>
-       </div>
-       <button id="aiBnccTestBtn" type="button" class="btn primary" onclick="testAiBnccSuggestion()">Testar IA</button>
-     </div>
-     <div id="aiBnccTestStatus" class="meta" style="margin-top:7px">Digite a atividade e toque em Testar IA.</div>
-     <div id="aiBnccTestResults" class="ai-test-results"></div>
-   </div>
+ box.innerHTML=`<div class="card record-form-card">
+ <div class="record-title-row">
+   <div><h2>${editing?"Editar atividade":"Registrar"}</h2><div class="meta">Conte o que vocês fizeram e relacione com a BNCC.</div></div>
+   <div class="meta">${esc(child.name)} · ${esc(child.stage||"")}</div>
  </div>
- <div class="full"><label class="field">Observações</label><textarea id="fObs" rows="2">${esc(f.observacoes)}</textarea></div>
- <div><label class="field">Avaliação <span class="required-mark">*</span></label><select id="fStatus"><option value="">Selecione...</option><option ${f.status==="Dominado"?"selected":""}>Dominado</option><option ${f.status==="Em progresso"?"selected":""}>Em progresso</option><option ${f.status==="Precisa de revisão"?"selected":""}>Precisa de revisão</option></select></div>
- <div><label class="field">Foto</label><div class="media-actions">
-   <label class="btn" onclick="saveRecordDraft(true)">Tirar foto<input type="file" accept="image/*" capture="environment" style="display:none" onchange="readPhoto(event)"></label>
-   <label class="btn" onclick="saveRecordDraft(true)">Escolher foto<input type="file" accept="image/*" style="display:none" onchange="readPhoto(event)"></label>
- </div></div>
- <div class="full"><div id="photoPreviewWrap">${f.foto?`<img id="photoPreviewImg" class="photo" src="${f.foto}">`:""}</div><div class="meta"><span class="required-mark">*</span> campo obrigatório · BNCC é opcional</div><button class="btn primary" onclick="saveEntry()">${editing?"Salvar alterações":"Salvar registro"}</button> <button class="btn" onclick="cancelEdit()">Cancelar</button></div></div></div>
+ <div class="record-shell">
+  <div class="record-main">
+   <div class="record-grid">
+    <div><label class="field">Data <span class="required-mark">*</span></label><input id="fDate" type="date" value="${esc(f.date)}"></div>
+    <div><label class="field">Tipo <span class="required-mark">*</span></label><select id="fType" onchange="changeRecordType()"><option value="bncc" ${f.type!=="complementar"?"selected":""}>Habilidade BNCC</option><option value="complementar" ${f.type==="complementar"?"selected":""}>Atividade complementar</option></select></div>
+    <div id="compBlock" class="full ${f.type==="complementar"?"":"hidden"}"><label class="field">Atividade complementar <span class="required-mark">*</span></label><select id="fComplementary"><option value="">Selecione...</option>${state.complementaryActivities.map(x=>`<option value="${x.id}" ${x.id===f.complementaryId?"selected":""}>${esc(x.name)}${x.category?" — "+esc(x.category):""}</option>`).join("")}</select></div>
+    <div class="full">
+      <label class="field">O que vocês fizeram hoje? <span class="required-mark">*</span></label>
+      <textarea id="fActivity" rows="4" placeholder="Descreva a atividade realizada...">${esc(f.atividade)}</textarea>
+      <div id="draftStatus" class="media-status">${draft?"Rascunho restaurado automaticamente.":"Rascunho salvo automaticamente neste dispositivo."}</div>
+    </div>
+    <div id="aiBnccMain" class="full ai-main-card ${f.type==="complementar"?"hidden":""}">
+      <div class="ai-help-title">✨ Ajude a IA a acertar mais rápido <span class="meta">(opcional)</span></div>
+      <div class="ai-component-wrap">
+        <label class="field">Componente</label>
+        <select id="fComp" onchange="componentChanged()">${groupedComponentOptions(f.componente)}</select>
+        <select id="fArea" class="hidden" aria-hidden="true"><option value=""></option>${Object.keys(AREAS).map(x=>`<option value="${esc(x)}" ${x===f.area?"selected":""}>${esc(x)}</option>`).join("")}</select>
+      </div>
+      <div class="ai-explain">Quanto mais específico o componente, menos candidatos da BNCC a IA precisa analisar. Se deixar em branco, a IA procura de forma mais ampla.</div>
+      <button id="aiBnccTestBtn" type="button" class="btn ai-primary-btn" onclick="testAiBnccSuggestion()">✨ Sugerir habilidade BNCC</button>
+      <div id="aiBnccTestStatus" class="meta" style="margin-top:7px">A atividade é suficiente. O componente é opcional.</div>
+      <div id="aiBnccTestResults" class="ai-test-results"></div>
+    </div>
+    <div id="bnccAdvancedWrap" class="full ${f.type==="complementar"?"hidden":""}">
+     <details class="bncc-advanced">
+      <summary>Escolher habilidade manualmente (opções avançadas)</summary>
+      <div class="bncc-advanced-body">
+       <div id="bnccSearch">
+        <label class="field">Buscar habilidade ou código</label>
+        <input id="globalSkillSearch" value="${esc(search)}" placeholder="Ex.: fração, leitura, EF03MA..." oninput="refreshGlobalSearch()">
+        <div class="flex-search-options">
+         <label><input type="radio" name="skillScope" value="referencia" ${scope==="referencia"?"checked":""} onchange="refreshGlobalSearch()"> Ano de referência</label>
+         <label><input type="radio" name="skillScope" value="proximos" ${scope==="proximos"?"checked":""} onchange="refreshGlobalSearch()"> Anos próximos</label>
+         <label><input type="radio" name="skillScope" value="todos" ${scope==="todos"?"checked":""} onchange="refreshGlobalSearch()"> Toda a BNCC</label>
+        </div>
+        <select id="globalSkillResults" style="margin-top:6px" onchange="selectGlobalSkill()"><option value="">${search.length>=2?"Resultados da busca...":"Digite para pesquisar..."}</option></select>
+        <div id="globalSkillCount" class="meta"></div>
+       </div>
+       <div id="bnccFieldsBottom" style="margin-top:10px">
+        <label class="field">Código BNCC</label><input id="fCode" readonly value="${esc(f.codigo)}">
+        <label class="field" style="margin-top:9px">Habilidade</label>
+        <select id="fSkill" onchange="skillChanged()"><option value="">Selecione...</option>${skills.map(x=>`<option data-code="${esc(x.codigo)}" value="${esc(x.descricao)}" ${x.descricao===f.habilidade?"selected":""}>${esc(x.codigo)} — ${esc(anoBnccDoCodigo(x.codigo))} — ${esc(x.descricao)}</option>`).join("")}</select>
+        <div id="skillCount" class="meta">${skills.length} habilidade(s) no escopo selecionado</div>
+       </div>
+      </div>
+     </details>
+    </div>
+    <div class="full"><label class="field">Observações</label><textarea id="fObs" rows="2">${esc(f.observacoes)}</textarea></div>
+    <div><label class="field">Avaliação <span class="required-mark">*</span></label><select id="fStatus"><option value="">Selecione...</option><option ${f.status==="Dominado"?"selected":""}>Dominado</option><option ${f.status==="Em progresso"?"selected":""}>Em progresso</option><option ${f.status==="Precisa de revisão"?"selected":""}>Precisa de revisão</option></select></div>
+    <div><label class="field">Foto</label><div class="media-actions">
+      <label class="btn" onclick="saveRecordDraft(true)">Tirar foto<input type="file" accept="image/*" capture="environment" style="display:none" onchange="readPhoto(event)"></label>
+      <label class="btn" onclick="saveRecordDraft(true)">Escolher foto<input type="file" accept="image/*" style="display:none" onchange="readPhoto(event)"></label>
+    </div></div>
+    <div class="full"><div id="photoPreviewWrap">${f.foto?`<img id="photoPreviewImg" class="photo" src="${f.foto}">`:""}</div><div class="meta"><span class="required-mark">*</span> campo obrigatório · BNCC é opcional</div></div>
+   </div>
+   <div class="record-actions">
+     <button class="btn" onclick="startNewRecord()">Limpar</button>
+     <button class="btn" onclick="saveRecordDraft(true)">Salvar rascunho</button>
+     <button class="btn primary" onclick="saveEntry()">${editing?"Salvar alterações":"Salvar atividade"}</button>
+     ${editing?`<button class="btn" onclick="cancelEdit()">Cancelar</button>`:""}
+   </div>
+  </div>
+  <aside class="record-side">
+    <div class="record-side-card">
+      <h3>💡 Dicas para descrever a atividade</h3>
+      <div class="tip"><div class="tip-icon">💬</div><div><b>Explique o que foi feito</b><div class="meta">O que aconteceu? O que a criança fez?</div></div></div>
+      <div class="tip"><div class="tip-icon">🎯</div><div><b>Seja específico</b><div class="meta">Detalhes ajudam a IA a entender melhor.</div></div></div>
+      <div class="tip"><div class="tip-icon">🧩</div><div><b>Inclua o processo</b><div class="meta">Como foi feito? Quais passos?</div></div></div>
+      <div class="tip"><div class="tip-icon">👁️</div><div><b>Conte o que aprendeu</b><div class="meta">O que ela descobriu ou entendeu?</div></div></div>
+    </div>
+    <div class="record-side-card"><h3>👁️ Prévia da atividade</h3><div id="recordPreview"></div></div>
+    <div class="record-side-card">
+      <h3>🤖 Como funciona a IA?</h3>
+      <p class="meta">A IA procura na BNCC as habilidades mais relacionadas ao que você escreveu, considerando o ano da criança. Se você informar o componente, a busca fica mais específica.</p>
+      <p class="meta"><b>A sugestão nunca é salva automaticamente.</b> Você escolhe qual habilidade usar.</p>
+    </div>
+  </aside>
+ </div>
+</div>
  <div class="card"><div class="toolbar" style="justify-content:space-between;align-items:center"><h3 style="margin:0">Atividades registradas</h3><button class="btn success" onclick="startNewRecord()">+ Novo registro</button></div><input id="recordSearch" placeholder="Buscar..." oninput="renderRecordList()" style="margin-top:12px"><div id="recordList"></div></div>`;
 
  bindRecordDraft();
+ ["fActivity","fDate","fType","fComp","fCode"].forEach(id=>{
+   const el=$(id);
+   if(el){el.addEventListener("input",updateRecordPreview);el.addEventListener("change",updateRecordPreview);}
+ });
+ updateRecordPreview();
  if(photoData&&photoTakenAt)renderPhotoDateHint();
  if(search.length>=2)refreshGlobalSearch();
  renderRecordList();
 }
-function changeRecordType(){let comp=$("fType").value==="complementar";$("bnccSearch")?.classList.toggle("hidden",comp);$("bnccFieldsTop")?.classList.toggle("hidden",comp);$("bnccFieldsBottom")?.classList.toggle("hidden",comp);$("compBlock")?.classList.toggle("hidden",!comp);$("aiBnccTestBox")?.classList.toggle("hidden",comp);saveRecordDraft(true)}
+function changeRecordType(){
+ let comp=$("fType").value==="complementar";
+ $("compBlock")?.classList.toggle("hidden",!comp);
+ $("aiBnccMain")?.classList.toggle("hidden",comp);
+ $("bnccAdvancedWrap")?.classList.toggle("hidden",comp);
+ saveRecordDraft(true);
+ updateRecordPreview();
+}
 function renderGlobalBnccResults(list,statusText=""){
  const child=currentChild();
  if(!child)return;
@@ -3690,23 +3809,26 @@ function areaChanged(){
  saveRecordDraft(true);
 }
 async function componentChanged(){
- let comp=$("fComp").value;
+ let comp=$("fComp")?.value||"";
+ let inferredArea=componentArea(comp);
+ if($("fArea"))$("fArea").value=inferredArea;
  let child=currentChild();
  let scope=document.querySelector('input[name="skillScope"]:checked')?.value||"referencia";
  if(!comp){
-   $("fSkill").innerHTML='<option value="">Selecione...</option>';
-   $("fCode").value="";
-   return;
+   if($("fSkill"))$("fSkill").innerHTML='<option value="">Selecione...</option>';
+   if($("fCode"))$("fCode").value="";
+   if($("skillCount"))$("skillCount").textContent="";
+   saveRecordDraft(true); updateRecordPreview(); return;
  }
- $("fSkill").innerHTML='<option value="">Carregando habilidades...</option>';
+ if($("fSkill"))$("fSkill").innerHTML='<option value="">Carregando habilidades...</option>';
  let list=await fetchBnccSkills({component:comp,limit:300});
  list=list.filter(x=>habilidadeNoEscopo(x.codigo,child?.stage||"",scope));
- $("fSkill").innerHTML='<option value="">Selecione...</option>'+list.map(x=>
+ if($("fSkill"))$("fSkill").innerHTML='<option value="">Selecione...</option>'+list.map(x=>
    `<option data-code="${esc(x.codigo)}" value="${esc(x.descricao)}">${esc(x.codigo)} — ${esc(x.serie||anoBnccDoCodigo(x.codigo))} — ${esc(x.descricao)}</option>`
  ).join("");
- $("skillCount").textContent=list.length+" habilidade(s) no escopo selecionado";
- $("fCode").value="";
- saveRecordDraft(true);
+ if($("skillCount"))$("skillCount").textContent=list.length+" habilidade(s) no escopo selecionado";
+ if($("fCode"))$("fCode").value="";
+ saveRecordDraft(true); updateRecordPreview();
 }
 function skillChanged(){
  let o=$("fSkill").selectedOptions[0];
@@ -3807,6 +3929,7 @@ function applyAiBnccSuggestion(index){
  if($("skillCount"))$("skillCount").textContent="Sugestão da IA aplicada · confira antes de salvar";
  saveRecordDraft(true);
  if($("aiBnccTestStatus"))$("aiBnccTestStatus").textContent=`${code} aplicado ao formulário. Revise antes de salvar.`;
+ updateRecordPreview();
 }
 
 
@@ -4147,7 +4270,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.0";
+const APP_VERSION = "5.1";
 let appSwRegistration = null;
 let appUpdateWorker = null;
 
