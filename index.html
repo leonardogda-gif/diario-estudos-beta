@@ -207,7 +207,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.12 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.13 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -397,26 +397,21 @@ body.app-authenticated .cloud-card{display:none!important}
   <div id="createFamilyCleanBox" class="hidden" style="margin-top:12px">
     <label class="field">Nome da nova família</label>
     <div class="toolbar"><input id="newFamilyCleanName" placeholder="Ex.: Família Andrade" style="max-width:360px"><button class="btn success" onclick="createCleanBackendFamily()">Criar família</button></div>
-    <div class="meta" style="margin-top:6px">Cria uma família nova no backend sem importar crianças ou registros antigos deste dispositivo.</div>
+    <div class="meta" style="margin-top:6px">A conta que criar a família será definida como Administrador único. Os dados antigos deste dispositivo não serão importados.</div>
   </div>
 </div>
 
 <div class="settings-section">
-  <h3>Responsáveis com acesso</h3>
-  <div id="familyMembersBox" class="notice">Carregando membros...</div>
-  <div id="inviteMemberBox" class="hidden">
-    <div class="grid" style="margin-top:10px">
-      <div><label class="field">E-mail</label><input id="inviteEmail" type="email" placeholder="exemplo@gmail.com"></div>
-      <div><label class="field">Permissão</label><select id="inviteRole"><option value="responsavel">Responsável</option><option value="visualizador">Somente visualização</option><option value="admin">Administrador</option></select></div>
-    </div>
-    <button class="btn success" onclick="inviteFamilyMember()">Convidar responsável</button>
-  </div>
-  <div id="pendingInvitesBox" style="margin-top:10px"></div>
+  <h3>Administrador da família</h3>
+  <div id="familyMembersBox" class="notice">Carregando administrador...</div>
+  <div class="notice" style="margin-top:10px">Esta família possui um único Administrador. Nesta versão não é possível convidar ou adicionar outras pessoas.</div>
+  <div id="inviteMemberBox" class="hidden"></div>
+  <div id="pendingInvitesBox" class="hidden"></div>
 </div>
 
 <div class="settings-section">
   <h3>Crianças</h3>
-  <div class="notice">Este cadastro vem do backend da família e é compartilhado entre todos os responsáveis.</div>
+  <div class="notice">As crianças pertencem à família administrada por esta conta.</div>
 
   <div id="duplicateChildrenBox" class="hidden" style="margin-top:10px"></div>
 
@@ -879,9 +874,9 @@ function renderSimpleFamilySummary(){
  if(!nameEl)return;
  if(!backendProfile?.user){nameEl.textContent="Entre com Google";if(roleEl)roleEl.textContent="";if(editBtn)editBtn.classList.add("hidden");if(addBtn)addBtn.classList.add("hidden");if(addBox)addBox.classList.add("hidden");return}
  if(!fam){nameEl.textContent="Nenhuma família selecionada";if(roleEl)roleEl.textContent="";if(editBtn)editBtn.classList.add("hidden");if(addBtn)addBtn.classList.add("hidden");if(addBox)addBox.classList.add("hidden");const cb=$("createFamilyCleanBox");if(cb)cb.classList.toggle("hidden",!(backendProfile?.user&&(backendProfile?.families||[]).length===0));return}
- const cb=$("createFamilyCleanBox");if(cb)cb.classList.add("hidden");nameEl.textContent=fam.name||"Família";if(roleEl)roleEl.textContent="Seu acesso: "+roleLabel(fam.role);
+ const cb=$("createFamilyCleanBox");if(cb)cb.classList.add("hidden");nameEl.textContent=fam.name||"Família";if(roleEl)roleEl.textContent=fam.role==="admin"?"Administrador da família":"Acesso: "+roleLabel(fam.role);
  if(editBtn)editBtn.classList.toggle("hidden",fam.role!=="admin");
- const canEdit=["admin","responsavel"].includes(fam.role);if(addBtn)addBtn.classList.toggle("hidden",!canEdit);if(addBox)addBox.classList.toggle("hidden",!canEdit);
+ const canEdit=fam.role==="admin";if(addBtn)addBtn.classList.toggle("hidden",!canEdit);if(addBox)addBox.classList.toggle("hidden",!canEdit);
 }
 async function createCleanBackendFamily(){
  const name=$("newFamilyCleanName")?.value.trim();if(!name)return alert("Informe o nome da família.");
@@ -890,7 +885,7 @@ async function createCleanBackendFamily(){
   const id=created?.family?.id;if(!id)throw new Error("O backend não retornou o ID da família.");
   localStorage.setItem(ACTIVE_BACKEND_FAMILY_KEY,id);setBackendFamilyId(id);
   state.family={name,social:"",updatedAt:now(),responsibles:[],children:[]};state.entries={};state.plans=[];state.tombstones={children:[],entries:[],plans:[]};activeChildId=null;setBackendChildMap({});saveLocal();
-  await refreshBackendProfile();await loadBackendFamilyData();await syncFamilyFromBackend(false);renderAll();alert("Família criada. Agora cadastre as crianças e depois envie o convite ao outro responsável.");
+  await refreshBackendProfile();await loadBackendFamilyData();await syncFamilyFromBackend(false);renderAll();alert("Família criada. Esta conta é o Administrador. Agora cadastre as crianças.");
  }catch(e){alert("Não foi possível criar a família: "+e.message)}
 }
 function resetLocalBetaData(){
@@ -1181,13 +1176,12 @@ async function loadBackendFamilyData(){
     return;
   }
 
-  const [membersRes, childrenRes, archivedRes] = await Promise.all([
-    backendFetch(`/family-members?family_id=${encodeURIComponent(fam.id)}`),
+  const [childrenRes, archivedRes] = await Promise.all([
     backendFetch(`/children?family_id=${encodeURIComponent(fam.id)}`),
     backendFetch(`/children?family_id=${encodeURIComponent(fam.id)}&include_archived=1`)
   ]);
 
-  backendMembers=membersRes.members||[];
+  backendMembers=backendProfile?.user?[{name:backendProfile.user.name,email:backendProfile.user.email,role:"admin"}]:[];
   backendChildren=(childrenRes.children||[]).filter(c=>Number(c.active)!==0);
   backendArchivedChildren=(archivedRes.children||[]).filter(c=>Number(c.active)===0);
   renderBackendFamilyPanels();
@@ -1205,7 +1199,7 @@ function renderBackendFamilyPanels(){
   const archivedBox=$("archivedChildrenBox");
   const syncBtn=$("syncFamilyBtn");
   const fam=currentBackendFamily();
-  const receivedInvites=backendProfile?.pendingInvites||[];
+  const receivedInvites=[];
 
   if(syncBtn)syncBtn.classList.toggle("hidden",!fam);
 
@@ -1244,7 +1238,7 @@ function renderBackendFamilyPanels(){
       : "<div class='notice'>Nenhum membro carregado.</div>";
   }
 
-  if(inviteBox)inviteBox.classList.toggle("hidden",!canManageFamily());
+  if(inviteBox)inviteBox.classList.add("hidden");
 
   renderDuplicateChildren();
 
@@ -2118,8 +2112,7 @@ function setBackendStatus(message, ok=null){
   if(details){
     if(backendProfile?.user){
       const fams=backendProfile.families?.length||0;
-      const inv=backendProfile.pendingInvites?.length||0;
-      details.innerHTML=`Conectado como <b>${esc(backendProfile.user.email||"")}</b> · ${fams} família(s) no backend · ${inv} convite(s) pendente(s). <span class="meta">Nesta fase, família e crianças são compartilhadas pelo backend; registros educacionais ainda permanecem no Drive/local.</span>`;
+      details.innerHTML=`Conectado como <b>${esc(backendProfile.user.email||"")}</b> · ${fams} família(s). <span class="meta">Administrador único · registros educacionais no Drive/local.</span>`;
     }else{
       details.textContent=message;
     }
@@ -3082,18 +3075,18 @@ function renderChildButtons(targetId,onClickName="selectChild"){
    ? state.family.children.filter(c=>!c.archived&&!c.legacyOrphan)
    : [];
  box.innerHTML=children.map(c=>`<button class="child ${c.id===activeChildId?"active":""}" onclick="${onClickName}('${c.id}')">${esc(c.name)}<br><small>${esc(c.stage)}</small></button>`).join("")
-   ||`<span class='notice'>${(backendProfile?.pendingInvites||[]).length?"Aceite o convite da família em Configurações.":"Cadastre uma família e uma criança em Configurações."}</span>`;
+   ||`<span class='notice'>Cadastre uma família e uma criança em Configurações.</span>`;
 }
 function selectChild(id){activeChildId=id;editing=null;recordFormOpen=false;photoData="";audioData="";photoTakenAt="";photoDateSource="";renderAll(true)}
 
 function renderChildrenCards(){
  const box=$("childrenCards");if(!box)return;
  if(!currentBackendFamily()){
-   box.innerHTML=`<div class="notice">${(backendProfile?.pendingInvites||[]).length?"Aceite o convite pendente para ver as crianças da família.":"Nenhuma criança disponível sem uma família."}</div>`;
+   box.innerHTML=`<div class="notice">Nenhuma criança disponível sem uma família.</div>`;
    return;
  }
  const role=currentBackendRole();
- box.innerHTML=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>{const backendId=getBackendChildMap()[c.id]||"",canEdit=["admin","responsavel"].includes(role)&&backendId,canArchive=role==="admin"&&backendId;return `<div class="child-card"><h4>${esc(c.name)}</h4><div class="meta">${c.birth?"Nascimento: "+fmtDate(c.birth)+" · ":""}Ano atual: <b>${esc(c.stage||"Sem ano de referência")}</b></div><div class="entry-actions">${canEdit?`<button class="btn small" onclick="editChild('${c.id}')">Editar</button><button class="btn small" onclick="changeChildStage('${c.id}')">Alterar ano</button>`:""}${canArchive?`<button class="btn danger small" onclick="archiveBackendChild('${backendId}','${c.id}')">Excluir</button>`:""}</div></div>`}).join("")||"<div class='notice'>Nenhuma criança ativa nesta família.</div>"
+ box.innerHTML=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>{const backendId=getBackendChildMap()[c.id]||"",canEdit=role==="admin"&&backendId,canArchive=role==="admin"&&backendId;return `<div class="child-card"><h4>${esc(c.name)}</h4><div class="meta">${c.birth?"Nascimento: "+fmtDate(c.birth)+" · ":""}Ano atual: <b>${esc(c.stage||"Sem ano de referência")}</b></div><div class="entry-actions">${canEdit?`<button class="btn small" onclick="editChild('${c.id}')">Editar</button><button class="btn small" onclick="changeChildStage('${c.id}')">Alterar ano</button>`:""}${canArchive?`<button class="btn danger small" onclick="archiveBackendChild('${backendId}','${c.id}')">Excluir</button>`:""}</div></div>`}).join("")||"<div class='notice'>Nenhuma criança ativa nesta família.</div>"
 }
 async function editChild(id){
  const c=state.family.children.find(x=>x.id===id),backendId=getBackendChildMap()[id];if(!c||!backendId)return;
@@ -3525,7 +3518,7 @@ function saveEntry(){
  saveEntryLocked=true;
  try{
  let type=$("fType").value,compId=$("fComplementary")?.value||"",comp=state.complementaryActivities.find(x=>x.id===compId),missing=[];
- let e={id:editing?.id||uid(),childId:activeChildId,createdAt:editing?.createdAt||now(),updatedAt:now(),date:$("fDate").value,activityDateSource:(photoTakenAt&&isoDateFromTimestamp(photoTakenAt)===$("fDate").value)?(photoDateSource==="exif"?"photo_exif":"photo_file"):(editing?.activityDateSource||"manual"),photoTakenAt:photoTakenAt||editing?.photoTakenAt||"",photoDateSource:photoDateSource||editing?.photoDateSource||"",type,yearRefAtRecord:currentChild()?.stage||"",complementaryId:type==="complementar"?compId:"",
+ let e={id:editing?.id||uid(),childId:activeChildId,createdAt:editing?.createdAt||now(),updatedAt:now(),createdByUserId:editing?.createdByUserId||backendProfile?.user?.id||"",createdByEmail:editing?.createdByEmail||backendProfile?.user?.email||googleUser?.email||"",createdByName:editing?.createdByName||backendProfile?.user?.name||googleUser?.name||"",date:$("fDate").value,activityDateSource:(photoTakenAt&&isoDateFromTimestamp(photoTakenAt)===$("fDate").value)?(photoDateSource==="exif"?"photo_exif":"photo_file"):(editing?.activityDateSource||"manual"),photoTakenAt:photoTakenAt||editing?.photoTakenAt||"",photoDateSource:photoDateSource||editing?.photoDateSource||"",type,yearRefAtRecord:currentChild()?.stage||"",complementaryId:type==="complementar"?compId:"",
  area:type==="bncc"?$("fArea").value:"Atividades Complementares",componente:type==="bncc"?$("fComp").value:(comp?.category||"Atividade Complementar"),codigo:type==="bncc"?$("fCode").value:"",
  habilidade:type==="bncc"?$("fSkill").value:(comp?.name||""),atividade:$("fActivity").value.trim(),observacoes:$("fObs").value.trim(),status:$("fStatus").value,
  foto:photoData||editing?.foto||"",fotoDriveId:editing?.fotoDriveId||"",fotoVisibleDriveId:editing?.fotoVisibleDriveId||"",audio:editing?.audio||"",audioDriveId:editing?.audioDriveId||""};
@@ -3658,7 +3651,7 @@ function renderPlans(){
  let l=state.plans.filter(x=>!x.completedAt&&(!childId||x.childId===childId)&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
  box.innerHTML=l.map(p=>`<div class="plan-card"><div class="plan-date">Próxima: ${fmtDate(p.nextDate||p.date)} · ${esc(state.family.children.find(c=>c.id===p.childId)?.name||"")}</div><div class="entry-title">${esc(p.title)}</div>${p.component?`<div class="skill">${esc(p.component)}</div>`:""}<div class="meta">${p.recurrence&&p.recurrence!=="none"?`Recorrência: ${esc(p.recurrence==="daily"?"diária":p.recurrence==="weekly"?"semanal":p.recurrence==="monthly"?"mensal":"dias específicos")}`:"Atividade única"}</div>${p.notes?`<div class="obs">${esc(p.notes)}</div>`:""}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">Registrar como concluída</button>${p.recurrence!=="none"?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular ocorrência</button>`:""}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`).join("")||"<div class='notice'>Nenhuma atividade planejada.</div>"
 }
-function startPlan(id){let p=state.plans.find(x=>x.id===id);if(!p)return;activeChildId=p.childId;recordFormOpen=true;editing={id:uid(),childId:p.childId,date:p.nextDate||p.date,type:p.type,complementaryId:"",area:"",componente:p.component,codigo:"",habilidade:"",atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),planId:p.id,planOccurrenceDate:p.nextDate||p.date};showPage("registro");renderRecordPage()}
+function startPlan(id){let p=state.plans.find(x=>x.id===id);if(!p)return;activeChildId=p.childId;recordFormOpen=true;editing={id:uid(),childId:p.childId,date:p.nextDate||p.date,type:p.type,complementaryId:"",area:"",componente:p.component,codigo:"",habilidade:"",atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,planOccurrenceDate:p.nextDate||p.date};showPage("registro");renderRecordPage()}
 function completePlanOccurrence(planId,occurrenceDate){const p=state.plans.find(x=>x.id===planId);if(!p)return;p.occurrences??=[];p.occurrences.push({date:occurrenceDate,status:"completed",updatedAt:now()});if(p.recurrence==="none"){p.completedAt=now();p.nextDate=""}else{p.nextDate=nextPlanDate(p,occurrenceDate);if(!p.nextDate)p.completedAt=now()}p.updatedAt=now()}
 function skipPlanOccurrence(id){const p=state.plans.find(x=>x.id===id);if(!p)return;const current=p.nextDate||p.date;if(!confirm(`Pular a ocorrência de ${fmtDate(current)}?`))return;p.occurrences??=[];p.occurrences.push({date:current,status:"skipped",updatedAt:now()});p.nextDate=nextPlanDate(p,current);if(!p.nextDate)p.completedAt=now();p.updatedAt=now();saveLocal();renderPlans();renderDashboard()}
 function deletePlan(id){state.plans=state.plans.filter(x=>x.id!==id);addTomb("plans",id);saveLocal();renderPlans();renderDashboard()}
@@ -3683,10 +3676,10 @@ function renderHistoryBatchRows(){let b=$("historyBatchRows");if(!b)return;if(!h
 function updateHistoryRow(id,k,v){let r=historyBatchRows.find(x=>x.id===id);if(r)r[k]=v}
 function addHistoryBatchRow(){historyBatchRows.push(newHistoryBatchRow());renderHistoryBatchRows()}
 function removeHistoryBatchRow(id){historyBatchRows=historyBatchRows.filter(x=>x.id!==id);renderHistoryBatchRows()}
-function saveHistoryBatch(){let childId=$("historyChild").value,statusDefault=$("historyDefaultStatus").value,compDefault=$("historyDefaultComponent").value.trim(),valid=historyBatchRows.filter(x=>x.activity.trim());if(!valid.length)return alert("Preencha pelo menos uma linha.");let missing=valid.filter(x=>!(x.status||statusDefault));if(missing.length)return alert("Defina avaliação em todas as linhas ou use a avaliação padrão.");let created=valid.map(r=>({id:uid(),childId,createdAt:now(),updatedAt:now(),date:r.date||today(),type:"bncc",area:"",componente:r.component||compDefault,codigo:"",habilidade:"",atividade:r.activity.trim(),observacoes:"Registro histórico em lote",status:r.status||statusDefault,foto:"",audio:""}));state.entries[childId]=[...created,...(state.entries[childId]||[])];historyBatchRows=[];saveLocal();renderAll();alert(created.length+" registros adicionados.")}
+function saveHistoryBatch(){let childId=$("historyChild").value,statusDefault=$("historyDefaultStatus").value,compDefault=$("historyDefaultComponent").value.trim(),valid=historyBatchRows.filter(x=>x.activity.trim());if(!valid.length)return alert("Preencha pelo menos uma linha.");let missing=valid.filter(x=>!(x.status||statusDefault));if(missing.length)return alert("Defina avaliação em todas as linhas ou use a avaliação padrão.");let created=valid.map(r=>({id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",date:r.date||today(),type:"bncc",area:"",componente:r.component||compDefault,codigo:"",habilidade:"",atividade:r.activity.trim(),observacoes:"Registro histórico em lote",status:r.status||statusDefault,foto:"",audio:""}));state.entries[childId]=[...created,...(state.entries[childId]||[])];historyBatchRows=[];saveLocal();renderAll();alert(created.length+" registros adicionados.")}
 function refreshHistoryActivityOptions(){let s=$("histPeriodActivity");if(s)s.innerHTML='<option value="">Selecione...</option>'+state.complementaryActivities.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("")}
 function parseISO(s){let[y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)}function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
-function savePeriodHistory(){let childId=$("historyChild").value,start=$("histPeriodStart").value,end=$("histPeriodEnd").value,act=state.complementaryActivities.find(x=>x.id===$("histPeriodActivity").value),freq=+$("histPeriodFreq").value,status=$("histPeriodStatus").value,desc=$("histPeriodDesc").value.trim();if(!childId||!start||!end||!act||!status)return alert("Preencha criança, período, atividade e avaliação.");let s=parseISO(start),e=parseISO(end);if(e<s)return alert("Período inválido.");let offsets=[0,2,4,1,3].slice(0,freq),created=[];for(let w=new Date(s);w<=e;w.setDate(w.getDate()+7)){let mon=new Date(w);mon.setDate(mon.getDate()-mon.getDay()+1);for(let o of offsets){let d=new Date(mon);d.setDate(mon.getDate()+o);if(d<s||d>e)continue;created.push({id:uid(),childId,createdAt:now(),updatedAt:now(),date:iso(d),type:"complementar",complementaryId:act.id,area:"Atividades Complementares",componente:act.category||"Atividade Complementar",codigo:"",habilidade:act.name,atividade:desc||act.name,observacoes:"Registro histórico por período",status,foto:"",audio:""})}}state.entries[childId]=[...created,...(state.entries[childId]||[])];saveLocal();renderAll();alert(created.length+" registros criados.")}
+function savePeriodHistory(){let childId=$("historyChild").value,start=$("histPeriodStart").value,end=$("histPeriodEnd").value,act=state.complementaryActivities.find(x=>x.id===$("histPeriodActivity").value),freq=+$("histPeriodFreq").value,status=$("histPeriodStatus").value,desc=$("histPeriodDesc").value.trim();if(!childId||!start||!end||!act||!status)return alert("Preencha criança, período, atividade e avaliação.");let s=parseISO(start),e=parseISO(end);if(e<s)return alert("Período inválido.");let offsets=[0,2,4,1,3].slice(0,freq),created=[];for(let w=new Date(s);w<=e;w.setDate(w.getDate()+7)){let mon=new Date(w);mon.setDate(mon.getDate()-mon.getDay()+1);for(let o of offsets){let d=new Date(mon);d.setDate(mon.getDate()+o);if(d<s||d>e)continue;created.push({id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",date:iso(d),type:"complementar",complementaryId:act.id,area:"Atividades Complementares",componente:act.category||"Atividade Complementar",codigo:"",habilidade:act.name,atividade:desc||act.name,observacoes:"Registro histórico por período",status,foto:"",audio:""})}}state.entries[childId]=[...created,...(state.entries[childId]||[])];saveLocal();renderAll();alert(created.length+" registros criados.")}
 
 function fileDateToISO(file){const d=new Date(file.lastModified||Date.now());return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function prepareHistoricalPhotos(ev){
@@ -3698,13 +3691,13 @@ function clearHistoricalPhotoImport(){historicalPhotoQueue=[];if($("historicalPh
 function createHistoricalPhotoRecords(){
  const childId=$("historyPhotoChild")?.value||"",status=$("historyPhotoStatus")?.value||"",activity=($("historyPhotoActivity")?.value||"").trim()||"Registro fotográfico de atividade";
  if(!childId)return alert("Escolha a criança.");if(!status)return alert("Escolha uma avaliação padrão.");if(!historicalPhotoQueue.length)return alert("Selecione fotos.");
- const created=historicalPhotoQueue.map(p=>({id:uid(),childId,createdAt:now(),updatedAt:now(),date:p.date||today(),type:"bncc",area:"",componente:"",codigo:"",habilidade:"",atividade:activity,observacoes:"Importado a partir de foto antiga. BNCC não classificada.",status,foto:p.data,fotoDriveId:"",fotoVisibleDriveId:"",audio:"",audioDriveId:"",yearRefAtRecord:state.family.children.find(c=>c.id===childId)?.stage||""}));
+ const created=historicalPhotoQueue.map(p=>({id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",date:p.date||today(),type:"bncc",area:"",componente:"",codigo:"",habilidade:"",atividade:activity,observacoes:"Importado a partir de foto antiga. BNCC não classificada.",status,foto:p.data,fotoDriveId:"",fotoVisibleDriveId:"",audio:"",audioDriveId:"",yearRefAtRecord:state.family.children.find(c=>c.id===childId)?.stage||""}));
  state.entries[childId]=[...created,...(state.entries[childId]||[])];clearHistoricalPhotoImport();saveLocal();renderAll();alert(`${created.length} registro(s) histórico(s) criados. Você pode classificar a BNCC depois.`)
 }
 
 function downloadHistoryTemplate(){shareOrDownloadText("data;tipo;atividade;componente;codigo;habilidade;observacoes;avaliacao\n2025-03-10;bncc;Leitura;Língua Portuguesa;EF03LP00;Habilidade;Registro antigo;Dominado","modelo_historico.csv","text/csv","Modelo de histórico")}
 function parseCsvLine(line,sep){let out=[],cur="",q=false;for(let i=0;i<line.length;i++){let c=line[i];if(c==='"'){if(q&&line[i+1]==='"'){cur+='"';i++}else q=!q}else if(c===sep&&!q){out.push(cur);cur=""}else cur+=c}out.push(cur);return out}
-function importHistoryCSV(ev){let file=ev.target.files[0],childId=$("historyChild").value;if(!file||!childId)return;let fr=new FileReader();fr.onload=()=>{try{let lines=fr.result.replace(/^\uFEFF/,"").split(/\r?\n/).filter(Boolean),sep=lines[0].includes(";")?";":",",h=parseCsvLine(lines[0],sep).map(x=>x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")),idx=n=>h.indexOf(n),created=[];for(let i=1;i<lines.length;i++){let p=parseCsvLine(lines[i],sep),at=(p[idx("atividade")]||"").trim(),st=(p[idx("avaliacao")]||"").trim();if(!at)continue;if(!st)throw new Error("Linha "+(i+1)+" sem avaliação");let type=(p[idx("tipo")]||"bncc").toLowerCase()==="complementar"?"complementar":"bncc";created.push({id:uid(),childId,createdAt:now(),updatedAt:now(),date:(p[idx("data")]||today()).trim(),type,area:type==="complementar"?"Atividades Complementares":"",componente:(p[idx("componente")]||"").trim(),codigo:type==="bncc"?(p[idx("codigo")]||"").trim():"",habilidade:(p[idx("habilidade")]||"").trim(),atividade:at,observacoes:(p[idx("observacoes")]||"").trim(),status:st,foto:"",audio:""})}state.entries[childId]=[...created,...(state.entries[childId]||[])];saveLocal();renderAll();alert("Histórico importado.")}catch(e){alert("Erro no CSV: "+e.message)}};fr.readAsText(file,"UTF-8")}
+function importHistoryCSV(ev){let file=ev.target.files[0],childId=$("historyChild").value;if(!file||!childId)return;let fr=new FileReader();fr.onload=()=>{try{let lines=fr.result.replace(/^\uFEFF/,"").split(/\r?\n/).filter(Boolean),sep=lines[0].includes(";")?";":",",h=parseCsvLine(lines[0],sep).map(x=>x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")),idx=n=>h.indexOf(n),created=[];for(let i=1;i<lines.length;i++){let p=parseCsvLine(lines[i],sep),at=(p[idx("atividade")]||"").trim(),st=(p[idx("avaliacao")]||"").trim();if(!at)continue;if(!st)throw new Error("Linha "+(i+1)+" sem avaliação");let type=(p[idx("tipo")]||"bncc").toLowerCase()==="complementar"?"complementar":"bncc";created.push({id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",date:(p[idx("data")]||today()).trim(),type,area:type==="complementar"?"Atividades Complementares":"",componente:(p[idx("componente")]||"").trim(),codigo:type==="bncc"?(p[idx("codigo")]||"").trim():"",habilidade:(p[idx("habilidade")]||"").trim(),atividade:at,observacoes:(p[idx("observacoes")]||"").trim(),status:st,foto:"",audio:""})}state.entries[childId]=[...created,...(state.entries[childId]||[])];saveLocal();renderAll();alert("Histórico importado.")}catch(e){alert("Erro no CSV: "+e.message)}};fr.readAsText(file,"UTF-8")}
 
 function addComplementaryActivity(){let name=$("compActivityName").value.trim();if(!name)return alert("Informe o nome.");if(state.complementaryActivities.some(x=>x.name.toLowerCase()===name.toLowerCase()))return alert("Atividade já cadastrada.");state.complementaryActivities.push({id:uid(),name,category:$("compActivityCategory").value.trim(),description:$("compActivityDescription").value.trim(),createdAt:now(),updatedAt:now()});$("compActivityName").value="";$("compActivityCategory").value="";$("compActivityDescription").value="";saveLocal();renderAll()}
 function renderComplementaryList(){let b=$("complementaryList");if(!b)return;b.innerHTML=state.complementaryActivities.map(x=>`<div class="entry"><div class="entry-title">${esc(x.name)}</div><div class="skill">${esc(x.category||"")}</div><div class="obs">${esc(x.description||"")}</div><button class="btn danger small" onclick="deleteComplementaryActivity('${x.id}')">Excluir</button></div>`).join("")||"<div class='notice'>Nenhuma atividade complementar.</div>"}
@@ -3796,7 +3789,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "4.12";
+const APP_VERSION = "4.13";
 let appSwRegistration = null;
 let appUpdateWorker = null;
 

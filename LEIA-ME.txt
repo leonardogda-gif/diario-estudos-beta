@@ -1,13 +1,23 @@
-DIÁRIO DE ESTUDOS — v4.12
+DIÁRIO DE ESTUDOS — v4.13
+
+ALTERAÇÕES PRINCIPAIS
+- Família passa a trabalhar com Administrador único na interface.
+- A conta que cria a família é o Administrador.
+- Removida da interface a opção de convidar/adicionar outras pessoas.
+- Cadastro e gerenciamento de crianças ficam restritos ao Administrador.
+- Novos registros passam a guardar a autoria da conta Google (ID, e-mail e nome).
+- Mantidas as melhorias da v4.12: sincronização, modelo CSV, login sem piscada e BNCC via backend/cache.
 
 PUBLICAÇÃO
-- Substitua no GitHub Pages: index.html, sw.js, version.json, manifest.json e LEIA-ME.txt.
-- Mantenha a pasta icons/ existente.
-- Não é necessário alterar o Worker 0.6.2-beta nem o D1 para esta versão.
+Substitua no GitHub Pages:
+- index.html
+- sw.js
+- version.json
+- manifest.json
+- LEIA-ME.txt
 
-NOVIDADES
-- Sincronização com conclusão mais clara e resumo de registros atualizados.
-- Removida a sincronização automática apenas por voltar/focar a janela; permanecem login, salvar/alterar, retorno da internet e botão manual.
-- O status de sincronização só é concluído depois da etapa de carregamento das mídias.
-- Manutenção: botão para baixar o modelo CSV de códigos personalizados da família.
-- Inicialização protegida por tela "Abrindo Diário de Estudos…" para evitar a piscada da tela de login durante a tentativa de reconexão automática.
+Mantenha a pasta icons/ existente.
+
+BACKEND
+Esta versão não exige alteração no Worker 0.6.2-beta nem no D1.
+A criação de família já registra o criador como role=admin no backend.
