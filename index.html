@@ -281,6 +281,47 @@ body.app-authenticated .cloud-card{display:none!important}
   font-weight:800;
 }
 
+
+/* v5.5 — informações para relatório e impressão pedagógica */
+.report-profile-link{margin-left:auto}
+.report-header{
+  border:1px solid #D8D1C2;border-radius:12px;padding:16px;margin-bottom:14px;background:#FFFDF8
+}
+.report-header-top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;border-bottom:1px solid #E8E1D2;padding-bottom:11px;margin-bottom:11px}
+.report-header h1{font-size:22px;margin:0 0 3px;color:#17332A}
+.report-header .report-period{font-size:12px;color:#5E645E;text-align:right}
+.report-profile-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px 16px}
+.report-profile-item{min-width:0}
+.report-profile-item .label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#77746D;font-weight:800;margin-bottom:2px}
+.report-profile-item .value{font-size:13px;font-weight:700;color:#292922;word-break:break-word}
+.report-section-title{margin:16px 0 7px;font-size:16px;color:#17332A}
+.report-component-grid{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 12px}
+.report-component-pill{border:1px solid #D8D1C2;background:#F8F5EC;border-radius:999px;padding:5px 9px;font-size:11px}
+.report-bncc-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.report-bncc-group{border:1px solid #E8E1D2;border-radius:9px;padding:9px;background:#FFF}
+.report-bncc-group b{display:block;margin-bottom:3px}
+.report-info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.report-info-grid .full{grid-column:1/-1}
+.settings-anchor-note{font-size:12px;color:#5E645E;margin-top:5px}
+@media(max-width:700px){
+ .report-profile-grid{grid-template-columns:1fr 1fr}
+ .report-bncc-summary{grid-template-columns:1fr}
+ .report-info-grid{grid-template-columns:1fr}
+ .report-info-grid .full{grid-column:1}
+ .report-header-top{display:block}
+ .report-header .report-period{text-align:left;margin-top:7px}
+}
+@media(max-width:480px){.report-profile-grid{grid-template-columns:1fr}}
+@media print{
+ header,.nav-wrap,.app-update-banner{display:none!important}
+ main{max-width:none!important;margin:0!important;padding:0!important}
+ #page-relatorios>.card{border:0!important;padding:0!important}
+ .report-header{border:1px solid #bbb!important}
+ .entry,.report-header,.report-bncc-group,.path-box{break-inside:avoid;page-break-inside:avoid}
+ .report-photo{max-height:240px;object-fit:contain}
+ .report-section-title{break-after:avoid;page-break-after:avoid}
+}
+
 </style>
 </head>
 <body class="auth-checking">
@@ -289,7 +330,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.4 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v5.5 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -411,6 +452,7 @@ body.app-authenticated .cloud-card{display:none!important}
         <div class="toolbar no-print">
           <button class="btn dark" onclick="window.print()">Imprimir / Salvar PDF</button>
           <button class="btn" onclick="shareReportHtml()">Compartilhar relatório</button>
+          <button class="btn report-profile-link" onclick="openReportInfoSettings()">⚙ Informações para relatório</button>
         </div>
         <h2 style="margin-top:12px">Relatórios</h2>
         <div class="report-filters no-print">
@@ -565,6 +607,32 @@ body.app-authenticated .cloud-card{display:none!important}
   </div>
   <button id="addChildBackendBtn" class="btn success" onclick="addChild()">Adicionar criança</button>
   <div style="margin-top:14px"><h4 style="margin-bottom:6px">Arquivadas</h4><div id="archivedChildrenBox" class="notice">Nenhuma criança arquivada.</div></div>
+</div>
+
+
+<div class="settings-section" id="reportInfoSettings">
+  <h3>Informações para relatórios</h3>
+  <div class="notice">Esses dados são usados no cabeçalho dos relatórios e PDFs. Eles não são obrigatórios para registrar atividades.</div>
+
+  <h4 style="margin:14px 0 7px">Família / responsável</h4>
+  <div class="report-info-grid">
+    <div><label class="field">Responsável / educador</label><input id="reportFamilyResponsible" placeholder="Nome para aparecer no relatório"></div>
+    <div><label class="field">Relação com a criança</label><input id="reportFamilyRelation" placeholder="Ex.: Pai, mãe, responsável"></div>
+    <div><label class="field">Modalidade</label><select id="reportFamilyModality"><option value="">Não informar</option><option>Educação domiciliar</option><option>Escola</option><option>Educação domiciliar + escola</option><option>Outro</option></select></div>
+    <div><label class="field">Instituição (opcional)</label><input id="reportFamilyInstitution" placeholder="Nome da escola ou instituição"></div>
+    <div><label class="field">Cidade</label><input id="reportFamilyCity"></div>
+    <div><label class="field">UF</label><input id="reportFamilyState" maxlength="2" placeholder="SP"></div>
+  </div>
+
+  <h4 style="margin:16px 0 7px">Criança</h4>
+  <div class="report-info-grid">
+    <div class="full"><label class="field">Criança</label><select id="reportInfoChild" onchange="loadChildReportInfo()"></select></div>
+    <div><label class="field">Nome completo para o relatório</label><input id="reportChildFullName" placeholder="Se vazio, usa o nome do cadastro"></div>
+    <div><label class="field">Ano letivo</label><input id="reportChildSchoolYear" inputmode="numeric" maxlength="4" placeholder="Ex.: 2026"></div>
+    <div class="full"><label class="field">Observações gerais (opcional)</label><textarea id="reportChildGeneralNotes" rows="2" placeholder="Informação geral que pode ser útil no relatório"></textarea></div>
+  </div>
+  <div class="settings-anchor-note">Etapa e ano/série são obtidos automaticamente do “Ano de referência” da criança.</div>
+  <div class="toolbar" style="margin-top:12px"><button class="btn success" onclick="saveReportInfoSettings()">Salvar informações para relatórios</button></div>
 </div>
 
 <div class="settings-section">
@@ -855,7 +923,8 @@ function saveLocal(mark=true){
 function normalizeState(){
  state.family=state.family||{name:"",social:"",updatedAt:"",responsibles:[],children:[]};
  state.family.name=state.family.name||"";state.family.responsibles=state.family.responsibles||[];
- state.family.children=(state.family.children||[]).map(c=>({...c,stage:c.stage||"Sem ano de referência",stageHistory:c.stageHistory||[{stage:c.stage||"Sem ano de referência",startDate:"",endDate:""}]}));
+ state.family.reportInfo=state.family.reportInfo||{responsibleName:"",responsibleRelation:"",city:"",state:"",modality:"",institution:""};
+ state.family.children=(state.family.children||[]).map(c=>({...c,stage:c.stage||"Sem ano de referência",stageHistory:c.stageHistory||[{stage:c.stage||"Sem ano de referência",startDate:"",endDate:""}],reportInfo:c.reportInfo||{fullName:"",schoolYear:"",notes:""}}));
  state.plans=state.plans||[];state.customBncc=Array.isArray(state.customBncc)?state.customBncc:[];state.tombstones={entries:[],children:[],complementary:[],plans:[],...(state.tombstones||{})};
 }
 function loadLocal(){
@@ -2330,7 +2399,7 @@ async function reconcileChildrenWithBackend(showMessage=false){
    let localId=Object.keys(map).find(id=>map[id]===remote.id&&state.family.children.some(c=>c.id===id));
    let local=localId?state.family.children.find(c=>c.id===localId):null;
    if(!local){local=state.family.children.find(c=>childMatchesRemote(c,remote));if(local){localId=local.id;map[localId]=remote.id}}
-   if(!local){localId=uid();local={id:localId,name:remote.name,birth:remote.birth_date||"",stage:remote.reference_stage||"Sem ano de referência",stageHistory:[{stage:remote.reference_stage||"Sem ano de referência",startDate:"",endDate:""}],archived:Number(remote.active)===0,backendManaged:true,createdAt:now(),updatedAt:now()};state.family.children.push(local);map[localId]=remote.id}
+   if(!local){localId=uid();local={id:localId,name:remote.name,birth:remote.birth_date||"",stage:remote.reference_stage||"Sem ano de referência",stageHistory:[{stage:remote.reference_stage||"Sem ano de referência",startDate:"",endDate:""}],reportInfo:{fullName:"",schoolYear:String(new Date().getFullYear()),notes:""},archived:Number(remote.active)===0,backendManaged:true,createdAt:now(),updatedAt:now()};state.family.children.push(local);map[localId]=remote.id}
    const dups=state.family.children.filter(c=>c.id!==localId&&childMatchesRemote(c,remote));dups.forEach(d=>{mergeLocalChildData(localId,d.id);delete map[d.id]});
    local=state.family.children.find(c=>c.id===localId);if(local){local.name=remote.name||"";local.birth=remote.birth_date||"";local.stage=remote.reference_stage||"Sem ano de referência";local.archived=Number(remote.active)===0;local.backendManaged=true;local.legacyOrphan=false;local.updatedAt=now();kept.add(localId)}
  }
@@ -3334,7 +3403,7 @@ function populateCommonSelects(){
    ? state.family.children.filter(c=>!c.archived&&!c.legacyOrphan)
    : [];
  const opts=availableChildren.map(c=>`<option value="${c.id}">${esc(c.name)} — ${esc(c.stage)}</option>`).join("");
- ["planChild","reportChild","historyChild","historyPhotoChild","oldRecordChild"].forEach(id=>{let e=$(id);if(e){let old=e.value;e.innerHTML=opts;if(old&&availableChildren.some(c=>c.id===old))e.value=old;else if(activeChildId&&availableChildren.some(c=>c.id===activeChildId))e.value=activeChildId}});
+ ["planChild","reportChild","historyChild","historyPhotoChild","oldRecordChild","reportInfoChild"].forEach(id=>{let e=$(id);if(e){let old=e.value;e.innerHTML=opts;if(old&&availableChildren.some(c=>c.id===old))e.value=old;else if(activeChildId&&availableChildren.some(c=>c.id===activeChildId))e.value=activeChildId}});
  $("childStage").innerHTML=STAGES.map(x=>`<option>${esc(x)}</option>`).join("");
  let comps=[...new Set(Object.values(state.entries).flat().map(x=>x.componente).filter(Boolean))].sort();
  if($("reportComponent"))$("reportComponent").innerHTML='<option value="">Todos</option>'+comps.map(x=>`<option>${esc(x)}</option>`).join("");
@@ -3356,7 +3425,7 @@ function renderChildrenCards(){
    return;
  }
  const role=currentBackendRole();
- box.innerHTML=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>{const backendId=getBackendChildMap()[c.id]||"",canEdit=role==="admin"&&backendId,canArchive=role==="admin"&&backendId;return `<div class="child-card"><h4>${esc(c.name)}</h4><div class="meta">${c.birth?"Nascimento: "+fmtDate(c.birth)+" · ":""}Ano atual: <b>${esc(c.stage||"Sem ano de referência")}</b></div><div class="entry-actions">${canEdit?`<button class="btn small" onclick="editChild('${c.id}')">Editar</button><button class="btn small" onclick="changeChildStage('${c.id}')">Alterar ano</button>`:""}${canArchive?`<button class="btn danger small" onclick="archiveBackendChild('${backendId}','${c.id}')">Arquivar</button>`:""}</div></div>`}).join("")||"<div class='notice'>Nenhuma criança ativa nesta família.</div>"
+ box.innerHTML=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>{const backendId=getBackendChildMap()[c.id]||"",canEdit=role==="admin"&&backendId,canArchive=role==="admin"&&backendId;return `<div class="child-card"><h4>${esc(c.name)}</h4><div class="meta">${c.birth?"Nascimento: "+fmtDate(c.birth)+" · ":""}Ano atual: <b>${esc(c.stage||"Sem ano de referência")}</b></div>${c.reportInfo?.schoolYear?`<div class="meta">Ano letivo no relatório: ${esc(c.reportInfo.schoolYear)}</div>`:""}<div class="entry-actions">${canEdit?`<button class="btn small" onclick="editChild('${c.id}')">Editar</button><button class="btn small" onclick="changeChildStage('${c.id}')">Alterar ano</button>`:""}${canArchive?`<button class="btn danger small" onclick="archiveBackendChild('${backendId}','${c.id}')">Arquivar</button>`:""}</div></div>`}).join("")||"<div class='notice'>Nenhuma criança ativa nesta família.</div>"
 }
 async function editChild(id){
  const c=state.family.children.find(x=>x.id===id),backendId=getBackendChildMap()[id];if(!c||!backendId)return;
@@ -3369,7 +3438,84 @@ async function changeChildStage(id){
  const idx=parseInt(ans,10);if(Number.isNaN(idx)||!STAGES[idx])return alert("Opção inválida.");const next=STAGES[idx];if(next===c.stage)return;const start=prompt("A partir de qual data? (AAAA-MM-DD)",today());if(start===null)return;
  try{await backendFetch(`/children/${encodeURIComponent(backendId)}`,{method:"PATCH",body:JSON.stringify({name:c.name,birth_date:c.birth||null,reference_stage:next})});c.stageHistory??=[];const cur=c.stageHistory.find(x=>!x.endDate);if(cur)cur.endDate=start;c.stageHistory.push({stage:next,startDate:start,endDate:""});saveLocal();await loadBackendFamilyData();await reconcileChildrenWithBackend(false)}catch(e){alert("Não foi possível alterar o ano: "+e.message)}
 }
-function renderSettingsChildren(){renderChildrenCards();}
+
+function educationStageFromReference(stage){
+ const s=String(stage||"");
+ if(/infantil|beb[eê]s|crianças pequenas|crianças bem pequenas/i.test(s))return "Educação Infantil";
+ if(/ensino m[eé]dio/i.test(s))return "Ensino Médio";
+ if(/fundamental/i.test(s))return "Ensino Fundamental";
+ return s&&s!=="Sem ano de referência"?"":"Não informado";
+}
+function reportInfoForChild(child){
+ child.reportInfo=child.reportInfo||{fullName:"",schoolYear:"",notes:""};
+ return child.reportInfo;
+}
+function renderReportInfoSettings(){
+ const famInfo=state.family.reportInfo||(state.family.reportInfo={responsibleName:"",responsibleRelation:"",city:"",state:"",modality:"",institution:""});
+ if($("reportFamilyResponsible"))$("reportFamilyResponsible").value=famInfo.responsibleName||"";
+ if($("reportFamilyRelation"))$("reportFamilyRelation").value=famInfo.responsibleRelation||"";
+ if($("reportFamilyCity"))$("reportFamilyCity").value=famInfo.city||"";
+ if($("reportFamilyState"))$("reportFamilyState").value=famInfo.state||"";
+ if($("reportFamilyModality"))$("reportFamilyModality").value=famInfo.modality||"";
+ if($("reportFamilyInstitution"))$("reportFamilyInstitution").value=famInfo.institution||"";
+
+ const children=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan);
+ const sel=$("reportInfoChild");
+ if(sel){
+   const old=sel.value;
+   sel.innerHTML=children.map(c=>`<option value="${c.id}">${esc(c.name)} — ${esc(c.stage||"")}</option>`).join("");
+   sel.value=children.some(c=>c.id===old)?old:(activeChildId||children[0]?.id||"");
+ }
+ loadChildReportInfo();
+}
+function loadChildReportInfo(){
+ const id=$("reportInfoChild")?.value||activeChildId;
+ const child=state.family.children.find(c=>c.id===id);
+ if(!child)return;
+ const info=reportInfoForChild(child);
+ if($("reportChildFullName"))$("reportChildFullName").value=info.fullName||"";
+ if($("reportChildSchoolYear"))$("reportChildSchoolYear").value=info.schoolYear||String(new Date().getFullYear());
+ if($("reportChildGeneralNotes"))$("reportChildGeneralNotes").value=info.notes||"";
+}
+function saveReportInfoSettings(){
+ state.family.reportInfo={
+   responsibleName:$("reportFamilyResponsible")?.value.trim()||"",
+   responsibleRelation:$("reportFamilyRelation")?.value.trim()||"",
+   city:$("reportFamilyCity")?.value.trim()||"",
+   state:($("reportFamilyState")?.value.trim()||"").toUpperCase(),
+   modality:$("reportFamilyModality")?.value||"",
+   institution:$("reportFamilyInstitution")?.value.trim()||""
+ };
+ const id=$("reportInfoChild")?.value||activeChildId;
+ const child=state.family.children.find(c=>c.id===id);
+ if(child){
+   child.reportInfo={
+     fullName:$("reportChildFullName")?.value.trim()||"",
+     schoolYear:$("reportChildSchoolYear")?.value.trim()||"",
+     notes:$("reportChildGeneralNotes")?.value.trim()||""
+   };
+   child.updatedAt=now();
+ }
+ state.family.updatedAt=now();
+ saveLocal();
+ renderReportPage();
+ alert("Informações para relatórios salvas.");
+}
+function openReportInfoSettings(){
+ showPage("configuracoes");
+ setTimeout(()=>{
+   renderReportInfoSettings();
+   $("reportInfoSettings")?.scrollIntoView({behavior:"smooth",block:"start"});
+ },50);
+}
+function reportPeriodText(from,to){
+ if(from&&to)return `${fmtDate(from)} a ${fmtDate(to)}`;
+ if(from)return `A partir de ${fmtDate(from)}`;
+ if(to)return `Até ${fmtDate(to)}`;
+ return "Todos os registros";
+}
+
+function renderSettingsChildren(){renderChildrenCards();renderReportInfoSettings();}
 
 async function addChild(){
  const fam=currentBackendFamily();if(!fam)return alert("Entre em uma família antes de cadastrar uma criança.");if(!canEditFamily())return alert("Sua permissão não permite cadastrar crianças.");
@@ -3382,7 +3528,7 @@ async function addChild(){
    if(!confirm(`Já existe uma criança com cadastro parecido:\n\n${c.name}${extra}\n${c.stage||""}\n\nDeseja cadastrar outra criança mesmo assim?`))return;
  }
  const start=prompt("Data de início deste ano de referência (AAAA-MM-DD)",today());if(start===null)return;
- try{const created=await backendFetch("/children",{method:"POST",body:JSON.stringify({family_id:fam.id,name,birth_date:birth||null,reference_stage:stage||null,notes:null})});if(!created?.child?.id)throw new Error("Cadastro não retornado pelo backend.");const localId=uid(),c={id:localId,name,birth,stage,stageHistory:[{stage,startDate:start||today(),endDate:""}],archived:false,backendManaged:true,createdAt:now(),updatedAt:now()};state.family.children.push(c);const map=getBackendChildMap();map[localId]=created.child.id;setBackendChildMap(map);activeChildId=localId;$("childName").value="";$("childBirth").value="";saveLocal();await loadBackendFamilyData();await reconcileChildrenWithBackend(false)}catch(e){alert("Não foi possível cadastrar: "+e.message)}
+ try{const created=await backendFetch("/children",{method:"POST",body:JSON.stringify({family_id:fam.id,name,birth_date:birth||null,reference_stage:stage||null,notes:null})});if(!created?.child?.id)throw new Error("Cadastro não retornado pelo backend.");const localId=uid(),c={id:localId,name,birth,stage,stageHistory:[{stage,startDate:start||today(),endDate:""}],reportInfo:{fullName:"",schoolYear:String(new Date().getFullYear()),notes:""},archived:false,backendManaged:true,createdAt:now(),updatedAt:now()};state.family.children.push(c);const map=getBackendChildMap();map[localId]=created.child.id;setBackendChildMap(map);activeChildId=localId;$("childName").value="";$("childBirth").value="";saveLocal();await loadBackendFamilyData();await reconcileChildrenWithBackend(false)}catch(e){alert("Não foi possível cadastrar: "+e.message)}
 }
 function addTomb(type,id,extra={}){state.tombstones[type]??=[];const t={id,deletedAt:now(),...extra};state.tombstones[type]=state.tombstones[type].filter(x=>x.id!==id);state.tombstones[type].push(t);return t}
 function deleteChild(id){
@@ -4213,16 +4359,78 @@ function renderReportPage(){
  let childId=$("reportChild")?.value||activeChildId;if(!childId)return;
  let all=state.entries[childId]||[],from=$("reportFrom")?.value||"",to=$("reportTo")?.value||"",status=$("reportStatus")?.value||"",type=$("reportType")?.value||"",comp=$("reportComponent")?.value||"";
  let f=all.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!status||x.status===status)&&(!type||x.type===type)&&(!comp||x.componente===comp));
+
  let counts={dom:f.filter(x=>x.status==="Dominado").length,prog:f.filter(x=>x.status==="Em progresso").length,rev:f.filter(x=>x.status==="Precisa de revisão").length};
- if($("reportSummary"))$("reportSummary").innerHTML=`<div class="stat"><b>${f.length}</b><span>Total</span></div><div class="stat"><b>${counts.rev}</b><span>Revisão</span></div><div class="stat"><b>${counts.prog}</b><span>Em progresso</span></div><div class="stat"><b>${counts.dom}</b><span>Dominado</span></div>`;
+ if($("reportSummary"))$("reportSummary").innerHTML=`<div class="stat"><b>${f.length}</b><span>Atividades</span></div><div class="stat"><b>${counts.rev}</b><span>Revisão</span></div><div class="stat"><b>${counts.prog}</b><span>Em progresso</span></div><div class="stat"><b>${counts.dom}</b><span>Dominado</span></div>`;
+
+ const child=state.family.children.find(c=>c.id===childId);
+ if(!child)return;
+ const cInfo=reportInfoForChild(child);
+ const famInfo=state.family.reportInfo||{};
+ const reportName=cInfo.fullName||child.name;
+ const stage=child.stage||"Sem ano de referência";
+ const educationStage=educationStageFromReference(stage);
+ const schoolYear=cInfo.schoolYear||String(new Date().getFullYear());
+ const location=[famInfo.city,famInfo.state].filter(Boolean).join(" / ");
+ const responsible=[famInfo.responsibleName,famInfo.responsibleRelation?`(${famInfo.responsibleRelation})`:""].filter(Boolean).join(" ");
+ const period=reportPeriodText(from,to);
+
+ const profileItems=[
+   ["Criança",reportName],
+   ["Etapa",educationStage],
+   ["Ano / série de referência",stage],
+   ["Ano letivo",schoolYear],
+   ["Nascimento",child.birth?fmtDate(child.birth):""],
+   ["Família",state.family.name||""],
+   ["Responsável / educador",responsible],
+   ["Modalidade",famInfo.modality||""],
+   ["Instituição",famInfo.institution||""],
+   ["Cidade / UF",location]
+ ].filter(x=>x[1]);
+
+ const reportHeader=`<div class="report-header">
+   <div class="report-header-top">
+     <div><h1>Diário de Estudos</h1><div class="meta">Relatório de atividades educacionais</div></div>
+     <div class="report-period"><b>Período do relatório</b><br>${esc(period)}</div>
+   </div>
+   <div class="report-profile-grid">${profileItems.map(([label,value])=>`<div class="report-profile-item"><span class="label">${esc(label)}</span><span class="value">${esc(value)}</span></div>`).join("")}</div>
+   ${cInfo.notes?`<div style="margin-top:11px"><span class="meta"><b>Observações gerais:</b> ${esc(cInfo.notes)}</span></div>`:""}
+ </div>`;
+
+ // Componentes trabalhados
+ const componentCounts={};
+ f.forEach(x=>{const c=String(x.type==="complementar"?(x.componente||"Atividade complementar"):(x.componente||"Sem componente")).trim();componentCounts[c]=(componentCounts[c]||0)+1});
+ const componentHtml=Object.entries(componentCounts).sort((a,b)=>a[0].localeCompare(b[0],"pt-BR")).map(([name,n])=>`<span class="report-component-pill">${esc(name)} · <b>${n}</b></span>`).join("");
+
+ // Resumo BNCC: quantidade de habilidades distintas por componente
+ const bnccGroups={};
+ f.filter(x=>x.codigo).forEach(x=>{
+   const name=x.componente||"Sem componente";
+   bnccGroups[name]??={codes:new Set(),entries:0};
+   bnccGroups[name].codes.add(x.codigo);
+   bnccGroups[name].entries++;
+ });
+ const bnccHtml=Object.entries(bnccGroups).sort((a,b)=>a[0].localeCompare(b[0],"pt-BR")).map(([name,data])=>`<div class="report-bncc-group"><b>${esc(name)}</b><div class="meta">${data.codes.size} habilidade(s) BNCC distinta(s) · ${data.entries} registro(s)</div></div>`).join("");
+
  let yearMap={};f.filter(x=>x.codigo).forEach(x=>{let y=anoBnccDoCodigo(x.codigo);yearMap[y]=(yearMap[y]||0)+1});
  let yearHtml=Object.entries(yearMap).sort().map(([y,n])=>`<div class="path-box"><b>${n}</b><span>${esc(y)}</span></div>`).join("");
- let child=state.family.children.find(c=>c.id===childId);
- let pathHeader=`<div class="card" style="box-shadow:none;border:1px solid #E8E1D2"><h3>Percurso por ano BNCC</h3><div class="meta">Ano de referência atual: <b>${esc(child?.stage||"Sem ano de referência")}</b>. As habilidades mostram o percurso real trabalhado, independentemente do ano de referência.</div>${yearHtml?`<div class="path-grid" style="margin-top:10px">${yearHtml}</div>`:"<div class='notice' style='margin-top:8px'>Nenhuma habilidade BNCC nos filtros atuais.</div>"}</div>`;
- if($("reportContent"))$("reportContent").innerHTML=pathHeader+f.sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=>`<div class="entry ${x.status==="Dominado"?"done":x.status==="Precisa de revisão"?"focus":"progress"}"><div class="meta">${fmtDate(x.date)} · ${esc(x.type==="complementar"?"Complementar":x.componente)} ${x.codigo?"· "+esc(x.codigo)+" · "+esc(anoBnccDoCodigo(x.codigo)):""}</div>${x.yearRefAtRecord?`<div class="meta">Ano de referência no registro: ${esc(x.yearRefAtRecord)}</div>`:""}<div class="entry-title">${esc(x.atividade)}</div>${x.habilidade?`<div class="skill">${esc(x.habilidade)}</div>`:""}${x.observacoes?`<div class="obs">${esc(x.observacoes)}</div>`:""}<span class="badge">${esc(x.status)}</span>${x.foto?`<br><img class="report-photo" src="${x.foto}">`:""}${x.audio?`<div class="audio-box no-print"><audio controls src="${x.audio}"></audio></div><div class="meta">Áudio anexado</div>`:""}</div>`).join("")||"<div class='notice'>Nenhum registro para os filtros selecionados.</div>"
-}
-async function shareReportHtml(){let child=state.family.children.find(c=>c.id===($("reportChild")?.value||activeChildId)),content=$("reportContent")?.innerHTML||"";if(!child)return;let h=`<!doctype html><meta charset="utf-8"><title>Relatório ${esc(child.name)}</title><style>body{font-family:Arial;margin:24px}.entry{border:1px solid #ddd;border-radius:8px;padding:12px;margin:8px}.report-photo{max-width:320px}.audio-box{display:none}</style><h1>Relatório — ${esc(child.name)}</h1>${content}`;shareOrDownloadText(h,"relatorio_"+child.name.replace(/\s+/g,"_")+".html","text/html","Relatório")}
+ let pathHeader=`<div class="card" style="box-shadow:none;border:1px solid #E8E1D2"><h3>Percurso por ano BNCC</h3><div class="meta">Ano de referência atual: <b>${esc(stage)}</b>. As habilidades mostram o percurso real trabalhado, independentemente do ano de referência.</div>${yearHtml?`<div class="path-grid" style="margin-top:10px">${yearHtml}</div>`:"<div class='notice' style='margin-top:8px'>Nenhuma habilidade BNCC nos filtros atuais.</div>"}</div>`;
 
+ const overview=`${componentHtml?`<h3 class="report-section-title">Componentes trabalhados</h3><div class="report-component-grid">${componentHtml}</div>`:""}${bnccHtml?`<h3 class="report-section-title">Resumo BNCC por componente</h3><div class="report-bncc-summary">${bnccHtml}</div>`:""}`;
+
+ const activities=f.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=>`<div class="entry ${x.status==="Dominado"?"done":x.status==="Precisa de revisão"?"focus":"progress"}"><div class="meta">${fmtDate(x.date)} · ${esc(x.type==="complementar"?"Complementar":x.componente)} ${x.codigo?"· "+esc(x.codigo)+" · "+esc(anoBnccDoCodigo(x.codigo)):""}</div>${x.yearRefAtRecord?`<div class="meta">Ano de referência no registro: ${esc(x.yearRefAtRecord)}</div>`:""}<div class="entry-title">${esc(x.atividade)}</div>${x.habilidade?`<div class="skill">${esc(x.habilidade)}</div>`:""}${x.observacoes?`<div class="obs">${esc(x.observacoes)}</div>`:""}${x.status?`<span class="badge">${esc(x.status)}</span>`:""}${x.foto?`<br><img class="report-photo" src="${x.foto}">`:""}${x.audio?`<div class="audio-box no-print"><audio controls src="${x.audio}"></audio></div><div class="meta">Áudio anexado</div>`:""}</div>`).join("");
+
+ if($("reportContent"))$("reportContent").innerHTML=reportHeader+overview+pathHeader+`<h3 class="report-section-title">Atividades realizadas</h3>`+(activities||"<div class='notice'>Nenhum registro para os filtros selecionados.</div>");
+}
+async function shareReportHtml(){
+ let child=state.family.children.find(c=>c.id===($("reportChild")?.value||activeChildId)),content=$("reportContent")?.innerHTML||"";
+ if(!child)return;
+ let h=`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Relatório ${esc(child.name)}</title><style>
+ body{font-family:Arial,Helvetica,sans-serif;margin:24px;color:#292922}.report-header,.entry,.report-bncc-group,.path-box{border:1px solid #ddd;border-radius:8px;padding:12px;margin:8px 0}.report-header-top{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding-bottom:8px;margin-bottom:8px}.report-profile-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.label{display:block;font-size:10px;text-transform:uppercase;color:#777}.value{font-weight:700}.report-component-pill{display:inline-block;border:1px solid #ddd;border-radius:999px;padding:4px 8px;margin:3px}.report-bncc-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px}.report-photo{max-width:320px}.audio-box{display:none}.meta{font-size:12px;color:#666}.entry-title{font-weight:700;margin:6px 0}.badge{display:inline-block;margin-top:6px}.stats{display:flex;gap:8px}
+ @media(max-width:700px){.report-profile-grid,.report-bncc-summary{grid-template-columns:1fr}.report-header-top{display:block}}
+ </style></head><body>${content}</body></html>`;
+ shareOrDownloadText(h,"relatorio_"+child.name.replace(/\s+/g,"_")+".html","text/html","Relatório");
+}
 function newHistoryBatchRow(){return{id:uid(),date:today(),activity:"",component:"",status:""}}
 function renderHistoryBatchRows(){let b=$("historyBatchRows");if(!b)return;if(!historyBatchRows.length)historyBatchRows=[newHistoryBatchRow(),newHistoryBatchRow(),newHistoryBatchRow()];b.innerHTML=historyBatchRows.map(r=>`<div class="history-row"><div><label class="field">Data</label><input type="date" value="${r.date}" onchange="updateHistoryRow('${r.id}','date',this.value)"></div><div><label class="field">Atividade</label><input value="${esc(r.activity)}" onchange="updateHistoryRow('${r.id}','activity',this.value)"></div><div><label class="field">Componente</label><input value="${esc(r.component)}" onchange="updateHistoryRow('${r.id}','component',this.value)"></div><div><label class="field">Avaliação</label><select onchange="updateHistoryRow('${r.id}','status',this.value)"><option value="">Padrão</option><option ${r.status==="Dominado"?"selected":""}>Dominado</option><option ${r.status==="Em progresso"?"selected":""}>Em progresso</option><option ${r.status==="Precisa de revisão"?"selected":""}>Precisa de revisão</option></select><button class="btn danger small" onclick="removeHistoryBatchRow('${r.id}')">Excluir linha</button></div></div>`).join("")}
 function updateHistoryRow(id,k,v){let r=historyBatchRows.find(x=>x.id===id);if(r)r[k]=v}
@@ -4341,7 +4549,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.4";
+const APP_VERSION = "5.5";
 let appSwRegistration = null;
 let appUpdateWorker = null;
 

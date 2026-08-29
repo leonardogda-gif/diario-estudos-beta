@@ -1,22 +1,41 @@
-DIÁRIO DE ESTUDOS — v5.4
+DIÁRIO DE ESTUDOS — v5.5
 
-CORREÇÃO
-Ao clicar em “Usar esta habilidade” em uma sugestão da IA:
-- o componente sugerido continua sendo selecionado;
-- o dropdown NÃO é mais reduzido aos componentes da área sugerida;
-- a lista completa de componentes permanece disponível;
-- a lista continua única, sem duplicações e em ordem alfabética;
-- o usuário pode trocar depois para qualquer outro componente.
+NOVIDADES EM RELATÓRIOS
+- O relatório impresso agora possui cabeçalho pedagógico.
+- Mostra nome da criança, etapa, ano/série, ano letivo, nascimento, família, responsável, modalidade, instituição, cidade/UF e período.
+- Campos vazios simplesmente não aparecem.
+- Resumo de componentes trabalhados.
+- Resumo BNCC por componente.
+- Mantido o percurso por ano BNCC.
+- Melhorias de impressão/PDF e quebra de páginas.
+- O relatório compartilhado em HTML também leva o novo cabeçalho.
 
-A correção reaproveita groupedComponentOptions(comp), evitando duas lógicas diferentes para montar o mesmo dropdown.
+INFORMAÇÕES PARA RELATÓRIOS
+Em Configurações foi criada a seção “Informações para relatórios”.
+Ela guarda:
+Família:
+- responsável/educador
+- relação
+- modalidade
+- instituição
+- cidade
+- UF
 
-Mantido da v5.3:
-- feedback visual da habilidade selecionada;
-- botão “✓ Selecionada”;
-- confirmação do código BNCC;
-- busca manual;
-- área oculta/inferida;
-- layout responsivo PC/celular.
+Criança:
+- nome completo para relatório
+- ano letivo
+- observações gerais
+
+Etapa e ano/série continuam vindo automaticamente do Ano de referência da criança.
+
+ATALHO
+Na tela Relatórios há o botão:
+“⚙ Informações para relatório”
+Ele abre Configurações diretamente nessa seção.
+
+DADOS
+Esses novos campos ficam no estado compartilhado da família e usam o mecanismo de sincronização já existente.
+Nenhuma alteração de Worker ou D1 é necessária nesta versão.
 
 SUBSTITUA NO GITHUB
 - index.html
@@ -24,5 +43,8 @@ SUBSTITUA NO GITHUB
 - version.json
 - manifest.json
 
-Não apague icons/ nem videos/.
-Worker continua 0.7.1-beta.
+Não apague:
+- icons/
+- videos/
+
+Worker: permanece 0.7.1-beta.
