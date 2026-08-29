@@ -3934,7 +3934,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "4.14";
+const APP_VERSION = "4.15";
 let appSwRegistration = null;
 let appUpdateWorker = null;
 
@@ -3959,6 +3959,8 @@ async function checkAppVersion(){
     if(data?.version && data.version!==APP_VERSION){
       showAppUpdate(data.version);
       if(appSwRegistration)appSwRegistration.update().catch(()=>{});
+    }else{
+      hideAppUpdate();
     }
   }catch(e){}
 }
