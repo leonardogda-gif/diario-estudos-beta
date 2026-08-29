@@ -1,16 +1,21 @@
-DIÁRIO DE ESTUDOS — v4.16
+DIÁRIO DE ESTUDOS — v4.17
 
-PUBLICAÇÃO
-- No GitHub Pages, substitua index.html, sw.js, version.json, manifest.json e LEIA-ME.txt.
-- Mantenha a pasta icons/ atual.
-- Não é necessário alterar Worker nem D1 nesta versão.
+PUBLICAÇÃO NO GITHUB PAGES
+Substitua/envie:
+- index.html
+- sw.js
+- version.json
+- manifest.json
+- LEIA-ME.txt
+- pasta videos/ com como-instalar-app.mp4
 
-ALTERAÇÕES PRINCIPAIS
-- Registro com BNCC passa a ser opcional: é possível salvar uma atividade sem código/habilidade BNCC.
-- Área e Componente aparecem antes da busca por habilidade/código e funcionam como filtros opcionais.
-- Campos obrigatórios recebem marcação com *.
-- No Planejamento, ao escolher Atividade complementar, é possível selecionar uma atividade existente ou criar uma nova ali mesmo, sem ir à Manutenção.
-- A atividade complementar criada no Planejamento já fica selecionada e disponível para usos futuros.
-- Ao concluir um planejamento complementar, a atividade correta é levada para o registro.
+Mantenha a pasta icons/ que já existe no repositório.
 
-Mantém os recursos e correções da v4.15.
+NOVIDADE v4.17
+- Nova opção Mais > Ajuda e instalação.
+- Tutorial em vídeo mostrando como instalar o Diário como aplicativo.
+- O vídeo fica hospedado no próprio GitHub Pages em videos/como-instalar-app.mp4.
+- O vídeo não faz parte do cache obrigatório do PWA, evitando adicionar cerca de 8 MB à instalação/offline.
+
+Mantidas as funcionalidades da v4.16.
+Não é necessário alterar Worker nem D1.

@@ -210,7 +210,7 @@ body.app-authenticated .cloud-card{display:none!important}
 .app-update-banner .btn{min-height:32px;padding:6px 10px}
 
 
-/* v4.16 — registro BNCC opcional + planejamento complementar */
+/* v4.17 — ajuda e tutorial de instalação do PWA */
 .daily-actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
 .daily-actions .btn{padding:12px 16px;font-size:14px}
 .plan-section-title{margin:16px 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:#6b665c}
@@ -224,7 +224,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.16 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.17 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -418,10 +418,26 @@ body.app-authenticated .cloud-card{display:none!important}
     <section id="page-mais" class="page">
       <div class="card"><h2>Mais</h2><div class="meta" style="margin-bottom:12px">Opções que você não precisa usar todos os dias.</div>
         <div class="grid">
+          <button class="btn" onclick="showPage('ajuda')">Ajuda e instalação</button>
           <button class="btn" onclick="showPage('relatorios')">Relatórios</button>
           <button class="btn" onclick="showPage('manutencao')">Manutenção</button>
           <button class="btn" onclick="showPage('configuracoes')">Configurações</button>
         </div>
+      </div>
+    </section>
+
+    <section id="page-ajuda" class="page">
+      <div class="card">
+        <h2>Ajuda e instalação</h2>
+        <div class="notice"><b>Instale o Diário de Estudos como aplicativo</b><br>
+        Veja no vídeo abaixo como adicionar o Diário à tela inicial do seu dispositivo.</div>
+        <div style="margin-top:14px">
+          <video controls playsinline preload="metadata" style="display:block;width:100%;max-width:760px;margin:0 auto;border-radius:14px;background:#111">
+            <source src="./videos/como-instalar-app.mp4" type="video/mp4">
+            Seu navegador não suporta a reprodução deste vídeo.
+          </video>
+        </div>
+        <div class="meta" style="margin-top:10px;text-align:center">O tutorial precisa de internet para carregar o vídeo.</div>
       </div>
     </section>
 
@@ -3970,7 +3986,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "4.16";
+const APP_VERSION = "4.17";
 let appSwRegistration = null;
 let appUpdateWorker = null;
 
