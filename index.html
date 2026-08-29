@@ -39,6 +39,7 @@ main{max-width:1000px;margin:0 auto;padding:14px 14px 56px}
 input,select,textarea{width:100%;padding:10px 11px;border:1px solid #D8D1C2;border-radius:7px;background:#FFFDF8;font-size:14px;color:#292922}
 textarea{resize:vertical}
 label.field{display:block;font-size:10px;letter-spacing:.05em;text-transform:uppercase;font-weight:800;color:#6A675D;margin:8px 0 4px}
+.required-mark{color:#A23B2A;font-weight:900;margin-left:2px}.field-help{font-size:11px;color:#7A766B;margin-top:4px}
 .meta{font-size:11px;color:#777266}
 .notice{background:#F3EFE3;border-radius:8px;padding:10px;font-size:12px;color:#625F56}
 .hidden{display:none!important}
@@ -209,7 +210,7 @@ body.app-authenticated .cloud-card{display:none!important}
 .app-update-banner .btn{min-height:32px;padding:6px 10px}
 
 
-/* v4.15 — experiência diária simplificada */
+/* v4.16 — registro BNCC opcional + planejamento complementar */
 .daily-actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
 .daily-actions .btn{padding:12px 16px;font-size:14px}
 .plan-section-title{margin:16px 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:#6b665c}
@@ -223,7 +224,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.15 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.16 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -322,11 +323,14 @@ body.app-authenticated .cloud-card{display:none!important}
         <div class="toolbar" style="justify-content:space-between"><div><h2 style="margin-bottom:3px">Planejar</h2><div class="meta">Veja primeiro o que precisa de atenção. Crie um novo planejamento só quando precisar.</div></div><button class="btn success" onclick="togglePlanForm(true)">+ Planejar atividade</button></div>
       </div>
       <div id="planFormCard" class="card hidden"><h3>Novo planejamento</h3><div class="grid">
-        <div><label class="field">Para quem?</label><select id="planChild"></select></div>
-        <div><label class="field">Quando?</label><input id="planDate" type="date"></div>
-        <div><label class="field">Tipo</label><select id="planType"><option value="bncc">BNCC</option><option value="complementar">Complementar</option></select></div>
-        <div><label class="field">Componente / categoria</label><input id="planComponent"></div>
-        <div class="full"><label class="field">O que vamos fazer?</label><input id="planTitle" placeholder="Ex.: Leitura do capítulo 3"></div>
+        <div><label class="field">Para quem? <span class="required-mark">*</span></label><select id="planChild"></select></div>
+        <div><label class="field">Quando? <span class="required-mark">*</span></label><input id="planDate" type="date"></div>
+        <div><label class="field">Tipo <span class="required-mark">*</span></label><select id="planType" onchange="togglePlanTypeFields()"><option value="bncc">BNCC</option><option value="complementar">Complementar</option></select></div>
+        <div id="planComponentWrap"><label class="field">Componente (opcional)</label><input id="planComponent"></div>
+        <div id="planComplementaryWrap" class="full hidden"><label class="field">Atividade complementar <span class="required-mark">*</span></label><div class="toolbar"><select id="planComplementary" onchange="planComplementaryChanged()" style="flex:1"><option value="">Selecione...</option></select><button type="button" class="btn" onclick="toggleInlineComplementary(true)">+ Criar nova</button></div>
+          <div id="inlineComplementaryForm" class="notice hidden" style="margin-top:8px"><div class="grid"><div><label class="field">Nome <span class="required-mark">*</span></label><input id="inlineCompName" placeholder="Ex.: Judô"></div><div><label class="field">Categoria (opcional)</label><input id="inlineCompCategory" placeholder="Ex.: Esporte"></div><div class="full"><label class="field">Descrição (opcional)</label><input id="inlineCompDescription"></div></div><div class="toolbar" style="margin-top:8px"><button type="button" class="btn success" onclick="createInlineComplementary()">Criar e usar</button><button type="button" class="btn" onclick="toggleInlineComplementary(false)">Cancelar</button></div></div>
+        </div>
+        <div class="full"><label class="field">O que vamos fazer? <span class="required-mark">*</span></label><input id="planTitle" placeholder="Ex.: Leitura do capítulo 3"></div>
         <div class="full"><label class="field">Observações (opcional)</label><textarea id="planNotes" rows="2"></textarea></div>
         <div class="full recurrence-box"><label class="field">Repetir?</label>
           <select id="planRecurrence" onchange="togglePlanRecurrenceOptions()"><option value="none">Não repetir</option><option value="daily">Todos os dias</option><option value="weekly">Semanal</option><option value="weekdays">Dias específicos da semana</option><option value="monthly">Mensal</option></select>
@@ -3486,10 +3490,13 @@ function renderRecordPage(){
  }
 
  box.innerHTML=`<div class="card"><h2>${editing?"Editar atividade":"Nova atividade"} — ${esc(child.name)}</h2><div class="grid">
- <div><label class="field">Data</label><input id="fDate" type="date" value="${esc(f.date)}"></div>
- <div><label class="field">Tipo</label><select id="fType" onchange="changeRecordType()"><option value="bncc" ${f.type!=="complementar"?"selected":""}>Habilidade BNCC</option><option value="complementar" ${f.type==="complementar"?"selected":""}>Atividade complementar</option></select></div>
+ <div><label class="field">Data <span class="required-mark">*</span></label><input id="fDate" type="date" value="${esc(f.date)}"></div>
+ <div><label class="field">Tipo <span class="required-mark">*</span></label><select id="fType" onchange="changeRecordType()"><option value="bncc" ${f.type!=="complementar"?"selected":""}>Habilidade BNCC</option><option value="complementar" ${f.type==="complementar"?"selected":""}>Atividade complementar</option></select></div>
+ <div id="compBlock" class="full ${f.type==="complementar"?"":"hidden"}"><label class="field">Atividade complementar <span class="required-mark">*</span></label><select id="fComplementary"><option value="">Selecione...</option>${state.complementaryActivities.map(x=>`<option value="${x.id}" ${x.id===f.complementaryId?"selected":""}>${esc(x.name)}${x.category?" — "+esc(x.category):""}</option>`).join("")}</select></div>
+ <div id="bnccFieldsTop" class="${f.type==="complementar"?"hidden":""}" style="display:contents"><div><label class="field">Área (opcional)</label><select id="fArea" onchange="areaChanged()"><option value="">Selecione...</option>${Object.keys(AREAS).map(x=>`<option ${x===f.area?"selected":""}>${esc(x)}</option>`).join("")}</select></div>
+ <div><label class="field">Componente (opcional)</label><select id="fComp" onchange="componentChanged()"><option value="">Selecione...</option>${comps.map(x=>`<option ${x===f.componente?"selected":""}>${esc(x)}</option>`).join("")}</select></div></div>
  <div id="bnccSearch" class="full ${f.type==="complementar"?"hidden":""}">
-<label class="field">Buscar habilidade ou código</label>
+<label class="field">Buscar habilidade ou código (opcional)</label>
 <input id="globalSkillSearch" value="${esc(search)}" placeholder="Ex.: fração, leitura, EF03MA..." oninput="refreshGlobalSearch()">
 <div class="flex-search-options">
 <label><input type="radio" name="skillScope" value="referencia" ${scope==="referencia"?"checked":""} onchange="refreshGlobalSearch()"> Ano de referência</label>
@@ -3498,23 +3505,20 @@ function renderRecordPage(){
 </div>
 <select id="globalSkillResults" style="margin-top:6px" onchange="selectGlobalSkill()"><option value="">${search.length>=2?"Resultados da busca...":"Digite para pesquisar..."}</option></select>
 <div id="globalSkillCount" class="meta"></div></div>
- <div id="compBlock" class="full ${f.type==="complementar"?"":"hidden"}"><label class="field">Atividade complementar</label><select id="fComplementary"><option value="">Selecione...</option>${state.complementaryActivities.map(x=>`<option value="${x.id}" ${x.id===f.complementaryId?"selected":""}>${esc(x.name)}${x.category?" — "+esc(x.category):""}</option>`).join("")}</select></div>
- <div id="bnccFields" class="${f.type==="complementar"?"hidden":""}" style="display:contents"><div><label class="field">Área</label><select id="fArea" onchange="areaChanged()"><option value="">Selecione...</option>${Object.keys(AREAS).map(x=>`<option ${x===f.area?"selected":""}>${esc(x)}</option>`).join("")}</select></div>
- <div><label class="field">Componente</label><select id="fComp" onchange="componentChanged()"><option value="">Selecione...</option>${comps.map(x=>`<option ${x===f.componente?"selected":""}>${esc(x)}</option>`).join("")}</select></div>
- <div><label class="field">Código BNCC</label><input id="fCode" readonly value="${esc(f.codigo)}"></div>
- <div class="full"><label class="field">Habilidade</label><select id="fSkill" onchange="skillChanged()"><option value="">Selecione...</option>${skills.map(x=>`<option data-code="${esc(x.codigo)}" value="${esc(x.descricao)}" ${x.descricao===f.habilidade?"selected":""}>${esc(x.codigo)} — ${esc(anoBnccDoCodigo(x.codigo))} — ${esc(x.descricao)}</option>`).join("")}</select><div id="skillCount" class="meta">${skills.length} habilidade(s) no escopo selecionado</div></div></div>
+ <div id="bnccFieldsBottom" class="${f.type==="complementar"?"hidden":""}" style="display:contents"><div><label class="field">Código BNCC (opcional)</label><input id="fCode" readonly value="${esc(f.codigo)}"></div>
+ <div class="full"><label class="field">Habilidade (opcional)</label><select id="fSkill" onchange="skillChanged()"><option value="">Selecione...</option>${skills.map(x=>`<option data-code="${esc(x.codigo)}" value="${esc(x.descricao)}" ${x.descricao===f.habilidade?"selected":""}>${esc(x.codigo)} — ${esc(anoBnccDoCodigo(x.codigo))} — ${esc(x.descricao)}</option>`).join("")}</select><div id="skillCount" class="meta">${skills.length} habilidade(s) no escopo selecionado</div></div></div>
  <div class="full">
-   <label class="field">Atividade realizada</label>
+   <label class="field">Atividade realizada <span class="required-mark">*</span></label>
    <textarea id="fActivity" rows="3">${esc(f.atividade)}</textarea>
    <div id="draftStatus" class="media-status">${draft?"Rascunho restaurado automaticamente.":"Rascunho salvo automaticamente neste dispositivo."}</div>
  </div>
  <div class="full"><label class="field">Observações</label><textarea id="fObs" rows="2">${esc(f.observacoes)}</textarea></div>
- <div><label class="field">Avaliação *</label><select id="fStatus"><option value="">Selecione...</option><option ${f.status==="Dominado"?"selected":""}>Dominado</option><option ${f.status==="Em progresso"?"selected":""}>Em progresso</option><option ${f.status==="Precisa de revisão"?"selected":""}>Precisa de revisão</option></select></div>
+ <div><label class="field">Avaliação <span class="required-mark">*</span></label><select id="fStatus"><option value="">Selecione...</option><option ${f.status==="Dominado"?"selected":""}>Dominado</option><option ${f.status==="Em progresso"?"selected":""}>Em progresso</option><option ${f.status==="Precisa de revisão"?"selected":""}>Precisa de revisão</option></select></div>
  <div><label class="field">Foto</label><div class="media-actions">
    <label class="btn" onclick="saveRecordDraft(true)">Tirar foto<input type="file" accept="image/*" capture="environment" style="display:none" onchange="readPhoto(event)"></label>
    <label class="btn" onclick="saveRecordDraft(true)">Escolher foto<input type="file" accept="image/*" style="display:none" onchange="readPhoto(event)"></label>
  </div></div>
- <div class="full"><div id="photoPreviewWrap">${f.foto?`<img id="photoPreviewImg" class="photo" src="${f.foto}">`:""}</div><div class="meta">* Avaliação obrigatória</div><button class="btn primary" onclick="saveEntry()">${editing?"Salvar alterações":"Salvar registro"}</button> <button class="btn" onclick="cancelEdit()">Cancelar</button></div></div></div>
+ <div class="full"><div id="photoPreviewWrap">${f.foto?`<img id="photoPreviewImg" class="photo" src="${f.foto}">`:""}</div><div class="meta"><span class="required-mark">*</span> campo obrigatório · BNCC é opcional</div><button class="btn primary" onclick="saveEntry()">${editing?"Salvar alterações":"Salvar registro"}</button> <button class="btn" onclick="cancelEdit()">Cancelar</button></div></div></div>
  <div class="card"><div class="toolbar" style="justify-content:space-between;align-items:center"><h3 style="margin:0">Atividades registradas</h3><button class="btn success" onclick="startNewRecord()">+ Novo registro</button></div><input id="recordSearch" placeholder="Buscar..." oninput="renderRecordList()" style="margin-top:12px"><div id="recordList"></div></div>`;
 
  bindRecordDraft();
@@ -3522,7 +3526,7 @@ function renderRecordPage(){
  if(search.length>=2)refreshGlobalSearch();
  renderRecordList();
 }
-function changeRecordType(){let comp=$("fType").value==="complementar";$("bnccSearch")?.classList.toggle("hidden",comp);$("bnccFields")?.classList.toggle("hidden",comp);$("compBlock")?.classList.toggle("hidden",!comp);saveRecordDraft(true)}
+function changeRecordType(){let comp=$("fType").value==="complementar";$("bnccSearch")?.classList.toggle("hidden",comp);$("bnccFieldsTop")?.classList.toggle("hidden",comp);$("bnccFieldsBottom")?.classList.toggle("hidden",comp);$("compBlock")?.classList.toggle("hidden",!comp);saveRecordDraft(true)}
 function renderGlobalBnccResults(list,statusText=""){
  const child=currentChild();
  if(!child)return;
@@ -3664,7 +3668,7 @@ function saveEntry(){
  area:type==="bncc"?$("fArea").value:"Atividades Complementares",componente:type==="bncc"?$("fComp").value:(comp?.category||"Atividade Complementar"),codigo:type==="bncc"?$("fCode").value:"",
  habilidade:type==="bncc"?$("fSkill").value:(comp?.name||""),atividade:$("fActivity").value.trim(),observacoes:$("fObs").value.trim(),status:$("fStatus").value,
  foto:photoData||editing?.foto||"",fotoDriveId:editing?.fotoDriveId||"",fotoVisibleDriveId:editing?.fotoVisibleDriveId||"",audio:editing?.audio||"",audioDriveId:editing?.audioDriveId||""};
- if(!e.date)missing.push("Data");if(type==="bncc"){if(!e.area)missing.push("Área");if(!e.componente)missing.push("Componente");if(!e.codigo)missing.push("Código BNCC");if(!e.habilidade)missing.push("Habilidade")}else if(!e.habilidade)missing.push("Atividade complementar");if(!e.atividade)missing.push("Atividade realizada");if(!e.status)missing.push("Avaliação");
+ if(!e.date)missing.push("Data");if(type==="complementar"&&!e.habilidade)missing.push("Atividade complementar");if(!e.atividade)missing.push("Atividade realizada");if(!e.status)missing.push("Avaliação");
  if(missing.length)return alert("Preencha antes de registrar:\n\n• "+missing.join("\n• "));
  let savedChildId=activeChildId;
  let planIdToComplete=editing?.planId||"";
@@ -3780,15 +3784,47 @@ function nextPlanDate(plan,fromDate){
  }
  const next=iso(d);if(plan.endDate&&next>plan.endDate)return "";return next
 }
+function refreshPlanComplementaryOptions(selectedId=""){
+ const sel=$("planComplementary");if(!sel)return;
+ sel.innerHTML='<option value="">Selecione...</option>'+state.complementaryActivities.map(x=>`<option value="${x.id}" ${x.id===selectedId?"selected":""}>${esc(x.name)}${x.category?" — "+esc(x.category):""}</option>`).join("");
+}
+function togglePlanTypeFields(){
+ const isComp=$("planType")?.value==="complementar";
+ $("planComplementaryWrap")?.classList.toggle("hidden",!isComp);
+ $("planComponentWrap")?.classList.toggle("hidden",isComp);
+ if(isComp)refreshPlanComplementaryOptions($("planComplementary")?.value||"");
+}
+function planComplementaryChanged(){
+ const act=state.complementaryActivities.find(x=>x.id===$("planComplementary")?.value);
+ if(!act)return;
+ if($("planTitle")&&!$("planTitle").value.trim())$("planTitle").value=act.name;
+}
+function toggleInlineComplementary(open){
+ $("inlineComplementaryForm")?.classList.toggle("hidden",!open);
+ if(open)setTimeout(()=>$("inlineCompName")?.focus(),0);
+}
+function createInlineComplementary(){
+ const name=$("inlineCompName")?.value.trim()||"";
+ if(!name)return alert("Informe o nome da atividade complementar.");
+ let act=state.complementaryActivities.find(x=>x.name.toLowerCase()===name.toLowerCase());
+ if(!act){act={id:uid(),name,category:$("inlineCompCategory")?.value.trim()||"",description:$("inlineCompDescription")?.value.trim()||"",createdAt:now(),updatedAt:now()};state.complementaryActivities.push(act);saveLocal();}
+ refreshPlanComplementaryOptions(act.id);
+ if($("planTitle")&&!$("planTitle").value.trim())$("planTitle").value=act.name;
+ if($("inlineCompName"))$("inlineCompName").value="";if($("inlineCompCategory"))$("inlineCompCategory").value="";if($("inlineCompDescription"))$("inlineCompDescription").value="";
+ toggleInlineComplementary(false);
+}
 function addPlan(){
- let childId=$("planChild").value,title=$("planTitle").value.trim();if(!childId||!title)return alert("Escolha a criança e informe a atividade.");
+ let childId=$("planChild").value,title=$("planTitle").value.trim(),type=$("planType").value;
+ if(!childId||!title)return alert("Escolha a criança e informe a atividade.");
+ const compAct=type==="complementar"?state.complementaryActivities.find(x=>x.id===$("planComplementary")?.value):null;
+ if(type==="complementar"&&!compAct)return alert("Selecione ou crie a atividade complementar.");
  const recurrence=$("planRecurrence")?.value||"none",weekdays=recurrence==="weekdays"?selectedPlanWeekdays():[];
  if(recurrence==="weekdays"&&!weekdays.length)return alert("Escolha pelo menos um dia da semana.");
  const start=$("planDate").value||today();
- state.plans.push({id:uid(),childId,date:start,nextDate:start,type:$("planType").value,component:$("planComponent").value.trim(),title,notes:$("planNotes").value.trim(),recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],createdAt:now(),updatedAt:now(),completedAt:""});
- $("planTitle").value="";$("planNotes").value="";saveLocal();renderPlans();renderDashboard()
+ state.plans.push({id:uid(),childId,date:start,nextDate:start,type,complementaryId:compAct?.id||"",component:type==="complementar"?(compAct?.category||"Atividade Complementar"):$("planComponent").value.trim(),title,notes:$("planNotes").value.trim(),recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],createdAt:now(),updatedAt:now(),completedAt:""});
+ $("planTitle").value="";$("planNotes").value="";if($("planComplementary"))$("planComplementary").value="";saveLocal();renderPlans();renderDashboard()
 }
-function togglePlanForm(open){$('planFormCard')?.classList.toggle('hidden',!open);if(open){if($('planDate')&&!$('planDate').value)$('planDate').value=today();if($('planChild')&&activeChildId)$('planChild').value=activeChildId;$('planTitle')?.focus()}}
+function togglePlanForm(open){$('planFormCard')?.classList.toggle('hidden',!open);if(open){if($('planDate')&&!$('planDate').value)$('planDate').value=today();if($('planChild')&&activeChildId)$('planChild').value=activeChildId;refreshPlanComplementaryOptions();togglePlanTypeFields();$('planTitle')?.focus()}}
 function renderPlans(){
  let box=$("plansList");if(!box)return;let childId=$("planChild")?.value||activeChildId,td=today();
  let l=state.plans.filter(x=>!x.completedAt&&(!childId||x.childId===childId)&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
@@ -3796,7 +3832,7 @@ function renderPlans(){
  const late=l.filter(p=>(p.nextDate||p.date)<td),now=l.filter(p=>(p.nextDate||p.date)===td),future=l.filter(p=>(p.nextDate||p.date)>td);
  box.innerHTML=`${late.length?`<div class="plan-section-title">Atrasadas · ${late.length}</div>${late.map(card).join('')}`:''}<div class="plan-section-title">Hoje · ${now.length}</div>${now.map(card).join('')||"<div class='notice'>Nada planejado para hoje.</div>"}${future.length?`<div class="plan-section-title">Próximos dias · ${future.length}</div>${future.map(card).join('')}`:''}`;
 }
-function startPlan(id){let p=state.plans.find(x=>x.id===id);if(!p)return;activeChildId=p.childId;recordFormOpen=true;editing={id:uid(),childId:p.childId,date:p.nextDate||p.date,type:p.type,complementaryId:"",area:"",componente:p.component,codigo:"",habilidade:"",atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,planOccurrenceDate:p.nextDate||p.date};showPage("registro");renderRecordPage()}
+function startPlan(id){let p=state.plans.find(x=>x.id===id);if(!p)return;activeChildId=p.childId;recordFormOpen=true;editing={id:uid(),childId:p.childId,date:p.nextDate||p.date,type:p.type,complementaryId:p.complementaryId||"",area:"",componente:p.component,codigo:"",habilidade:"",atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,planOccurrenceDate:p.nextDate||p.date};showPage("registro");renderRecordPage()}
 function completePlanOccurrence(planId,occurrenceDate){const p=state.plans.find(x=>x.id===planId);if(!p)return;p.occurrences??=[];p.occurrences.push({date:occurrenceDate,status:"completed",updatedAt:now()});if(p.recurrence==="none"){p.completedAt=now();p.nextDate=""}else{p.nextDate=nextPlanDate(p,occurrenceDate);if(!p.nextDate)p.completedAt=now()}p.updatedAt=now()}
 function skipPlanOccurrence(id){const p=state.plans.find(x=>x.id===id);if(!p)return;const current=p.nextDate||p.date;if(!confirm(`Pular a ocorrência de ${fmtDate(current)}?`))return;p.occurrences??=[];p.occurrences.push({date:current,status:"skipped",updatedAt:now()});p.nextDate=nextPlanDate(p,current);if(!p.nextDate)p.completedAt=now();p.updatedAt=now();saveLocal();renderPlans();renderDashboard()}
 function deletePlan(id){state.plans=state.plans.filter(x=>x.id!==id);addTomb("plans",id);saveLocal();renderPlans();renderDashboard()}
@@ -3934,7 +3970,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "4.15";
+const APP_VERSION = "4.16";
 let appSwRegistration = null;
 let appUpdateWorker = null;
 

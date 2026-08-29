@@ -1,17 +1,16 @@
-DIÁRIO DE ESTUDOS — v4.15
+DIÁRIO DE ESTUDOS — v4.16
 
 PUBLICAÇÃO
-- Substituir index.html, sw.js, version.json, manifest.json e LEIA-ME.txt no GitHub Pages.
-- Manter a pasta icons/.
-- Não alterar Worker nem D1.
+- No GitHub Pages, substitua index.html, sw.js, version.json, manifest.json e LEIA-ME.txt.
+- Mantenha a pasta icons/ atual.
+- Não é necessário alterar Worker nem D1 nesta versão.
 
-NOVIDADES
-- Navegação diária simplificada: Hoje, Planejar, Histórico e Mais.
-- Registro deixa de ser uma aba principal e vira uma ação.
-- Tela Hoje focada em atividades de hoje, atrasadas, próximas e últimos registros.
-- Planejamento organizado por Atrasadas, Hoje e Próximos dias.
-- Formulário de planejamento fica recolhido até tocar em + Planejar atividade.
-- Concluir planejamento abre o registro já preenchido.
-- Novo fluxo simples para Adicionar atividade antiga, sem exigir BNCC.
-- Ferramentas de importação histórica permanecem disponíveis em área recolhida.
-- Relatórios, Manutenção e Configurações ficam dentro de Mais.
+ALTERAÇÕES PRINCIPAIS
+- Registro com BNCC passa a ser opcional: é possível salvar uma atividade sem código/habilidade BNCC.
+- Área e Componente aparecem antes da busca por habilidade/código e funcionam como filtros opcionais.
+- Campos obrigatórios recebem marcação com *.
+- No Planejamento, ao escolher Atividade complementar, é possível selecionar uma atividade existente ou criar uma nova ali mesmo, sem ir à Manutenção.
+- A atividade complementar criada no Planejamento já fica selecionada e disponível para usos futuros.
+- Ao concluir um planejamento complementar, a atividade correta é levada para o registro.
+
+Mantém os recursos e correções da v4.15.
