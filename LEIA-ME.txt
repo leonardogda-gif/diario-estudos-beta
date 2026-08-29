@@ -1,21 +1,17 @@
-DIÁRIO DE ESTUDOS — v4.14
+DIÁRIO DE ESTUDOS — v4.15
 
 PUBLICAÇÃO
-- Substitua no GitHub Pages: index.html, sw.js, version.json, manifest.json e LEIA-ME.txt.
-- Mantenha a pasta icons/ existente.
-- Não é necessário alterar Worker ou D1 nesta versão.
+- Substituir index.html, sw.js, version.json, manifest.json e LEIA-ME.txt no GitHub Pages.
+- Manter a pasta icons/.
+- Não alterar Worker nem D1.
 
-NOVIDADE PRINCIPAL — PRIMEIRO ACESSO
-Depois do login, se a conta ainda não tiver família, o Diário abre diretamente a configuração inicial.
-A pessoa informa o nome da família, cadastra uma ou mais crianças e toca em “Criar e começar”.
-A conta que cria a família é o Administrador único.
-
-Se a família já existir, mas ainda não houver crianças, a configuração inicial abre diretamente no cadastro das crianças.
-O aplicativo normal só é liberado depois que existir pelo menos uma criança ativa.
-
-MANTIDO DA v4.13
-- Administrador único.
-- Sem convites/adicionar membros na interface.
-- Autoria dos novos registros.
-- BNCC oficial via D1, cache rápido e códigos personalizados.
-- Melhorias de sincronização e abertura/login das versões anteriores.
+NOVIDADES
+- Navegação diária simplificada: Hoje, Planejar, Histórico e Mais.
+- Registro deixa de ser uma aba principal e vira uma ação.
+- Tela Hoje focada em atividades de hoje, atrasadas, próximas e últimos registros.
+- Planejamento organizado por Atrasadas, Hoje e Próximos dias.
+- Formulário de planejamento fica recolhido até tocar em + Planejar atividade.
+- Concluir planejamento abre o registro já preenchido.
+- Novo fluxo simples para Adicionar atividade antiga, sem exigir BNCC.
+- Ferramentas de importação histórica permanecem disponíveis em área recolhida.
+- Relatórios, Manutenção e Configurações ficam dentro de Mais.

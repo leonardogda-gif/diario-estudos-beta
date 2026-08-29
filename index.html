@@ -208,6 +208,13 @@ body.app-authenticated .cloud-card{display:none!important}
 .app-update-banner .meta{color:#DDE7E2}
 .app-update-banner .btn{min-height:32px;padding:6px 10px}
 
+
+/* v4.15 — experiência diária simplificada */
+.daily-actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.daily-actions .btn{padding:12px 16px;font-size:14px}
+.plan-section-title{margin:16px 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:#6b665c}
+.plan-card.is-late{border-left:4px solid #9b3b2e}.plan-card.is-today{border-left:4px solid #17332A}
+@media(max-width:700px){.daily-actions .btn{flex:1 1 100%}.nav-tabs{width:100%;justify-content:space-around;min-width:0}.nav-tab{flex:1;justify-content:center;padding:12px 8px}}
 </style>
 </head>
 <body class="auth-checking">
@@ -216,7 +223,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.14 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.15 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -294,13 +301,10 @@ body.app-authenticated .cloud-card{display:none!important}
   <div id="protectedApp" class="hidden">
     <div class="nav-wrap no-print">
       <nav class="nav-tabs">
-        <button class="nav-tab active" data-page="inicio" onclick="showPage('inicio')">Início</button>
-        <button class="nav-tab" data-page="registro" onclick="showPage('registro')">Registro</button>
-        <button class="nav-tab" data-page="planejamento" onclick="showPage('planejamento')">Planejamento</button>
-        <button class="nav-tab" data-page="relatorios" onclick="showPage('relatorios')">Relatórios</button>
+        <button class="nav-tab active" data-page="inicio" onclick="showPage('inicio')">Hoje</button>
+        <button class="nav-tab" data-page="planejamento" onclick="showPage('planejamento')">Planejar</button>
         <button class="nav-tab" data-page="historico" onclick="showPage('historico')">Histórico</button>
-        <button class="nav-tab" data-page="manutencao" onclick="showPage('manutencao')">Manutenção</button>
-        <button class="nav-tab" data-page="configuracoes" onclick="showPage('configuracoes')">Configurações</button>
+        <button class="nav-tab" data-page="mais" onclick="showPage('mais')">Mais</button>
       </nav>
     </div>
 
@@ -314,22 +318,24 @@ body.app-authenticated .cloud-card{display:none!important}
     </section>
 
     <section id="page-planejamento" class="page">
-<div class="card"><h2>Planejamento</h2><div class="grid">
-<div><label class="field">Criança</label><select id="planChild"></select></div>
-<div><label class="field">Data inicial</label><input id="planDate" type="date"></div>
-<div><label class="field">Tipo</label><select id="planType"><option value="bncc">BNCC</option><option value="complementar">Complementar</option></select></div>
-<div><label class="field">Componente / categoria</label><input id="planComponent"></div>
-<div class="full"><label class="field">Atividade planejada</label><input id="planTitle"></div>
-<div class="full"><label class="field">Observações</label><textarea id="planNotes" rows="2"></textarea></div>
-<div class="full recurrence-box"><label class="field">Recorrência</label>
-<select id="planRecurrence" onchange="togglePlanRecurrenceOptions()"><option value="none">Não repetir</option><option value="daily">Todos os dias</option><option value="weekly">Semanal</option><option value="weekdays">Dias específicos da semana</option><option value="monthly">Mensal</option></select>
-<div id="planWeekdaysBox" class="hidden" style="margin-top:8px"><div class="weekdays">
-<label><input type="checkbox" value="1">Seg</label><label><input type="checkbox" value="2">Ter</label><label><input type="checkbox" value="3">Qua</label><label><input type="checkbox" value="4">Qui</label><label><input type="checkbox" value="5">Sex</label><label><input type="checkbox" value="6">Sáb</label><label><input type="checkbox" value="0">Dom</label>
-</div></div>
-<div style="margin-top:8px"><label class="field">Data final opcional</label><input id="planEndDate" type="date"></div></div>
-</div><button class="btn success" onclick="addPlan()">Adicionar ao planejamento</button></div>
-<div class="card"><h3>Próximas atividades</h3><div id="plansList"></div></div>
-</section>
+      <div class="card">
+        <div class="toolbar" style="justify-content:space-between"><div><h2 style="margin-bottom:3px">Planejar</h2><div class="meta">Veja primeiro o que precisa de atenção. Crie um novo planejamento só quando precisar.</div></div><button class="btn success" onclick="togglePlanForm(true)">+ Planejar atividade</button></div>
+      </div>
+      <div id="planFormCard" class="card hidden"><h3>Novo planejamento</h3><div class="grid">
+        <div><label class="field">Para quem?</label><select id="planChild"></select></div>
+        <div><label class="field">Quando?</label><input id="planDate" type="date"></div>
+        <div><label class="field">Tipo</label><select id="planType"><option value="bncc">BNCC</option><option value="complementar">Complementar</option></select></div>
+        <div><label class="field">Componente / categoria</label><input id="planComponent"></div>
+        <div class="full"><label class="field">O que vamos fazer?</label><input id="planTitle" placeholder="Ex.: Leitura do capítulo 3"></div>
+        <div class="full"><label class="field">Observações (opcional)</label><textarea id="planNotes" rows="2"></textarea></div>
+        <div class="full recurrence-box"><label class="field">Repetir?</label>
+          <select id="planRecurrence" onchange="togglePlanRecurrenceOptions()"><option value="none">Não repetir</option><option value="daily">Todos os dias</option><option value="weekly">Semanal</option><option value="weekdays">Dias específicos da semana</option><option value="monthly">Mensal</option></select>
+          <div id="planWeekdaysBox" class="hidden" style="margin-top:8px"><div class="weekdays"><label><input type="checkbox" value="1">Seg</label><label><input type="checkbox" value="2">Ter</label><label><input type="checkbox" value="3">Qua</label><label><input type="checkbox" value="4">Qui</label><label><input type="checkbox" value="5">Sex</label><label><input type="checkbox" value="6">Sáb</label><label><input type="checkbox" value="0">Dom</label></div></div>
+          <div style="margin-top:8px"><label class="field">Repetir até (opcional)</label><input id="planEndDate" type="date"></div>
+        </div>
+      </div><div class="toolbar" style="margin-top:10px"><button class="btn success" onclick="addPlan()">Salvar planejamento</button><button class="btn" onclick="togglePlanForm(false)">Cancelar</button></div></div>
+      <div class="card"><div id="plansList"></div></div>
+    </section>
 
     <section id="page-relatorios" class="page">
       <div class="card">
@@ -353,8 +359,16 @@ body.app-authenticated .cloud-card{display:none!important}
 
     <section id="page-historico" class="page">
       <div class="card">
-        <h2>Importar histórico</h2>
-        <div class="notice">Use esta área para lançar registros antigos rapidamente.</div>
+        <h2>Histórico</h2>
+        <div class="notice">Consulte o histórico normalmente ou adicione uma atividade realizada anteriormente.</div>
+        <div class="card" style="margin-top:12px;background:#F8F5EC"><div class="toolbar" style="justify-content:space-between"><div><h3 style="margin-bottom:3px">Adicionar atividade antiga</h3><div class="meta">Um registro simples, sem exigir código BNCC.</div></div><button class="btn" onclick="toggleOldRecordForm(true)">+ Adicionar</button></div>
+        <div id="oldRecordForm" class="hidden" style="margin-top:12px"><div class="grid">
+          <div><label class="field">Criança</label><select id="oldRecordChild"></select></div><div><label class="field">Data</label><input id="oldRecordDate" type="date"></div>
+          <div class="full"><label class="field">Atividade</label><input id="oldRecordActivity" placeholder="Ex.: Visita ao museu"></div>
+          <div><label class="field">Componente (opcional)</label><input id="oldRecordComponent"></div><div><label class="field">Avaliação (opcional)</label><select id="oldRecordStatus"><option value="">Sem avaliação</option><option>Dominado</option><option>Em progresso</option><option>Precisa de revisão</option></select></div>
+          <div class="full"><label class="field">Observações (opcional)</label><textarea id="oldRecordNotes" rows="2"></textarea></div>
+        </div><div class="toolbar" style="margin-top:10px"><button class="btn success" onclick="saveOldRecord()">Salvar atividade antiga</button><button class="btn" onclick="toggleOldRecordForm(false)">Cancelar</button></div></div></div>
+        <details style="margin-top:14px"><summary><b>Importações e registros antigos em lote</b></summary><div style="margin-top:12px">
         <div class="grid" style="margin-top:10px">
           <div><label class="field">Criança</label><select id="historyChild"></select></div>
           <div><label class="field">Avaliação padrão</label><select id="historyDefaultStatus"><option value="">Sem padrão</option><option>Dominado</option><option>Em progresso</option><option>Precisa de revisão</option></select></div>
@@ -393,6 +407,17 @@ body.app-authenticated .cloud-card{display:none!important}
 <hr>
 <h3>Importar CSV</h3>
         <div class="toolbar"><button class="btn" onclick="downloadHistoryTemplate()">Modelo CSV</button><label class="btn">Importar CSV<input type="file" accept=".csv,text/csv" style="display:none" onchange="importHistoryCSV(event)"></label></div>
+        </div></details>
+      </div>
+    </section>
+
+    <section id="page-mais" class="page">
+      <div class="card"><h2>Mais</h2><div class="meta" style="margin-bottom:12px">Opções que você não precisa usar todos os dias.</div>
+        <div class="grid">
+          <button class="btn" onclick="showPage('relatorios')">Relatórios</button>
+          <button class="btn" onclick="showPage('manutencao')">Manutenção</button>
+          <button class="btn" onclick="showPage('configuracoes')">Configurações</button>
+        </div>
       </div>
     </section>
 
@@ -3189,7 +3214,7 @@ function populateCommonSelects(){
    ? state.family.children.filter(c=>!c.archived&&!c.legacyOrphan)
    : [];
  const opts=availableChildren.map(c=>`<option value="${c.id}">${esc(c.name)} — ${esc(c.stage)}</option>`).join("");
- ["planChild","reportChild","historyChild","historyPhotoChild"].forEach(id=>{let e=$(id);if(e){let old=e.value;e.innerHTML=opts;if(old&&availableChildren.some(c=>c.id===old))e.value=old;else if(activeChildId&&availableChildren.some(c=>c.id===activeChildId))e.value=activeChildId}});
+ ["planChild","reportChild","historyChild","historyPhotoChild","oldRecordChild"].forEach(id=>{let e=$(id);if(e){let old=e.value;e.innerHTML=opts;if(old&&availableChildren.some(c=>c.id===old))e.value=old;else if(activeChildId&&availableChildren.some(c=>c.id===activeChildId))e.value=activeChildId}});
  $("childStage").innerHTML=STAGES.map(x=>`<option>${esc(x)}</option>`).join("");
  let comps=[...new Set(Object.values(state.entries).flat().map(x=>x.componente).filter(Boolean))].sort();
  if($("reportComponent"))$("reportComponent").innerHTML='<option value="">Todos</option>'+comps.map(x=>`<option>${esc(x)}</option>`).join("");
@@ -3241,37 +3266,29 @@ function deleteChild(id){
 }
 
 function renderDashboard(){
- let box=$("dashboard");if(!box)return;
-
- // A tela inicial deve considerar apenas crianças realmente ativas.
- const activeChildren=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan);
- let child=currentChild()||activeChildren[0];
-
- if(!child){
-   activeChildId=null;
-   box.innerHTML="<div class='card'><h2>Bem-vindo</h2><div class='notice'>Nenhuma criança ativa nesta família. Cadastre ou restaure uma criança em Configurações para começar.</div></div>";
-   return;
- }
-
+ let box=$("dashboard");if(!box)return;let child=state.family.children.find(c=>c.id===activeChildId&&!c.archivedAt)||state.family.children.find(c=>!c.archivedAt);
+ if(!child){box.innerHTML="<div class='card'><h2>Bem-vindo</h2><div class='notice'>Nenhuma criança ativa nesta família. Cadastre uma criança em Configurações para começar.</div></div>";return}
  activeChildId=child.id;
-
- let list=state.entries[child.id]||[],
-     month=today().slice(0,7),
-     monthList=list.filter(x=>String(x.date).startsWith(month));
-
- let review=list.filter(x=>x.status==="Precisa de revisão"),
-     progress=list.filter(x=>x.status==="Em progresso"),
-     dom=list.filter(x=>x.status==="Dominado");
-
- let plans=state.plans
-   .filter(x=>x.childId===child.id&&!x.completedAt)
-   .sort((a,b)=>a.date.localeCompare(b.date));
-
- box.innerHTML=`<div class="card"><div class="toolbar" style="justify-content:space-between"><div>${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">${esc(child.name)}</h2><div class="meta">${esc(child.stage)}</div></div><div class="child-tabs">${activeChildren.map(c=>`<button class="child ${c.id===child.id?"active":""}" onclick="selectChild('${c.id}');showPage('inicio')">${esc(c.name)}</button>`).join("")}</div></div>
- <div class="stats" style="margin-top:14px"><div class="stat"><b>${monthList.length}</b><span>Este mês</span></div><div class="stat"><b>${new Set(list.filter(x=>x.codigo).map(x=>x.codigo)).size}</b><span>Habilidades</span></div><div class="stat"><b>${progress.length}</b><span>Em progresso</span></div><div class="stat"><b>${review.length}</b><span>Revisão</span></div></div></div>
- <div class="dashboard-grid"><div class="card"><h3>Onde focar</h3>${review.slice(0,5).map(x=>`<div class="entry focus"><div class="meta">${fmtDate(x.date)} · ${esc(x.componente)}</div><div class="entry-title">${esc(x.atividade)}</div><div class="skill">${esc(x.habilidade||"")}</div></div>`).join("")||"<div class='notice'>Nenhum item marcado como “Precisa de revisão”.</div>"}${progress.length?`<h3 style="margin-top:16px">Em progresso</h3>${progress.slice(0,4).map(x=>`<div class="entry progress"><div class="entry-title">${esc(x.atividade)}</div><div class="meta">${esc(x.componente)} · ${fmtDate(x.date)}</div></div>`).join("")}`:""}</div>
- <div><div class="card"><h3>Planejamento</h3>${plans.slice(0,5).map(p=>`<div class="plan-card"><div class="plan-date">${fmtDate(p.date)}</div><b>${esc(p.title)}</b></div>`).join("")||"<div class='notice'>Nada planejado.</div>"}<button class="btn" style="margin-top:8px" onclick="showPage('planejamento')">Abrir planejamento</button></div>
- <div class="card"><h3>Últimos registros</h3>${list.slice(0,5).map(x=>`<div class="entry record-clickable ${x.status==="Dominado"?"done":x.status==="Precisa de revisão"?"focus":"progress"}" onclick="viewEntry('${x.id}','${child.id}')"><div class="meta">${fmtDate(x.date)}</div><div class="entry-title">${esc(x.atividade)}</div><div class="meta" style="margin-top:5px">Toque para visualizar</div></div>`).join("")||"<div class='notice'>Nenhum registro.</div>"}</div></div></div>`;
+ const allEntries=(state.entries[child.id]||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+ const td=today();
+ const due=state.plans.filter(x=>x.childId===child.id&&!x.completedAt&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
+ const todayPlans=due.filter(p=>(p.nextDate||p.date)===td),latePlans=due.filter(p=>(p.nextDate||p.date)<td),futurePlans=due.filter(p=>(p.nextDate||p.date)>td).slice(0,3);
+ const planHtml=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div><div class="meta">${esc(p.component||'')}</div><div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">✓ Concluir e registrar</button>${(p.nextDate||p.date)<td?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Reagendar próxima</button>`:''}</div></div>`;
+ box.innerHTML=`<div class="card"><div class="toolbar" style="justify-content:space-between"><div>${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje com ${esc(child.name)}</h2><div class="meta">${fmtDate(td)}</div></div><div class="child-tabs">${state.family.children.filter(c=>!c.archivedAt).map(c=>`<button class="child ${c.id===child.id?'active':''}" onclick="selectChild('${c.id}');showPage('inicio')">${esc(c.name)}</button>`).join('')}</div></div>
+ <div class="daily-actions"><button class="btn success" onclick="openTodayRecord()">+ Registrar atividade</button><button class="btn" onclick="showPage('planejamento');togglePlanForm(true)">+ Planejar</button><button class="btn" onclick="openOldRecord()">Adicionar atividade antiga</button></div></div>
+ ${latePlans.length?`<div class="card"><h3>Precisa de atenção</h3><div class="meta">Atividades planejadas que ficaram para trás.</div>${latePlans.map(planHtml).join('')}</div>`:''}
+ <div class="card"><h3>Para hoje</h3>${todayPlans.map(planHtml).join('')||"<div class='notice'>Nada planejado para hoje. Você pode registrar uma atividade que aconteceu sem planejamento.</div>"}</div>
+ ${futurePlans.length?`<div class="card"><h3>Próximos dias</h3>${futurePlans.map(p=>`<div class="plan-card"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><b>${esc(p.title)}</b></div>`).join('')}<button class="btn" onclick="showPage('planejamento')">Ver planejamento</button></div>`:''}
+ <div class="card"><h3>Últimas atividades</h3>${allEntries.slice(0,4).map(x=>`<div class="entry record-clickable ${x.status==='Dominado'?'done':x.status==='Precisa de revisão'?'focus':'progress'}" onclick="viewEntry('${x.id}','${child.id}')"><div class="meta">${fmtDate(x.date)}</div><div class="entry-title">${esc(x.atividade)}</div></div>`).join('')||"<div class='notice'>Nenhuma atividade registrada ainda.</div>"}</div>`;
+}
+function openTodayRecord(){recordFormOpen=true;editing=null;showPage('registro');renderRecordPage()}
+function openOldRecord(){showPage('historico');setTimeout(()=>{toggleOldRecordForm(true);$('oldRecordDate').value='';$('oldRecordActivity')?.focus()},0)}
+function toggleOldRecordForm(open){$('oldRecordForm')?.classList.toggle('hidden',!open);if(open){const c=$('oldRecordChild');if(c&&activeChildId)c.value=activeChildId}}
+function saveOldRecord(){
+ const childId=$('oldRecordChild')?.value||activeChildId,date=$('oldRecordDate')?.value||'',activity=($('oldRecordActivity')?.value||'').trim();
+ if(!childId||!date||!activity)return alert('Informe criança, data e atividade.');
+ const x={id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||'',createdByEmail:backendProfile?.user?.email||googleUser?.email||'',createdByName:backendProfile?.user?.name||googleUser?.name||'',date,type:'bncc',area:'',componente:($('oldRecordComponent')?.value||'').trim(),codigo:'',habilidade:'',atividade:activity,observacoes:($('oldRecordNotes')?.value||'').trim(),status:$('oldRecordStatus')?.value||'',foto:'',audio:''};
+ state.entries[childId]=[x,...(state.entries[childId]||[])];saveLocal();toggleOldRecordForm(false);['oldRecordActivity','oldRecordComponent','oldRecordNotes'].forEach(id=>{if($(id))$(id).value=''});if($('oldRecordStatus'))$('oldRecordStatus').value='';renderAll();showPage('inicio');
 }
 
 function anoBnccDoCodigo(codigo){
@@ -3771,10 +3788,13 @@ function addPlan(){
  state.plans.push({id:uid(),childId,date:start,nextDate:start,type:$("planType").value,component:$("planComponent").value.trim(),title,notes:$("planNotes").value.trim(),recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],createdAt:now(),updatedAt:now(),completedAt:""});
  $("planTitle").value="";$("planNotes").value="";saveLocal();renderPlans();renderDashboard()
 }
+function togglePlanForm(open){$('planFormCard')?.classList.toggle('hidden',!open);if(open){if($('planDate')&&!$('planDate').value)$('planDate').value=today();if($('planChild')&&activeChildId)$('planChild').value=activeChildId;$('planTitle')?.focus()}}
 function renderPlans(){
- let box=$("plansList");if(!box)return;let childId=$("planChild")?.value||activeChildId;
+ let box=$("plansList");if(!box)return;let childId=$("planChild")?.value||activeChildId,td=today();
  let l=state.plans.filter(x=>!x.completedAt&&(!childId||x.childId===childId)&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
- box.innerHTML=l.map(p=>`<div class="plan-card"><div class="plan-date">Próxima: ${fmtDate(p.nextDate||p.date)} · ${esc(state.family.children.find(c=>c.id===p.childId)?.name||"")}</div><div class="entry-title">${esc(p.title)}</div>${p.component?`<div class="skill">${esc(p.component)}</div>`:""}<div class="meta">${p.recurrence&&p.recurrence!=="none"?`Recorrência: ${esc(p.recurrence==="daily"?"diária":p.recurrence==="weekly"?"semanal":p.recurrence==="monthly"?"mensal":"dias específicos")}`:"Atividade única"}</div>${p.notes?`<div class="obs">${esc(p.notes)}</div>`:""}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">Registrar como concluída</button>${p.recurrence!=="none"?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular ocorrência</button>`:""}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`).join("")||"<div class='notice'>Nenhuma atividade planejada.</div>"
+ const card=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':(p.nextDate||p.date)===td?'is-today':''}"><div class="plan-date">${fmtDate(p.nextDate||p.date)} · ${esc(state.family.children.find(c=>c.id===p.childId)?.name||'')}</div><div class="entry-title">${esc(p.title)}</div>${p.component?`<div class="skill">${esc(p.component)}</div>`:''}${p.notes?`<div class="obs">${esc(p.notes)}</div>`:''}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">✓ Concluir e registrar</button>${p.recurrence!=='none'?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular / próxima</button>`:''}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`;
+ const late=l.filter(p=>(p.nextDate||p.date)<td),now=l.filter(p=>(p.nextDate||p.date)===td),future=l.filter(p=>(p.nextDate||p.date)>td);
+ box.innerHTML=`${late.length?`<div class="plan-section-title">Atrasadas · ${late.length}</div>${late.map(card).join('')}`:''}<div class="plan-section-title">Hoje · ${now.length}</div>${now.map(card).join('')||"<div class='notice'>Nada planejado para hoje.</div>"}${future.length?`<div class="plan-section-title">Próximos dias · ${future.length}</div>${future.map(card).join('')}`:''}`;
 }
 function startPlan(id){let p=state.plans.find(x=>x.id===id);if(!p)return;activeChildId=p.childId;recordFormOpen=true;editing={id:uid(),childId:p.childId,date:p.nextDate||p.date,type:p.type,complementaryId:"",area:"",componente:p.component,codigo:"",habilidade:"",atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,planOccurrenceDate:p.nextDate||p.date};showPage("registro");renderRecordPage()}
 function completePlanOccurrence(planId,occurrenceDate){const p=state.plans.find(x=>x.id===planId);if(!p)return;p.occurrences??=[];p.occurrences.push({date:occurrenceDate,status:"completed",updatedAt:now()});if(p.recurrence==="none"){p.completedAt=now();p.nextDate=""}else{p.nextDate=nextPlanDate(p,occurrenceDate);if(!p.nextDate)p.completedAt=now()}p.updatedAt=now()}
