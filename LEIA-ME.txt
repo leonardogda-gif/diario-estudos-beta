@@ -1,23 +1,21 @@
-DIÁRIO DE ESTUDOS — v4.13
-
-ALTERAÇÕES PRINCIPAIS
-- Família passa a trabalhar com Administrador único na interface.
-- A conta que cria a família é o Administrador.
-- Removida da interface a opção de convidar/adicionar outras pessoas.
-- Cadastro e gerenciamento de crianças ficam restritos ao Administrador.
-- Novos registros passam a guardar a autoria da conta Google (ID, e-mail e nome).
-- Mantidas as melhorias da v4.12: sincronização, modelo CSV, login sem piscada e BNCC via backend/cache.
+DIÁRIO DE ESTUDOS — v4.14
 
 PUBLICAÇÃO
-Substitua no GitHub Pages:
-- index.html
-- sw.js
-- version.json
-- manifest.json
-- LEIA-ME.txt
+- Substitua no GitHub Pages: index.html, sw.js, version.json, manifest.json e LEIA-ME.txt.
+- Mantenha a pasta icons/ existente.
+- Não é necessário alterar Worker ou D1 nesta versão.
 
-Mantenha a pasta icons/ existente.
+NOVIDADE PRINCIPAL — PRIMEIRO ACESSO
+Depois do login, se a conta ainda não tiver família, o Diário abre diretamente a configuração inicial.
+A pessoa informa o nome da família, cadastra uma ou mais crianças e toca em “Criar e começar”.
+A conta que cria a família é o Administrador único.
 
-BACKEND
-Esta versão não exige alteração no Worker 0.6.2-beta nem no D1.
-A criação de família já registra o criador como role=admin no backend.
+Se a família já existir, mas ainda não houver crianças, a configuração inicial abre diretamente no cadastro das crianças.
+O aplicativo normal só é liberado depois que existir pelo menos uma criança ativa.
+
+MANTIDO DA v4.13
+- Administrador único.
+- Sem convites/adicionar membros na interface.
+- Autoria dos novos registros.
+- BNCC oficial via D1, cache rápido e códigos personalizados.
+- Melhorias de sincronização e abertura/login das versões anteriores.

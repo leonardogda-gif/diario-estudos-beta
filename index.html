@@ -65,6 +65,15 @@ h3{font-size:16px}
 .login-gate{max-width:580px;margin:38px auto;text-align:center;padding:28px}
 .login-gate svg{width:52px;height:52px;fill:none;stroke:#17332A;stroke-width:1.6}
 .login-gate h2{margin:12px 0 7px}
+.onboarding-gate{max-width:760px;margin:28px auto;padding:26px}
+.onboarding-gate h2{margin:0 0 8px}
+.onboarding-steps{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 18px}
+.onboarding-step{padding:7px 11px;border-radius:999px;background:#EEE8DC;font-size:.88rem;font-weight:700}
+.onboarding-step.active{background:#17332A;color:#fff}
+.onboarding-child{border:1px solid #E4DDCF;border-radius:12px;padding:12px;margin-top:10px;background:#FFFCF6}
+.onboarding-child-grid{display:grid;grid-template-columns:1.2fr .8fr 1.2fr auto;gap:8px;align-items:end}
+@media(max-width:700px){.onboarding-child-grid{grid-template-columns:1fr}.onboarding-child-grid .btn{width:100%}}
+
 .auth-boot{position:fixed;inset:0;z-index:3000;background:#EFEAE0;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 .auth-boot-card{background:#FFFDF8;border-radius:14px;padding:24px 28px;box-shadow:0 4px 18px rgba(0,0,0,.08);font-weight:800;color:#17332A}
 body.auth-checking #loginGate,body.auth-checking #protectedApp{visibility:hidden!important}
@@ -207,7 +216,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v4.13 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v4.14 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -257,6 +266,29 @@ body.app-authenticated .cloud-card{display:none!important}
     <h2>Beta com acesso controlado</h2>
     <p>Entre com uma conta Google autorizada como usuário de teste para acessar o Diário e sincronizar os dados entre celular e computador.</p>
     <button class="btn dark" onclick="googleLogin()">Entrar com Google</button>
+  </div>
+
+  <div id="onboardingGate" class="card onboarding-gate hidden">
+    <h2>Vamos preparar seu Diário</h2>
+    <p id="onboardingIntro">Antes de começar, cadastre sua família e pelo menos uma criança.</p>
+    <div class="onboarding-steps">
+      <span class="onboarding-step active">1 · Família</span>
+      <span class="onboarding-step active">2 · Crianças</span>
+      <span class="onboarding-step">3 · Começar</span>
+    </div>
+    <div class="notice">A conta que cria a família será o <b>Administrador único</b>. Você poderá alterar o nome da família e os dados das crianças depois em Configurações.</div>
+    <div style="margin-top:14px">
+      <label class="field">Nome da família</label>
+      <input id="onboardingFamilyName" placeholder="Ex.: Família Andrade">
+      <div id="onboardingAdminInfo" class="meta" style="margin-top:6px"></div>
+    </div>
+    <h3 style="margin-top:20px">Crianças</h3>
+    <div id="onboardingChildren"></div>
+    <div class="toolbar" style="margin-top:10px">
+      <button class="btn" type="button" onclick="addOnboardingChildRow()">+ Adicionar outra criança</button>
+      <button id="finishOnboardingBtn" class="btn success" type="button" onclick="finishOnboarding()">Criar e começar</button>
+    </div>
+    <div id="onboardingStatus" class="meta" style="margin-top:10px"></div>
   </div>
 
   <div id="protectedApp" class="hidden">
@@ -878,6 +910,91 @@ function renderSimpleFamilySummary(){
  if(editBtn)editBtn.classList.toggle("hidden",fam.role!=="admin");
  const canEdit=fam.role==="admin";if(addBtn)addBtn.classList.toggle("hidden",!canEdit);if(addBox)addBox.classList.toggle("hidden",!canEdit);
 }
+let onboardingRows=[];
+function needsOnboarding(){
+  if(!googleAccessToken||!backendProfile?.user)return false;
+  const families=backendProfile.families||[];
+  if(!families.length)return true;
+  const fam=backendFamilyFromProfile();
+  if(!fam)return false;
+  return backendChildren.filter(c=>Number(c.active)!==0).length===0;
+}
+function onboardingStageOptions(selected="Sem ano de referência"){
+  return STAGES.map(s=>`<option value="${esc(s)}" ${s===selected?"selected":""}>${esc(s)}</option>`).join("");
+}
+function addOnboardingChildRow(data={}){
+  onboardingRows.push({id:uid(),name:data.name||"",birth:data.birth||"",stage:data.stage||"Sem ano de referência"});
+  renderOnboardingChildren();
+}
+function removeOnboardingChildRow(id){
+  if(onboardingRows.length<=1)return alert("Cadastre pelo menos uma criança para continuar.");
+  onboardingRows=onboardingRows.filter(r=>r.id!==id);
+  renderOnboardingChildren();
+}
+function updateOnboardingRow(id,field,value){const r=onboardingRows.find(x=>x.id===id);if(r)r[field]=value}
+function renderOnboardingChildren(){
+  const box=$("onboardingChildren");if(!box)return;
+  if(!onboardingRows.length)onboardingRows=[{id:uid(),name:"",birth:"",stage:"Sem ano de referência"}];
+  box.innerHTML=onboardingRows.map((r,i)=>`<div class="onboarding-child"><div class="onboarding-child-grid">
+    <div><label class="field">Nome da criança ${onboardingRows.length>1?i+1:""}</label><input value="${esc(r.name)}" oninput="updateOnboardingRow('${r.id}','name',this.value)" placeholder="Nome"></div>
+    <div><label class="field">Nascimento</label><input type="date" value="${esc(r.birth)}" onchange="updateOnboardingRow('${r.id}','birth',this.value)"></div>
+    <div><label class="field">Ano de referência</label><select onchange="updateOnboardingRow('${r.id}','stage',this.value)">${onboardingStageOptions(r.stage)}</select></div>
+    <button class="btn small ${onboardingRows.length<=1?'hidden':''}" type="button" onclick="removeOnboardingChildRow('${r.id}')">Remover</button>
+  </div></div>`).join("");
+}
+function refreshOnboardingUI(){
+  const gate=$("onboardingGate");if(!gate)return;
+  const show=needsOnboarding();
+  gate.classList.toggle("hidden",!show);
+  if(!show)return;
+  const fam=backendFamilyFromProfile();
+  const name=$("onboardingFamilyName");
+  if(name){name.value=fam?.name||name.value||"";name.disabled=!!fam}
+  const intro=$("onboardingIntro");if(intro)intro.textContent=fam?"Sua família já está criada. Cadastre pelo menos uma criança para começar.":"Antes de começar, cadastre sua família e pelo menos uma criança.";
+  const admin=$("onboardingAdminInfo");if(admin)admin.textContent=`Administrador: ${backendProfile?.user?.name||backendProfile?.user?.email||googleUser?.email||"conta atual"}`;
+  if(!onboardingRows.length)addOnboardingChildRow();else renderOnboardingChildren();
+  const btn=$("finishOnboardingBtn");if(btn)btn.textContent=fam?"Cadastrar e começar":"Criar e começar";
+}
+async function finishOnboarding(){
+  if(!googleAccessToken||!backendProfile?.user)return alert("Entre com Google para continuar.");
+  const valid=onboardingRows.map(r=>({...r,name:(r.name||"").trim()})).filter(r=>r.name);
+  if(!valid.length)return alert("Cadastre pelo menos uma criança.");
+  const btn=$("finishOnboardingBtn"),status=$("onboardingStatus");
+  if(btn){btn.disabled=true;btn.textContent="Preparando…"}if(status)status.textContent="Criando sua estrutura no Diário…";
+  try{
+    let fam=backendFamilyFromProfile();
+    if(!fam){
+      const familyName=$("onboardingFamilyName")?.value.trim();
+      if(!familyName)throw new Error("Informe o nome da família.");
+      const created=await backendFetch("/families",{method:"POST",body:JSON.stringify({name:familyName})});
+      const id=created?.family?.id;if(!id)throw new Error("O backend não retornou o ID da família.");
+      localStorage.setItem(ACTIVE_BACKEND_FAMILY_KEY,id);setBackendFamilyId(id);setBackendChildMap({});
+      await refreshBackendProfile();
+      fam=backendFamilyFromProfile();
+      if(!fam)throw new Error("A família foi criada, mas não pôde ser carregada.");
+    }
+    const map=getBackendChildMap();
+    for(let i=0;i<valid.length;i++){
+      if(status)status.textContent=`Cadastrando criança ${i+1} de ${valid.length}…`;
+      const r=valid[i];
+      const created=await backendFetch("/children",{method:"POST",body:JSON.stringify({family_id:fam.id,name:r.name,birth_date:r.birth||null,reference_stage:r.stage||null,notes:null})});
+      const remote=created?.child;if(!remote?.id)throw new Error(`Não foi possível cadastrar ${r.name}.`);
+      const localId=uid();
+      state.family.children.push({id:localId,name:r.name,birth:r.birth||"",stage:r.stage||"Sem ano de referência",stageHistory:[{stage:r.stage||"Sem ano de referência",startDate:today(),endDate:""}],archived:false,backendManaged:true,createdAt:now(),updatedAt:now()});
+      map[localId]=remote.id;
+    }
+    setBackendChildMap(map);saveLocal(false);onboardingRows=[];
+    await refreshBackendProfile();
+    await loadBackendFamilyData();
+    await syncFamilyFromBackend(false);
+    activeChildId=state.family.children.find(c=>!c.archived&&!c.legacyOrphan)?.id||null;
+    if(status)status.textContent="Tudo pronto.";
+    updateAuthUI();renderAll();showPage("inicio");
+    setCloudStatus("ok","Diário pronto para usar");
+  }catch(e){console.error(e);if(status)status.textContent="Não foi possível concluir a configuração.";alert("Não foi possível preparar o Diário: "+(e.message||e))}
+  finally{if(btn){btn.disabled=false;btn.textContent=backendFamilyFromProfile()?"Cadastrar e começar":"Criar e começar"}}
+}
+
 async function createCleanBackendFamily(){
  const name=$("newFamilyCleanName")?.value.trim();if(!name)return alert("Informe o nome da família.");
  try{
@@ -1056,6 +1173,8 @@ async function refreshBackendProfile(){
     clearEducationalStateWithoutBackendFamily();
     renderBackendFamilyPanels();
   }
+
+  try{refreshOnboardingUI()}catch(e){}
 
   try{
     await refreshSharedStorageVisualState();
@@ -2255,12 +2374,15 @@ function updateAuthUI(){
  const onlineAuth=!!(googleAccessToken&&googleUser);
  const offlineAuth=!onlineAuth&&offlineSessionAvailable();
  const canUseApp=onlineAuth||offlineAuth;
+ const backendPending=onlineAuth&&!backendProfile;
+ const onboarding=onlineAuth&&!!backendProfile?.user&&needsOnboarding();
 
  $("googleLoginBtn")?.classList.toggle("hidden",onlineAuth);
  $("syncNowBtn")?.classList.toggle("hidden",!onlineAuth);
  $("googleLogoutBtn")?.classList.toggle("hidden",!onlineAuth);
  $("loginGate")?.classList.toggle("hidden",canUseApp);
- $("protectedApp")?.classList.toggle("hidden",!canUseApp);
+ $("onboardingGate")?.classList.toggle("hidden",!onboarding);
+ $("protectedApp")?.classList.toggle("hidden",!canUseApp||backendPending||onboarding);
  $("headerCloud")?.classList.toggle("hidden",!canUseApp);
  $("headerSyncBtn")?.classList.toggle("hidden",!onlineAuth);
  document.body.classList.toggle("app-authenticated",canUseApp);
@@ -2283,7 +2405,8 @@ function updateAuthUI(){
  syncRememberCheckbox();
 
  if(canUseApp){
-   renderAll();
+   refreshOnboardingUI();
+   if(!onboarding&&!backendPending)renderAll();
    if(offlineAuth){
      setBackendStatus("offline · dados locais");
      setCloudStatus("pending","Sem internet · alterações ficam neste dispositivo");
@@ -2319,10 +2442,12 @@ function initGoogleAuth(){
       localStorage.setItem(LAST_GOOGLE_AUTH_AT_KEY, now());
     }
     updateAuthUI();
-    finishAuthBoot();
     const backendOK=await connectBackend();
+    finishAuthBoot();
+    updateAuthUI();
     if(backendOK){
-      await syncWithDrive({initial:true});
+      if(!needsOnboarding())await syncWithDrive({initial:true});
+      else setCloudStatus("pending","Complete a configuração inicial");
     }else{
       setCloudStatus("error","Backend não conectado");
     }
@@ -3789,7 +3914,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "4.13";
+const APP_VERSION = "4.14";
 let appSwRegistration = null;
 let appUpdateWorker = null;
 
