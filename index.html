@@ -359,7 +359,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.8 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v5.10 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -474,6 +474,7 @@ body.app-authenticated .cloud-card{display:none!important}
           <div class="grid">
             <div><label class="field">Editora / autor (opcional)</label><input id="materialPublisher"></div>
             <div><label class="field">Faixa etária (opcional)</label><input id="materialAgeRange" placeholder="Ex.: 3º ao 5º ano"></div>
+            <div class="full"><label class="field">Componente (opcional, ajuda a IA a acertar mais rápido)</label><select id="materialComponent"></select></div>
             <div class="full"><label class="field">O que essa lição/unidade ensina de fato? <span class="required-mark">*</span></label><textarea id="materialDescription" rows="2" placeholder="Ex.: leitura e reescrita de uma fábula clássica, identificando a moral da história."></textarea></div>
           </div>
           <div class="toolbar" style="margin-top:8px">
@@ -4392,6 +4393,7 @@ async function runMaterialSearch(q,seq){
 
 function startNewMaterialRequest(){
  $("materialNewForm")?.classList.remove("hidden");
+ if($("materialComponent"))$("materialComponent").innerHTML=groupedComponentOptions("");
  $("materialAiResults").innerHTML="";
  selectedMaterialCodes=[];
 }
@@ -4399,6 +4401,8 @@ function startNewMaterialRequest(){
 async function suggestMaterialBncc(){
  const description=$("materialDescription")?.value.trim()||"";
  const ageRange=$("materialAgeRange")?.value.trim()||"";
+ const component=$("materialComponent")?.value.trim()||"";
+ const area=component?componentArea(component):"";
  const box=$("materialAiResults");
  const btn=$("materialAiBtn");
  if(description.length<5){
@@ -4410,7 +4414,7 @@ async function suggestMaterialBncc(){
  try{
    const data=await backendFetch("/ai/material-bncc-suggest",{
      method:"POST",
-     body:JSON.stringify({content_description:description,age_range:ageRange})
+     body:JSON.stringify({content_description:description,age_range:ageRange,component,area})
    });
    const suggestions=data?.suggestions||[];
    if(!suggestions.length){
@@ -4897,7 +4901,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.9";
+const APP_VERSION = "5.10";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

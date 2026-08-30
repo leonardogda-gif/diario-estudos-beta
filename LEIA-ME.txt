@@ -1,66 +1,26 @@
-DIÁRIO DE ESTUDOS — v5.9
+DIÁRIO DE ESTUDOS — v5.10 (correções sobre a v5.9)
 
-ARQUIVOS DO FRONTEND
-Substituir no GitHub:
-- index.html
-- sw.js
-- version.json
-- manifest.json (sem alteração funcional nesta versão; incluído para pacote completo)
+O QUE MUDOU EM RELAÇÃO À V5.9
+1. Corrigido texto fixo do cabeçalho que ainda mostrava "v5.8 PWA" — não
+   acompanhava a constante APP_VERSION usada pela lógica de atualização.
+   Agora ambos mostram v5.10.
+2. Corrigido: o formulário de "Cadastrar material" nunca teve campo de
+   Componente. Sem ele, a sugestão de IA para materiais rodava sem o filtro
+   que reduz os candidatos antes de mandar para o Gemini (o mesmo filtro que
+   já existia no registro diário). Foi adicionado o campo "Componente
+   (opcional)", reaproveitando groupedComponentOptions() e componentArea()
+   já usados no registro diário — agora component/area são enviados para
+   /ai/material-bncc-suggest, que já sabia filtrar por eles desde a v5.9,
+   só nunca recebia esses dados.
 
-Preservar as pastas já existentes:
-- icons/
-- videos/
-
-WORKER / CLOUDFLARE — AÇÃO NECESSÁRIA
-1. Substituir o Worker pelo arquivo worker-v0.9.txt anexado.
-2. ANTES de publicar, editar a constante GLOBAL_ADMIN_EMAILS no topo do arquivo
-   (busque por "SEU_EMAIL_AQUI@gmail.com") e trocar pelo(s) e-mail(s) do Google
-   que poderão validar materiais para todas as famílias. Sem isso, ninguém
-   conseguirá aprovar/rejeitar materiais pendentes.
-3. Rodar a migração do banco UMA ÚNICA VEZ antes de usar a v5.9:
-   wrangler d1 execute <NOME_DO_BANCO> --remote --file=migracao-materiais.sql
-   Isso cria as tabelas "materials" e "material_bncc_links". Não apaga nada
-   existente (usa CREATE TABLE IF NOT EXISTS).
-
-NOVIDADE DA V5.9 — Catálogo de materiais (Planejar)
-- Nova seção "Cadastrar material de estudo" na aba Planejar.
-- Busca no catálogo compartilhado antes de permitir criar um material novo
-  (mesma lógica de detecção de duplicidade já usada em crianças, mas sem
-  expor de qual família veio o material já cadastrado).
-- Formulário de solicitação pede o que o material ensina de fato (não o nome
-  comercial) e usa uma nova rota de IA (/ai/material-bncc-suggest) — mesmo
-  padrão econômico em tokens do /ai/bncc-suggest, mas sem exigir uma criança
-  específica, já que um material não pertence a uma criança.
-- Material solicitado entra como "pending": fica visível e utilizável
-  imediatamente só para a família que solicitou; só passa a valer para as
-  outras famílias depois de aprovado.
-- Validação é de responsabilidade de um administrador GLOBAL do app (você),
-  não do administrador de uma família — painel em Configurações > "Materiais
-  pendentes de validação", com Aprovar/Rejeitar.
-- Se a IA não encontrar nenhum código compatível, ela avisa que isso pode ser
-  normal para conteúdo fora do escopo da BNCC (ex.: latim, lógica formal) em
-  vez de forçar uma sugestão ruim.
-
-PRESERVADO
-- Todos os ajustes da v5.8 (busca manual corrigida, sticky dinâmico, estilo
-  de ações irreversíveis, foco customizado, etc.).
-- Código de convite/multi-membro, mesmo com a UI desativada.
-- Autorização do merge definitivo de crianças (verificada no Worker 0.7.2,
-  mantida sem alteração).
+NENHUMA MUDANÇA NO WORKER NEM NO BANCO
+worker-v0.9.txt e migracao-materiais.sql estão incluídos sem alteração em
+relação à v5.9, só para manter o pacote completo. Se você já rodou a
+migração e publicou o Worker da v5.9, não precisa repetir nada — o ajuste
+desta versão é só de frontend.
 
 TESTES ESTÁTICOS REALIZADOS
-- JavaScript inline do index.html: sintaxe OK (checagem automática).
-- worker-v0.9.txt: sintaxe OK (checagem automática, renomeado para .js só
-  para o teste).
+- JavaScript inline do index.html: sintaxe OK.
 - Nenhuma função chamada no HTML sem definição correspondente.
 - Nenhuma função duplicada.
-- Nenhum elemento referenciado por id que não exista no HTML (fora do
-  convite, que já estava assim antes e é proposital).
-- Tags <div>, <button>, <details>, <script> balanceadas.
-
-NÃO TESTADO (preciso que você confirme em produção)
-- Chamada real ao endpoint /materials/pending com o e-mail de admin correto
-  configurado — não tenho acesso ao Worker publicado nem ao D1 para rodar
-  isso de ponta a ponta.
-- Comportamento do Gemini com o novo prompt de material (mesma API já usada,
-  mas nunca testei este prompt específico contra o modelo de verdade).
+- Nenhum "5.8" restante em nenhum texto do arquivo.
