@@ -362,7 +362,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.15 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v5.16 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -598,11 +598,69 @@ body.app-authenticated .cloud-card{display:none!important}
     <section id="page-mais" class="page">
       <div class="card"><h2>Mais</h2><div class="meta" style="margin-bottom:12px">Opções que você não precisa usar todos os dias.</div>
         <div class="grid">
+          <button class="btn" onclick="showPage('bncc-ajuda')">📘 Entenda a BNCC</button>
           <button class="btn" onclick="showPage('ajuda')">Ajuda e instalação</button>
           <button class="btn" onclick="showPage('relatorios')">Relatórios</button>
           <button class="btn" onclick="showPage('manutencao')">Manutenção</button>
           <button class="btn" onclick="showPage('configuracoes')">Configurações</button>
         </div>
+      </div>
+    </section>
+
+    <section id="page-bncc-ajuda" class="page">
+      <div class="card">
+        <h2>📘 Entenda a BNCC</h2>
+        <div class="notice">
+          <b>O que é a BNCC?</b><br>
+          A Base Nacional Comum Curricular (BNCC) é o documento que define as aprendizagens essenciais que os estudantes devem desenvolver ao longo da Educação Básica no Brasil.
+        </div>
+
+        <h3 style="margin-top:18px">Por que relacionar uma atividade à BNCC?</h3>
+        <p>Ao relacionar um registro a uma habilidade da BNCC, o Diário ajuda a mostrar <b>qual aprendizagem foi trabalhada naquela experiência</b>. Com o tempo, isso facilita acompanhar o desenvolvimento da criança e organizar o histórico de estudos.</p>
+        <div class="notice">
+          <b>A BNCC não substitui o registro da experiência.</b><br>
+          O código serve como referência para organizar a aprendizagem. O mais importante continua sendo descrever o que a criança realmente fez, observou, praticou ou aprendeu.
+        </div>
+
+        <h3 style="margin-top:18px">Preciso conhecer os códigos?</h3>
+        <p><b>Não.</b> Você pode descrever normalmente a atividade e usar a sugestão por IA ou a busca manual para encontrar habilidades compatíveis. A família continua escolhendo qual habilidade representa melhor o que foi realizado.</p>
+
+        <h3 style="margin-top:18px">Como ler um código da BNCC?</h3>
+        <div class="drive-folder-card" style="margin-top:8px">
+          <div style="font-size:24px;font-weight:900;letter-spacing:.04em;margin-bottom:10px">EF06LP06</div>
+          <div class="meta" style="font-size:14px;line-height:1.65">
+            <b>EF</b> — Ensino Fundamental<br>
+            <b>06</b> — 6º ano<br>
+            <b>LP</b> — Língua Portuguesa<br>
+            <b>06</b> — número que identifica a habilidade dentro dessa organização
+          </div>
+        </div>
+        <p class="meta" style="margin-top:8px">Nem todos os códigos seguem exatamente a mesma estrutura. Há códigos que abrangem mais de um ano e competências sem uma série específica. O Diário usa as informações da própria BNCC para ajudar a apresentar as opções adequadas.</p>
+
+        <h3 style="margin-top:18px">O que significam os termos?</h3>
+        <div class="drive-folder-card">
+          <p><b>Componente curricular</b><br><span class="meta">É a área/disciplina à qual a aprendizagem está relacionada, como Língua Portuguesa, Matemática, Ciências, História ou Arte.</span></p>
+          <p><b>Ano de referência</b><br><span class="meta">Ajuda o Diário a priorizar habilidades compatíveis com a etapa de estudo cadastrada para a criança.</span></p>
+          <p><b>Habilidade</b><br><span class="meta">Descreve uma aprendizagem ou capacidade que o estudante desenvolve. É a descrição associada ao código BNCC.</span></p>
+          <p style="margin-bottom:0"><b>Código BNCC</b><br><span class="meta">É o identificador usado para localizar e organizar aquela habilidade na BNCC.</span></p>
+        </div>
+
+        <h3 style="margin-top:18px">Um exemplo prático</h3>
+        <div class="notice">
+          Uma atividade como <b>ler uma história, conversar sobre ela e recontá-la</b> pode desenvolver habilidades específicas de Língua Portuguesa. Em vez de registrar apenas “Leitura”, você pode descrever a experiência e relacioná-la à habilidade que melhor representa o que foi trabalhado.
+        </div>
+
+        <h3 style="margin-top:18px">Como usar no Diário</h3>
+        <p>1. Registre o que vocês fizeram.<br>
+        2. Se souber, informe o componente curricular.<br>
+        3. Use <b>✨ Sugerir habilidade BNCC</b> ou escolha uma habilidade manualmente.<br>
+        4. Confira a descrição e selecione a que realmente corresponde à atividade.<br>
+        5. Salve o registro normalmente.</p>
+
+        <div class="notice" style="margin-top:16px">
+          <b>Em resumo:</b> você registra a experiência; o Diário ajuda a relacioná-la à BNCC. A decisão final sobre qual habilidade representa a atividade continua sendo sua.
+        </div>
+        <div class="toolbar" style="margin-top:14px"><button class="btn" onclick="showPage('mais')">← Voltar para Mais</button></div>
       </div>
     </section>
 
@@ -5084,7 +5142,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.15";
+const APP_VERSION = "5.16";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

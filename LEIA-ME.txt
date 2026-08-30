@@ -1,33 +1,12 @@
-DIÁRIO DE ESTUDOS — v5.15
+DIÁRIO DE ESTUDOS — v5.16
 
-CORREÇÕES DESTA VERSÃO
+NOVIDADE
+- Nova seção “📘 Entenda a BNCC” em Mais.
+- Explicação simples do que é a BNCC e por que relacioná-la aos registros.
+- Explicação de componente curricular, ano de referência, habilidade e código BNCC.
+- Exemplo visual de leitura do código EF06LP06.
+- Orientação de uso da sugestão por IA e da escolha manual.
+- Reforço de que a BNCC é uma referência e não substitui a descrição da experiência.
 
-1. Faixa etária / ano no cadastro de material
-- Corrigido o erro que mostrava literalmente ${esc(s)} na lista suspensa.
-- As opções agora são preenchidas por JavaScript a partir de STAGES.
-
-2. Atividade vinda do planejamento
-- A tela agora mostra claramente “Concluir atividade planejada”.
-- Quando o material possui mais de uma habilidade BNCC, aparece uma orientação destacada pedindo para tocar em um código.
-- O código escolhido fica marcado com ✓ e destaque visual.
-- Se houver várias habilidades vinculadas ao material e nenhuma for escolhida, o registro não é salvo até a escolha.
-- Se houver apenas uma habilidade, ela continua sendo aplicada automaticamente.
-
-3. Registro desaparecia após salvar atividade do planejamento
-- Corrigida a causa: startPlan criava um objeto temporário em editing com um ID novo, e saveEntry tratava esse objeto como se fosse um registro já existente.
-- Como o ID ainda não existia na lista, o map() não inseria nada.
-- Agora saveEntry verifica se o ID já existe: se existir, edita; se não existir, cria um novo registro.
-- O planejamento é concluído somente junto com a criação efetiva do registro.
-
-ARQUIVOS
-- index.html
-- sw.js
-- version.json
-- manifest.json
-
-WORKER / D1
-- Nenhuma alteração necessária para estas três correções.
-
-VALIDAÇÃO
-- Ambos os blocos JavaScript inline do index.html passaram em node --check.
-- sw.js passou em node --check.
+BACKEND / D1
+- Nenhuma alteração.
