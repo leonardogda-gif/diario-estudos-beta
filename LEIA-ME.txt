@@ -1,41 +1,25 @@
-DIÁRIO DE ESTUDOS — v5.5
+DIÁRIO DE ESTUDOS — v5.6
 
-NOVIDADES EM RELATÓRIOS
-- O relatório impresso agora possui cabeçalho pedagógico.
-- Mostra nome da criança, etapa, ano/série, ano letivo, nascimento, família, responsável, modalidade, instituição, cidade/UF e período.
-- Campos vazios simplesmente não aparecem.
-- Resumo de componentes trabalhados.
-- Resumo BNCC por componente.
-- Mantido o percurso por ano BNCC.
-- Melhorias de impressão/PDF e quebra de páginas.
-- O relatório compartilhado em HTML também leva o novo cabeçalho.
+NOVIDADE
+O Diário agora oferece instalação como aplicativo PWA também no computador, além do celular.
 
-INFORMAÇÕES PARA RELATÓRIOS
-Em Configurações foi criada a seção “Informações para relatórios”.
-Ela guarda:
-Família:
-- responsável/educador
-- relação
-- modalidade
-- instituição
-- cidade
-- UF
+COMO FUNCIONA
+- Chrome, Edge e outros navegadores compatíveis podem disparar o convite;
+- aparece um popup discreto na parte inferior;
+- “Instalar” abre a instalação nativa do navegador;
+- “Agora não” esconde o convite por 7 dias;
+- se o app já estiver instalado, o popup não aparece;
+- depois da instalação, o convite desaparece.
 
-Criança:
-- nome completo para relatório
-- ano letivo
-- observações gerais
+AJUDA
+A página “Ajuda e instalação” também ganhou um botão “Instalar aplicativo” quando o navegador permitir.
 
-Etapa e ano/série continuam vindo automaticamente do Ano de referência da criança.
+IPHONE/IPAD
+A página orienta usar:
+Compartilhar → Adicionar à Tela de Início.
 
-ATALHO
-Na tela Relatórios há o botão:
-“⚙ Informações para relatório”
-Ele abre Configurações diretamente nessa seção.
-
-DADOS
-Esses novos campos ficam no estado compartilhado da família e usam o mecanismo de sincronização já existente.
-Nenhuma alteração de Worker ou D1 é necessária nesta versão.
+PC E CELULAR
+É o mesmo PWA e o mesmo index.html. O próprio navegador decide quando a instalação pode ser oferecida.
 
 SUBSTITUA NO GITHUB
 - index.html
@@ -47,4 +31,4 @@ Não apague:
 - icons/
 - videos/
 
-Worker: permanece 0.7.1-beta.
+Worker permanece igual.

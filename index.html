@@ -322,6 +322,30 @@ body.app-authenticated .cloud-card{display:none!important}
  .report-section-title{break-after:avoid;page-break-after:avoid}
 }
 
+
+/* v5.6 — instalação PWA no celular e no PC */
+.app-install-banner{
+  position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
+  width:min(720px,calc(100% - 28px));z-index:9998;
+  background:#17332A;color:#fff;border-radius:15px;padding:13px 15px;
+  box-shadow:0 10px 34px rgba(0,0,0,.24);
+  display:flex;gap:14px;align-items:center;justify-content:space-between;
+}
+.app-install-banner.hidden{display:none!important}
+.app-install-text{min-width:0}
+.app-install-text b{display:block;font-size:14px;margin-bottom:2px}
+.app-install-text span{font-size:12px;opacity:.88;line-height:1.35}
+.app-install-actions{display:flex;gap:7px;flex-shrink:0}
+.app-install-banner .btn-install{background:#fff;color:#17332A;border:1px solid #fff;font-weight:800}
+.app-install-banner .btn-later{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.45)}
+.install-help-box{margin-top:12px;padding:12px;border:1px solid #d8d1c2;border-radius:10px;background:#fffdf8}
+@media(max-width:600px){
+ .app-install-banner{bottom:10px;display:block;padding:12px}
+ .app-install-actions{margin-top:9px}
+ .app-install-actions .btn{flex:1}
+}
+@media print{.app-install-banner{display:none!important}}
+
 </style>
 </head>
 <body class="auth-checking">
@@ -330,7 +354,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.5 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v5.6 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -537,7 +561,13 @@ body.app-authenticated .cloud-card{display:none!important}
       <div class="card">
         <h2>Ajuda e instalação</h2>
         <div class="notice"><b>Instale o Diário de Estudos como aplicativo</b><br>
-        Veja no vídeo abaixo como adicionar o Diário à tela inicial do seu dispositivo.</div>
+        O Diário pode ser instalado no celular e também no computador. Quando o navegador permitir, use o botão abaixo.</div>
+        <div class="install-help-box">
+          <div class="toolbar">
+            <button id="helpInstallBtn" class="btn success hidden" type="button" onclick="requestAppInstall()">⬇ Instalar aplicativo</button>
+          </div>
+          <div id="helpInstallStatus" class="meta">Verificando se este dispositivo permite a instalação...</div>
+        </div>
         <div style="margin-top:14px">
           <video controls playsinline preload="metadata" style="display:block;width:100%;max-width:760px;margin:0 auto;border-radius:14px;background:#111">
             <source src="./videos/como-instalar-app.mp4" type="video/mp4">
@@ -4549,7 +4579,85 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.5";
+const APP_VERSION = "5.6";
+
+let deferredInstallPrompt=null;
+const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
+
+function isAppStandalone(){
+  return window.matchMedia?.("(display-mode: standalone)")?.matches ||
+         window.navigator.standalone === true;
+}
+function isIOSDevice(){
+  return /iphone|ipad|ipod/i.test(navigator.userAgent||"");
+}
+function installDismissedRecently(){
+  const t=Number(localStorage.getItem(INSTALL_DISMISS_KEY)||0);
+  return t && (Date.now()-t)<7*24*60*60*1000;
+}
+function updateInstallUi(){
+  const banner=$("appInstallBanner");
+  const helpBtn=$("helpInstallBtn");
+  const helpStatus=$("helpInstallStatus");
+
+  if(isAppStandalone()){
+    banner?.classList.add("hidden");
+    helpBtn?.classList.add("hidden");
+    if(helpStatus)helpStatus.textContent="✓ O Diário de Estudos já está instalado neste dispositivo.";
+    return;
+  }
+
+  if(deferredInstallPrompt){
+    helpBtn?.classList.remove("hidden");
+    if(helpStatus)helpStatus.textContent="Este dispositivo permite instalar o Diário como aplicativo.";
+    if(!installDismissedRecently())banner?.classList.remove("hidden");
+    return;
+  }
+
+  helpBtn?.classList.add("hidden");
+  banner?.classList.add("hidden");
+  if(helpStatus){
+    if(isIOSDevice()){
+      helpStatus.textContent='No iPhone/iPad, use Compartilhar → “Adicionar à Tela de Início”.';
+    }else{
+      helpStatus.textContent="Se o botão não aparecer, o app pode já estar instalado ou o navegador ainda não liberou a instalação.";
+    }
+  }
+}
+async function requestAppInstall(){
+  if(isAppStandalone()){ updateInstallUi(); return; }
+  if(!deferredInstallPrompt){ updateInstallUi(); return; }
+
+  const promptEvent=deferredInstallPrompt;
+  deferredInstallPrompt=null;
+  promptEvent.prompt();
+
+  try{
+    const choice=await promptEvent.userChoice;
+    if(choice?.outcome==="accepted"){
+      localStorage.removeItem(INSTALL_DISMISS_KEY);
+      $("appInstallBanner")?.classList.add("hidden");
+    }
+  }catch(e){}
+
+  updateInstallUi();
+}
+function dismissAppInstall(){
+  localStorage.setItem(INSTALL_DISMISS_KEY,String(Date.now()));
+  $("appInstallBanner")?.classList.add("hidden");
+}
+window.addEventListener("beforeinstallprompt",event=>{
+  event.preventDefault();
+  deferredInstallPrompt=event;
+  updateInstallUi();
+});
+window.addEventListener("appinstalled",()=>{
+  deferredInstallPrompt=null;
+  localStorage.removeItem(INSTALL_DISMISS_KEY);
+  updateInstallUi();
+});
+window.addEventListener("load",()=>setTimeout(updateInstallUi,700));
+
 let appSwRegistration = null;
 let appUpdateWorker = null;
 
@@ -4640,6 +4748,18 @@ if("serviceWorker" in navigator){
 }
 </script>
 
+
+
+<div id="appInstallBanner" class="app-install-banner hidden no-print">
+  <div class="app-install-text">
+    <b>Instalar Diário de Estudos</b>
+    <span>Use como aplicativo no celular ou no computador, com acesso mais rápido pela tela inicial ou pelo menu de aplicativos.</span>
+  </div>
+  <div class="app-install-actions">
+    <button type="button" class="btn btn-later" onclick="dismissAppInstall()">Agora não</button>
+    <button type="button" class="btn btn-install" onclick="requestAppInstall()">Instalar</button>
+  </div>
+</div>
 
 <div id="appUpdateBanner" class="app-update-banner hidden no-print">
   <div>
