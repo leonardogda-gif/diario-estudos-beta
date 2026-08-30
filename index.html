@@ -354,7 +354,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.6 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v5.7 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -2185,34 +2185,85 @@ function findPossibleChildDuplicates(){
 async function mergeDuplicateChildren(keepId,removeId){
  if(!canManageFamily())return alert("Somente o Administrador pode mesclar crianças.");
  if(!keepId||!removeId||keepId===removeId)return;
- const keep=state.family.children.find(c=>c.id===keepId),rem=state.family.children.find(c=>c.id===removeId);
+
+ const keep=state.family.children.find(c=>c.id===keepId);
+ const rem=state.family.children.find(c=>c.id===removeId);
  if(!keep||!rem)return alert("Não foi possível localizar os dois cadastros.");
- const keepBackend=getBackendChildMap()[keepId]||"",removeBackend=getBackendChildMap()[removeId]||"";
+
+ const mapBefore=getBackendChildMap();
+ const keepBackend=mapBefore[keepId]||"";
+ const removeBackend=mapBefore[removeId]||"";
  const entryCount=(state.entries[removeId]||[]).length;
  const planCount=(state.plans||[]).filter(p=>p.childId===removeId).length;
- const msg=`Mesclar "${rem.name}" em "${keep.name}"?\n\nSerão transferidos ${entryCount} registro(s) e ${planCount} planejamento(s). O cadastro "${rem.name}" será arquivado.\n\nEsta ação não apaga os registros transferidos.`;
+
+ const msg=`Mesclar "${rem.name}" em "${keep.name}"?\n\nSerão transferidos ${entryCount} registro(s) e ${planCount} planejamento(s).\n\nO cadastro duplicado "${rem.name}" será EXCLUÍDO DEFINITIVAMENTE após a transferência e não poderá ser restaurado.`;
  if(!confirm(msg))return;
+
  try{
+   // 1) Consolida imediatamente os dados locais.
    mergeLocalChildData(keepId,removeId);
+
+   // 2) Cria tombstone para impedir que uma cópia antiga do Drive
+   //    ressuscite a criança removida em sincronizações futuras.
+   state.tombstones??={entries:[],children:[],complementary:[],plans:[]};
+   state.tombstones.children??=[];
+   const deletedAt=now();
+   const oldTomb=state.tombstones.children.find(x=>x.id===removeId);
+   if(oldTomb)oldTomb.deletedAt=deletedAt;
+   else state.tombstones.children.push({id:removeId,deletedAt});
+
+   // 3) Remove o vínculo local com o cadastro backend duplicado.
    const map=getBackendChildMap();
    if(removeBackend)delete map[removeId];
    setBackendChildMap(map);
    saveLocal();
-   // Primeiro grava o conteúdo educacional já consolidado no Drive.
+
+   // 4) Grava primeiro o estado educacional consolidado no Drive.
    if(tokenValid()){
-     try{await syncSharedFamilyDrive({manual:false})}catch(syncErr){console.warn("Sincronização após mesclagem:",syncErr)}
+     try{
+       await syncSharedFamilyDrive({manual:false});
+     }catch(syncErr){
+       console.warn("Sincronização após mesclagem:",syncErr);
+     }
    }
-   // Depois arquiva o cadastro duplicado no backend. O cadastro principal permanece ativo.
-   if(removeBackend)await backendFetch(`/children/${encodeURIComponent(removeBackend)}/archive`,{method:"POST"});
+
+   // 5) Se ambos existem no backend, usa o merge definitivo no Worker.
+   //    O Worker transfere referências e apaga fisicamente o duplicado.
+   if(keepBackend&&removeBackend){
+     await backendFetch("/children/merge",{
+       method:"POST",
+       body:JSON.stringify({
+         keep_id:keepBackend,
+         merge_id:removeBackend
+       })
+     });
+   }else if(removeBackend){
+     // Compatibilidade defensiva: se o cadastro mantido ainda não tiver
+     // vínculo backend, exclui o duplicado depois da consolidação local.
+     await backendFetch(`/children/${encodeURIComponent(removeBackend)}/delete`,{method:"DELETE"});
+   }
+
+   // 6) Recarrega a verdade do backend e reconcilia.
    await loadBackendFamilyData();
    await reconcileChildrenWithBackend(false);
+
+   // Reaplica o tombstone depois da reconciliação por segurança.
+   state.tombstones??={entries:[],children:[],complementary:[],plans:[]};
+   state.tombstones.children??=[];
+   if(!state.tombstones.children.some(x=>x.id===removeId)){
+     state.tombstones.children.push({id:removeId,deletedAt});
+   }
+   state.family.children=state.family.children.filter(c=>c.id!==removeId);
+   delete state.entries[removeId];
+   if(activeChildId===removeId)activeChildId=keepId;
+   saveLocal();
+
    renderAll();
-   alert(`Cadastros mesclados. "${keep.name}" foi mantida e "${rem.name}" foi arquivada.`);
+   alert(`Cadastros mesclados. "${keep.name}" foi mantida e "${rem.name}" foi excluída definitivamente.`);
  }catch(e){
    alert("Não foi possível concluir a mesclagem: "+e.message);
  }
 }
-
 function renderDuplicateChildren(){
  const box=$("duplicateChildrenBox");if(!box)return;
  const pairs=findPossibleChildDuplicates();
@@ -2224,7 +2275,7 @@ function renderDuplicateChildren(){
    <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap">
      <div>
        <b>⚠️ Revisar possíveis crianças duplicadas</b>
-       <div class="meta" style="margin-top:3px">O Diário encontrou cadastros semelhantes. Nada será mesclado automaticamente.</div>
+       <div class="meta" style="margin-top:3px">O Diário encontrou cadastros semelhantes. A mesclagem só acontece após sua confirmação e a duplicata é excluída definitivamente.</div>
      </div>
      <button class="btn small" onclick="reconcileChildrenWithBackend(true)">Reconciliar com backend</button>
    </div>
@@ -4579,7 +4630,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.6";
+const APP_VERSION = "5.7";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

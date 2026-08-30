@@ -1,34 +1,42 @@
-DIÁRIO DE ESTUDOS — v5.6
+DIÁRIO DE ESTUDOS — v5.7 + Worker 0.7.2-beta
 
-NOVIDADE
-O Diário agora oferece instalação como aplicativo PWA também no computador, além do celular.
+ALTERAÇÃO PRINCIPAL
+O merge de crianças duplicadas agora é definitivo.
 
-COMO FUNCIONA
-- Chrome, Edge e outros navegadores compatíveis podem disparar o convite;
-- aparece um popup discreto na parte inferior;
-- “Instalar” abre a instalação nativa do navegador;
-- “Agora não” esconde o convite por 7 dias;
-- se o app já estiver instalado, o popup não aparece;
-- depois da instalação, o convite desaparece.
+NOVO FLUXO
+1. Os registros da criança duplicada são transferidos para a criança mantida.
+2. Os planejamentos locais são transferidos.
+3. É criado um tombstone da criança removida no estado sincronizado.
+4. O estado consolidado é sincronizado com o Drive.
+5. O Worker transfere referências no D1.
+6. A criança duplicada é EXCLUÍDA fisicamente do D1.
+7. O app recarrega/reconcilia os dados.
 
-AJUDA
-A página “Ajuda e instalação” também ganhou um botão “Instalar aplicativo” quando o navegador permitir.
+POR QUE O TOMBSTONE É IMPORTANTE
+Mesmo depois de excluir no D1, uma cópia antiga existente no Drive poderia voltar
+a aparecer durante um merge de estados. O tombstone impede essa “ressurreição”.
 
-IPHONE/IPAD
-A página orienta usar:
-Compartilhar → Adicionar à Tela de Início.
+REGRA
+- Arquivar uma criança manualmente continua sendo reversível.
+- Mesclar uma duplicidade é definitivo e não oferece restauração.
 
-PC E CELULAR
-É o mesmo PWA e o mesmo index.html. O próprio navegador decide quando a instalação pode ser oferecida.
-
-SUBSTITUA NO GITHUB
+FRONTEND
+Substituir no GitHub:
 - index.html
 - sw.js
 - version.json
 - manifest.json
 
-Não apague:
+Não apagar:
 - icons/
 - videos/
 
-Worker permanece igual.
+BACKEND
+Publicar o conteúdo de:
+worker-0.7.2-beta-merge-definitivo.txt
+
+Depois publicar o frontend v5.7.
+
+IMPORTANTE
+Faça primeiro o deploy do Worker 0.7.2-beta e depois do frontend v5.7,
+porque a v5.7 passa a chamar o novo merge definitivo.
