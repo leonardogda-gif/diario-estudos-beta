@@ -19,13 +19,14 @@
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{background:#EFEAE0;color:#292922;font-family:Arial,Helvetica,sans-serif;font-size:14px}
+:root{--header-h:93px}
 header{background:#17332A;color:#fff;padding:20px 16px;text-align:center}
 .brand{display:flex;justify-content:center;align-items:center;gap:10px}
 .brand svg{width:31px;height:31px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 header h1{font-size:27px;margin:0}
 header p{margin:6px 0 0;color:#C7D4CE;font-size:13px}
 main{max-width:1000px;margin:0 auto;padding:14px 14px 56px}
-.card{background:#FFFDF8;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.card{background:#FFFDF8;border:1px solid #E1D9CA;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 3px 13px rgba(0,0,0,.10)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .full{grid-column:1/-1}
 .toolbar,.row,.child-tabs,.entry-actions,.media-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -35,10 +36,14 @@ main{max-width:1000px;margin:0 auto;padding:14px 14px 56px}
 .btn.dark{background:#17332A;color:#fff}
 .btn.success{background:#7A9D6F;color:#fff}
 .btn.danger{background:#F1DFDA;color:#94473C;border:1px solid #D8B3AB}
+.btn.irreversible{background:#A23B2A;color:#fff;border:1px solid #7D2D21;box-shadow:0 2px 5px rgba(90,24,15,.18)}
+.btn.irreversible:hover{background:#8E3224}
 .btn.small{padding:6px 9px;font-size:12px;min-height:30px}
 input,select,textarea{width:100%;padding:10px 11px;border:1px solid #D8D1C2;border-radius:7px;background:#FFFDF8;font-size:14px;color:#292922}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:3px solid #17332A;outline-offset:2px}
 textarea{resize:vertical}
-label.field{display:block;font-size:10px;letter-spacing:.05em;text-transform:uppercase;font-weight:800;color:#6A675D;margin:8px 0 4px}
+label.field{display:block;font-size:11px;letter-spacing:.01em;text-transform:none;font-weight:500;color:#777266;margin:8px 0 4px}
+label.field:has(.required-mark){font-size:10px;letter-spacing:.05em;text-transform:uppercase;font-weight:800;color:#6A675D}
 .required-mark{color:#A23B2A;font-weight:900;margin-left:2px}.field-help{font-size:11px;color:#7A766B;margin-top:4px}
 .meta{font-size:11px;color:#777266}
 .notice{background:#F3EFE3;border-radius:8px;padding:10px;font-size:12px;color:#625F56}
@@ -178,14 +183,14 @@ header h1{font-size:25px} header p{margin:4px 0 0}
 .header-cloud-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:min(70vw,620px)}
 .header-cloud-actions{display:flex;gap:4px;align-items:center}
 .header-cloud-actions .btn{min-height:26px;padding:3px 8px;font-size:11px;border-radius:999px;background:rgba(255,255,255,.10);color:#fff}
-.header-cloud-details{position:fixed;z-index:1200;top:88px;left:50%;transform:translateX(-50%);width:min(92vw,520px);background:#FFFDF8;color:#292922;border:1px solid #D8D1C2;border-radius:12px;padding:13px;box-shadow:0 12px 32px rgba(0,0,0,.20);text-align:left}
+.header-cloud-details{position:fixed;z-index:1200;top:calc(var(--header-h) + 6px);left:50%;transform:translateX(-50%);width:min(92vw,520px);background:#FFFDF8;color:#292922;border:1px solid #D8D1C2;border-radius:12px;padding:13px;box-shadow:0 12px 32px rgba(0,0,0,.20);text-align:left}
 .header-cloud-details .toolbar{margin-top:10px}
-.nav-wrap{position:sticky;top:93px;z-index:950;border-radius:0 0 12px 12px;margin-top:-14px;margin-left:-14px;margin-right:-14px;margin-bottom:12px;box-shadow:0 3px 10px rgba(0,0,0,.08)}
+.nav-wrap{position:sticky;top:var(--header-h);z-index:950;border-radius:0 0 12px 12px;margin-top:-14px;margin-left:-14px;margin-right:-14px;margin-bottom:12px;box-shadow:0 3px 10px rgba(0,0,0,.08)}
 body.app-authenticated .cloud-card{display:none!important}
 @media(max-width:620px){
  header{padding:10px 10px 8px} header h1{font-size:23px} header p{font-size:11px}
  .brand svg{width:27px;height:27px}.header-cloud{margin-top:5px;font-size:10px}.header-cloud-text{max-width:58vw}
- .header-cloud-details{top:82px}.nav-wrap{top:82px}.nav-tab{padding:12px 14px;font-size:12px}
+ .header-cloud-details{top:calc(var(--header-h) + 6px)}.nav-tab{padding:12px 14px;font-size:12px}
 }
 
 
@@ -354,7 +359,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.7 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v5.8 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -853,7 +858,7 @@ let state={
 let activeChildId=null,editing=null,recordFormOpen=false,photoData="",audioData="",mediaRecorder=null,mediaChunks=[],historyBatchRows=[];
 let photoTakenAt="",photoDateSource="";
 let saveEntryLocked=false;
-let googleTokenClient=null,googleAccessToken="",googleTokenExpiresAt=0,googleUser=null,driveFileId=null,syncing=false,syncTimer=null;
+let googleTokenClient=null,googleRenewTokenClient=null,googleRenewPromise=null,googleAccessToken="",googleTokenExpiresAt=0,googleUser=null,driveFileId=null,syncing=false,syncTimer=null;
 
 const $=id=>document.getElementById(id);
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
@@ -2288,8 +2293,8 @@ function renderDuplicateChildren(){
      <div class="meta">Cadastro B: ${esc(x.b.birth||"sem nascimento")} · ${esc(x.b.stage||"sem ano")}</div>
      ${x.birthConflict?`<div class="meta" style="margin-top:4px;color:#94473C">Datas de nascimento diferentes: confirme manualmente antes de consolidar.</div>`:""}
      <div class="entry-actions" style="margin-top:8px">
-       <button class="btn small success" onclick="mergeDuplicateChildren('${x.a.id}','${x.b.id}')">Manter ${esc(x.a.name)}</button>
-       <button class="btn small" onclick="mergeDuplicateChildren('${x.b.id}','${x.a.id}')">Manter ${esc(x.b.name)}</button>
+       <button class="btn small irreversible" onclick="mergeDuplicateChildren('${x.a.id}','${x.b.id}')">Manter ${esc(x.a.name)}</button>
+       <button class="btn small irreversible" onclick="mergeDuplicateChildren('${x.b.id}','${x.a.id}')">Manter ${esc(x.b.name)}</button>
      </div>
    </div>`).join("")}
  `;
@@ -2536,33 +2541,24 @@ function setBackendStatus(message, ok=null){
 }
 
 async function backendFetch(path, options={}){
-  if(!googleAccessToken) throw new Error("Faça login com Google primeiro.");
-
-  const headers={
-    ...(options.headers||{}),
-    "Authorization":"Bearer "+googleAccessToken
+  await ensureFreshGoogleToken();
+  const makeRequest=async()=>{
+    const headers={...(options.headers||{}),"Authorization":"Bearer "+googleAccessToken};
+    if(options.body && !headers["Content-Type"])headers["Content-Type"]="application/json";
+    return await fetch(BACKEND_URL+path,{...options,headers});
   };
-
-  if(options.body && !headers["Content-Type"]){
-    headers["Content-Type"]="application/json";
+  let response=await makeRequest();
+  if(response.status===401){
+    googleTokenExpiresAt=0;
+    await ensureFreshGoogleToken(true);
+    response=await makeRequest();
   }
-
-  const response=await fetch(BACKEND_URL+path,{
-    ...options,
-    headers
-  });
-
   let data=null;
   try{data=await response.json()}catch(e){}
-
   if(!response.ok){
     const detail=data?.error||data?.detail||data?.message||("Backend HTTP "+response.status);
-    const err=new Error(detail);
-    err.status=response.status;
-    err.payload=data;
-    throw err;
+    const err=new Error(detail);err.status=response.status;err.payload=data;throw err;
   }
-
   return data;
 }
 
@@ -2660,6 +2656,26 @@ document.addEventListener("click",e=>{
  const panel=$("headerCloudDetails"),bar=$("headerCloud");
  if(panel&&!panel.classList.contains("hidden")&&!panel.contains(e.target)&&!bar?.contains(e.target))panel.classList.add("hidden");
 });
+let headerResizeObserver=null;
+function updateHeaderHeightCss(){
+ const header=document.querySelector("header");
+ if(!header)return;
+ const h=Math.ceil(header.getBoundingClientRect().height);
+ if(h>0)document.documentElement.style.setProperty("--header-h",h+"px");
+}
+function initDynamicHeaderOffset(){
+ updateHeaderHeightCss();
+ const header=document.querySelector("header");
+ if(!header)return;
+ if("ResizeObserver" in window){
+   headerResizeObserver?.disconnect?.();
+   headerResizeObserver=new ResizeObserver(()=>updateHeaderHeightCss());
+   headerResizeObserver.observe(header);
+ }else{
+   window.addEventListener("resize",updateHeaderHeightCss,{passive:true});
+ }
+}
+
 let authBootFinished=false;
 function finishAuthBoot(){
  authBootFinished=true;
@@ -2793,6 +2809,37 @@ function tryAutomaticGoogleReconnect(){
   setTimeout(waitForClient, 400);
 }
 
+function initGoogleRenewClient(){
+ if(googleRenewTokenClient||!window.google?.accounts?.oauth2)return googleRenewTokenClient;
+ googleRenewTokenClient=google.accounts.oauth2.initTokenClient({
+   client_id:GOOGLE_CLIENT_ID,scope:GOOGLE_SCOPES,include_granted_scopes:false,callback:()=>{}
+ });
+ return googleRenewTokenClient;
+}
+function renewGoogleAccessTokenSilently(){
+ if(tokenValid())return Promise.resolve(googleAccessToken);
+ if(googleRenewPromise)return googleRenewPromise;
+ initGoogleAuth();
+ const client=initGoogleRenewClient();
+ if(!client){const err=new Error("Sua sessão Google expirou. Entre novamente para continuar.");err.code="GOOGLE_REAUTH_REQUIRED";return Promise.reject(err)}
+ googleRenewPromise=new Promise((resolve,reject)=>{
+   const timeout=setTimeout(()=>{googleRenewPromise=null;const err=new Error("Sua sessão Google expirou. Entre novamente para continuar.");err.code="GOOGLE_REAUTH_REQUIRED";reject(err)},12000);
+   client.callback=r=>{
+     clearTimeout(timeout);googleRenewPromise=null;
+     if(r?.error||!r?.access_token){googleAccessToken="";googleTokenExpiresAt=0;setCloudStatus("pending","Sessão expirada · entre novamente com Google");const err=new Error("Sua sessão Google expirou. Entre novamente para continuar.");err.code="GOOGLE_REAUTH_REQUIRED";reject(err);return}
+     googleAccessToken=r.access_token;googleTokenExpiresAt=Date.now()+((r.expires_in||3600)-60)*1000;setCloudStatus("online","Sessão Google renovada");resolve(googleAccessToken);
+   };
+   try{client.requestAccessToken({prompt:"",include_granted_scopes:false})}
+   catch(e){clearTimeout(timeout);googleRenewPromise=null;const err=new Error("Sua sessão Google expirou. Entre novamente para continuar.");err.code="GOOGLE_REAUTH_REQUIRED";reject(err)}
+ });
+ return googleRenewPromise;
+}
+async function ensureFreshGoogleToken(force=false){
+ if(!force&&tokenValid())return googleAccessToken;
+ if(!rememberGoogleEnabled()&&!googleAccessToken){const err=new Error("Faça login com Google primeiro.");err.code="GOOGLE_LOGIN_REQUIRED";throw err}
+ return await renewGoogleAccessTokenSilently();
+}
+
 function googleLogout(){
   let t=googleAccessToken;
   googleAccessToken="";googleTokenExpiresAt=0;googleUser=null;driveFileId=null;
@@ -2806,9 +2853,12 @@ function googleLogout(){
 }
 function tokenValid(){return googleAccessToken&&Date.now()<googleTokenExpiresAt}
 async function apiFetch(url,opt={}){
- if(!tokenValid())throw new Error("Sessão Google expirada");
- let h=new Headers(opt.headers||{});h.set("Authorization","Bearer "+googleAccessToken);
- let r=await fetch(url,{...opt,headers:h});if(!r.ok)throw new Error("Google API "+r.status+": "+await r.text().catch(()=>""));return r
+ await ensureFreshGoogleToken();
+ const makeRequest=async()=>{const h=new Headers(opt.headers||{});h.set("Authorization","Bearer "+googleAccessToken);return await fetch(url,{...opt,headers:h})};
+ let r=await makeRequest();
+ if(r.status===401){googleTokenExpiresAt=0;await ensureFreshGoogleToken(true);r=await makeRequest()}
+ if(!r.ok)throw new Error("Google API "+r.status+": "+await r.text().catch(()=>""));
+ return r;
 }
 function scheduleSync(){clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncWithDrive({silent:true}),1800)}
 
@@ -3802,15 +3852,39 @@ function componentArea(component){
  }
  return "";
 }
+function componentsRelevantToStage(stage=""){
+ const s=String(stage||"");
+ const all=[...new Set(Object.values(AREAS).flat().map(x=>String(x||"").trim()).filter(Boolean))];
+ if(!s||s==="Sem ano de referência")return [];
+ const fromBncc=new Set();
+ for(const item of currentBncc()){
+   const serie=String(item.serie||"").trim();
+   if(!item.componente||!serie||/não se aplica|sem série|sem serie/i.test(serie))continue;
+   if(habilidadeCompativelComEtapa(item.codigo,s))fromBncc.add(String(item.componente).trim());
+ }
+ const fallback=new Set();
+ if(/^Bebês|^Crianças bem pequenas|^Crianças pequenas/.test(s)){
+   (AREAS["Educação Infantil (Campos de Experiências)"]||[]).forEach(x=>fallback.add(x));
+ }else if(/^[1-5]º Ano do Ensino Fundamental/.test(s)){
+   ["Língua Portuguesa","Arte","Educação Física","Matemática","Ciências","História","Geografia","Ensino Religioso"].forEach(x=>fallback.add(x));
+ }else if(/^[6-9]º Ano do Ensino Fundamental/.test(s)){
+   ["Língua Portuguesa","Língua Inglesa","Arte","Educação Física","Matemática","Ciências","História","Geografia","Ensino Religioso"].forEach(x=>fallback.add(x));
+ }else if(/Série do Ensino Médio/.test(s)){
+   ["Língua Portuguesa","Língua Inglesa","Arte","Educação Física","Computação","Matemática","Biologia","Física","Química","História","Geografia","Sociologia","Filosofia"].forEach(x=>fallback.add(x));
+ }
+ return all.filter(c=>fromBncc.has(c)||fallback.has(c));
+}
 function groupedComponentOptions(selected=""){
- const unique=[...new Set(
-   Object.values(AREAS)
-     .flat()
-     .map(x=>String(x||"").trim())
-     .filter(Boolean)
- )].sort((a,b)=>a.localeCompare(b,"pt-BR",{sensitivity:"base"}));
- return '<option value="">Selecione o componente (opcional)</option>'+
-   unique.map(c=>`<option value="${esc(c)}" ${String(c)===String(selected)?"selected":""}>${esc(c)}</option>`).join("");
+ const all=[...new Set(Object.values(AREAS).flat().map(x=>String(x||"").trim()).filter(Boolean))];
+ const sortPt=list=>list.slice().sort((a,b)=>a.localeCompare(b,"pt-BR",{sensitivity:"base"}));
+ const relevantSet=new Set(componentsRelevantToStage(currentChild()?.stage||""));
+ const relevant=sortPt(all.filter(c=>relevantSet.has(c)));
+ const others=sortPt(all.filter(c=>!relevantSet.has(c)));
+ const option=c=>`<option value="${esc(c)}" ${String(c)===String(selected)?"selected":""}>${esc(c)}</option>`;
+ let html='<option value="">Selecione o componente (opcional)</option>';
+ if(relevant.length)html+=`<optgroup label="Mais pertinentes ao ano">${relevant.map(option).join("")}</optgroup>`;
+ if(others.length)html+=`<optgroup label="Outros componentes">${others.map(option).join("")}</optgroup>`;
+ return html;
 }
 function updateRecordPreview(){
  const side=$("recordPreview");
@@ -3986,9 +4060,9 @@ function changeRecordType(){
 }
 function renderGlobalBnccResults(list,statusText=""){
  const child=currentChild();
- if(!child)return;
  const scope=document.querySelector('input[name="skillScope"]:checked')?.value||"referencia";
- list=(list||[]).filter(x=>habilidadeNoEscopo(x.codigo,child.stage,scope));
+ if(child)list=(list||[]).filter(x=>habilidadeNoEscopo(x.codigo,child.stage,scope));
+ else list=(list||[]);
  const total=list.length;
  const shown=list.slice(0,120);
  $("globalSkillResults").innerHTML='<option value="">Selecione...</option>'+shown.map(x=>
@@ -4023,8 +4097,7 @@ function refreshGlobalSearch(){
  saveRecordDraft(false);
 }
 async function runGlobalBnccSearch(q,seq){
- const child=currentChild();
- if(!child||seq!==bnccSearchSequence)return;
+ if(seq!==bnccSearchSequence)return;
  try{
    const list=await fetchBnccSkills({q,limit:300});
    if(seq!==bnccSearchSequence)return;
@@ -4297,7 +4370,7 @@ function renderRecordList(){
     <div class="entry-title">${esc(x.atividade)}</div>${x.habilidade?`<div class="skill">${esc(x.habilidade)}</div>`:""}${x.observacoes?`<div class="obs">${esc(x.observacoes)}</div>`:""}
     <span class="badge">${esc(x.status)}</span>${x.foto?`<br><img class="photo" src="${x.foto}">`:""}${x.audio?`<div class="audio-box"><audio controls src="${x.audio}"></audio></div>`:""}
     <details class="tech-details" style="margin-top:8px"><summary class="meta">Datas do registro</summary><div class="meta" style="margin-top:5px">Atividade: ${esc(fmtDate(x.date))} · origem: ${esc(dateSource)}<br>Registrado em: ${esc(fmtDateTime(x.createdAt))}${changed?`<br>Alterado em: ${esc(fmtDateTime(x.updatedAt))}`:""}${x.photoTakenAt?`<br>Foto: ${esc(fmtDateTime(x.photoTakenAt))} · ${esc(photoSourceLabel(x.photoDateSource))}`:""}</div></details>
-    <div class="entry-actions"><button class="btn small dark" onclick="viewEntry('${x.id}','${activeChildId}')">Visualizar</button><button class="btn small" onclick="editEntry('${x.id}')">Editar</button><button class="btn danger small" onclick="deleteEntry('${x.id}')">Excluir</button></div>
+    <div class="entry-actions"><button class="btn small dark" onclick="viewEntry('${x.id}','${activeChildId}')">Visualizar</button><button class="btn small" onclick="editEntry('${x.id}')">Editar</button><button class="btn irreversible small" onclick="deleteEntry('${x.id}')">Excluir</button></div>
    </div>`;
  }).join("")||"<div class='notice'>Nenhum registro.</div>";
 }
@@ -4592,6 +4665,7 @@ function restoreBackup(ev){let f=ev.target.files[0];if(!f)return;let fr=new File
 
 function bindSettings(){}
 function init(){
+ initDynamicHeaderOffset();
  loadLocal();
  loadBnccApiCache();
  if(!navigator.onLine)restoreBackendProfileForOffline();
@@ -4630,7 +4704,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.7";
+const APP_VERSION = "5.8";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

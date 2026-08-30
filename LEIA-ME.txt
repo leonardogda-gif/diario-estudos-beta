@@ -1,42 +1,48 @@
-DIÁRIO DE ESTUDOS — v5.7 + Worker 0.7.2-beta
+DIÁRIO DE ESTUDOS — v5.8
 
-ALTERAÇÃO PRINCIPAL
-O merge de crianças duplicadas agora é definitivo.
-
-NOVO FLUXO
-1. Os registros da criança duplicada são transferidos para a criança mantida.
-2. Os planejamentos locais são transferidos.
-3. É criado um tombstone da criança removida no estado sincronizado.
-4. O estado consolidado é sincronizado com o Drive.
-5. O Worker transfere referências no D1.
-6. A criança duplicada é EXCLUÍDA fisicamente do D1.
-7. O app recarrega/reconcilia os dados.
-
-POR QUE O TOMBSTONE É IMPORTANTE
-Mesmo depois de excluir no D1, uma cópia antiga existente no Drive poderia voltar
-a aparecer durante um merge de estados. O tombstone impede essa “ressurreição”.
-
-REGRA
-- Arquivar uma criança manualmente continua sendo reversível.
-- Mesclar uma duplicidade é definitivo e não oferece restauração.
-
-FRONTEND
+ARQUIVOS DO FRONTEND
 Substituir no GitHub:
 - index.html
 - sw.js
 - version.json
-- manifest.json
+- manifest.json (sem alteração funcional nesta versão; incluído para pacote completo)
 
-Não apagar:
+Preservar as pastas já existentes:
 - icons/
 - videos/
 
-BACKEND
-Publicar o conteúdo de:
-worker-0.7.2-beta-merge-definitivo.txt
+AJUSTES DA V5.8
+1. Busca manual BNCC corrigida: a consulta não trava quando currentChild() fica
+   momentaneamente indisponível durante uma nova renderização.
+2. applyAiBnccSuggestion() foi preservada na lógica já corrigida.
+3. Navegação sticky usa a altura real do header via ResizeObserver.
+4. Ações irreversíveis (merge definitivo e exclusão definitiva de registro)
+   possuem estilo visual mais forte.
+5. Cartões ganharam borda sutil e sombra um pouco mais visível.
+6. Rótulos opcionais ficaram mais discretos; obrigatórios com * mantêm destaque.
+7. Controles possuem foco customizado com :focus-visible.
+8. Componentes mais pertinentes ao ano da criança aparecem primeiro, agrupados
+   em "Mais pertinentes ao ano"; os demais continuam em "Outros componentes".
+9. Token Google: antes de chamadas ao Worker/Google API, o app tenta renovar o
+   access token silenciosamente. Se o Google exigir interação, o app informa que
+   é necessário entrar novamente. Chamadas que recebem HTTP 401 tentam uma única
+   renovação e repetem a requisição.
 
-Depois publicar o frontend v5.7.
+PRESERVADO
+- Código de convite/multi-membro, mesmo com a UI desativada.
+- shareFolderWithFamilyMembers(), roleLabel(), inviteFamilyMember() e rotinas
+  relacionadas.
+- Fluxo de Atividade Complementar sem CG/CE nesta versão.
 
-IMPORTANTE
-Faça primeiro o deploy do Worker 0.7.2-beta e depois do frontend v5.7,
-porque a v5.7 passa a chamar o novo merge definitivo.
+WORKER / CLOUDFLARE
+Nenhuma alteração de Worker foi necessária para estes 9 itens. A proteção do
+merge definitivo já havia sido verificada no Worker 0.7.2-beta: as duas crianças
+precisam pertencer à mesma família e a operação exige administrador da família.
+Se esse Worker já está publicado, mantenha-o.
+
+TESTES ESTÁTICOS REALIZADOS
+- JavaScript inline do index.html: node --check OK.
+- sw.js: node --check OK.
+- Código de convite/multi-membro confirmado presente.
+- Condição antiga "if(!child||seq!==bnccSearchSequence)" não existe mais.
+- Offsets fixos top:93px / nav top:82px removidos.
