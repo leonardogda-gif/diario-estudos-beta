@@ -1,26 +1,45 @@
-DIÁRIO DE ESTUDOS — v5.10 (correções sobre a v5.9)
+DIÁRIO DE ESTUDOS — v5.11
 
-O QUE MUDOU EM RELAÇÃO À V5.9
-1. Corrigido texto fixo do cabeçalho que ainda mostrava "v5.8 PWA" — não
-   acompanhava a constante APP_VERSION usada pela lógica de atualização.
-   Agora ambos mostram v5.10.
-2. Corrigido: o formulário de "Cadastrar material" nunca teve campo de
-   Componente. Sem ele, a sugestão de IA para materiais rodava sem o filtro
-   que reduz os candidatos antes de mandar para o Gemini (o mesmo filtro que
-   já existia no registro diário). Foi adicionado o campo "Componente
-   (opcional)", reaproveitando groupedComponentOptions() e componentArea()
-   já usados no registro diário — agora component/area são enviados para
-   /ai/material-bncc-suggest, que já sabia filtrar por eles desde a v5.9,
-   só nunca recebia esses dados.
+NOVIDADE PRINCIPAL
+O catálogo de materiais agora está ligado de ponta a ponta ao Planejamento e ao Registro.
 
-NENHUMA MUDANÇA NO WORKER NEM NO BANCO
-worker-v0.9.txt e migracao-materiais.sql estão incluídos sem alteração em
-relação à v5.9, só para manter o pacote completo. Se você já rodou a
-migração e publicou o Worker da v5.9, não precisa repetir nada — o ajuste
-desta versão é só de frontend.
+1. PLANEJAMENTO
+- Novo campo opcional “Material utilizado”.
+- Busca materiais já cadastrados no catálogo.
+- Ao escolher um material, mostra os códigos BNCC vinculados a ele.
+- Se houver apenas um código, ele é escolhido automaticamente; se houver vários, você escolhe o mais adequado para aquela atividade.
+- O planejamento salva material + código/habilidade BNCC escolhida.
+- A lista de planejamentos mostra o material e o código BNCC vinculados.
 
-TESTES ESTÁTICOS REALIZADOS
-- JavaScript inline do index.html: sintaxe OK.
-- Nenhuma função chamada no HTML sem definição correspondente.
-- Nenhuma função duplicada.
-- Nenhum "5.8" restante em nenhum texto do arquivo.
+2. CONCLUIR E REGISTRAR
+- Ao tocar em “✓ Concluir e registrar”, o Registro agora herda automaticamente:
+  • material;
+  • componente;
+  • código BNCC;
+  • descrição da habilidade BNCC.
+- Tudo continua editável antes de salvar o registro.
+
+3. REGISTRO DIRETO
+- O Registro de Atividade ganhou o campo opcional “Material utilizado”.
+- É possível buscar e escolher um material mesmo sem planejamento prévio.
+- Os códigos BNCC associados ao material aparecem para escolha.
+- O material fica salvo no registro e aparece na visualização, histórico e relatório.
+
+4. CATÁLOGO NA TELA PLANEJAR
+- O antigo botão “Usar este material”, que antes apenas fechava a busca, agora abre o formulário de planejamento e realmente vincula o material selecionado.
+
+BACKEND / D1
+- Nenhuma nova migração D1 é necessária para a v5.11.
+- worker-v0.9.txt incluído é o mesmo Worker corrigido da v5.10 (incluindo a correção da sugestão BNCC de materiais para entradas como “2 ano”).
+- migracao-materiais.sql é mantida no pacote apenas para referência/instalações que ainda não tenham criado as tabelas de materiais.
+
+VERSIONAMENTO
+- index.html: v5.11
+- APP_VERSION: 5.11
+- service worker cache: diario-estudos-v5.11
+- version.json: 5.11
+
+VALIDAÇÕES REALIZADAS
+- JavaScript inline do index.html: sintaxe OK (node --check).
+- sw.js: sintaxe OK (node --check).
+- Worker v0.9: sintaxe OK (node --check).

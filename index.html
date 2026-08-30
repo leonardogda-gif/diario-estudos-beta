@@ -359,7 +359,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.10 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v5.11 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -496,6 +496,14 @@ body.app-authenticated .cloud-card{display:none!important}
         <div id="planComponentWrap"><label class="field">Componente (opcional)</label><input id="planComponent"></div>
         <div id="planComplementaryWrap" class="full hidden"><label class="field">Atividade complementar <span class="required-mark">*</span></label><div class="toolbar"><select id="planComplementary" onchange="planComplementaryChanged()" style="flex:1"><option value="">Selecione...</option></select><button type="button" class="btn" onclick="toggleInlineComplementary(true)">+ Criar nova</button></div>
           <div id="inlineComplementaryForm" class="notice hidden" style="margin-top:8px"><div class="grid"><div><label class="field">Nome <span class="required-mark">*</span></label><input id="inlineCompName" placeholder="Ex.: Judô"></div><div><label class="field">Categoria (opcional)</label><input id="inlineCompCategory" placeholder="Ex.: Esporte"></div><div class="full"><label class="field">Descrição (opcional)</label><input id="inlineCompDescription"></div></div><div class="toolbar" style="margin-top:8px"><button type="button" class="btn success" onclick="createInlineComplementary()">Criar e usar</button><button type="button" class="btn" onclick="toggleInlineComplementary(false)">Cancelar</button></div></div>
+        </div>
+        <div id="planMaterialWrap" class="full">
+          <label class="field">Material utilizado (opcional)</label>
+          <input id="planMaterialSearch" placeholder="Digite pelo menos 3 letras para buscar no catálogo" oninput="planMaterialSearchChanged()">
+          <div id="planMaterialResults"></div>
+          <div id="planMaterialSelected" class="hidden"></div>
+          <input id="planMaterialId" type="hidden"><input id="planMaterialName" type="hidden"><input id="planMaterialPublisher" type="hidden">
+          <input id="planMaterialBnccCode" type="hidden"><input id="planMaterialBnccDescription" type="hidden"><input id="planMaterialBnccComponent" type="hidden"><input id="planMaterialBnccArea" type="hidden">
         </div>
         <div class="full"><label class="field">O que vamos fazer? <span class="required-mark">*</span></label><input id="planTitle" placeholder="Ex.: Leitura do capítulo 3"></div>
         <div class="full"><label class="field">Observações (opcional)</label><textarea id="planNotes" rows="2"></textarea></div>
@@ -819,11 +827,13 @@ function currentBncc(){
   for(const x of customBncc())map.set(String(x.codigo).toUpperCase(),x);
   return [...map.values()];
 }
-function filterCachedBncc({q="",component="",area=""}={}){
+function filterCachedBncc({q="",code="",component="",area=""}={}){
   const nq=String(q).trim().toLowerCase();
+  const ncode=String(code).trim().toLowerCase();
   const nc=String(component).trim().toLowerCase();
   const na=String(area).trim().toLowerCase();
   return currentBncc().filter(x=>
+    (!ncode||String(x.codigo).toLowerCase()===ncode) &&
     (!nc||String(x.componente).toLowerCase()===nc) &&
     (!na||String(x.area).toLowerCase()===na) &&
     (!nq||
@@ -3809,6 +3819,9 @@ function collectRecordDraft(){
    componente:$("fComp")?.value||"",
    codigo:$("fCode")?.value||"",
    habilidade:$("fSkill")?.value||"",
+   materialId:$("fMaterialId")?.value||"",
+   materialName:$("fMaterialName")?.value||"",
+   materialPublisher:$("fMaterialPublisher")?.value||"",
    atividade:$("fActivity")?.value||"",
    observacoes:$("fObs")?.value||"",
    status:$("fStatus")?.value||"",
@@ -3960,7 +3973,7 @@ function renderRecordPage(){
  }
 
  const draft=draftForCurrentForm();
- let base=editing||{date:today(),type:"bncc",complementaryId:"",area:"",componente:"",codigo:"",habilidade:"",atividade:"",observacoes:"",status:"",foto:"",audio:""};
+ let base=editing||{date:today(),type:"bncc",complementaryId:"",area:"",componente:"",codigo:"",habilidade:"",materialId:"",materialName:"",materialPublisher:"",atividade:"",observacoes:"",status:"",foto:"",audio:""};
  let f=draft?{
    ...base,
    date:draft.date||base.date,
@@ -3970,6 +3983,9 @@ function renderRecordPage(){
    componente:draft.componente??base.componente,
    codigo:draft.codigo??base.codigo,
    habilidade:draft.habilidade??base.habilidade,
+   materialId:draft.materialId??base.materialId,
+   materialName:draft.materialName??base.materialName,
+   materialPublisher:draft.materialPublisher??base.materialPublisher,
    atividade:draft.atividade??base.atividade,
    observacoes:draft.observacoes??base.observacoes,
    status:draft.status??base.status,
@@ -4003,6 +4019,13 @@ function renderRecordPage(){
       <label class="field">O que vocês fizeram hoje? <span class="required-mark">*</span></label>
       <textarea id="fActivity" rows="4" placeholder="Descreva a atividade realizada...">${esc(f.atividade)}</textarea>
       <div id="draftStatus" class="media-status">${draft?"Rascunho restaurado automaticamente.":"Rascunho salvo automaticamente neste dispositivo."}</div>
+    </div>
+    <div id="recordMaterialWrap" class="full ${f.type==="complementar"?"hidden":""}">
+      <label class="field">Material utilizado (opcional)</label>
+      <input id="recordMaterialSearch" placeholder="Busque pelo nome do livro, apostila ou material" oninput="recordMaterialSearchChanged()">
+      <div id="recordMaterialResults"></div>
+      <div id="recordMaterialSelected" class="${f.materialName?"":"hidden"}">${f.materialName?`<div class="notice" style="margin-top:7px"><b>📘 ${esc(f.materialName)}</b>${f.materialPublisher?` · ${esc(f.materialPublisher)}`:""}${f.codigo?`<div class="meta" style="margin-top:4px">BNCC vinculada: <b>${esc(f.codigo)}</b></div>`:""}<button type="button" class="btn small" style="margin-top:6px" onclick="clearRecordMaterial()">Trocar / remover material</button></div>`:""}</div>
+      <input id="fMaterialId" type="hidden" value="${esc(f.materialId||"")}"><input id="fMaterialName" type="hidden" value="${esc(f.materialName||"")}"><input id="fMaterialPublisher" type="hidden" value="${esc(f.materialPublisher||"")}">
     </div>
     <div id="aiBnccMain" class="full ai-main-card ${f.type==="complementar"?"hidden":""}">
       <div class="ai-help-title">✨ Ajude a IA a acertar mais rápido <span class="meta">(opcional)</span></div>
@@ -4087,6 +4110,7 @@ function renderRecordPage(){
 function changeRecordType(){
  let comp=$("fType").value==="complementar";
  $("compBlock")?.classList.toggle("hidden",!comp);
+ $("recordMaterialWrap")?.classList.toggle("hidden",comp);
  $("aiBnccMain")?.classList.toggle("hidden",comp);
  $("bnccAdvancedWrap")?.classList.toggle("hidden",comp);
  saveRecordDraft(true);
@@ -4337,6 +4361,122 @@ function applyAiBnccSuggestion(index){
  updateRecordPreview();
 }
 
+
+// =========================================================
+// V5.11 — MATERIAL VINCULADO AO PLANEJAMENTO E AO REGISTRO
+// =========================================================
+let planMaterialSearchSeq=0,recordMaterialSearchSeq=0;
+let planMaterialSearchResults=[],recordMaterialSearchResults=[],catalogMaterialSearchResults=[];
+let planMaterialBnccSkills=[],recordMaterialBnccSkills=[];
+
+async function searchMaterialsCatalog(q){
+ const fam=currentBackendFamily();
+ const qs=new URLSearchParams({q:String(q||"").trim()});
+ if(fam?.id)qs.set("family_id",fam.id);
+ const data=await backendFetch("/materials?"+qs.toString());
+ return data?.materials||[];
+}
+async function resolveMaterialBnccSkills(material){
+ const codes=[...new Set((material?.bncc_codes||[]).map(x=>String(x||"").trim()).filter(Boolean))];
+ const out=[];
+ for(const code of codes){
+   try{
+     const list=await fetchBnccSkills({code,limit:20});
+     const exact=(list||[]).find(x=>String(x.codigo).toUpperCase()===code.toUpperCase()) || (list||[])[0];
+     out.push(exact||{codigo:code,descricao:"",componente:"",area:"",serie:""});
+   }catch(e){out.push({codigo:code,descricao:"",componente:"",area:"",serie:""})}
+ }
+ return out;
+}
+function materialResultCard(m,index,context){
+ const action=context==="plan"?`choosePlanMaterial(${index})`:`chooseRecordMaterial(${index})`;
+ return `<div class="duplicate-card" style="margin-top:7px"><div><b>${esc(m.name||"")}</b>${m.publisher?` — ${esc(m.publisher)}`:""}</div><div class="meta">${(m.bncc_codes||[]).length} código(s) BNCC vinculado(s)${m.status==="pending"?" · aguardando validação":""}</div><button type="button" class="btn success small" style="margin-top:6px" onclick="${action}">Usar este material</button></div>`;
+}
+function planMaterialSearchChanged(){
+ const q=$("planMaterialSearch")?.value.trim()||"",seq=++planMaterialSearchSeq,box=$("planMaterialResults");
+ if(!box)return;
+ if(q.length<3){box.innerHTML="";return}
+ box.innerHTML='<div class="meta" style="margin-top:6px">Buscando materiais…</div>';
+ setTimeout(async()=>{
+   if(seq!==planMaterialSearchSeq)return;
+   try{planMaterialSearchResults=await searchMaterialsCatalog(q);if(seq!==planMaterialSearchSeq)return;box.innerHTML=planMaterialSearchResults.length?planMaterialSearchResults.map((m,i)=>materialResultCard(m,i,"plan")).join(""):'<div class="meta" style="margin-top:6px">Nenhum material encontrado no catálogo.</div>'}catch(e){box.innerHTML=`<div class="notice" style="margin-top:6px">Erro ao buscar material: ${esc(e.message||"")}</div>`}
+ },250);
+}
+async function choosePlanMaterial(index){
+ const m=planMaterialSearchResults[index]||catalogMaterialSearchResults[index];if(!m)return;
+ if($("planMaterialId"))$("planMaterialId").value=m.id||"";
+ if($("planMaterialName"))$("planMaterialName").value=m.name||"";
+ if($("planMaterialPublisher"))$("planMaterialPublisher").value=m.publisher||"";
+ if($("planMaterialSearch"))$("planMaterialSearch").value="";
+ if($("planMaterialResults"))$("planMaterialResults").innerHTML="";
+ if($("planComponent")&&!$("planComponent").value.trim()&&m.curricular_component)$("planComponent").value=m.curricular_component;
+ const skills=await resolveMaterialBnccSkills(m);
+ renderPlanMaterialSelection(m,skills);
+}
+function renderPlanMaterialSelection(m,skills=[]){
+ const box=$("planMaterialSelected");if(!box)return;
+ planMaterialBnccSkills=skills||[];
+ box.classList.remove("hidden");
+ box.innerHTML=`<div class="notice" style="margin-top:7px"><b>📘 ${esc(m.name||"")}</b>${m.publisher?` · ${esc(m.publisher)}`:""}<div class="meta" style="margin-top:4px">Escolha a habilidade BNCC que corresponde ao que será trabalhado nesta atividade.</div>${skills.length?`<div style="margin-top:7px">${skills.map((x,i)=>`<button type="button" class="btn small" style="margin:0 5px 5px 0" onclick="selectPlanMaterialBncc(${i})">${esc(x.codigo)}</button>`).join("")}</div>`:'<div class="meta" style="margin-top:6px">Este material ainda não possui habilidade BNCC vinculada.</div>'}<div id="planMaterialBnccChosen" class="meta" style="margin-top:3px"></div><button type="button" class="btn small" style="margin-top:6px" onclick="clearPlanMaterial()">Trocar / remover material</button></div>`;
+ if(skills.length===1)selectPlanMaterialBncc(0);
+}
+function selectPlanMaterialBncc(index){
+ const x=planMaterialBnccSkills[index];if(!x)return;
+ if($("planMaterialBnccCode"))$("planMaterialBnccCode").value=x.codigo||"";
+ if($("planMaterialBnccDescription"))$("planMaterialBnccDescription").value=x.descricao||"";
+ if($("planMaterialBnccComponent"))$("planMaterialBnccComponent").value=x.componente||"";
+ if($("planMaterialBnccArea"))$("planMaterialBnccArea").value=x.area||"";
+ if($("planComponent")&&!$("planComponent").value.trim()&&x.componente)$("planComponent").value=x.componente;
+ if($("planMaterialBnccChosen"))$("planMaterialBnccChosen").innerHTML=x.codigo?`BNCC escolhida: <b>${esc(x.codigo)}</b>${x.descricao?` — ${esc(x.descricao)}`:""}`:"";
+}
+function clearPlanMaterial(){
+ ["planMaterialId","planMaterialName","planMaterialPublisher","planMaterialBnccCode","planMaterialBnccDescription","planMaterialBnccComponent","planMaterialBnccArea"].forEach(id=>{if($(id))$(id).value=""});
+ if($("planMaterialSelected")){ $("planMaterialSelected").innerHTML="";$("planMaterialSelected").classList.add("hidden") }
+}
+function recordMaterialSearchChanged(){
+ const q=$("recordMaterialSearch")?.value.trim()||"",seq=++recordMaterialSearchSeq,box=$("recordMaterialResults");
+ if(!box)return;
+ if(q.length<3){box.innerHTML="";return}
+ box.innerHTML='<div class="meta" style="margin-top:6px">Buscando materiais…</div>';
+ setTimeout(async()=>{
+   if(seq!==recordMaterialSearchSeq)return;
+   try{recordMaterialSearchResults=await searchMaterialsCatalog(q);if(seq!==recordMaterialSearchSeq)return;box.innerHTML=recordMaterialSearchResults.length?recordMaterialSearchResults.map((m,i)=>materialResultCard(m,i,"record")).join(""):'<div class="meta" style="margin-top:6px">Nenhum material encontrado no catálogo.</div>'}catch(e){box.innerHTML=`<div class="notice" style="margin-top:6px">Erro ao buscar material: ${esc(e.message||"")}</div>`}
+ },250);
+}
+async function chooseRecordMaterial(index){
+ const m=recordMaterialSearchResults[index];if(!m)return;
+ if($("fMaterialId"))$("fMaterialId").value=m.id||"";
+ if($("fMaterialName"))$("fMaterialName").value=m.name||"";
+ if($("fMaterialPublisher"))$("fMaterialPublisher").value=m.publisher||"";
+ if($("recordMaterialSearch"))$("recordMaterialSearch").value="";
+ if($("recordMaterialResults"))$("recordMaterialResults").innerHTML="";
+ const skills=await resolveMaterialBnccSkills(m);
+ renderRecordMaterialSelection(m,skills);
+ saveRecordDraft(true);
+}
+function renderRecordMaterialSelection(m,skills=[]){
+ const box=$("recordMaterialSelected");if(!box)return;
+ recordMaterialBnccSkills=skills||[];
+ box.classList.remove("hidden");
+ box.innerHTML=`<div class="notice" style="margin-top:7px"><b>📘 ${esc(m.name||"")}</b>${m.publisher?` · ${esc(m.publisher)}`:""}${skills.length?`<div class="meta" style="margin-top:4px">Escolha uma habilidade BNCC deste material:</div><div style="margin-top:6px">${skills.map((x,i)=>`<button type="button" class="btn small" style="margin:0 5px 5px 0" onclick="applyMaterialBnccToRecord(${i})">${esc(x.codigo)}</button>`).join("")}</div>`:'<div class="meta" style="margin-top:4px">Este material ainda não possui habilidade BNCC vinculada.</div>'}<button type="button" class="btn small" style="margin-top:6px" onclick="clearRecordMaterial()">Trocar / remover material</button></div>`;
+ if(skills.length===1)applyMaterialBnccToRecord(0);
+}
+function applyMaterialBnccToRecord(index){
+ const x=recordMaterialBnccSkills[index];if(!x)return;
+ const comp=String(x.componente||"").trim(),area=String(x.area||componentArea(comp)||"").trim(),code=String(x.codigo||"").trim(),desc=String(x.descricao||"").trim();
+ if($("fArea"))$("fArea").value=area;
+ if($("fComp")){ $("fComp").innerHTML=groupedComponentOptions(comp);$("fComp").value=comp }
+ if($("fCode"))$("fCode").value=code;
+ if($("fSkill")){ $("fSkill").innerHTML=`<option value="">Selecione...</option><option data-code="${esc(code)}" value="${esc(desc)}" selected>${esc(code)} — ${esc(x.serie||anoBnccDoCodigo(code))} — ${esc(desc)}</option>`;$("fSkill").value=desc }
+ if($("skillCount"))$("skillCount").textContent="Habilidade vinculada ao material · confira antes de salvar";
+ saveRecordDraft(true);updateRecordPreview();
+}
+function clearRecordMaterial(){
+ ["fMaterialId","fMaterialName","fMaterialPublisher"].forEach(id=>{if($(id))$(id).value=""});
+ if($("recordMaterialSelected")){ $("recordMaterialSelected").innerHTML="";$("recordMaterialSelected").classList.add("hidden") }
+ saveRecordDraft(true);
+}
+
 // =========================================================
 // CATÁLOGO DE MATERIAIS (Planejar)
 // =========================================================
@@ -4372,16 +4512,17 @@ async function runMaterialSearch(q,seq){
    const data=await backendFetch("/materials?"+qs.toString());
    if(seq!==materialSearchSeq)return;
    const list=data?.materials||[];
+   catalogMaterialSearchResults=list;
    if(!list.length){
      box.innerHTML=`<div class="toolbar" style="margin-top:8px"><button type="button" class="btn success" onclick="startNewMaterialRequest()">É diferente, solicitar cadastro</button></div>`;
      return;
    }
-   box.innerHTML=list.map(m=>`
+   box.innerHTML=list.map((m,i)=>`
      <div class="duplicate-card">
        <div style="font-size:13px"><b>${esc(m.name)}</b>${m.publisher?" — "+esc(m.publisher):""}</div>
        <div class="meta">${(m.bncc_codes||[]).length} código(s) BNCC vinculado(s)${m.status==="pending"?" · aguardando validação":""}</div>
        <div class="toolbar" style="margin-top:6px">
-         <button type="button" class="btn success small" onclick="toggleMaterialSearch(false)">Usar este material</button>
+         <button type="button" class="btn success small" onclick="useCatalogMaterialInPlan(${i})">Usar este material</button>
        </div>
      </div>
    `).join("")+`<div class="toolbar" style="margin-top:8px"><button type="button" class="btn small" onclick="startNewMaterialRequest()">Nenhum destes, solicitar cadastro</button></div>`;
@@ -4389,6 +4530,16 @@ async function runMaterialSearch(q,seq){
    console.error("Busca de materiais:",e);
    box.innerHTML=`<div class="notice">Erro ao buscar: ${esc(e.message||"tente novamente")}</div>`;
  }
+}
+
+
+async function useCatalogMaterialInPlan(index){
+ const m=catalogMaterialSearchResults[index];if(!m)return;
+ togglePlanForm(true);
+ planMaterialSearchResults=catalogMaterialSearchResults;
+ await choosePlanMaterial(index);
+ toggleMaterialSearch(false);
+ setTimeout(()=>$('planFormCard')?.scrollIntoView({behavior:'smooth',block:'start'}),50);
 }
 
 function startNewMaterialRequest(){
@@ -4534,7 +4685,7 @@ function saveEntry(){
  let type=$("fType").value,compId=$("fComplementary")?.value||"",comp=state.complementaryActivities.find(x=>x.id===compId),missing=[];
  let e={id:editing?.id||uid(),childId:activeChildId,createdAt:editing?.createdAt||now(),updatedAt:now(),createdByUserId:editing?.createdByUserId||backendProfile?.user?.id||"",createdByEmail:editing?.createdByEmail||backendProfile?.user?.email||googleUser?.email||"",createdByName:editing?.createdByName||backendProfile?.user?.name||googleUser?.name||"",date:$("fDate").value,activityDateSource:(photoTakenAt&&isoDateFromTimestamp(photoTakenAt)===$("fDate").value)?(photoDateSource==="exif"?"photo_exif":"photo_file"):(editing?.activityDateSource||"manual"),photoTakenAt:photoTakenAt||editing?.photoTakenAt||"",photoDateSource:photoDateSource||editing?.photoDateSource||"",type,yearRefAtRecord:currentChild()?.stage||"",complementaryId:type==="complementar"?compId:"",
  area:type==="bncc"?$("fArea").value:"Atividades Complementares",componente:type==="bncc"?$("fComp").value:(comp?.category||"Atividade Complementar"),codigo:type==="bncc"?$("fCode").value:"",
- habilidade:type==="bncc"?$("fSkill").value:(comp?.name||""),atividade:$("fActivity").value.trim(),observacoes:$("fObs").value.trim(),status:$("fStatus").value,
+ habilidade:type==="bncc"?$("fSkill").value:(comp?.name||""),materialId:type==="bncc"?($("fMaterialId")?.value||""):"",materialName:type==="bncc"?($("fMaterialName")?.value||""):"",materialPublisher:type==="bncc"?($("fMaterialPublisher")?.value||""):"",atividade:$("fActivity").value.trim(),observacoes:$("fObs").value.trim(),status:$("fStatus").value,
  foto:photoData||editing?.foto||"",fotoDriveId:editing?.fotoDriveId||"",fotoVisibleDriveId:editing?.fotoVisibleDriveId||"",audio:editing?.audio||"",audioDriveId:editing?.audioDriveId||""};
  if(!e.date)missing.push("Data");if(type==="complementar"&&!e.habilidade)missing.push("Atividade complementar");if(!e.atividade)missing.push("Atividade realizada");if(!e.status)missing.push("Avaliação");
  if(missing.length)return alert("Preencha antes de registrar:\n\n• "+missing.join("\n• "));
@@ -4564,7 +4715,7 @@ function renderRecordList(){
    const changed=x.updatedAt&&x.createdAt&&Math.abs(ts(x.updatedAt)-ts(x.createdAt))>1000;
    return `<div class="entry ${x.status==="Dominado"?"done":x.status==="Precisa de revisão"?"focus":"progress"}">
     <div class="meta">${fmtDate(x.date)} · ${esc(x.componente)} ${x.codigo?"· "+esc(x.codigo):""}</div>
-    <div class="entry-title">${esc(x.atividade)}</div>${x.habilidade?`<div class="skill">${esc(x.habilidade)}</div>`:""}${x.observacoes?`<div class="obs">${esc(x.observacoes)}</div>`:""}
+    <div class="entry-title">${esc(x.atividade)}</div>${x.materialName?`<div class="meta">📘 ${esc(x.materialName)}</div>`:""}${x.habilidade?`<div class="skill">${esc(x.habilidade)}</div>`:""}${x.observacoes?`<div class="obs">${esc(x.observacoes)}</div>`:""}
     <span class="badge">${esc(x.status)}</span>${x.foto?`<br><img class="photo" src="${x.foto}">`:""}${x.audio?`<div class="audio-box"><audio controls src="${x.audio}"></audio></div>`:""}
     <details class="tech-details" style="margin-top:8px"><summary class="meta">Datas do registro</summary><div class="meta" style="margin-top:5px">Atividade: ${esc(fmtDate(x.date))} · origem: ${esc(dateSource)}<br>Registrado em: ${esc(fmtDateTime(x.createdAt))}${changed?`<br>Alterado em: ${esc(fmtDateTime(x.updatedAt))}`:""}${x.photoTakenAt?`<br>Foto: ${esc(fmtDateTime(x.photoTakenAt))} · ${esc(photoSourceLabel(x.photoDateSource))}`:""}</div></details>
     <div class="entry-actions"><button class="btn small dark" onclick="viewEntry('${x.id}','${activeChildId}')">Visualizar</button><button class="btn small" onclick="editEntry('${x.id}')">Editar</button><button class="btn irreversible small" onclick="deleteEntry('${x.id}')">Excluir</button></div>
@@ -4595,7 +4746,7 @@ function viewEntry(id,childId=""){
  const card=$("recordViewCard"),overlay=$("recordViewOverlay");if(!card||!overlay)return;
  card.innerHTML=`
  <div class="record-view-head"><div><div class="meta">${esc(child?.name||"Criança")} · ${esc(fmtDate(x.date))}</div><h2>${esc(x.atividade||"Registro")}</h2><span class="badge">${esc(x.status||"Sem avaliação")}</span></div><button class="record-view-close" onclick="closeRecordView()">×</button></div>
- <div class="record-view-section"><div class="meta">${esc(x.componente||"")}${x.codigo?" · "+esc(x.codigo):""}</div>${x.habilidade?`<div class="skill" style="margin-top:7px">${esc(x.habilidade)}</div>`:""}${x.observacoes?`<div class="obs" style="margin-top:10px"><b>Observações</b><br>${esc(x.observacoes)}</div>`:""}</div>
+ <div class="record-view-section"><div class="meta">${esc(x.componente||"")}${x.codigo?" · "+esc(x.codigo):""}</div>${x.materialName?`<div class="meta" style="margin-top:6px">📘 Material: <b>${esc(x.materialName)}</b>${x.materialPublisher?` · ${esc(x.materialPublisher)}`:""}</div>`:""}${x.habilidade?`<div class="skill" style="margin-top:7px">${esc(x.habilidade)}</div>`:""}${x.observacoes?`<div class="obs" style="margin-top:10px"><b>Observações</b><br>${esc(x.observacoes)}</div>`:""}</div>
  ${x.foto?`<div class="record-view-section"><b>Foto</b><div style="margin-top:8px"><img class="record-view-photo" src="${x.foto}" alt="Foto do registro"></div></div>`:""}
  ${x.audio?`<div class="record-view-section"><b>Áudio</b><div class="audio-box"><audio controls src="${x.audio}"></audio></div></div>`:""}
  <div class="record-view-section"><b>Datas do registro</b><div class="meta" style="margin-top:6px">Atividade: ${esc(fmtDate(x.date))} · origem: ${esc(dateSource)}<br>Registrado em: ${esc(fmtDateTime(x.createdAt))}${changed?`<br>Alterado em: ${esc(fmtDateTime(x.updatedAt))}`:""}${x.photoTakenAt?`<br>Foto: ${esc(fmtDateTime(x.photoTakenAt))} · ${esc(photoSourceLabel(x.photoDateSource))}`:""}</div></div>
@@ -4660,6 +4811,7 @@ function togglePlanTypeFields(){
  const isComp=$("planType")?.value==="complementar";
  $("planComplementaryWrap")?.classList.toggle("hidden",!isComp);
  $("planComponentWrap")?.classList.toggle("hidden",isComp);
+ $("planMaterialWrap")?.classList.toggle("hidden",isComp);
  if(isComp)refreshPlanComplementaryOptions($("planComplementary")?.value||"");
 }
 function planComplementaryChanged(){
@@ -4689,18 +4841,18 @@ function addPlan(){
  const recurrence=$("planRecurrence")?.value||"none",weekdays=recurrence==="weekdays"?selectedPlanWeekdays():[];
  if(recurrence==="weekdays"&&!weekdays.length)return alert("Escolha pelo menos um dia da semana.");
  const start=$("planDate").value||today();
- state.plans.push({id:uid(),childId,date:start,nextDate:start,type,complementaryId:compAct?.id||"",component:type==="complementar"?(compAct?.category||"Atividade Complementar"):$("planComponent").value.trim(),title,notes:$("planNotes").value.trim(),recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],createdAt:now(),updatedAt:now(),completedAt:""});
- $("planTitle").value="";$("planNotes").value="";if($("planComplementary"))$("planComplementary").value="";saveLocal();renderPlans();renderDashboard()
+ state.plans.push({id:uid(),childId,date:start,nextDate:start,type,complementaryId:compAct?.id||"",component:type==="complementar"?(compAct?.category||"Atividade Complementar"):$("planComponent").value.trim(),title,notes:$("planNotes").value.trim(),materialId:type==="bncc"?($("planMaterialId")?.value||""):"",materialName:type==="bncc"?($("planMaterialName")?.value||""):"",materialPublisher:type==="bncc"?($("planMaterialPublisher")?.value||""):"",materialBnccCode:type==="bncc"?($("planMaterialBnccCode")?.value||""):"",materialBnccDescription:type==="bncc"?($("planMaterialBnccDescription")?.value||""):"",materialBnccComponent:type==="bncc"?($("planMaterialBnccComponent")?.value||""):"",materialBnccArea:type==="bncc"?($("planMaterialBnccArea")?.value||""):"",recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],createdAt:now(),updatedAt:now(),completedAt:""});
+ $("planTitle").value="";$("planNotes").value="";if($("planComplementary"))$("planComplementary").value="";clearPlanMaterial();saveLocal();renderPlans();renderDashboard()
 }
 function togglePlanForm(open){$('planFormCard')?.classList.toggle('hidden',!open);if(open){if($('planDate')&&!$('planDate').value)$('planDate').value=today();if($('planChild')&&activeChildId)$('planChild').value=activeChildId;refreshPlanComplementaryOptions();togglePlanTypeFields();$('planTitle')?.focus()}}
 function renderPlans(){
  let box=$("plansList");if(!box)return;let childId=$("planChild")?.value||activeChildId,td=today();
  let l=state.plans.filter(x=>!x.completedAt&&(!childId||x.childId===childId)&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
- const card=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':(p.nextDate||p.date)===td?'is-today':''}"><div class="plan-date">${fmtDate(p.nextDate||p.date)} · ${esc(state.family.children.find(c=>c.id===p.childId)?.name||'')}</div><div class="entry-title">${esc(p.title)}</div>${p.component?`<div class="skill">${esc(p.component)}</div>`:''}${p.notes?`<div class="obs">${esc(p.notes)}</div>`:''}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">✓ Concluir e registrar</button>${p.recurrence!=='none'?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular / próxima</button>`:''}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`;
+ const card=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':(p.nextDate||p.date)===td?'is-today':''}"><div class="plan-date">${fmtDate(p.nextDate||p.date)} · ${esc(state.family.children.find(c=>c.id===p.childId)?.name||'')}</div><div class="entry-title">${esc(p.title)}</div>${p.component?`<div class="skill">${esc(p.component)}</div>`:''}${p.materialName?`<div class="meta" style="margin-top:4px">📘 ${esc(p.materialName)}${p.materialBnccCode?` · BNCC <b>${esc(p.materialBnccCode)}</b>`:""}</div>`:""}${p.notes?`<div class="obs">${esc(p.notes)}</div>`:''}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">✓ Concluir e registrar</button>${p.recurrence!=='none'?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular / próxima</button>`:''}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`;
  const late=l.filter(p=>(p.nextDate||p.date)<td),now=l.filter(p=>(p.nextDate||p.date)===td),future=l.filter(p=>(p.nextDate||p.date)>td);
  box.innerHTML=`${late.length?`<div class="plan-section-title">Atrasadas · ${late.length}</div>${late.map(card).join('')}`:''}<div class="plan-section-title">Hoje · ${now.length}</div>${now.map(card).join('')||"<div class='notice'>Nada planejado para hoje.</div>"}${future.length?`<div class="plan-section-title">Próximos dias · ${future.length}</div>${future.map(card).join('')}`:''}`;
 }
-function startPlan(id){let p=state.plans.find(x=>x.id===id);if(!p)return;activeChildId=p.childId;recordFormOpen=true;editing={id:uid(),childId:p.childId,date:p.nextDate||p.date,type:p.type,complementaryId:p.complementaryId||"",area:"",componente:p.component,codigo:"",habilidade:"",atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,planOccurrenceDate:p.nextDate||p.date};showPage("registro");renderRecordPage()}
+function startPlan(id){let p=state.plans.find(x=>x.id===id);if(!p)return;activeChildId=p.childId;recordFormOpen=true;editing={id:uid(),childId:p.childId,date:p.nextDate||p.date,type:p.type,complementaryId:p.complementaryId||"",area:p.materialBnccArea||"",componente:p.materialBnccComponent||p.component||"",codigo:p.materialBnccCode||"",habilidade:p.materialBnccDescription||"",materialId:p.materialId||"",materialName:p.materialName||"",materialPublisher:p.materialPublisher||"",atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,planOccurrenceDate:p.nextDate||p.date};showPage("registro");renderRecordPage()}
 function completePlanOccurrence(planId,occurrenceDate){const p=state.plans.find(x=>x.id===planId);if(!p)return;p.occurrences??=[];p.occurrences.push({date:occurrenceDate,status:"completed",updatedAt:now()});if(p.recurrence==="none"){p.completedAt=now();p.nextDate=""}else{p.nextDate=nextPlanDate(p,occurrenceDate);if(!p.nextDate)p.completedAt=now()}p.updatedAt=now()}
 function skipPlanOccurrence(id){const p=state.plans.find(x=>x.id===id);if(!p)return;const current=p.nextDate||p.date;if(!confirm(`Pular a ocorrência de ${fmtDate(current)}?`))return;p.occurrences??=[];p.occurrences.push({date:current,status:"skipped",updatedAt:now()});p.nextDate=nextPlanDate(p,current);if(!p.nextDate)p.completedAt=now();p.updatedAt=now();saveLocal();renderPlans();renderDashboard()}
 function deletePlan(id){state.plans=state.plans.filter(x=>x.id!==id);addTomb("plans",id);saveLocal();renderPlans();renderDashboard()}
@@ -4769,7 +4921,7 @@ function renderReportPage(){
 
  const overview=`${componentHtml?`<h3 class="report-section-title">Componentes trabalhados</h3><div class="report-component-grid">${componentHtml}</div>`:""}${bnccHtml?`<h3 class="report-section-title">Resumo BNCC por componente</h3><div class="report-bncc-summary">${bnccHtml}</div>`:""}`;
 
- const activities=f.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=>`<div class="entry ${x.status==="Dominado"?"done":x.status==="Precisa de revisão"?"focus":"progress"}"><div class="meta">${fmtDate(x.date)} · ${esc(x.type==="complementar"?"Complementar":x.componente)} ${x.codigo?"· "+esc(x.codigo)+" · "+esc(anoBnccDoCodigo(x.codigo)):""}</div>${x.yearRefAtRecord?`<div class="meta">Ano de referência no registro: ${esc(x.yearRefAtRecord)}</div>`:""}<div class="entry-title">${esc(x.atividade)}</div>${x.habilidade?`<div class="skill">${esc(x.habilidade)}</div>`:""}${x.observacoes?`<div class="obs">${esc(x.observacoes)}</div>`:""}${x.status?`<span class="badge">${esc(x.status)}</span>`:""}${x.foto?`<br><img class="report-photo" src="${x.foto}">`:""}${x.audio?`<div class="audio-box no-print"><audio controls src="${x.audio}"></audio></div><div class="meta">Áudio anexado</div>`:""}</div>`).join("");
+ const activities=f.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=>`<div class="entry ${x.status==="Dominado"?"done":x.status==="Precisa de revisão"?"focus":"progress"}"><div class="meta">${fmtDate(x.date)} · ${esc(x.type==="complementar"?"Complementar":x.componente)} ${x.codigo?"· "+esc(x.codigo)+" · "+esc(anoBnccDoCodigo(x.codigo)):""}</div>${x.yearRefAtRecord?`<div class="meta">Ano de referência no registro: ${esc(x.yearRefAtRecord)}</div>`:""}<div class="entry-title">${esc(x.atividade)}</div>${x.materialName?`<div class="meta">📘 Material: ${esc(x.materialName)}</div>`:""}${x.habilidade?`<div class="skill">${esc(x.habilidade)}</div>`:""}${x.observacoes?`<div class="obs">${esc(x.observacoes)}</div>`:""}${x.status?`<span class="badge">${esc(x.status)}</span>`:""}${x.foto?`<br><img class="report-photo" src="${x.foto}">`:""}${x.audio?`<div class="audio-box no-print"><audio controls src="${x.audio}"></audio></div><div class="meta">Áudio anexado</div>`:""}</div>`).join("");
 
  if($("reportContent"))$("reportContent").innerHTML=reportHeader+overview+pathHeader+`<h3 class="report-section-title">Atividades realizadas</h3>`+(activities||"<div class='notice'>Nenhum registro para os filtros selecionados.</div>");
 }
@@ -4901,7 +5053,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.10";
+const APP_VERSION = "5.11";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
