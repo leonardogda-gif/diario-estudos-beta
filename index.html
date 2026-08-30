@@ -5084,7 +5084,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.14";
+const APP_VERSION = "5.15";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
@@ -5220,9 +5220,11 @@ if("serviceWorker" in navigator){
       appSwRegistration=reg;
       await reg.update().catch(()=>{});
 
+      // Um Service Worker em waiting, sozinho, não significa que exista
+      // uma versão nova para o usuário. O version.json é a fonte de verdade
+      // para decidir se o banner deve aparecer.
       if(reg.waiting){
         appUpdateWorker=reg.waiting;
-        showAppUpdate();
       }
 
       reg.addEventListener("updatefound",()=>{
@@ -5231,7 +5233,8 @@ if("serviceWorker" in navigator){
         worker.addEventListener("statechange",()=>{
           if(worker.state==="installed" && navigator.serviceWorker.controller){
             appUpdateWorker=worker;
-            showAppUpdate();
+            // Confirma a versão publicada antes de exibir qualquer aviso.
+            checkAppVersion();
           }
         });
       });
