@@ -1,4 +1,4 @@
-const CACHE_NAME="diario-estudos-v5.12";
+const CACHE_NAME="diario-estudos-v5.14";
 const STATIC_ASSETS=["./manifest.json"];
 self.addEventListener("install",event=>{
   event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(STATIC_ASSETS)).catch(()=>{}));

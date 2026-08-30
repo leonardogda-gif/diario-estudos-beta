@@ -1,45 +1,46 @@
-DIÁRIO DE ESTUDOS — v5.11
+DIÁRIO DE ESTUDOS — v5.14 (precisão da sugestão de IA para materiais)
 
-NOVIDADE PRINCIPAL
-O catálogo de materiais agora está ligado de ponta a ponta ao Planejamento e ao Registro.
+PROBLEMA RELATADO
+Ao cadastrar o material "Via Bela", a IA não sugeriu nenhum código BNCC.
 
-1. PLANEJAMENTO
-- Novo campo opcional “Material utilizado”.
-- Busca materiais já cadastrados no catálogo.
-- Ao escolher um material, mostra os códigos BNCC vinculados a ele.
-- Se houver apenas um código, ele é escolhido automaticamente; se houver vários, você escolhe o mais adequado para aquela atividade.
-- O planejamento salva material + código/habilidade BNCC escolhida.
-- A lista de planejamentos mostra o material e o código BNCC vinculados.
+CAUSA
+O campo "Faixa etária" do cadastro de material era texto livre. O filtro no
+Worker comparava esse texto quase literalmente contra a coluna school_year
+do banco — se o texto digitado não batesse com o formato salvo, o filtro
+zerava os candidatos ANTES mesmo de chamar a IA (por isso "nenhuma
+sugestão", sem nenhum erro aparente).
+A rota de sugestão do registro diário (/ai/bncc-suggest) nunca teve esse
+problema porque não usa texto livre: ela recebe o ano real da criança e
+monta padrões de código (ex.: EF15%, EF69%) que cobrem tanto o ano
+específico quanto os códigos que abrangem várias séries.
 
-2. CONCLUIR E REGISTRAR
-- Ao tocar em “✓ Concluir e registrar”, o Registro agora herda automaticamente:
-  • material;
-  • componente;
-  • código BNCC;
-  • descrição da habilidade BNCC.
-- Tudo continua editável antes de salvar o registro.
+CORREÇÃO
+1. FRONTEND: o campo "Faixa etária" virou uma lista suspensa (<select>),
+   usando os mesmos valores já existentes em STAGES (a mesma lista usada em
+   toda a parte de cadastro/edição de criança) — não é mais possível digitar
+   um valor que não exista na base.
+2. WORKER (/ai/material-bncc-suggest): portada a mesma lógica de padrão de
+   código já usada e validada em /ai/bncc-suggest — reconhece Ensino
+   Fundamental (com o ano exato), Ensino Médio, e as três etapas da Educação
+   Infantil (Bebês / Crianças bem pequenas / Crianças pequenas), em vez do
+   heurístico anterior baseado só em extrair dígitos do texto (que não
+   soubemos entrar em produção — este pacote já nasce com a versão correta).
 
-3. REGISTRO DIRETO
-- O Registro de Atividade ganhou o campo opcional “Material utilizado”.
-- É possível buscar e escolher um material mesmo sem planejamento prévio.
-- Os códigos BNCC associados ao material aparecem para escolha.
-- O material fica salvo no registro e aparece na visualização, histórico e relatório.
+RESULTADO ESPERADO
+Selecionar, por exemplo, "2º Ano do Ensino Fundamental" na faixa etária do
+material agora traz tanto habilidades específicas do 2º ano quanto as que
+abrangem 1º ao 5º ano — igual já acontece no registro diário.
 
-4. CATÁLOGO NA TELA PLANEJAR
-- O antigo botão “Usar este material”, que antes apenas fechava a busca, agora abre o formulário de planejamento e realmente vincula o material selecionado.
-
-BACKEND / D1
-- Nenhuma nova migração D1 é necessária para a v5.11.
-- worker-v0.9.txt incluído é o mesmo Worker corrigido da v5.10 (incluindo a correção da sugestão BNCC de materiais para entradas como “2 ano”).
-- migracao-materiais.sql é mantida no pacote apenas para referência/instalações que ainda não tenham criado as tabelas de materiais.
-
-VERSIONAMENTO
-- index.html: v5.11
-- APP_VERSION: 5.11
-- service worker cache: diario-estudos-v5.11
-- version.json: 5.11
+WORKER / D1
+worker-v0.11.txt substitui o Worker. Nenhuma migração nova de banco.
 
 VALIDAÇÕES REALIZADAS
-- JavaScript inline do index.html: sintaxe OK (node --check).
-- sw.js: sintaxe OK (node --check).
-- Worker v0.9: sintaxe OK (node --check).
+- JavaScript inline do index.html: sintaxe OK.
+- worker-v0.11.txt: sintaxe OK (node --check).
+- Nenhuma função chamada no HTML sem definição correspondente.
+- Nenhum id duplicado com risco real (só photoPreviewImg, já confirmado
+  inofensivo na v5.13).
+
+NÃO TESTADO
+- Chamada real contra o Gemini com o material "Via Bela" — não tenho acesso
+  ao Worker publicado nem ao D1 para reproduzir o teste que você fez.

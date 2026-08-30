@@ -359,7 +359,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.12 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v5.14 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -473,7 +473,7 @@ body.app-authenticated .cloud-card{display:none!important}
           <div class="meta" style="margin-bottom:8px">Preencha para solicitar a inclusão deste material</div>
           <div class="grid">
             <div><label class="field">Editora / autor (opcional)</label><input id="materialPublisher"></div>
-            <div><label class="field">Faixa etária (opcional)</label><input id="materialAgeRange" placeholder="Ex.: 3º ao 5º ano"></div>
+            <div><label class="field">Faixa etária / ano (opcional)</label><select id="materialAgeRange"><option value="">Não informar</option>${STAGES.filter(s=>s!=="Sem ano de referência").map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join("")}</select></div>
             <div class="full"><label class="field">Componente (opcional, ajuda a IA a acertar mais rápido)</label><select id="materialComponent"></select></div>
             <div class="full"><label class="field">O que essa lição/unidade ensina de fato? <span class="required-mark">*</span></label><textarea id="materialDescription" rows="2" placeholder="Ex.: leitura e reescrita de uma fábula clássica, identificando a moral da história."></textarea></div>
           </div>
@@ -4097,8 +4097,7 @@ function renderRecordPage(){
     </div>
   </aside>
  </div>
-</div>
- <div class="card"><div class="toolbar" style="justify-content:space-between;align-items:center"><h3 style="margin:0">Atividades registradas</h3><button class="btn success" onclick="startNewRecord()">+ Novo registro</button></div><input id="recordSearch" placeholder="Buscar..." oninput="renderRecordList()" style="margin-top:12px"><div id="recordList"></div></div>`;
+</div>`;
 
  bindRecordDraft();
  ["fActivity","fDate","fType","fComp","fCode"].forEach(id=>{
@@ -5066,7 +5065,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.12";
+const APP_VERSION = "5.14";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
