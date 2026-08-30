@@ -478,7 +478,7 @@ body.app-authenticated .cloud-card{display:none!important}
             <div class="full"><label class="field">O que essa lição/unidade ensina de fato? <span class="required-mark">*</span></label><textarea id="materialDescription" rows="2" placeholder="Ex.: leitura e reescrita de uma fábula clássica, identificando a moral da história."></textarea></div>
           </div>
           <div class="toolbar" style="margin-top:8px">
-            <button type="button" class="btn dark" id="materialAiBtn" onclick="suggestMaterialBncc()">Sugerir BNCC</button>
+            <button type="button" class="btn dark" id="materialAiBtn" onclick="suggestMaterialBncc()">✨ Sugerir habilidade BNCC</button>
           </div>
           <div id="materialAiResults" style="margin-top:10px"></div>
           <div class="toolbar" style="margin-top:10px">
@@ -4409,7 +4409,7 @@ async function suggestMaterialBncc(){
    box.innerHTML=`<div class="notice">Descreva um pouco melhor o que o material ensina.</div>`;
    return;
  }
- if(btn){btn.disabled=true;btn.textContent="Consultando...";}
+ if(btn){btn.disabled=true;btn.innerHTML='<span class="ai-spinner"></span> Analisando';}
  box.innerHTML="";
  try{
    const data=await backendFetch("/ai/material-bncc-suggest",{
@@ -4438,7 +4438,7 @@ async function suggestMaterialBncc(){
    console.error("Sugestão BNCC material:",e);
    box.innerHTML=`<div class="notice">Erro: ${esc(e.message||"não foi possível consultar a IA.")}</div>`;
  }finally{
-   if(btn){btn.disabled=false;btn.textContent="Sugerir BNCC";}
+   if(btn){btn.disabled=false;btn.textContent="✨ Sugerir habilidade BNCC";}
  }
 }
 
