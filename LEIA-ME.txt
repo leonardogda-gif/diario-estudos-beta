@@ -1,4 +1,4 @@
-DIÁRIO DE ESTUDOS — v5.8
+DIÁRIO DE ESTUDOS — v5.9
 
 ARQUIVOS DO FRONTEND
 Substituir no GitHub:
@@ -11,38 +11,56 @@ Preservar as pastas já existentes:
 - icons/
 - videos/
 
-AJUSTES DA V5.8
-1. Busca manual BNCC corrigida: a consulta não trava quando currentChild() fica
-   momentaneamente indisponível durante uma nova renderização.
-2. applyAiBnccSuggestion() foi preservada na lógica já corrigida.
-3. Navegação sticky usa a altura real do header via ResizeObserver.
-4. Ações irreversíveis (merge definitivo e exclusão definitiva de registro)
-   possuem estilo visual mais forte.
-5. Cartões ganharam borda sutil e sombra um pouco mais visível.
-6. Rótulos opcionais ficaram mais discretos; obrigatórios com * mantêm destaque.
-7. Controles possuem foco customizado com :focus-visible.
-8. Componentes mais pertinentes ao ano da criança aparecem primeiro, agrupados
-   em "Mais pertinentes ao ano"; os demais continuam em "Outros componentes".
-9. Token Google: antes de chamadas ao Worker/Google API, o app tenta renovar o
-   access token silenciosamente. Se o Google exigir interação, o app informa que
-   é necessário entrar novamente. Chamadas que recebem HTTP 401 tentam uma única
-   renovação e repetem a requisição.
+WORKER / CLOUDFLARE — AÇÃO NECESSÁRIA
+1. Substituir o Worker pelo arquivo worker-v0.9.txt anexado.
+2. ANTES de publicar, editar a constante GLOBAL_ADMIN_EMAILS no topo do arquivo
+   (busque por "SEU_EMAIL_AQUI@gmail.com") e trocar pelo(s) e-mail(s) do Google
+   que poderão validar materiais para todas as famílias. Sem isso, ninguém
+   conseguirá aprovar/rejeitar materiais pendentes.
+3. Rodar a migração do banco UMA ÚNICA VEZ antes de usar a v5.9:
+   wrangler d1 execute <NOME_DO_BANCO> --remote --file=migracao-materiais.sql
+   Isso cria as tabelas "materials" e "material_bncc_links". Não apaga nada
+   existente (usa CREATE TABLE IF NOT EXISTS).
+
+NOVIDADE DA V5.9 — Catálogo de materiais (Planejar)
+- Nova seção "Cadastrar material de estudo" na aba Planejar.
+- Busca no catálogo compartilhado antes de permitir criar um material novo
+  (mesma lógica de detecção de duplicidade já usada em crianças, mas sem
+  expor de qual família veio o material já cadastrado).
+- Formulário de solicitação pede o que o material ensina de fato (não o nome
+  comercial) e usa uma nova rota de IA (/ai/material-bncc-suggest) — mesmo
+  padrão econômico em tokens do /ai/bncc-suggest, mas sem exigir uma criança
+  específica, já que um material não pertence a uma criança.
+- Material solicitado entra como "pending": fica visível e utilizável
+  imediatamente só para a família que solicitou; só passa a valer para as
+  outras famílias depois de aprovado.
+- Validação é de responsabilidade de um administrador GLOBAL do app (você),
+  não do administrador de uma família — painel em Configurações > "Materiais
+  pendentes de validação", com Aprovar/Rejeitar.
+- Se a IA não encontrar nenhum código compatível, ela avisa que isso pode ser
+  normal para conteúdo fora do escopo da BNCC (ex.: latim, lógica formal) em
+  vez de forçar uma sugestão ruim.
 
 PRESERVADO
+- Todos os ajustes da v5.8 (busca manual corrigida, sticky dinâmico, estilo
+  de ações irreversíveis, foco customizado, etc.).
 - Código de convite/multi-membro, mesmo com a UI desativada.
-- shareFolderWithFamilyMembers(), roleLabel(), inviteFamilyMember() e rotinas
-  relacionadas.
-- Fluxo de Atividade Complementar sem CG/CE nesta versão.
-
-WORKER / CLOUDFLARE
-Nenhuma alteração de Worker foi necessária para estes 9 itens. A proteção do
-merge definitivo já havia sido verificada no Worker 0.7.2-beta: as duas crianças
-precisam pertencer à mesma família e a operação exige administrador da família.
-Se esse Worker já está publicado, mantenha-o.
+- Autorização do merge definitivo de crianças (verificada no Worker 0.7.2,
+  mantida sem alteração).
 
 TESTES ESTÁTICOS REALIZADOS
-- JavaScript inline do index.html: node --check OK.
-- sw.js: node --check OK.
-- Código de convite/multi-membro confirmado presente.
-- Condição antiga "if(!child||seq!==bnccSearchSequence)" não existe mais.
-- Offsets fixos top:93px / nav top:82px removidos.
+- JavaScript inline do index.html: sintaxe OK (checagem automática).
+- worker-v0.9.txt: sintaxe OK (checagem automática, renomeado para .js só
+  para o teste).
+- Nenhuma função chamada no HTML sem definição correspondente.
+- Nenhuma função duplicada.
+- Nenhum elemento referenciado por id que não exista no HTML (fora do
+  convite, que já estava assim antes e é proposital).
+- Tags <div>, <button>, <details>, <script> balanceadas.
+
+NÃO TESTADO (preciso que você confirme em produção)
+- Chamada real ao endpoint /materials/pending com o e-mail de admin correto
+  configurado — não tenho acesso ao Worker publicado nem ao D1 para rodar
+  isso de ponta a ponta.
+- Comportamento do Gemini com o novo prompt de material (mesma API já usada,
+  mas nunca testei este prompt específico contra o modelo de verdade).

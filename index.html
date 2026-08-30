@@ -457,6 +457,37 @@ body.app-authenticated .cloud-card{display:none!important}
       <div class="card">
         <div class="toolbar" style="justify-content:space-between"><div><h2 style="margin-bottom:3px">Planejar</h2><div class="meta">Veja primeiro o que precisa de atenção. Crie um novo planejamento só quando precisar.</div></div><button class="btn success" onclick="togglePlanForm(true)">+ Planejar atividade</button></div>
       </div>
+      <div class="card">
+        <div class="toolbar" style="justify-content:space-between">
+          <div><h3 style="margin-bottom:3px">Cadastrar material de estudo</h3><div class="meta">Vincule um material que vocês usam a códigos da BNCC — outras famílias que usarem o mesmo material se beneficiam disso depois.</div></div>
+          <button class="btn" onclick="toggleMaterialSearch(true)">+ Material</button>
+        </div>
+      </div>
+
+      <div id="materialSearchCard" class="card hidden">
+        <label class="field">Nome do material <span class="required-mark">*</span></label>
+        <input id="materialSearchInput" placeholder="Ex.: Via Bela — Fábulas e Contos, 2º ano" oninput="materialSearchChanged()">
+        <div id="materialSearchResults"></div>
+
+        <div id="materialNewForm" class="notice hidden" style="margin-top:10px">
+          <div class="meta" style="margin-bottom:8px">Preencha para solicitar a inclusão deste material</div>
+          <div class="grid">
+            <div><label class="field">Editora / autor (opcional)</label><input id="materialPublisher"></div>
+            <div><label class="field">Faixa etária (opcional)</label><input id="materialAgeRange" placeholder="Ex.: 3º ao 5º ano"></div>
+            <div class="full"><label class="field">O que essa lição/unidade ensina de fato? <span class="required-mark">*</span></label><textarea id="materialDescription" rows="2" placeholder="Ex.: leitura e reescrita de uma fábula clássica, identificando a moral da história."></textarea></div>
+          </div>
+          <div class="toolbar" style="margin-top:8px">
+            <button type="button" class="btn dark" id="materialAiBtn" onclick="suggestMaterialBncc()">Sugerir BNCC</button>
+          </div>
+          <div id="materialAiResults" style="margin-top:10px"></div>
+          <div class="toolbar" style="margin-top:10px">
+            <button type="button" class="btn success" onclick="submitMaterialRequest()">Enviar para validação do admin</button>
+            <button type="button" class="btn" onclick="toggleMaterialSearch(false)">Cancelar</button>
+          </div>
+          <div class="meta" style="margin-top:6px">Enquanto aguarda validação, este material fica visível só para a sua família.</div>
+        </div>
+      </div>
+
       <div id="planFormCard" class="card hidden"><h3>Novo planejamento</h3><div class="grid">
         <div><label class="field">Para quem? <span class="required-mark">*</span></label><select id="planChild"></select></div>
         <div><label class="field">Quando? <span class="required-mark">*</span></label><input id="planDate" type="date"></div>
@@ -701,6 +732,8 @@ body.app-authenticated .cloud-card{display:none!important}
 
 
 <details class="tech-details"><summary>Diagnóstico técnico do beta</summary><div class="drive-folder-card" style="margin-top:8px"><div id="backendDetails" class="meta">Aguardando backend.</div><div id="backendFamilyInfo" class="meta" style="margin-top:6px"></div><div id="backendFamilyChooser" class="hidden"></div><div class="toolbar" style="margin-top:8px"><button class="btn small" onclick="testBackendConnection()">Testar backend</button><button id="syncFamilyBtn" class="btn small hidden" onclick="syncFamilyFromBackend(true)">Atualizar família</button><button id="linkFamilyBtn" class="btn small hidden" onclick="linkCurrentFamilyToBackend()">Vincular família local</button></div><hr style="margin:12px 0"><div class="meta">OAuth Drive: acesso por arquivo/pasta autorizado (`drive.file`) + dados privados do app (`drive.appdata`).</div><hr style="margin:10px 0"><div class="meta">Ferramentas temporárias do beta</div><button class="btn danger small" style="margin-top:8px" onclick="resetLocalBetaData()">Apagar dados locais deste dispositivo</button></div></details>
+
+<details class="tech-details" ontoggle="if(this.open)loadPendingMaterials()"><summary>Materiais pendentes de validação</summary><div class="drive-folder-card" style="margin-top:8px"><div id="pendingMaterialsBox" class="meta">Carregando...</div></div></details>
 </div></section>
   </div>
 </main>
@@ -4303,6 +4336,166 @@ function applyAiBnccSuggestion(index){
  updateRecordPreview();
 }
 
+// =========================================================
+// CATÁLOGO DE MATERIAIS (Planejar)
+// =========================================================
+
+let materialSearchSeq=0;
+let selectedMaterialCodes=[];
+
+function toggleMaterialSearch(show){
+ $("materialSearchCard")?.classList.toggle("hidden",!show);
+ if(!show){
+   $("materialSearchInput").value="";
+   $("materialSearchResults").innerHTML="";
+   $("materialNewForm")?.classList.add("hidden");
+   selectedMaterialCodes=[];
+ }
+}
+
+function materialSearchChanged(){
+ const q=$("materialSearchInput")?.value.trim()||"";
+ $("materialNewForm")?.classList.add("hidden");
+ const seq=++materialSearchSeq;
+ if(q.length<3){$("materialSearchResults").innerHTML="";return}
+ setTimeout(()=>runMaterialSearch(q,seq),300);
+}
+
+async function runMaterialSearch(q,seq){
+ if(seq!==materialSearchSeq)return;
+ const fam=currentBackendFamily();
+ const box=$("materialSearchResults");
+ try{
+   const qs=new URLSearchParams({q});
+   if(fam?.id)qs.set("family_id",fam.id);
+   const data=await backendFetch("/materials?"+qs.toString());
+   if(seq!==materialSearchSeq)return;
+   const list=data?.materials||[];
+   if(!list.length){
+     box.innerHTML=`<div class="toolbar" style="margin-top:8px"><button type="button" class="btn success" onclick="startNewMaterialRequest()">É diferente, solicitar cadastro</button></div>`;
+     return;
+   }
+   box.innerHTML=list.map(m=>`
+     <div class="duplicate-card">
+       <div style="font-size:13px"><b>${esc(m.name)}</b>${m.publisher?" — "+esc(m.publisher):""}</div>
+       <div class="meta">${(m.bncc_codes||[]).length} código(s) BNCC vinculado(s)${m.status==="pending"?" · aguardando validação":""}</div>
+       <div class="toolbar" style="margin-top:6px">
+         <button type="button" class="btn success small" onclick="toggleMaterialSearch(false)">Usar este material</button>
+       </div>
+     </div>
+   `).join("")+`<div class="toolbar" style="margin-top:8px"><button type="button" class="btn small" onclick="startNewMaterialRequest()">Nenhum destes, solicitar cadastro</button></div>`;
+ }catch(e){
+   console.error("Busca de materiais:",e);
+   box.innerHTML=`<div class="notice">Erro ao buscar: ${esc(e.message||"tente novamente")}</div>`;
+ }
+}
+
+function startNewMaterialRequest(){
+ $("materialNewForm")?.classList.remove("hidden");
+ $("materialAiResults").innerHTML="";
+ selectedMaterialCodes=[];
+}
+
+async function suggestMaterialBncc(){
+ const description=$("materialDescription")?.value.trim()||"";
+ const ageRange=$("materialAgeRange")?.value.trim()||"";
+ const box=$("materialAiResults");
+ const btn=$("materialAiBtn");
+ if(description.length<5){
+   box.innerHTML=`<div class="notice">Descreva um pouco melhor o que o material ensina.</div>`;
+   return;
+ }
+ if(btn){btn.disabled=true;btn.textContent="Consultando...";}
+ box.innerHTML="";
+ try{
+   const data=await backendFetch("/ai/material-bncc-suggest",{
+     method:"POST",
+     body:JSON.stringify({content_description:description,age_range:ageRange})
+   });
+   const suggestions=data?.suggestions||[];
+   if(!suggestions.length){
+     box.innerHTML=`<div class="notice">${esc(data?.message||"Nenhuma sugestão encontrada. Pode ser normal para conteúdo fora do escopo da BNCC.")}</div>`;
+     return;
+   }
+   selectedMaterialCodes=suggestions.map(s=>s.code);
+   box.innerHTML=`
+     <div class="ai-suggestion">
+       <div class="meta" style="margin-bottom:6px">sugestões da IA para esta solicitação</div>
+       ${suggestions.map(s=>`
+         <div style="background:#FFFFFF;border-radius:8px;padding:8px 10px;margin-bottom:6px">
+           <div class="ai-suggestion-code">${esc(s.code||"")}</div>
+           <div class="meta">${esc(s.curricular_component||"")}${s.school_year?" · "+esc(s.school_year):""}</div>
+           <div style="margin-top:4px;font-size:13px">${esc(s.description||"")}</div>
+         </div>
+       `).join("")}
+       <div class="meta">${suggestions.length} código(s) serão vinculados ao enviar para validação.</div>
+     </div>`;
+ }catch(e){
+   console.error("Sugestão BNCC material:",e);
+   box.innerHTML=`<div class="notice">Erro: ${esc(e.message||"não foi possível consultar a IA.")}</div>`;
+ }finally{
+   if(btn){btn.disabled=false;btn.textContent="Sugerir BNCC";}
+ }
+}
+
+async function submitMaterialRequest(){
+ const fam=currentBackendFamily();
+ if(!fam?.id)return alert("Crie ou selecione uma família primeiro.");
+ const name=$("materialSearchInput")?.value.trim()||"";
+ if(!name)return alert("Informe o nome do material.");
+ try{
+   await backendFetch("/materials",{
+     method:"POST",
+     body:JSON.stringify({
+       family_id:fam.id,
+       name,
+       publisher:$("materialPublisher")?.value.trim()||"",
+       age_range:$("materialAgeRange")?.value.trim()||"",
+       content_description:$("materialDescription")?.value.trim()||"",
+       bncc_codes:selectedMaterialCodes
+     })
+   });
+   alert("Material enviado para validação. Já está disponível para a sua família.");
+   toggleMaterialSearch(false);
+ }catch(e){
+   console.error("Solicitar material:",e);
+   alert("Erro ao enviar: "+(e.message||"tente novamente"));
+ }
+}
+
+async function loadPendingMaterials(){
+ const box=$("pendingMaterialsBox");
+ if(!box)return;
+ box.innerHTML="Carregando...";
+ try{
+   const data=await backendFetch("/materials/pending");
+   const list=data?.materials||[];
+   if(!list.length){box.innerHTML="Nenhum material pendente.";return}
+   box.innerHTML=list.map(m=>`
+     <div class="duplicate-card">
+       <div style="font-size:13px"><b>${esc(m.name)}</b>${m.publisher?" — "+esc(m.publisher):""}</div>
+       <div class="meta">Solicitado por: ${esc(m.family_name||m.requested_by_family_id)}</div>
+       <div class="meta">${esc(m.content_description||"")}</div>
+       <div class="meta">Códigos sugeridos: ${(m.bncc_codes||[]).map(esc).join(", ")||"nenhum"}</div>
+       <div class="toolbar" style="margin-top:6px">
+         <button type="button" class="btn success small" onclick="reviewMaterial('${m.id}','approve')">Aprovar</button>
+         <button type="button" class="btn danger small" onclick="reviewMaterial('${m.id}','reject')">Rejeitar</button>
+       </div>
+     </div>
+   `).join("");
+ }catch(e){
+   box.innerHTML=`<div class="notice">${esc(e.message||"Você não tem permissão para ver esta lista.")}</div>`;
+ }
+}
+
+async function reviewMaterial(id,action){
+ try{
+   await backendFetch(`/materials/${encodeURIComponent(id)}/${action}`,{method:"POST"});
+   loadPendingMaterials();
+ }catch(e){
+   alert("Erro: "+(e.message||"tente novamente"));
+ }
+}
 
 async function readPhoto(ev){
  saveRecordDraft(true);
@@ -4704,7 +4897,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.8";
+const APP_VERSION = "5.9";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
