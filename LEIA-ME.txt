@@ -1,46 +1,33 @@
-DIÁRIO DE ESTUDOS — v5.14 (precisão da sugestão de IA para materiais)
+DIÁRIO DE ESTUDOS — v5.15
 
-PROBLEMA RELATADO
-Ao cadastrar o material "Via Bela", a IA não sugeriu nenhum código BNCC.
+CORREÇÕES DESTA VERSÃO
 
-CAUSA
-O campo "Faixa etária" do cadastro de material era texto livre. O filtro no
-Worker comparava esse texto quase literalmente contra a coluna school_year
-do banco — se o texto digitado não batesse com o formato salvo, o filtro
-zerava os candidatos ANTES mesmo de chamar a IA (por isso "nenhuma
-sugestão", sem nenhum erro aparente).
-A rota de sugestão do registro diário (/ai/bncc-suggest) nunca teve esse
-problema porque não usa texto livre: ela recebe o ano real da criança e
-monta padrões de código (ex.: EF15%, EF69%) que cobrem tanto o ano
-específico quanto os códigos que abrangem várias séries.
+1. Faixa etária / ano no cadastro de material
+- Corrigido o erro que mostrava literalmente ${esc(s)} na lista suspensa.
+- As opções agora são preenchidas por JavaScript a partir de STAGES.
 
-CORREÇÃO
-1. FRONTEND: o campo "Faixa etária" virou uma lista suspensa (<select>),
-   usando os mesmos valores já existentes em STAGES (a mesma lista usada em
-   toda a parte de cadastro/edição de criança) — não é mais possível digitar
-   um valor que não exista na base.
-2. WORKER (/ai/material-bncc-suggest): portada a mesma lógica de padrão de
-   código já usada e validada em /ai/bncc-suggest — reconhece Ensino
-   Fundamental (com o ano exato), Ensino Médio, e as três etapas da Educação
-   Infantil (Bebês / Crianças bem pequenas / Crianças pequenas), em vez do
-   heurístico anterior baseado só em extrair dígitos do texto (que não
-   soubemos entrar em produção — este pacote já nasce com a versão correta).
+2. Atividade vinda do planejamento
+- A tela agora mostra claramente “Concluir atividade planejada”.
+- Quando o material possui mais de uma habilidade BNCC, aparece uma orientação destacada pedindo para tocar em um código.
+- O código escolhido fica marcado com ✓ e destaque visual.
+- Se houver várias habilidades vinculadas ao material e nenhuma for escolhida, o registro não é salvo até a escolha.
+- Se houver apenas uma habilidade, ela continua sendo aplicada automaticamente.
 
-RESULTADO ESPERADO
-Selecionar, por exemplo, "2º Ano do Ensino Fundamental" na faixa etária do
-material agora traz tanto habilidades específicas do 2º ano quanto as que
-abrangem 1º ao 5º ano — igual já acontece no registro diário.
+3. Registro desaparecia após salvar atividade do planejamento
+- Corrigida a causa: startPlan criava um objeto temporário em editing com um ID novo, e saveEntry tratava esse objeto como se fosse um registro já existente.
+- Como o ID ainda não existia na lista, o map() não inseria nada.
+- Agora saveEntry verifica se o ID já existe: se existir, edita; se não existir, cria um novo registro.
+- O planejamento é concluído somente junto com a criação efetiva do registro.
+
+ARQUIVOS
+- index.html
+- sw.js
+- version.json
+- manifest.json
 
 WORKER / D1
-worker-v0.11.txt substitui o Worker. Nenhuma migração nova de banco.
+- Nenhuma alteração necessária para estas três correções.
 
-VALIDAÇÕES REALIZADAS
-- JavaScript inline do index.html: sintaxe OK.
-- worker-v0.11.txt: sintaxe OK (node --check).
-- Nenhuma função chamada no HTML sem definição correspondente.
-- Nenhum id duplicado com risco real (só photoPreviewImg, já confirmado
-  inofensivo na v5.13).
-
-NÃO TESTADO
-- Chamada real contra o Gemini com o material "Via Bela" — não tenho acesso
-  ao Worker publicado nem ao D1 para reproduzir o teste que você fez.
+VALIDAÇÃO
+- Ambos os blocos JavaScript inline do index.html passaram em node --check.
+- sw.js passou em node --check.
