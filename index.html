@@ -362,7 +362,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.17 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v5.18 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -462,7 +462,7 @@ body.app-authenticated .cloud-card{display:none!important}
       </div>
       <div class="card">
         <div class="toolbar" style="justify-content:space-between">
-          <div><h3 style="margin-bottom:3px">Cadastrar material de estudo</h3><div class="meta">Vincule um material que vocês usam a códigos da BNCC — outras famílias que usarem o mesmo material se beneficiam disso depois.</div></div>
+          <div><h3 style="margin-bottom:3px">Cadastrar material de estudo</h3><div class="meta">Cadastre ou selecione os materiais de estudo utilizados pela família. Materiais já cadastrados podem ser reutilizados por outras famílias.</div></div>
           <button class="btn" onclick="toggleMaterialSearch(true)">+ Material</button>
         </div>
       </div>
@@ -473,17 +473,12 @@ body.app-authenticated .cloud-card{display:none!important}
         <div id="materialSearchResults"></div>
 
         <div id="materialNewForm" class="notice hidden" style="margin-top:10px">
-          <div class="meta" style="margin-bottom:8px">Preencha para solicitar a inclusão deste material</div>
+          <div class="meta" style="margin-bottom:8px">Preencha os dados básicos para solicitar a inclusão deste material.</div>
           <div class="grid">
             <div><label class="field">Editora / autor (opcional)</label><input id="materialPublisher"></div>
             <div><label class="field">Faixa etária / ano (opcional)</label><select id="materialAgeRange"><option value="">Não informar</option></select></div>
-            <div class="full"><label class="field">Componente (opcional, ajuda a IA a acertar mais rápido)</label><select id="materialComponent"></select></div>
-            <div class="full"><label class="field">O que essa lição/unidade ensina de fato? <span class="required-mark">*</span></label><textarea id="materialDescription" rows="2" placeholder="Ex.: leitura e reescrita de uma fábula clássica, identificando a moral da história."></textarea></div>
+            <div class="full"><label class="field">Descrição / observações (opcional)</label><textarea id="materialDescription" rows="2" placeholder="Ex.: apostila anual do 2º ano; coleção de exercícios; livro de apoio."></textarea></div>
           </div>
-          <div class="toolbar" style="margin-top:8px">
-            <button type="button" class="btn dark" id="materialAiBtn" onclick="suggestMaterialBncc()">✨ Sugerir habilidade BNCC</button>
-          </div>
-          <div id="materialAiResults" style="margin-top:10px"></div>
           <div class="toolbar" style="margin-top:10px">
             <button type="button" class="btn success" onclick="submitMaterialRequest()">Enviar para validação do admin</button>
             <button type="button" class="btn" onclick="toggleMaterialSearch(false)">Cancelar</button>
@@ -506,8 +501,6 @@ body.app-authenticated .cloud-card{display:none!important}
           <div id="planMaterialResults"></div>
           <div id="planMaterialSelected" class="hidden"></div>
           <input id="planMaterialId" type="hidden"><input id="planMaterialName" type="hidden"><input id="planMaterialPublisher" type="hidden">
-          <input id="planMaterialBnccCode" type="hidden"><input id="planMaterialBnccDescription" type="hidden"><input id="planMaterialBnccComponent" type="hidden"><input id="planMaterialBnccArea" type="hidden">
-          <input id="planMaterialBnccSkillsJson" type="hidden" value="[]">
         </div>
         <div class="full"><label class="field">O que vamos fazer? <span class="required-mark">*</span></label><input id="planTitle" placeholder="Ex.: Leitura do capítulo 3"></div>
         <div class="full"><label class="field">Observações (opcional)</label><textarea id="planNotes" rows="2"></textarea></div>
@@ -4094,7 +4087,7 @@ function renderRecordPage(){
       <label class="field">Material utilizado (opcional)</label>
       <input id="recordMaterialSearch" placeholder="Busque pelo nome do livro, apostila ou material" oninput="recordMaterialSearchChanged()">
       <div id="recordMaterialResults"></div>
-      <div id="recordMaterialSelected" class="${f.materialName?"":"hidden"}">${f.materialName?`<div class="notice" style="margin-top:7px"><b>📘 ${esc(f.materialName)}</b>${f.materialPublisher?` · ${esc(f.materialPublisher)}`:""}${f.codigo?`<div class="meta" style="margin-top:4px">BNCC vinculada: <b>${esc(f.codigo)}</b></div>`:""}<button type="button" class="btn small" style="margin-top:6px" onclick="clearRecordMaterial()">Trocar / remover material</button></div>`:""}</div>
+      <div id="recordMaterialSelected" class="${f.materialName?"":"hidden"}">${f.materialName?`<div class="notice" style="margin-top:7px"><b>📘 ${esc(f.materialName)}</b>${f.materialPublisher?` · ${esc(f.materialPublisher)}`:""}<button type="button" class="btn small" style="margin-top:6px" onclick="clearRecordMaterial()">Trocar / remover material</button></div>`:""}</div>
       <input id="fMaterialId" type="hidden" value="${esc(f.materialId||"")}"><input id="fMaterialName" type="hidden" value="${esc(f.materialName||"")}"><input id="fMaterialPublisher" type="hidden" value="${esc(f.materialPublisher||"")}">
     </div>
     <div id="aiBnccMain" class="full ai-main-card ${f.type==="complementar"?"hidden":""}">
@@ -4172,12 +4165,8 @@ function renderRecordPage(){
    if(el){el.addEventListener("input",updateRecordPreview);el.addEventListener("change",updateRecordPreview);}
  });
  updateRecordPreview();
- if(f.materialId&&f.materialName&&Array.isArray(f.materialBnccSkills)&&f.materialBnccSkills.length){
-   renderRecordMaterialSelection({id:f.materialId,name:f.materialName,publisher:f.materialPublisher||""},f.materialBnccSkills);
-   if(f.codigo){
-     const idx=f.materialBnccSkills.findIndex(x=>String(x.codigo||"").toUpperCase()===String(f.codigo||"").toUpperCase());
-     if(idx>=0)applyMaterialBnccToRecord(idx);
-   }
+ if(f.materialId&&f.materialName){
+   renderRecordMaterialSelection({id:f.materialId,name:f.materialName,publisher:f.materialPublisher||""});
  }
  if(photoData&&photoTakenAt)renderPhotoDateHint();
  if(search.length>=2)refreshGlobalSearch();
@@ -4439,10 +4428,12 @@ function applyAiBnccSuggestion(index){
 
 
 // =========================================================
-// V5.11 — MATERIAL VINCULADO AO PLANEJAMENTO E AO REGISTRO
+// V5.18 — MATERIAL VINCULADO SEM HERDAR BNCC
 // =========================================================
 let planMaterialSearchSeq=0,recordMaterialSearchSeq=0;
 let planMaterialSearchResults=[],recordMaterialSearchResults=[],catalogMaterialSearchResults=[];
+// Campos/estruturas materialBncc* antigos permanecem compatíveis nos dados,
+// mas não participam mais do fluxo Material -> Planejamento -> Registro.
 let planMaterialBnccSkills=[],recordMaterialBnccSkills=[];
 
 async function searchMaterialsCatalog(q){
@@ -4452,21 +4443,9 @@ async function searchMaterialsCatalog(q){
  const data=await backendFetch("/materials?"+qs.toString());
  return data?.materials||[];
 }
-async function resolveMaterialBnccSkills(material){
- const codes=[...new Set((material?.bncc_codes||[]).map(x=>String(x||"").trim()).filter(Boolean))];
- const out=[];
- for(const code of codes){
-   try{
-     const list=await fetchBnccSkills({code,limit:20});
-     const exact=(list||[]).find(x=>String(x.codigo).toUpperCase()===code.toUpperCase()) || (list||[])[0];
-     out.push(exact||{codigo:code,descricao:"",componente:"",area:"",serie:""});
-   }catch(e){out.push({codigo:code,descricao:"",componente:"",area:"",serie:""})}
- }
- return out;
-}
 function materialResultCard(m,index,context){
  const action=context==="plan"?`choosePlanMaterial(${index})`:`chooseRecordMaterial(${index})`;
- return `<div class="duplicate-card" style="margin-top:7px"><div><b>${esc(m.name||"")}</b>${m.publisher?` — ${esc(m.publisher)}`:""}</div><div class="meta">${(m.bncc_codes||[]).length} código(s) BNCC vinculado(s)${m.status==="pending"?" · aguardando validação":""}</div><button type="button" class="btn success small" style="margin-top:6px" onclick="${action}">Usar este material</button></div>`;
+ return `<div class="duplicate-card" style="margin-top:7px"><div><b>${esc(m.name||"")}</b>${m.publisher?` — ${esc(m.publisher)}`:""}</div>${m.age_range?`<div class="meta">${esc(m.age_range)}</div>`:""}<div class="meta">${m.status==="pending"?"Aguardando validação do catálogo · disponível para sua família":"Material do catálogo"}</div><button type="button" class="btn success small" style="margin-top:6px" onclick="${action}">Usar este material</button></div>`;
 }
 function planMaterialSearchChanged(){
  const q=$("planMaterialSearch")?.value.trim()||"",seq=++planMaterialSearchSeq,box=$("planMaterialResults");
@@ -4485,30 +4464,17 @@ async function choosePlanMaterial(index){
  if($("planMaterialPublisher"))$("planMaterialPublisher").value=m.publisher||"";
  if($("planMaterialSearch"))$("planMaterialSearch").value="";
  if($("planMaterialResults"))$("planMaterialResults").innerHTML="";
- if($("planComponent")&&!$("planComponent").value.trim()&&m.curricular_component)$("planComponent").value=m.curricular_component;
- const skills=await resolveMaterialBnccSkills(m);
- if($("planMaterialBnccSkillsJson"))$("planMaterialBnccSkillsJson").value=JSON.stringify(skills||[]);
- renderPlanMaterialSelection(m,skills);
+ renderPlanMaterialSelection(m);
 }
-function renderPlanMaterialSelection(m,skills=[]){
+function renderPlanMaterialSelection(m){
  const box=$("planMaterialSelected");if(!box)return;
- planMaterialBnccSkills=skills||[];
+ planMaterialBnccSkills=[];
  box.classList.remove("hidden");
- box.innerHTML=`<div class="notice" style="margin-top:7px"><b>📘 ${esc(m.name||"")}</b>${m.publisher?` · ${esc(m.publisher)}`:""}<div class="meta" style="margin-top:4px">As habilidades deste material serão levadas para o registro. Você pode escolher agora a principal, ou decidir ao concluir a atividade.</div>${skills.length?`<div style="margin-top:7px">${skills.map((x,i)=>`<button type="button" class="btn small" style="margin:0 5px 5px 0" onclick="selectPlanMaterialBncc(${i})">${esc(x.codigo)}</button>`).join("")}</div>`:'<div class="meta" style="margin-top:6px">Este material ainda não possui habilidade BNCC vinculada.</div>'}<div id="planMaterialBnccChosen" class="meta" style="margin-top:3px"></div><button type="button" class="btn small" style="margin-top:6px" onclick="clearPlanMaterial()">Trocar / remover material</button></div>`;
- if(skills.length===1)selectPlanMaterialBncc(0);
-}
-function selectPlanMaterialBncc(index){
- const x=planMaterialBnccSkills[index];if(!x)return;
- if($("planMaterialBnccCode"))$("planMaterialBnccCode").value=x.codigo||"";
- if($("planMaterialBnccDescription"))$("planMaterialBnccDescription").value=x.descricao||"";
- if($("planMaterialBnccComponent"))$("planMaterialBnccComponent").value=x.componente||"";
- if($("planMaterialBnccArea"))$("planMaterialBnccArea").value=x.area||"";
- if($("planComponent")&&!$("planComponent").value.trim()&&x.componente)$("planComponent").value=x.componente;
- if($("planMaterialBnccChosen"))$("planMaterialBnccChosen").innerHTML=x.codigo?`BNCC escolhida: <b>${esc(x.codigo)}</b>${x.descricao?` — ${esc(x.descricao)}`:""}`:"";
+ box.innerHTML=`<div class="notice" style="margin-top:7px"><b>📘 ${esc(m.name||"")}</b>${m.publisher?` · ${esc(m.publisher)}`:""}${m.age_range?`<div class="meta" style="margin-top:4px">${esc(m.age_range)}</div>`:""}<div class="meta" style="margin-top:4px">O material será levado para o registro. A habilidade BNCC será escolhida pela atividade realmente realizada, não pela apostila.</div><button type="button" class="btn small" style="margin-top:6px" onclick="clearPlanMaterial()">Trocar / remover material</button></div>`;
 }
 function clearPlanMaterial(){
- ["planMaterialId","planMaterialName","planMaterialPublisher","planMaterialBnccCode","planMaterialBnccDescription","planMaterialBnccComponent","planMaterialBnccArea"].forEach(id=>{if($(id))$(id).value=""});
- if($("planMaterialBnccSkillsJson"))$("planMaterialBnccSkillsJson").value="[]";
+ ["planMaterialId","planMaterialName","planMaterialPublisher"].forEach(id=>{if($(id))$(id).value=""});
+ planMaterialBnccSkills=[];
  if($("planMaterialSelected")){ $("planMaterialSelected").innerHTML="";$("planMaterialSelected").classList.add("hidden") }
 }
 function recordMaterialSearchChanged(){
@@ -4528,35 +4494,20 @@ async function chooseRecordMaterial(index){
  if($("fMaterialPublisher"))$("fMaterialPublisher").value=m.publisher||"";
  if($("recordMaterialSearch"))$("recordMaterialSearch").value="";
  if($("recordMaterialResults"))$("recordMaterialResults").innerHTML="";
- const skills=await resolveMaterialBnccSkills(m);
- renderRecordMaterialSelection(m,skills);
+ renderRecordMaterialSelection(m);
  saveRecordDraft(true);
 }
-function renderRecordMaterialSelection(m,skills=[]){
+function renderRecordMaterialSelection(m){
  const box=$("recordMaterialSelected");if(!box)return;
- recordMaterialBnccSkills=skills||[];
- const chosenCode=String($("fCode")?.value||editing?.codigo||"").trim();
+ recordMaterialBnccSkills=[];
  box.classList.remove("hidden");
- box.innerHTML=`<div class="notice" style="margin-top:7px"><b>📘 ${esc(m.name||"")}</b>${m.publisher?` · ${esc(m.publisher)}`:""}${skills.length?`<div class="material-skill-required">${chosenCode?"✓ Habilidade BNCC selecionada. Você pode trocar abaixo.":"👇 Este material possui habilidades BNCC. Toque em um dos códigos abaixo antes de salvar o registro."}</div><div style="margin-top:7px">${skills.map((x,i)=>`<button type="button" id="recordMaterialSkillBtn${i}" class="btn small material-skill-choice ${String(x.codigo||"")===chosenCode?"selected":""}" style="margin:0 5px 5px 0" onclick="applyMaterialBnccToRecord(${i})">${String(x.codigo||"")===chosenCode?"✓ ":""}${esc(x.codigo)}</button>`).join("")}</div><div id="recordMaterialBnccChosen" class="meta" style="margin-top:3px">${chosenCode?`Vinculada ao registro: <b>${esc(chosenCode)}</b>`:"Nenhum código escolhido ainda."}</div>`:'<div class="meta" style="margin-top:4px">Este material ainda não possui habilidade BNCC vinculada.</div>'}<button type="button" class="btn small" style="margin-top:6px" onclick="clearRecordMaterial()">Trocar / remover material</button></div>`;
- if(skills.length===1&&!chosenCode)applyMaterialBnccToRecord(0);
+ box.innerHTML=`<div class="notice" style="margin-top:7px"><b>📘 ${esc(m.name||"")}</b>${m.publisher?` · ${esc(m.publisher)}`:""}${m.age_range?`<div class="meta" style="margin-top:4px">${esc(m.age_range)}</div>`:""}<div class="meta" style="margin-top:4px">A BNCC deste registro é definida pela atividade realizada.</div><button type="button" class="btn small" style="margin-top:6px" onclick="clearRecordMaterial()">Trocar / remover material</button></div>`;
 }
-function applyMaterialBnccToRecord(index){
- const x=recordMaterialBnccSkills[index];if(!x)return;
- const comp=String(x.componente||"").trim(),area=String(x.area||componentArea(comp)||"").trim(),code=String(x.codigo||"").trim(),desc=String(x.descricao||"").trim();
- if($("fArea"))$("fArea").value=area;
- if($("fComp")){ $("fComp").innerHTML=groupedComponentOptions(comp);$("fComp").value=comp }
- if($("fCode"))$("fCode").value=code;
- if($("fSkill")){ $("fSkill").innerHTML=`<option value="">Selecione...</option><option data-code="${esc(code)}" value="${esc(desc)}" selected>${esc(code)} — ${esc(x.serie||anoBnccDoCodigo(code))} — ${esc(desc)}</option>`;$("fSkill").value=desc }
- recordMaterialBnccSkills.forEach((skill,i)=>{
-   const btn=$("recordMaterialSkillBtn"+i);if(!btn)return;
-   const selected=i===index;btn.classList.toggle("selected",selected);btn.textContent=(selected?"✓ ":"")+(skill.codigo||"");
- });
- if($("recordMaterialBnccChosen"))$("recordMaterialBnccChosen").innerHTML=`Vinculada ao registro: <b>${esc(code)}</b>${desc?` — ${esc(desc)}`:""}`;
- if($("skillCount"))$("skillCount").textContent="Habilidade vinculada ao material · confira antes de salvar";
- saveRecordDraft(true);updateRecordPreview();
-}
+// Mantida apenas por compatibilidade com registros/drafts antigos.
+function applyMaterialBnccToRecord(){ return; }
 function clearRecordMaterial(){
  ["fMaterialId","fMaterialName","fMaterialPublisher"].forEach(id=>{if($(id))$(id).value=""});
+ recordMaterialBnccSkills=[];
  if($("recordMaterialSelected")){ $("recordMaterialSelected").innerHTML="";$("recordMaterialSelected").classList.add("hidden") }
  saveRecordDraft(true);
 }
@@ -4566,7 +4517,7 @@ function clearRecordMaterial(){
 // =========================================================
 
 let materialSearchSeq=0;
-let selectedMaterialCodes=[];
+let selectedMaterialCodes=[]; // legado adormecido: novos materiais v5.18 não vinculam BNCC
 
 function toggleMaterialSearch(show){
  $("materialSearchCard")?.classList.toggle("hidden",!show);
@@ -4574,6 +4525,9 @@ function toggleMaterialSearch(show){
    $("materialSearchInput").value="";
    $("materialSearchResults").innerHTML="";
    $("materialNewForm")?.classList.add("hidden");
+   if($("materialPublisher"))$("materialPublisher").value="";
+   if($("materialAgeRange"))$("materialAgeRange").value="";
+   if($("materialDescription"))$("materialDescription").value="";
    selectedMaterialCodes=[];
  }
 }
@@ -4598,24 +4552,24 @@ async function runMaterialSearch(q,seq){
    const list=data?.materials||[];
    catalogMaterialSearchResults=list;
    if(!list.length){
-     box.innerHTML=`<div class="toolbar" style="margin-top:8px"><button type="button" class="btn success" onclick="startNewMaterialRequest()">É diferente, solicitar cadastro</button></div>`;
+     box.innerHTML=`<div class="notice" style="margin-top:8px">Nenhum material encontrado.</div><div class="toolbar" style="margin-top:8px"><button type="button" class="btn success" onclick="startNewMaterialRequest()">+ Cadastrar este material</button></div>`;
      return;
    }
    box.innerHTML=list.map((m,i)=>`
      <div class="duplicate-card">
        <div style="font-size:13px"><b>${esc(m.name)}</b>${m.publisher?" — "+esc(m.publisher):""}</div>
-       <div class="meta">${(m.bncc_codes||[]).length} código(s) BNCC vinculado(s)${m.status==="pending"?" · aguardando validação":""}</div>
+       ${m.age_range?`<div class="meta">${esc(m.age_range)}</div>`:""}
+       <div class="meta">${m.status==="pending"?"Aguardando validação do catálogo · disponível para sua família":"Material do catálogo"}</div>
        <div class="toolbar" style="margin-top:6px">
          <button type="button" class="btn success small" onclick="useCatalogMaterialInPlan(${i})">Usar este material</button>
        </div>
      </div>
-   `).join("")+`<div class="toolbar" style="margin-top:8px"><button type="button" class="btn small" onclick="startNewMaterialRequest()">Nenhum destes, solicitar cadastro</button></div>`;
+   `).join("")+`<div class="toolbar" style="margin-top:8px"><button type="button" class="btn small" onclick="startNewMaterialRequest()">Não é nenhum destes? Cadastrar novo material</button></div>`;
  }catch(e){
    console.error("Busca de materiais:",e);
    box.innerHTML=`<div class="notice">Erro ao buscar: ${esc(e.message||"tente novamente")}</div>`;
  }
 }
-
 
 async function useCatalogMaterialInPlan(index){
  const m=catalogMaterialSearchResults[index];if(!m)return;
@@ -4628,54 +4582,12 @@ async function useCatalogMaterialInPlan(index){
 
 function startNewMaterialRequest(){
  $("materialNewForm")?.classList.remove("hidden");
- if($("materialComponent"))$("materialComponent").innerHTML=groupedComponentOptions("");
- $("materialAiResults").innerHTML="";
  selectedMaterialCodes=[];
+ setTimeout(()=>$("materialPublisher")?.focus(),0);
 }
 
-async function suggestMaterialBncc(){
- const description=$("materialDescription")?.value.trim()||"";
- const ageRange=$("materialAgeRange")?.value.trim()||"";
- const component=$("materialComponent")?.value.trim()||"";
- const area=component?componentArea(component):"";
- const box=$("materialAiResults");
- const btn=$("materialAiBtn");
- if(description.length<5){
-   box.innerHTML=`<div class="notice">Descreva um pouco melhor o que o material ensina.</div>`;
-   return;
- }
- if(btn){btn.disabled=true;btn.innerHTML='<span class="ai-spinner"></span> Analisando';}
- box.innerHTML="";
- try{
-   const data=await backendFetch("/ai/material-bncc-suggest",{
-     method:"POST",
-     body:JSON.stringify({content_description:description,age_range:ageRange,component,area})
-   });
-   const suggestions=data?.suggestions||[];
-   if(!suggestions.length){
-     box.innerHTML=`<div class="notice">${esc(data?.message||"Nenhuma sugestão encontrada. Pode ser normal para conteúdo fora do escopo da BNCC.")}</div>`;
-     return;
-   }
-   selectedMaterialCodes=suggestions.map(s=>s.code);
-   box.innerHTML=`
-     <div class="ai-suggestion">
-       <div class="meta" style="margin-bottom:6px">sugestões da IA para esta solicitação</div>
-       ${suggestions.map(s=>`
-         <div style="background:#FFFFFF;border-radius:8px;padding:8px 10px;margin-bottom:6px">
-           <div class="ai-suggestion-code">${esc(s.code||"")}</div>
-           <div class="meta">${esc(s.curricular_component||"")}${s.school_year?" · "+esc(s.school_year):""}</div>
-           <div style="margin-top:4px;font-size:13px">${esc(s.description||"")}</div>
-         </div>
-       `).join("")}
-       <div class="meta">${suggestions.length} código(s) serão vinculados ao enviar para validação.</div>
-     </div>`;
- }catch(e){
-   console.error("Sugestão BNCC material:",e);
-   box.innerHTML=`<div class="notice">Erro: ${esc(e.message||"não foi possível consultar a IA.")}</div>`;
- }finally{
-   if(btn){btn.disabled=false;btn.textContent="✨ Sugerir habilidade BNCC";}
- }
-}
+// Função mantida adormecida por compatibilidade; a v5.18 não sugere BNCC no cadastro de material.
+async function suggestMaterialBncc(){ return; }
 
 async function submitMaterialRequest(){
  const fam=currentBackendFamily();
@@ -4690,8 +4602,7 @@ async function submitMaterialRequest(){
        name,
        publisher:$("materialPublisher")?.value.trim()||"",
        age_range:$("materialAgeRange")?.value.trim()||"",
-       content_description:$("materialDescription")?.value.trim()||"",
-       bncc_codes:selectedMaterialCodes
+       content_description:$("materialDescription")?.value.trim()||""
      })
    });
    alert("Material enviado para validação. Já está disponível para a sua família.");
@@ -4724,25 +4635,37 @@ async function buildBnccEmbeddings(){
  if(btn){btn.disabled=true;btn.innerHTML='<span class="ai-spinner"></span> Preparando';}
  try{
    let rounds=0;
-   while(rounds<80){
-     const data=await backendFetch("/admin/bncc-embeddings/build",{method:"POST",body:JSON.stringify({limit:25})});
+   while(rounds<240){
+     const data=await backendFetch("/admin/bncc-embeddings/build",{method:"POST",body:JSON.stringify({limit:8})});
      const total=Number(data?.total||0),ready=Number(data?.ready||0);
-     if(box)box.textContent=`${ready} de ${total} habilidades preparadas. Não feche esta tela.`;
+     if(data?.paused&&Number(data?.provider_status)===429){
+       const waitSeconds=Math.max(10,Number(data?.retry_after_seconds)||65);
+       for(let s=waitSeconds;s>0;s--){
+         if(box)box.textContent=`${ready} de ${total} habilidades preparadas · limite temporário da API. Retomando automaticamente em ${s}s…`;
+         await new Promise(r=>setTimeout(r,1000));
+       }
+       rounds++;
+       continue;
+     }
+     if(box)box.textContent=`${ready} de ${total} habilidades preparadas. Processando em ritmo seguro…`;
      if(data?.done||ready>=total){
        if(box)box.textContent=`✓ ${ready} de ${total} habilidades preparadas. Busca semântica pronta.`;
        break;
      }
      rounds++;
-     await new Promise(r=>setTimeout(r,350));
+     await new Promise(r=>setTimeout(r,1500));
    }
  }catch(e){
-   if(box)box.textContent="Erro ao preparar embeddings: "+(e.message||"tente novamente");
+   const status=e?.payload?.provider_status||e?.status||"";
+   const code=e?.payload?.bncc_code?` · ${e.payload.bncc_code}`:"";
+   if(box)box.textContent=`Erro ao preparar embeddings${code}${status?` · API ${status}`:""}: ${e.message||"tente novamente"}`;
  }finally{
    if(btn){btn.disabled=false;btn.textContent="Preparar embeddings da BNCC";}
    loadBnccEmbeddingStatus();
  }
 }
 
+let pendingMaterialsCache=[];
 async function loadPendingMaterials(){
  const box=$("pendingMaterialsBox");
  if(!box)return;
@@ -4750,22 +4673,54 @@ async function loadPendingMaterials(){
  try{
    const data=await backendFetch("/materials/pending");
    const list=data?.materials||[];
+   pendingMaterialsCache=list;
    if(!list.length){box.innerHTML="Nenhum material pendente.";return}
-   box.innerHTML=list.map(m=>`
-     <div class="duplicate-card">
+   box.innerHTML=list.map((m,i)=>`
+     <div class="duplicate-card" id="pendingMaterialCard${i}">
        <div style="font-size:13px"><b>${esc(m.name)}</b>${m.publisher?" — "+esc(m.publisher):""}</div>
        <div class="meta">Solicitado por: ${esc(m.family_name||m.requested_by_family_id)}</div>
-       <div class="meta">${esc(m.content_description||"")}</div>
-       <div class="meta">Códigos sugeridos: ${(m.bncc_codes||[]).map(esc).join(", ")||"nenhum"}</div>
+       ${m.age_range?`<div class="meta">Faixa/ano: ${esc(m.age_range)}</div>`:""}
+       ${m.content_description?`<div class="meta">${esc(m.content_description)}</div>`:""}
        <div class="toolbar" style="margin-top:6px">
+         <button type="button" class="btn small" onclick="editPendingMaterial(${i})">Editar</button>
          <button type="button" class="btn success small" onclick="reviewMaterial('${m.id}','approve')">Aprovar</button>
          <button type="button" class="btn danger small" onclick="reviewMaterial('${m.id}','reject')">Rejeitar</button>
        </div>
+       <div id="pendingMaterialEdit${i}" class="hidden" style="margin-top:8px"></div>
      </div>
    `).join("");
  }catch(e){
    const msg=String(e.message||"");
    box.innerHTML=`<div class="notice">${esc(msg.includes("GLOBAL_ADMIN_REQUIRED")?"Esta conta ainda não está configurada como Administrador global do catálogo no Worker.":(msg||"Você não tem permissão para ver esta lista."))}</div>`;
+ }
+}
+
+function editPendingMaterial(index){
+ const m=pendingMaterialsCache[index];if(!m)return;
+ const box=$("pendingMaterialEdit"+index);if(!box)return;
+ box.classList.remove("hidden");
+ box.innerHTML=`<div class="notice"><div class="grid"><div class="full"><label class="field">Nome</label><input id="adminMatName${index}" value="${esc(m.name||"")}"></div><div><label class="field">Editora / autor</label><input id="adminMatPublisher${index}" value="${esc(m.publisher||"")}"></div><div><label class="field">Faixa / ano</label><input id="adminMatAge${index}" value="${esc(m.age_range||"")}"></div><div class="full"><label class="field">Descrição / observações</label><textarea id="adminMatDescription${index}" rows="2">${esc(m.content_description||"")}</textarea></div></div><div class="toolbar" style="margin-top:8px"><button type="button" class="btn" onclick="savePendingMaterial(${index},false)">Salvar alterações</button><button type="button" class="btn success" onclick="savePendingMaterial(${index},true)">Salvar e aprovar</button><button type="button" class="btn small" onclick="$('pendingMaterialEdit${index}').classList.add('hidden')">Cancelar</button></div></div>`;
+ setTimeout(()=>$("adminMatName"+index)?.focus(),0);
+}
+
+async function savePendingMaterial(index,approveAfter=false){
+ const m=pendingMaterialsCache[index];if(!m)return;
+ const name=$("adminMatName"+index)?.value.trim()||"";
+ if(!name)return alert("Informe o nome do material.");
+ try{
+   await backendFetch(`/materials/${encodeURIComponent(m.id)}`,{
+     method:"PUT",
+     body:JSON.stringify({
+       name,
+       publisher:$("adminMatPublisher"+index)?.value.trim()||"",
+       age_range:$("adminMatAge"+index)?.value.trim()||"",
+       content_description:$("adminMatDescription"+index)?.value.trim()||""
+     })
+   });
+   if(approveAfter)await backendFetch(`/materials/${encodeURIComponent(m.id)}/approve`,{method:"POST"});
+   await loadPendingMaterials();
+ }catch(e){
+   alert("Erro ao salvar material: "+(e.message||"tente novamente"));
  }
 }
 
@@ -4814,8 +4769,6 @@ function saveEntry(){
  habilidade:type==="bncc"?$("fSkill").value:(comp?.name||""),materialId:type==="bncc"?($("fMaterialId")?.value||""):"",materialName:type==="bncc"?($("fMaterialName")?.value||""):"",materialPublisher:type==="bncc"?($("fMaterialPublisher")?.value||""):"",atividade:$("fActivity").value.trim(),observacoes:$("fObs").value.trim(),status:$("fStatus").value,
  foto:photoData||editing?.foto||"",fotoDriveId:editing?.fotoDriveId||"",fotoVisibleDriveId:editing?.fotoVisibleDriveId||"",audio:editing?.audio||"",audioDriveId:editing?.audioDriveId||""};
  if(!e.date)missing.push("Data");if(type==="complementar"&&!e.habilidade)missing.push("Atividade complementar");if(!e.atividade)missing.push("Atividade realizada");if(!e.status)missing.push("Avaliação");
- const materialSkills=Array.isArray(editing?.materialBnccSkills)?editing.materialBnccSkills:recordMaterialBnccSkills;
- if(type==="bncc"&&e.materialId&&materialSkills.length>1&&!e.codigo)missing.push("Escolha um código BNCC do material utilizado");
  if(missing.length)return alert("Preencha antes de registrar:\n\n• "+missing.join("\n• "));
  let savedChildId=activeChildId;
  let planIdToComplete=editing?.planId||"";
@@ -4971,18 +4924,18 @@ function addPlan(){
  const recurrence=$("planRecurrence")?.value||"none",weekdays=recurrence==="weekdays"?selectedPlanWeekdays():[];
  if(recurrence==="weekdays"&&!weekdays.length)return alert("Escolha pelo menos um dia da semana.");
  const start=$("planDate").value||today();
- state.plans.push({id:uid(),childId,date:start,nextDate:start,type,complementaryId:compAct?.id||"",component:type==="complementar"?(compAct?.category||"Atividade Complementar"):$("planComponent").value.trim(),title,notes:$("planNotes").value.trim(),materialId:type==="bncc"?($("planMaterialId")?.value||""):"",materialName:type==="bncc"?($("planMaterialName")?.value||""):"",materialPublisher:type==="bncc"?($("planMaterialPublisher")?.value||""):"",materialBnccCode:type==="bncc"?($("planMaterialBnccCode")?.value||""):"",materialBnccDescription:type==="bncc"?($("planMaterialBnccDescription")?.value||""):"",materialBnccComponent:type==="bncc"?($("planMaterialBnccComponent")?.value||""):"",materialBnccArea:type==="bncc"?($("planMaterialBnccArea")?.value||""):"",materialBnccSkills:type==="bncc"?(()=>{try{return JSON.parse($("planMaterialBnccSkillsJson")?.value||"[]")}catch(e){return []}})():[],recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],createdAt:now(),updatedAt:now(),completedAt:""});
+ state.plans.push({id:uid(),childId,date:start,nextDate:start,type,complementaryId:compAct?.id||"",component:type==="complementar"?(compAct?.category||"Atividade Complementar"):$("planComponent").value.trim(),title,notes:$("planNotes").value.trim(),materialId:type==="bncc"?($("planMaterialId")?.value||""):"",materialName:type==="bncc"?($("planMaterialName")?.value||""):"",materialPublisher:type==="bncc"?($("planMaterialPublisher")?.value||""):"",materialBnccCode:"",materialBnccDescription:"",materialBnccComponent:"",materialBnccArea:"",materialBnccSkills:[],recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],createdAt:now(),updatedAt:now(),completedAt:""});
  $("planTitle").value="";$("planNotes").value="";if($("planComplementary"))$("planComplementary").value="";clearPlanMaterial();saveLocal();renderPlans();renderDashboard()
 }
 function togglePlanForm(open){$('planFormCard')?.classList.toggle('hidden',!open);if(open){if($('planDate')&&!$('planDate').value)$('planDate').value=today();if($('planChild')&&activeChildId)$('planChild').value=activeChildId;refreshPlanComplementaryOptions();togglePlanTypeFields();$('planTitle')?.focus()}}
 function renderPlans(){
  let box=$("plansList");if(!box)return;let childId=$("planChild")?.value||activeChildId,td=today();
  let l=state.plans.filter(x=>!x.completedAt&&(!childId||x.childId===childId)&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
- const card=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':(p.nextDate||p.date)===td?'is-today':''}"><div class="plan-date">${fmtDate(p.nextDate||p.date)} · ${esc(state.family.children.find(c=>c.id===p.childId)?.name||'')}</div><div class="entry-title">${esc(p.title)}</div>${p.component?`<div class="skill">${esc(p.component)}</div>`:''}${p.materialName?`<div class="meta" style="margin-top:4px">📘 ${esc(p.materialName)}${p.materialBnccCode?` · BNCC <b>${esc(p.materialBnccCode)}</b>`:""}</div>`:""}${p.notes?`<div class="obs">${esc(p.notes)}</div>`:''}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">✓ Concluir e registrar</button>${p.recurrence!=='none'?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular / próxima</button>`:''}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`;
+ const card=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':(p.nextDate||p.date)===td?'is-today':''}"><div class="plan-date">${fmtDate(p.nextDate||p.date)} · ${esc(state.family.children.find(c=>c.id===p.childId)?.name||'')}</div><div class="entry-title">${esc(p.title)}</div>${p.component?`<div class="skill">${esc(p.component)}</div>`:''}${p.materialName?`<div class="meta" style="margin-top:4px">📘 ${esc(p.materialName)}</div>`:""}${p.notes?`<div class="obs">${esc(p.notes)}</div>`:''}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">✓ Concluir e registrar</button>${p.recurrence!=='none'?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular / próxima</button>`:''}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`;
  const late=l.filter(p=>(p.nextDate||p.date)<td),now=l.filter(p=>(p.nextDate||p.date)===td),future=l.filter(p=>(p.nextDate||p.date)>td);
  box.innerHTML=`${late.length?`<div class="plan-section-title">Atrasadas · ${late.length}</div>${late.map(card).join('')}`:''}<div class="plan-section-title">Hoje · ${now.length}</div>${now.map(card).join('')||"<div class='notice'>Nada planejado para hoje.</div>"}${future.length?`<div class="plan-section-title">Próximos dias · ${future.length}</div>${future.map(card).join('')}`:''}`;
 }
-function startPlan(id){let p=state.plans.find(x=>x.id===id);if(!p)return;activeChildId=p.childId;recordFormOpen=true;editing={id:uid(),isNewFromPlan:true,childId:p.childId,date:p.nextDate||p.date,type:p.type,complementaryId:p.complementaryId||"",area:p.materialBnccArea||"",componente:p.materialBnccComponent||p.component||"",codigo:p.materialBnccCode||"",habilidade:p.materialBnccDescription||"",materialId:p.materialId||"",materialName:p.materialName||"",materialPublisher:p.materialPublisher||"",materialBnccSkills:Array.isArray(p.materialBnccSkills)?p.materialBnccSkills:[],atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,planOccurrenceDate:p.nextDate||p.date};showPage("registro");renderRecordPage()}
+function startPlan(id){let p=state.plans.find(x=>x.id===id);if(!p)return;activeChildId=p.childId;recordFormOpen=true;editing={id:uid(),isNewFromPlan:true,childId:p.childId,date:p.nextDate||p.date,type:p.type,complementaryId:p.complementaryId||"",area:"",componente:p.component||"",codigo:"",habilidade:"",materialId:p.materialId||"",materialName:p.materialName||"",materialPublisher:p.materialPublisher||"",materialBnccSkills:[],atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,planOccurrenceDate:p.nextDate||p.date};showPage("registro");renderRecordPage()}
 function completePlanOccurrence(planId,occurrenceDate){const p=state.plans.find(x=>x.id===planId);if(!p)return;p.occurrences??=[];p.occurrences.push({date:occurrenceDate,status:"completed",updatedAt:now()});if(p.recurrence==="none"){p.completedAt=now();p.nextDate=""}else{p.nextDate=nextPlanDate(p,occurrenceDate);if(!p.nextDate)p.completedAt=now()}p.updatedAt=now()}
 function skipPlanOccurrence(id){const p=state.plans.find(x=>x.id===id);if(!p)return;const current=p.nextDate||p.date;if(!confirm(`Pular a ocorrência de ${fmtDate(current)}?`))return;p.occurrences??=[];p.occurrences.push({date:current,status:"skipped",updatedAt:now()});p.nextDate=nextPlanDate(p,current);if(!p.nextDate)p.completedAt=now();p.updatedAt=now();saveLocal();renderPlans();renderDashboard()}
 function deletePlan(id){state.plans=state.plans.filter(x=>x.id!==id);addTomb("plans",id);saveLocal();renderPlans();renderDashboard()}
@@ -5183,7 +5136,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.17";
+const APP_VERSION = "5.18";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

@@ -1,35 +1,32 @@
-DIÁRIO DE ESTUDOS — v5.17
+DIÁRIO DE ESTUDOS — v5.18
 
 BASE
-- Construída diretamente sobre a v5.16 enviada pelo usuário.
-- Preserva as funcionalidades e a seção “📘 Entenda a BNCC” da v5.16.
+- Construída diretamente sobre a v5.17.
+- Mantém a busca semântica BNCC e os embeddings existentes.
+- NÃO exige nova migração D1.
 
-NOVIDADE — BUSCA SEMÂNTICA BNCC
-- Adiciona índice de embeddings para a base oficial da BNCC.
-- Modelo de embedding: gemini-embedding-2.
-- Dimensão armazenada: 768.
-- A descrição da atividade é convertida em embedding no Worker.
-- O Worker restringe primeiro os candidatos ao ano/série da criança.
-- Calcula similaridade semântica e seleciona os 30 candidatos mais próximos.
-- O Gemini recebe somente esses candidatos e escolhe até 4 habilidades.
-- A primeira sugestão é identificada como “⭐ Mais forte”.
-- Se o índice ainda não estiver preparado, permanece disponível o fallback textual.
-- Se a série exata não produzir similaridade suficiente no Ensino Fundamental, o Worker pode ampliar para anos vizinhos.
+PRINCIPAIS MUDANÇAS
+1. Cadastro de material simplificado: sem seleção/sugestão de código BNCC.
+2. Quando a busca não encontra material, mostra “Nenhum material encontrado” + “Cadastrar este material”.
+3. Quando há resultados, oferece “Não é nenhum destes? Cadastrar novo material”.
+4. Admin pode Editar, Salvar alterações ou Salvar e aprovar material pendente.
+5. Material -> Planejamento -> Registro não herda mais código/habilidade BNCC.
+6. A BNCC do registro é definida pela atividade realmente realizada.
+7. Fallback semântico corrigido: se a geração do embedding da consulta falhar (inclusive 429), o Worker usa a busca textual anterior e continua a sugestão BNCC.
+8. Preparação inicial dos embeddings reduzida para ritmo seguro (~60 RPM), com pausa automática em 429 e mensagem mais informativa.
+9. A preparação continua apenas nos embeddings faltantes; os já gravados são preservados.
 
-ADMINISTRAÇÃO
-- Em Configurações > Materiais pendentes de validação, o administrador global pode acompanhar e preparar o índice semântico.
-- Requer variável de texto GLOBAL_ADMIN_EMAILS no Worker.
-- Usa a mesma GEMINI_API_KEY já configurada para a IA.
+WORKER
+- Publicar worker-v0.12.txt no Cloudflare Worker.
+- Mantém GEMINI_API_KEY e GLOBAL_ADMIN_EMAILS atuais.
 
-INSTALAÇÃO / ORDEM RECOMENDADA
-1. Execute migracao-embeddings-bncc-v5.17.sql no D1 uma única vez.
-2. Publique worker-v0.11.txt no Cloudflare Worker.
-3. Confirme no Worker as variáveis GEMINI_API_KEY e GLOBAL_ADMIN_EMAILS.
-4. Publique index.html, sw.js, manifest.json e version.json no GitHub Pages/PWA.
-5. Entre com a conta configurada em GLOBAL_ADMIN_EMAILS.
-6. Abra Configurações > Materiais pendentes de validação > Busca semântica BNCC.
-7. Clique em “Preparar embeddings da BNCC” e aguarde a conclusão.
+FRONTEND
+- Publicar index.html, sw.js, manifest.json e version.json.
+- Versão exibida: v5.18 PWA.
 
-D1
-- Nova tabela: bncc_embeddings.
-- A tabela bncc_skills não é alterada.
+ORDEM RECOMENDADA
+1. Publicar Worker v0.12.
+2. Publicar os arquivos do frontend v5.18.
+3. Reabrir/recarregar o PWA.
+4. Testar sugestão BNCC durante um 429 de embeddings: deve aparecer fallback textual, sem bloquear o registro.
+5. Testar cadastro e validação/edição de material.
