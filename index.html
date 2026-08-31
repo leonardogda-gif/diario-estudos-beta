@@ -231,6 +231,12 @@ body.app-authenticated .cloud-card{display:none!important}
 .ai-test-results{margin-top:10px}
 .ai-suggestion{border:1px solid #E2DCCD;background:#FFFDF8;border-radius:9px;padding:10px;margin-top:8px}
 .ai-suggestion-code{font-weight:900;color:#17332A}
+.ai-semantic-match{display:inline-block;margin-top:5px;font-size:12px;font-weight:800;color:#31594d;background:#eef6f2;border:1px solid #cfe2d9;border-radius:999px;padding:3px 7px}
+.ai-competency-section{margin-top:14px;padding-top:10px;border-top:1px solid #e4dfd4}
+.ai-competency-title{font-weight:900;color:#17332A;margin-bottom:4px}
+.ai-competency-note{font-size:12px;color:#6b6b62;margin-bottom:6px}
+.ai-competency{border-left:4px solid #8aa69a}
+
 .ai-usage{font-size:11px;color:#6A675D;margin-top:9px;padding-top:8px;border-top:1px solid #E2DCCD}
 .ai-spinner{display:inline-block;width:13px;height:13px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:aiSpin .7s linear infinite}
 @keyframes aiSpin{to{transform:rotate(360deg)}}
@@ -362,7 +368,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.18 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v5.19 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -4315,6 +4321,7 @@ function skillChanged(){
 
 
 let latestAiBnccSuggestions=[];
+let latestAiBnccCompetencies=[];
 let selectedAiBnccIndex=-1;
 
 async function testAiBnccSuggestion(){
@@ -4332,6 +4339,7 @@ async function testAiBnccSuggestion(){
  const area=String($("fArea")?.value||"").trim();
 
  latestAiBnccSuggestions=[];
+ latestAiBnccCompetencies=[];
  selectedAiBnccIndex=-1;
  if(box)box.innerHTML="";
  if(status)status.textContent="Buscando semanticamente na BNCC e consultando a IA…";
@@ -4344,26 +4352,49 @@ async function testAiBnccSuggestion(){
    });
 
    latestAiBnccSuggestions=Array.isArray(data?.suggestions)?data.suggestions:[];
+   latestAiBnccCompetencies=Array.isArray(data?.competencies)?data.competencies:[];
    const usage=data?.usage||{};
+   const semanticPct=s=>{
+     const n=Number(s?.semantic_similarity);
+     return Number.isFinite(n)?`${Math.max(0,Math.min(100,n*100)).toFixed(1).replace(".",",")}% de similaridade semântica`:"";
+   };
 
-   if(!latestAiBnccSuggestions.length){
-     if(status)status.textContent="A consulta terminou, mas nenhuma habilidade foi sugerida.";
+   if(!latestAiBnccSuggestions.length&&!latestAiBnccCompetencies.length){
+     if(status)status.textContent="A consulta terminou, mas nenhuma habilidade ou competência foi sugerida.";
      if(box)box.innerHTML='<div class="notice">Tente detalhar mais a atividade. Área e Componente continuam opcionais.</div>';
      return;
    }
 
-   if(status)status.textContent=`${latestAiBnccSuggestions.length} sugestão(ões) · ${data?.candidate_count??"?"} candidatos enviados à IA${data?.retrieval_mode==="embedding"?" · busca semântica":" · fallback textual"}`;
+   const totalCandidates=(data?.skill_candidate_count??20)+(data?.competency_candidate_count??10);
+   if(status)status.textContent=`${latestAiBnccSuggestions.length} habilidade(s) · ${latestAiBnccCompetencies.length} competência(s) relacionada(s) · ${data?.candidate_count??totalCandidates} candidatos analisados${data?.retrieval_mode==="embedding"?" · busca semântica":" · fallback textual"}`;
 
-   if(box)box.innerHTML=latestAiBnccSuggestions.map((s,i)=>`
+   const skillsHtml=latestAiBnccSuggestions.length?latestAiBnccSuggestions.map((s,i)=>`
      <div class="ai-suggestion" id="aiSuggestionCard${i}">
        <div class="ai-suggestion-code">${i===0?"⭐ ":""}${esc(s.code||"")}${i===0?" · Mais forte":""}</div>
        <div class="meta">${esc(s.curricular_component||"")}${s.school_year?" · "+esc(s.school_year):""}</div>
+       ${semanticPct(s)?`<div class="ai-semantic-match">${semanticPct(s)}</div>`:""}
        <div style="margin-top:6px">${esc(s.description||"")}</div>
        <div class="toolbar" style="margin-top:8px">
          <button type="button" id="aiSuggestionBtn${i}" class="btn success small" onclick="applyAiBnccSuggestion(${i})">Usar esta habilidade</button>
        </div>
      </div>
-   `).join("")+`
+   `).join(""):'<div class="notice">Nenhuma habilidade específica foi sugerida.</div>';
+
+   const competenciesHtml=latestAiBnccCompetencies.length?`
+     <div class="ai-competency-section">
+       <div class="ai-competency-title">📘 Competências relacionadas</div>
+       <div class="ai-competency-note">Referências complementares sem série específica. Elas não substituem a habilidade escolhida para o registro.</div>
+       ${latestAiBnccCompetencies.map(c=>`
+         <div class="ai-suggestion ai-competency">
+           <div class="ai-suggestion-code">${esc(c.code||"")}</div>
+           <div class="meta">${esc(c.curricular_component||c.knowledge_area||"Competência BNCC")}</div>
+           ${semanticPct(c)?`<div class="ai-semantic-match">${semanticPct(c)}</div>`:""}
+           <div style="margin-top:6px">${esc(c.description||"")}</div>
+         </div>
+       `).join("")}
+     </div>`:"";
+
+   if(box)box.innerHTML=skillsHtml+competenciesHtml+`
      <div id="aiSelectionConfirm"></div>
      <div class="ai-usage">
        Tokens — entrada: <b>${usage.prompt_tokens??"n/d"}</b> · saída: <b>${usage.output_tokens??"n/d"}</b> · total: <b>${usage.total_tokens??"n/d"}</b>${usage.thoughts_tokens!=null?` · pensamento: <b>${usage.thoughts_tokens}</b>`:""}
@@ -4426,6 +4457,16 @@ function applyAiBnccSuggestion(index){
  updateRecordPreview();
 }
 
+
+
+// =========================================================
+// ROADMAP PÓS-v5.19
+// 1) Persistir no D1, por código BNCC escolhido, a origem da classificação,
+//    semantic_similarity, ranking da IA e modelos utilizados. Na v5.19 o
+//    percentual é apenas exibido durante a sugestão e NÃO é salvo no registro.
+// 2) Criar "Ajude a melhorar o Diário": feedback simples das famílias,
+//    diagnóstico técnico automático e painel/status para administrador global.
+// =========================================================
 
 // =========================================================
 // V5.18 — MATERIAL VINCULADO SEM HERDAR BNCC
@@ -5136,7 +5177,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.18";
+const APP_VERSION = "5.19";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

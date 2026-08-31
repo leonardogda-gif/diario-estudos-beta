@@ -1,32 +1,21 @@
-DIÁRIO DE ESTUDOS — v5.18
+DIÁRIO DE ESTUDOS — v5.19
 
-BASE
-- Construída diretamente sobre a v5.17.
-- Mantém a busca semântica BNCC e os embeddings existentes.
-- NÃO exige nova migração D1.
+Base: frontend v5.18 + Worker v0.13-beta.
 
-PRINCIPAIS MUDANÇAS
-1. Cadastro de material simplificado: sem seleção/sugestão de código BNCC.
-2. Quando a busca não encontra material, mostra “Nenhum material encontrado” + “Cadastrar este material”.
-3. Quando há resultados, oferece “Não é nenhum destes? Cadastrar novo material”.
-4. Admin pode Editar, Salvar alterações ou Salvar e aprovar material pendente.
-5. Material -> Planejamento -> Registro não herda mais código/habilidade BNCC.
-6. A BNCC do registro é definida pela atividade realmente realizada.
-7. Fallback semântico corrigido: se a geração do embedding da consulta falhar (inclusive 429), o Worker usa a busca textual anterior e continua a sugestão BNCC.
-8. Preparação inicial dos embeddings reduzida para ritmo seguro (~60 RPM), com pausa automática em 429 e mensagem mais informativa.
-9. A preparação continua apenas nos embeddings faltantes; os já gravados são preservados.
+Novidades do frontend:
+- Exibe a similaridade semântica (%) nas sugestões quando a busca usa embeddings.
+- Exibe separadamente as Competências relacionadas retornadas pelo Worker v0.13.
+- Competências são informativas/complementares e não substituem a habilidade escolhida.
+- Mantém o fluxo de seleção da habilidade BNCC existente.
 
-WORKER
-- Publicar worker-v0.12.txt no Cloudflare Worker.
-- Mantém GEMINI_API_KEY e GLOBAL_ADMIN_EMAILS atuais.
+Importante:
+- O percentual exibido é similaridade entre embeddings, não percentual de certeza da IA.
+- Na v5.19 essa informação ainda NÃO é persistida no registro/D1.
+- Não há migração D1 nesta versão.
 
-FRONTEND
-- Publicar index.html, sw.js, manifest.json e version.json.
-- Versão exibida: v5.18 PWA.
+Roadmap:
+1. Persistir origem da classificação, similaridade semântica, ranking e modelos por código BNCC escolhido.
+2. Criar área "Ajude a melhorar o Diário" para problema/sugestão/dúvida, com diagnóstico técnico automático e painel administrativo.
 
-ORDEM RECOMENDADA
-1. Publicar Worker v0.12.
-2. Publicar os arquivos do frontend v5.18.
-3. Reabrir/recarregar o PWA.
-4. Testar sugestão BNCC durante um 429 de embeddings: deve aparecer fallback textual, sem bloquear o registro.
-5. Testar cadastro e validação/edição de material.
+Backend necessário:
+- Publicar o Worker v0.13-beta antes/junto deste frontend para receber o campo competencies.
