@@ -1,12 +1,35 @@
-DIÁRIO DE ESTUDOS — v5.16
+DIÁRIO DE ESTUDOS — v5.17
 
-NOVIDADE
-- Nova seção “📘 Entenda a BNCC” em Mais.
-- Explicação simples do que é a BNCC e por que relacioná-la aos registros.
-- Explicação de componente curricular, ano de referência, habilidade e código BNCC.
-- Exemplo visual de leitura do código EF06LP06.
-- Orientação de uso da sugestão por IA e da escolha manual.
-- Reforço de que a BNCC é uma referência e não substitui a descrição da experiência.
+BASE
+- Construída diretamente sobre a v5.16 enviada pelo usuário.
+- Preserva as funcionalidades e a seção “📘 Entenda a BNCC” da v5.16.
 
-BACKEND / D1
-- Nenhuma alteração.
+NOVIDADE — BUSCA SEMÂNTICA BNCC
+- Adiciona índice de embeddings para a base oficial da BNCC.
+- Modelo de embedding: gemini-embedding-2.
+- Dimensão armazenada: 768.
+- A descrição da atividade é convertida em embedding no Worker.
+- O Worker restringe primeiro os candidatos ao ano/série da criança.
+- Calcula similaridade semântica e seleciona os 30 candidatos mais próximos.
+- O Gemini recebe somente esses candidatos e escolhe até 4 habilidades.
+- A primeira sugestão é identificada como “⭐ Mais forte”.
+- Se o índice ainda não estiver preparado, permanece disponível o fallback textual.
+- Se a série exata não produzir similaridade suficiente no Ensino Fundamental, o Worker pode ampliar para anos vizinhos.
+
+ADMINISTRAÇÃO
+- Em Configurações > Materiais pendentes de validação, o administrador global pode acompanhar e preparar o índice semântico.
+- Requer variável de texto GLOBAL_ADMIN_EMAILS no Worker.
+- Usa a mesma GEMINI_API_KEY já configurada para a IA.
+
+INSTALAÇÃO / ORDEM RECOMENDADA
+1. Execute migracao-embeddings-bncc-v5.17.sql no D1 uma única vez.
+2. Publique worker-v0.11.txt no Cloudflare Worker.
+3. Confirme no Worker as variáveis GEMINI_API_KEY e GLOBAL_ADMIN_EMAILS.
+4. Publique index.html, sw.js, manifest.json e version.json no GitHub Pages/PWA.
+5. Entre com a conta configurada em GLOBAL_ADMIN_EMAILS.
+6. Abra Configurações > Materiais pendentes de validação > Busca semântica BNCC.
+7. Clique em “Preparar embeddings da BNCC” e aguarde a conclusão.
+
+D1
+- Nova tabela: bncc_embeddings.
+- A tabela bncc_skills não é alterada.

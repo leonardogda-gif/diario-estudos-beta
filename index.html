@@ -194,6 +194,9 @@ body.app-authenticated .cloud-card{display:none!important}
 }
 
 
+.material-skill-choice{border:1px solid #CFC7B8;background:#FFFDF8;color:#292922}
+.material-skill-choice.selected{background:#17332A;color:#fff;border-color:#17332A;box-shadow:0 0 0 2px rgba(23,51,42,.12)}
+.material-skill-required{margin-top:7px;padding:9px 10px;border-radius:9px;background:#FFF8E8;border:1px solid #E8D19B;color:#6A541E;font-size:12px;font-weight:700}
 .record-clickable{cursor:pointer;transition:transform .08s ease}
 .record-clickable:active{transform:scale(.995)}
 .record-view-overlay{position:fixed;inset:0;z-index:2000;background:rgba(20,25,22,.56);display:flex;align-items:flex-end;justify-content:center;padding:12px}
@@ -359,7 +362,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.13 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v5.17 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -473,7 +476,7 @@ body.app-authenticated .cloud-card{display:none!important}
           <div class="meta" style="margin-bottom:8px">Preencha para solicitar a inclusão deste material</div>
           <div class="grid">
             <div><label class="field">Editora / autor (opcional)</label><input id="materialPublisher"></div>
-            <div><label class="field">Faixa etária (opcional)</label><input id="materialAgeRange" placeholder="Ex.: 3º ao 5º ano"></div>
+            <div><label class="field">Faixa etária / ano (opcional)</label><select id="materialAgeRange"><option value="">Não informar</option></select></div>
             <div class="full"><label class="field">Componente (opcional, ajuda a IA a acertar mais rápido)</label><select id="materialComponent"></select></div>
             <div class="full"><label class="field">O que essa lição/unidade ensina de fato? <span class="required-mark">*</span></label><textarea id="materialDescription" rows="2" placeholder="Ex.: leitura e reescrita de uma fábula clássica, identificando a moral da história."></textarea></div>
           </div>
@@ -595,11 +598,69 @@ body.app-authenticated .cloud-card{display:none!important}
     <section id="page-mais" class="page">
       <div class="card"><h2>Mais</h2><div class="meta" style="margin-bottom:12px">Opções que você não precisa usar todos os dias.</div>
         <div class="grid">
+          <button class="btn" onclick="showPage('bncc-ajuda')">📘 Entenda a BNCC</button>
           <button class="btn" onclick="showPage('ajuda')">Ajuda e instalação</button>
           <button class="btn" onclick="showPage('relatorios')">Relatórios</button>
           <button class="btn" onclick="showPage('manutencao')">Manutenção</button>
           <button class="btn" onclick="showPage('configuracoes')">Configurações</button>
         </div>
+      </div>
+    </section>
+
+    <section id="page-bncc-ajuda" class="page">
+      <div class="card">
+        <h2>📘 Entenda a BNCC</h2>
+        <div class="notice">
+          <b>O que é a BNCC?</b><br>
+          A Base Nacional Comum Curricular (BNCC) é o documento que define as aprendizagens essenciais que os estudantes devem desenvolver ao longo da Educação Básica no Brasil.
+        </div>
+
+        <h3 style="margin-top:18px">Por que relacionar uma atividade à BNCC?</h3>
+        <p>Ao relacionar um registro a uma habilidade da BNCC, o Diário ajuda a mostrar <b>qual aprendizagem foi trabalhada naquela experiência</b>. Com o tempo, isso facilita acompanhar o desenvolvimento da criança e organizar o histórico de estudos.</p>
+        <div class="notice">
+          <b>A BNCC não substitui o registro da experiência.</b><br>
+          O código serve como referência para organizar a aprendizagem. O mais importante continua sendo descrever o que a criança realmente fez, observou, praticou ou aprendeu.
+        </div>
+
+        <h3 style="margin-top:18px">Preciso conhecer os códigos?</h3>
+        <p><b>Não.</b> Você pode descrever normalmente a atividade e usar a sugestão por IA ou a busca manual para encontrar habilidades compatíveis. A família continua escolhendo qual habilidade representa melhor o que foi realizado.</p>
+
+        <h3 style="margin-top:18px">Como ler um código da BNCC?</h3>
+        <div class="drive-folder-card" style="margin-top:8px">
+          <div style="font-size:24px;font-weight:900;letter-spacing:.04em;margin-bottom:10px">EF06LP06</div>
+          <div class="meta" style="font-size:14px;line-height:1.65">
+            <b>EF</b> — Ensino Fundamental<br>
+            <b>06</b> — 6º ano<br>
+            <b>LP</b> — Língua Portuguesa<br>
+            <b>06</b> — número que identifica a habilidade dentro dessa organização
+          </div>
+        </div>
+        <p class="meta" style="margin-top:8px">Nem todos os códigos seguem exatamente a mesma estrutura. Há códigos que abrangem mais de um ano e competências sem uma série específica. O Diário usa as informações da própria BNCC para ajudar a apresentar as opções adequadas.</p>
+
+        <h3 style="margin-top:18px">O que significam os termos?</h3>
+        <div class="drive-folder-card">
+          <p><b>Componente curricular</b><br><span class="meta">É a área/disciplina à qual a aprendizagem está relacionada, como Língua Portuguesa, Matemática, Ciências, História ou Arte.</span></p>
+          <p><b>Ano de referência</b><br><span class="meta">Ajuda o Diário a priorizar habilidades compatíveis com a etapa de estudo cadastrada para a criança.</span></p>
+          <p><b>Habilidade</b><br><span class="meta">Descreve uma aprendizagem ou capacidade que o estudante desenvolve. É a descrição associada ao código BNCC.</span></p>
+          <p style="margin-bottom:0"><b>Código BNCC</b><br><span class="meta">É o identificador usado para localizar e organizar aquela habilidade na BNCC.</span></p>
+        </div>
+
+        <h3 style="margin-top:18px">Um exemplo prático</h3>
+        <div class="notice">
+          Uma atividade como <b>ler uma história, conversar sobre ela e recontá-la</b> pode desenvolver habilidades específicas de Língua Portuguesa. Em vez de registrar apenas “Leitura”, você pode descrever a experiência e relacioná-la à habilidade que melhor representa o que foi trabalhado.
+        </div>
+
+        <h3 style="margin-top:18px">Como usar no Diário</h3>
+        <p>1. Registre o que vocês fizeram.<br>
+        2. Se souber, informe o componente curricular.<br>
+        3. Use <b>✨ Sugerir habilidade BNCC</b> ou escolha uma habilidade manualmente.<br>
+        4. Confira a descrição e selecione a que realmente corresponde à atividade.<br>
+        5. Salve o registro normalmente.</p>
+
+        <div class="notice" style="margin-top:16px">
+          <b>Em resumo:</b> você registra a experiência; o Diário ajuda a relacioná-la à BNCC. A decisão final sobre qual habilidade representa a atividade continua sendo sua.
+        </div>
+        <div class="toolbar" style="margin-top:14px"><button class="btn" onclick="showPage('mais')">← Voltar para Mais</button></div>
       </div>
     </section>
 
@@ -743,7 +804,7 @@ body.app-authenticated .cloud-card{display:none!important}
 
 <details class="tech-details"><summary>Diagnóstico técnico do beta</summary><div class="drive-folder-card" style="margin-top:8px"><div id="backendDetails" class="meta">Aguardando backend.</div><div id="backendFamilyInfo" class="meta" style="margin-top:6px"></div><div id="backendFamilyChooser" class="hidden"></div><div class="toolbar" style="margin-top:8px"><button class="btn small" onclick="testBackendConnection()">Testar backend</button><button id="syncFamilyBtn" class="btn small hidden" onclick="syncFamilyFromBackend(true)">Atualizar família</button><button id="linkFamilyBtn" class="btn small hidden" onclick="linkCurrentFamilyToBackend()">Vincular família local</button></div><hr style="margin:12px 0"><div class="meta">OAuth Drive: acesso por arquivo/pasta autorizado (`drive.file`) + dados privados do app (`drive.appdata`).</div><hr style="margin:10px 0"><div class="meta">Ferramentas temporárias do beta</div><button class="btn danger small" style="margin-top:8px" onclick="resetLocalBetaData()">Apagar dados locais deste dispositivo</button></div></details>
 
-<details class="tech-details" ontoggle="if(this.open){loadPendingMaterials();loadBnccEmbeddingStatus();}"><summary>Materiais pendentes de validação</summary><div class="drive-folder-card" style="margin-top:8px"><div id="pendingMaterialsBox" class="meta">Carregando...</div><div id="bnccEmbeddingAdmin" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px"><b>Busca semântica BNCC</b><div id="bnccEmbeddingStatus" class="meta" style="margin:6px 0">Verificando índice...</div><button type="button" class="btn dark small" id="bnccEmbeddingBuildBtn" onclick="buildBnccEmbeddings()">Preparar embeddings da BNCC</button></div></div></details>
+<details class="tech-details" ontoggle="if(this.open){loadPendingMaterials();loadBnccEmbeddingStatus();}"><summary>Materiais pendentes de validação</summary><div class="drive-folder-card" style="margin-top:8px"><div id="pendingMaterialsBox" class="meta">Carregando...</div><div id="bnccEmbeddingAdmin" style="margin-top:14px;border-top:1px solid #E8E1D2;padding-top:12px"><b>Busca semântica BNCC</b><div id="bnccEmbeddingStatus" class="meta" style="margin:6px 0">Verificando índice...</div><button type="button" class="btn dark small" id="bnccEmbeddingBuildBtn" onclick="buildBnccEmbeddings()">Preparar embeddings da BNCC</button></div></div></details>
 </div></section>
   </div>
 </main>
@@ -3581,6 +3642,11 @@ function populateCommonSelects(){
  const opts=availableChildren.map(c=>`<option value="${c.id}">${esc(c.name)} — ${esc(c.stage)}</option>`).join("");
  ["planChild","reportChild","historyChild","historyPhotoChild","oldRecordChild","reportInfoChild"].forEach(id=>{let e=$(id);if(e){let old=e.value;e.innerHTML=opts;if(old&&availableChildren.some(c=>c.id===old))e.value=old;else if(activeChildId&&availableChildren.some(c=>c.id===activeChildId))e.value=activeChildId}});
  $("childStage").innerHTML=STAGES.map(x=>`<option>${esc(x)}</option>`).join("");
+ if($("materialAgeRange")){
+   const oldAge=$("materialAgeRange").value;
+   $("materialAgeRange").innerHTML='<option value="">Não informar</option>'+STAGES.filter(x=>x!=="Sem ano de referência").map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("");
+   if(oldAge&&STAGES.includes(oldAge))$("materialAgeRange").value=oldAge;
+ }
  let comps=[...new Set(Object.values(state.entries).flat().map(x=>x.componente).filter(Boolean))].sort();
  if($("reportComponent"))$("reportComponent").innerHTML='<option value="">Todos</option>'+comps.map(x=>`<option>${esc(x)}</option>`).join("");
 }
@@ -4009,7 +4075,7 @@ function renderRecordPage(){
 
  box.innerHTML=`<div class="card record-form-card">
  <div class="record-title-row">
-   <div><h2>${editing?"Editar atividade":"Registrar"}</h2><div class="meta">Conte o que vocês fizeram e relacione com a BNCC.</div></div>
+   <div><h2>${editing?.planId?"Concluir atividade planejada":editing?"Editar atividade":"Registrar"}</h2><div class="meta">${editing?.planId?"Revise os dados do planejamento, escolha a habilidade BNCC do material quando houver mais de uma e salve o registro.":"Conte o que vocês fizeram e relacione com a BNCC."}</div></div>
    <div class="meta">${esc(child.name)} · ${esc(child.stage||"")}</div>
  </div>
  <div class="record-shell">
@@ -4024,6 +4090,7 @@ function renderRecordPage(){
       <div id="draftStatus" class="media-status">${draft?"Rascunho restaurado automaticamente.":"Rascunho salvo automaticamente neste dispositivo."}</div>
     </div>
     <div id="recordMaterialWrap" class="full ${f.type==="complementar"?"hidden":""}">
+      ${editing?.planId?`<div class="notice" style="margin-bottom:10px"><b>✓ Veio do planejamento</b><br><span class="meta">Confira o material e, se aparecerem vários códigos BNCC, toque no código que melhor corresponde ao que foi feito.</span></div>`:""}
       <label class="field">Material utilizado (opcional)</label>
       <input id="recordMaterialSearch" placeholder="Busque pelo nome do livro, apostila ou material" oninput="recordMaterialSearchChanged()">
       <div id="recordMaterialResults"></div>
@@ -4097,8 +4164,7 @@ function renderRecordPage(){
     </div>
   </aside>
  </div>
-</div>
- <div class="card"><div class="toolbar" style="justify-content:space-between;align-items:center"><h3 style="margin:0">Atividades registradas</h3><button class="btn success" onclick="startNewRecord()">+ Novo registro</button></div><input id="recordSearch" placeholder="Buscar..." oninput="renderRecordList()" style="margin-top:12px"><div id="recordList"></div></div>`;
+</div>`;
 
  bindRecordDraft();
  ["fActivity","fDate","fType","fComp","fCode"].forEach(id=>{
@@ -4469,9 +4535,10 @@ async function chooseRecordMaterial(index){
 function renderRecordMaterialSelection(m,skills=[]){
  const box=$("recordMaterialSelected");if(!box)return;
  recordMaterialBnccSkills=skills||[];
+ const chosenCode=String($("fCode")?.value||editing?.codigo||"").trim();
  box.classList.remove("hidden");
- box.innerHTML=`<div class="notice" style="margin-top:7px"><b>📘 ${esc(m.name||"")}</b>${m.publisher?` · ${esc(m.publisher)}`:""}${skills.length?`<div class="meta" style="margin-top:4px">Escolha uma habilidade BNCC deste material:</div><div style="margin-top:6px">${skills.map((x,i)=>`<button type="button" class="btn small" style="margin:0 5px 5px 0" onclick="applyMaterialBnccToRecord(${i})">${esc(x.codigo)}</button>`).join("")}</div>`:'<div class="meta" style="margin-top:4px">Este material ainda não possui habilidade BNCC vinculada.</div>'}<button type="button" class="btn small" style="margin-top:6px" onclick="clearRecordMaterial()">Trocar / remover material</button></div>`;
- if(skills.length===1)applyMaterialBnccToRecord(0);
+ box.innerHTML=`<div class="notice" style="margin-top:7px"><b>📘 ${esc(m.name||"")}</b>${m.publisher?` · ${esc(m.publisher)}`:""}${skills.length?`<div class="material-skill-required">${chosenCode?"✓ Habilidade BNCC selecionada. Você pode trocar abaixo.":"👇 Este material possui habilidades BNCC. Toque em um dos códigos abaixo antes de salvar o registro."}</div><div style="margin-top:7px">${skills.map((x,i)=>`<button type="button" id="recordMaterialSkillBtn${i}" class="btn small material-skill-choice ${String(x.codigo||"")===chosenCode?"selected":""}" style="margin:0 5px 5px 0" onclick="applyMaterialBnccToRecord(${i})">${String(x.codigo||"")===chosenCode?"✓ ":""}${esc(x.codigo)}</button>`).join("")}</div><div id="recordMaterialBnccChosen" class="meta" style="margin-top:3px">${chosenCode?`Vinculada ao registro: <b>${esc(chosenCode)}</b>`:"Nenhum código escolhido ainda."}</div>`:'<div class="meta" style="margin-top:4px">Este material ainda não possui habilidade BNCC vinculada.</div>'}<button type="button" class="btn small" style="margin-top:6px" onclick="clearRecordMaterial()">Trocar / remover material</button></div>`;
+ if(skills.length===1&&!chosenCode)applyMaterialBnccToRecord(0);
 }
 function applyMaterialBnccToRecord(index){
  const x=recordMaterialBnccSkills[index];if(!x)return;
@@ -4480,6 +4547,11 @@ function applyMaterialBnccToRecord(index){
  if($("fComp")){ $("fComp").innerHTML=groupedComponentOptions(comp);$("fComp").value=comp }
  if($("fCode"))$("fCode").value=code;
  if($("fSkill")){ $("fSkill").innerHTML=`<option value="">Selecione...</option><option data-code="${esc(code)}" value="${esc(desc)}" selected>${esc(code)} — ${esc(x.serie||anoBnccDoCodigo(code))} — ${esc(desc)}</option>`;$("fSkill").value=desc }
+ recordMaterialBnccSkills.forEach((skill,i)=>{
+   const btn=$("recordMaterialSkillBtn"+i);if(!btn)return;
+   const selected=i===index;btn.classList.toggle("selected",selected);btn.textContent=(selected?"✓ ":"")+(skill.codigo||"");
+ });
+ if($("recordMaterialBnccChosen"))$("recordMaterialBnccChosen").innerHTML=`Vinculada ao registro: <b>${esc(code)}</b>${desc?` — ${esc(desc)}`:""}`;
  if($("skillCount"))$("skillCount").textContent="Habilidade vinculada ao material · confira antes de salvar";
  saveRecordDraft(true);updateRecordPreview();
 }
@@ -4590,7 +4662,7 @@ async function suggestMaterialBncc(){
        <div class="meta" style="margin-bottom:6px">sugestões da IA para esta solicitação</div>
        ${suggestions.map(s=>`
          <div style="background:#FFFFFF;border-radius:8px;padding:8px 10px;margin-bottom:6px">
-           <div class="ai-suggestion-code">${i===0?"⭐ ":""}${esc(s.code||"")}${i===0?" · Mais forte":""}</div>
+           <div class="ai-suggestion-code">${esc(s.code||"")}</div>
            <div class="meta">${esc(s.curricular_component||"")}${s.school_year?" · "+esc(s.school_year):""}</div>
            <div style="margin-top:4px;font-size:13px">${esc(s.description||"")}</div>
          </div>
@@ -4637,7 +4709,10 @@ async function loadBnccEmbeddingStatus(){
    const data=await backendFetch("/admin/bncc-embeddings/status");
    const total=Number(data?.total||0),ready=Number(data?.ready||0);
    box.textContent=`${ready} de ${total} habilidades preparadas · modelo ${data?.model||"gemini-embedding-2"} · ${data?.dimensions||768} dimensões`;
-   if(btn)btn.textContent=ready>=total&&total>0?"✓ Índice semântico pronto":"Preparar embeddings da BNCC";
+   if(btn){
+     btn.style.display="";
+     btn.textContent=ready>=total&&total>0?"✓ Índice semântico pronto":"Preparar embeddings da BNCC";
+   }
  }catch(e){
    const msg=String(e.message||"");
    box.textContent=msg.includes("GLOBAL_ADMIN_REQUIRED")?"Disponível somente para o administrador global.":"Índice semântico ainda não preparado.";
@@ -4653,7 +4728,10 @@ async function buildBnccEmbeddings(){
      const data=await backendFetch("/admin/bncc-embeddings/build",{method:"POST",body:JSON.stringify({limit:25})});
      const total=Number(data?.total||0),ready=Number(data?.ready||0);
      if(box)box.textContent=`${ready} de ${total} habilidades preparadas. Não feche esta tela.`;
-     if(data?.done||ready>=total){if(box)box.textContent=`✓ ${ready} de ${total} habilidades preparadas. Busca semântica pronta.`;break;}
+     if(data?.done||ready>=total){
+       if(box)box.textContent=`✓ ${ready} de ${total} habilidades preparadas. Busca semântica pronta.`;
+       break;
+     }
      rounds++;
      await new Promise(r=>setTimeout(r,350));
    }
@@ -4736,6 +4814,8 @@ function saveEntry(){
  habilidade:type==="bncc"?$("fSkill").value:(comp?.name||""),materialId:type==="bncc"?($("fMaterialId")?.value||""):"",materialName:type==="bncc"?($("fMaterialName")?.value||""):"",materialPublisher:type==="bncc"?($("fMaterialPublisher")?.value||""):"",atividade:$("fActivity").value.trim(),observacoes:$("fObs").value.trim(),status:$("fStatus").value,
  foto:photoData||editing?.foto||"",fotoDriveId:editing?.fotoDriveId||"",fotoVisibleDriveId:editing?.fotoVisibleDriveId||"",audio:editing?.audio||"",audioDriveId:editing?.audioDriveId||""};
  if(!e.date)missing.push("Data");if(type==="complementar"&&!e.habilidade)missing.push("Atividade complementar");if(!e.atividade)missing.push("Atividade realizada");if(!e.status)missing.push("Avaliação");
+ const materialSkills=Array.isArray(editing?.materialBnccSkills)?editing.materialBnccSkills:recordMaterialBnccSkills;
+ if(type==="bncc"&&e.materialId&&materialSkills.length>1&&!e.codigo)missing.push("Escolha um código BNCC do material utilizado");
  if(missing.length)return alert("Preencha antes de registrar:\n\n• "+missing.join("\n• "));
  let savedChildId=activeChildId;
  let planIdToComplete=editing?.planId||"";
@@ -4744,7 +4824,9 @@ function saveEntry(){
    e.fotoVisibleDriveId="";
    e.fotoDriveId="";
  }
- let l=state.entries[activeChildId]||[];state.entries[activeChildId]=editing?l.map(x=>x.id===editing.id?e:x):[e,...l];
+ let l=state.entries[activeChildId]||[];
+ const isExistingEntry=!!(editing&&l.some(x=>x.id===editing.id));
+ state.entries[activeChildId]=isExistingEntry?l.map(x=>x.id===editing.id?e:x):[e,...l];
  if(planIdToComplete)completePlanOccurrence(planIdToComplete,planOccurrenceDate);
  editing=null;recordFormOpen=false;photoData="";audioData="";photoTakenAt="";photoDateSource="";
  clearRecordDraft(savedChildId);
@@ -4900,7 +4982,7 @@ function renderPlans(){
  const late=l.filter(p=>(p.nextDate||p.date)<td),now=l.filter(p=>(p.nextDate||p.date)===td),future=l.filter(p=>(p.nextDate||p.date)>td);
  box.innerHTML=`${late.length?`<div class="plan-section-title">Atrasadas · ${late.length}</div>${late.map(card).join('')}`:''}<div class="plan-section-title">Hoje · ${now.length}</div>${now.map(card).join('')||"<div class='notice'>Nada planejado para hoje.</div>"}${future.length?`<div class="plan-section-title">Próximos dias · ${future.length}</div>${future.map(card).join('')}`:''}`;
 }
-function startPlan(id){let p=state.plans.find(x=>x.id===id);if(!p)return;activeChildId=p.childId;recordFormOpen=true;editing={id:uid(),childId:p.childId,date:p.nextDate||p.date,type:p.type,complementaryId:p.complementaryId||"",area:p.materialBnccArea||"",componente:p.materialBnccComponent||p.component||"",codigo:p.materialBnccCode||"",habilidade:p.materialBnccDescription||"",materialId:p.materialId||"",materialName:p.materialName||"",materialPublisher:p.materialPublisher||"",materialBnccSkills:Array.isArray(p.materialBnccSkills)?p.materialBnccSkills:[],atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,planOccurrenceDate:p.nextDate||p.date};showPage("registro");renderRecordPage()}
+function startPlan(id){let p=state.plans.find(x=>x.id===id);if(!p)return;activeChildId=p.childId;recordFormOpen=true;editing={id:uid(),isNewFromPlan:true,childId:p.childId,date:p.nextDate||p.date,type:p.type,complementaryId:p.complementaryId||"",area:p.materialBnccArea||"",componente:p.materialBnccComponent||p.component||"",codigo:p.materialBnccCode||"",habilidade:p.materialBnccDescription||"",materialId:p.materialId||"",materialName:p.materialName||"",materialPublisher:p.materialPublisher||"",materialBnccSkills:Array.isArray(p.materialBnccSkills)?p.materialBnccSkills:[],atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,planOccurrenceDate:p.nextDate||p.date};showPage("registro");renderRecordPage()}
 function completePlanOccurrence(planId,occurrenceDate){const p=state.plans.find(x=>x.id===planId);if(!p)return;p.occurrences??=[];p.occurrences.push({date:occurrenceDate,status:"completed",updatedAt:now()});if(p.recurrence==="none"){p.completedAt=now();p.nextDate=""}else{p.nextDate=nextPlanDate(p,occurrenceDate);if(!p.nextDate)p.completedAt=now()}p.updatedAt=now()}
 function skipPlanOccurrence(id){const p=state.plans.find(x=>x.id===id);if(!p)return;const current=p.nextDate||p.date;if(!confirm(`Pular a ocorrência de ${fmtDate(current)}?`))return;p.occurrences??=[];p.occurrences.push({date:current,status:"skipped",updatedAt:now()});p.nextDate=nextPlanDate(p,current);if(!p.nextDate)p.completedAt=now();p.updatedAt=now();saveLocal();renderPlans();renderDashboard()}
 function deletePlan(id){state.plans=state.plans.filter(x=>x.id!==id);addTomb("plans",id);saveLocal();renderPlans();renderDashboard()}
@@ -5101,7 +5183,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.13";
+const APP_VERSION = "5.17";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
@@ -5237,9 +5319,11 @@ if("serviceWorker" in navigator){
       appSwRegistration=reg;
       await reg.update().catch(()=>{});
 
+      // Um Service Worker em waiting, sozinho, não significa que exista
+      // uma versão nova para o usuário. O version.json é a fonte de verdade
+      // para decidir se o banner deve aparecer.
       if(reg.waiting){
         appUpdateWorker=reg.waiting;
-        showAppUpdate();
       }
 
       reg.addEventListener("updatefound",()=>{
@@ -5248,7 +5332,8 @@ if("serviceWorker" in navigator){
         worker.addEventListener("statechange",()=>{
           if(worker.state==="installed" && navigator.serviceWorker.controller){
             appUpdateWorker=worker;
-            showAppUpdate();
+            // Confirma a versão publicada antes de exibir qualquer aviso.
+            checkAppVersion();
           }
         });
       });
