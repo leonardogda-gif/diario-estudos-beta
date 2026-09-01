@@ -1444,7 +1444,7 @@ details[open]>summary:after{content:"⌃"}
   <div class="notice calendar-integration-card">
     <div class="toolbar" style="justify-content:space-between;align-items:flex-start">
       <div><b>📅 Google Calendar</b><div id="calendarIntegrationStatus" class="meta" style="margin-top:3px">Verificando integração…</div></div>
-      <button id="calendarIntegrationBtn" class="btn small" type="button" onclick="setupDiaryCalendar()">Conectar</button>
+      <div class="toolbar"><button class="btn small" type="button" onclick="reauthorizeGoogleCalendar()">Reautorizar</button><button id="calendarIntegrationBtn" class="btn small" type="button" onclick="setupDiaryCalendar()">Conectar</button></div>
     </div>
     <div class="meta" style="margin-top:8px">Você escolhe quais eventos pessoais importar. Planejamentos enviados pelo Diário ficam em um calendário separado.</div>
   </div>
@@ -5807,18 +5807,35 @@ function calendarEventTimeLabel(ev){
  return d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})
 }
 function cleanCalendarDescription(text){return String(text||"").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim().slice(0,1200)}
+function reauthorizeGoogleCalendar(){
+ if(!googleTokenClient){
+  return alert("O login do Google ainda não está pronto. Recarregue a página e tente novamente.");
+ }
+ try{
+  googleTokenClient.requestAccessToken({prompt:"consent",include_granted_scopes:false});
+ }catch(e){
+  alert("Não foi possível abrir a autorização do Google: "+(e.message||e));
+ }
+}
+function isGoogleInsufficientScopeError(e){
+ const s=String(e?.message||e||"").toLowerCase();
+ return s.includes("insufficient")&&s.includes("scope")
+   || s.includes("insufficient authentication")
+   || s.includes("request had insufficient authentication scopes")
+   || s.includes("403");
+}
+
 async function openCalendarImport(){
  const card=$("calendarImportCard"),status=$("calendarImportStatus"),box=$("calendarImportList");
  card?.classList.remove("hidden");if(status)status.textContent="Carregando eventos…";if(box)box.innerHTML="";
- if(!googleAccessToken){if(status)status.textContent="Entre com Google para consultar seus eventos.";return}
+ if(!googleAccessToken){
+  if(status)status.innerHTML='Entre com Google para consultar seus eventos. <button class="btn small" type="button" onclick="googleLogin()">Entrar com Google</button>';
+  return;
+ }
  try{
-  // Begin at the start of the day 7 days ago.
-  // The old code used the exact current time, so an all-day event for "today"
-  // could disappear because it technically started at 00:00.
   const start=new Date();start.setHours(0,0,0,0);start.setDate(start.getDate()-7);
   const end=new Date();end.setHours(23,59,59,999);end.setDate(end.getDate()+90);
 
-  // Read every visible calendar in the connected Google account.
   const calendars=[];
   let pageToken="";
   do{
@@ -5830,12 +5847,11 @@ async function openCalendarImport(){
    pageToken=cd.nextPageToken||"";
   }while(pageToken);
 
-  // CalendarList should include primary. Keep a defensive fallback.
-  if(!calendars.some(c=>c.primary)){
-   calendars.unshift({id:"primary",summary:"Principal",primary:true});
-  }
+  if(!calendars.some(c=>c.primary))calendars.unshift({id:"primary",summary:"Principal",primary:true});
 
-  const batches=await Promise.all(calendars.map(async cal=>{
+  const batches=[];
+  const calendarErrors=[];
+  for(const cal of calendars){
    try{
     const u=new URL(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(cal.id)}/events`);
     u.searchParams.set("timeMin",start.toISOString());
@@ -5844,18 +5860,22 @@ async function openCalendarImport(){
     u.searchParams.set("orderBy","startTime");
     u.searchParams.set("maxResults","100");
     const data=await calendarApiFetch(u.toString());
-    return (data.items||[]).filter(ev=>ev.status!=="cancelled"&&(ev.summary||"").trim()).map(ev=>({
+    batches.push((data.items||[]).filter(ev=>ev.status!=="cancelled"&&(ev.summary||"").trim()).map(ev=>({
       ...ev,
       _calendarId:cal.id,
       _calendarName:cal.summaryOverride||cal.summary||(cal.primary?"Principal":"Calendário")
-    }));
+    })));
    }catch(e){
-    console.warn("Calendário ignorado na importação:",cal.summary||cal.id,e);
-    return [];
+    calendarErrors.push({calendar:cal.summaryOverride||cal.summary||cal.id,error:String(e?.message||e)});
+    console.warn("Falha ao ler calendário:",cal.summary||cal.id,e);
    }
-  }));
+  }
 
-  // Deduplicate by calendar+event id and sort chronologically.
+  const scopeFailure=calendarErrors.find(x=>/insufficient|scope|authentication scopes|403/i.test(x.error));
+  if(scopeFailure){
+   if(status)status.innerHTML=`O Google permitiu ao Diário acessar o calendário criado pelo app, mas <b>a leitura dos seus calendários pessoais ainda não foi autorizada</b>. <button class="btn small primary" type="button" onclick="reauthorizeGoogleCalendar()">Autorizar leitura do Calendar</button>`;
+  }
+
   const seen=new Set(),items=[];
   batches.flat().forEach(ev=>{
    const key=`${ev._calendarId}|${ev.id}`;
@@ -5864,12 +5884,15 @@ async function openCalendarImport(){
   items.sort((a,b)=>String(a.start?.dateTime||a.start?.date||"").localeCompare(String(b.start?.dateTime||b.start?.date||"")));
 
   if(!items.length){
-   if(status)status.textContent="Nenhum evento encontrado entre os últimos 7 dias e os próximos 90 dias.";
+   if(!scopeFailure && status)status.textContent="Nenhum evento encontrado entre os últimos 7 dias e os próximos 90 dias.";
+   if(calendarErrors.length && box){
+    box.innerHTML=`<div class="notice"><b>Diagnóstico do Calendar</b><br>${calendarErrors.map(x=>`${esc(x.calendar)}: ${esc(x.error)}`).join("<br>")}</div>`;
+   }
    return;
   }
 
   window.diaryCalendarImportItems=items;
-  if(status)status.textContent=`${items.length} evento${items.length===1?"":"s"} encontrado${items.length===1?"":"s"}. Escolha o que deseja usar no Diário.`;
+  if(status && !scopeFailure)status.textContent=`${items.length} evento${items.length===1?"":"s"} encontrado${items.length===1?"":"s"}. Escolha o que deseja usar no Diário.`;
   if(box)box.innerHTML=items.map((ev,i)=>{
    const date=calendarEventDate(ev),time=calendarEventTimeLabel(ev);
    return `<div class="calendar-event-card">
@@ -5879,9 +5902,16 @@ async function openCalendarImport(){
     ${ev.location?`<div class="event-location">📍 ${esc(ev.location)}</div>`:""}
     <div class="toolbar" style="margin-top:8px"><button class="btn small primary" type="button" onclick="useCalendarEvent(${i})">Usar no Diário</button></div>
    </div>`;
-  }).join("");
+  }).join("") + (calendarErrors.length?`<details class="tech-details" style="margin-top:10px"><summary>Diagnóstico de calendários não lidos (${calendarErrors.length})</summary><div class="notice">${calendarErrors.map(x=>`<b>${esc(x.calendar)}</b>: ${esc(x.error)}`).join("<br>")}</div></details>`:"");
  }catch(e){
-  if(status)status.textContent=e.message||"Não foi possível carregar os eventos.";
+  if(status){
+   const msg=String(e?.message||e);
+   if(/insufficient|scope|authentication scopes|403/i.test(msg)){
+    status.innerHTML=`Falta autorização para ler seus eventos pessoais. <button class="btn small primary" type="button" onclick="reauthorizeGoogleCalendar()">Autorizar leitura do Calendar</button>`;
+   }else{
+    status.textContent=msg||"Não foi possível carregar os eventos.";
+   }
+  }
  }
 }
 function closeCalendarImport(){$("calendarImportCard")?.classList.add("hidden")}
