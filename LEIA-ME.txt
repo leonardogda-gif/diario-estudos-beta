@@ -1,43 +1,40 @@
-DIÁRIO DE ESTUDOS — v5.20
+DIÁRIO DE ESTUDOS — v5.21
 
 Base:
-- Frontend v5.19
-- Worker v0.13-beta
+- Frontend v5.20
+- Worker v0.14-beta (inalterado)
 
-Nesta versão:
+NOVIDADES
 
-1. VISUAL CLEAN
-- Redução do peso visual do formulário de Registro.
-- Menos aparência de “caixa dentro de caixa”.
-- Mais espaço vertical entre blocos.
-- Bordas e sombras mais discretas.
-- Rótulos sem caixa alta desnecessária.
-- Obrigatório e Opcional agora têm hierarquia visual própria.
-- Campos auxiliares e explicações usam peso menor.
-- Habilidades e competências sugeridas continuam separadas.
-- Similaridade semântica continua sendo exibida quando disponível.
-- Ajustes globais leves em cartões, badges e textos para deixar o app mais arejado sem trocar sua identidade.
+1. MAIS → ENTENDA A BNCC
+Foi acrescentada uma explicação em linguagem simples para as famílias:
+- a busca BNCC analisa significado, e não apenas palavras iguais;
+- no Ensino Fundamental considera ano de referência + um ano antes + um ano depois;
+- diferencia habilidades e competências;
+- reforça que a IA sugere, mas o responsável decide.
 
-2. BNCC — ANOS PRÓXIMOS
-Worker v0.14-beta:
-- No Ensino Fundamental, a busca semântica não fica limitada ao ano exato.
-- O pool de 20 habilidades considera SEMPRE:
-  • 1 ano anterior
-  • ano de referência da criança
-  • 1 ano seguinte
-- Os limites são respeitados: 1º ano não procura “0º”; 9º ano não procura “10º”.
-- Habilidades multisseriadas compatíveis continuam participando.
-- Os 10 candidatos de competências continuam separados:
-  • Ensino Fundamental: CG + CEF
-  • Ensino Médio: CG + CEM
-  • demais etapas: CG
-- Continua sendo 1 embedding da atividade + 1 chamada ao Gemini.
-- Fallback textual usa o mesmo escopo ampliado dos anos próximos.
+2. DADOS E PRIVACIDADE
+A página agora explica:
+- o que é mantido no banco do Diário;
+- o que é mantido no Google Drive da família;
+- o que é enviado à IA durante uma análise;
+- resumo visual Diário / Drive / IA;
+- compromisso de transparência quando novos recursos forem adicionados.
 
-IMPORTANTE:
-- Não há migração D1 nesta versão.
-- O percentual exibido é similaridade semântica, não probabilidade de acerto.
+3. NOVO REGISTRO — TROCAR CRIANÇA SEM PERDER O PREENCHIMENTO
+- Há um seletor de criança dentro do formulário de novo registro.
+- Se o responsável perceber que começou para a criança errada, pode trocar ali.
+- O rascunho preenchido é transferido para a criança escolhida.
+- Os blocos verdes de criança no topo também passam a fazer essa troca segura enquanto um NOVO registro estiver aberto.
+- O rascunho antigo é removido da criança anterior para evitar cópia acidental.
+- Em edição de atividade existente, a criança não é alterada por essa função.
 
-ROADMAP:
-- Persistir no D1 a similaridade semântica, ranking, método/origem e modelos usados na sugestão BNCC.
-- Criar “Ajude a melhorar o Diário” para problema/sugestão/dúvida, com diagnóstico técnico automático e painel administrativo.
+D1:
+- Nenhuma migração necessária.
+
+BACKEND:
+- Worker permanece v0.14-beta.
+
+ROADMAP MANTIDO:
+- Persistir similaridade semântica, ranking, método/origem e modelos usados no D1.
+- Criar a área de feedback/contato das famílias com diagnóstico técnico e painel administrativo.

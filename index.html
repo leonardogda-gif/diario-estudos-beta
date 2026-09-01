@@ -518,6 +518,89 @@ main,.app-main{letter-spacing:0}
   .record-actions .btn.primary{grid-column:1/-1;grid-row:1}
 }
 
+
+/* =========================================================
+   v5.21 — explicação semântica/privacidade + troca de criança
+   ========================================================= */
+.bncc-info-card{
+  background:#fff;
+  border:1px solid var(--clean-border,#e5e9e4);
+  border-radius:16px;
+  padding:18px;
+}
+.bncc-info-card p{
+  margin:0 0 11px;
+  color:#4f5d56;
+  line-height:1.58;
+}
+.bncc-flow{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:7px;
+  margin:15px 0;
+  padding:12px 14px;
+  background:#f4faf6;
+  border-radius:12px;
+  color:#315744;
+  font-size:12px;
+  line-height:1.45;
+}
+.bncc-flow b{opacity:.55}
+.bncc-soft-note{
+  padding:12px 14px;
+  margin-top:12px;
+  border-radius:12px;
+  background:#f7f8f6;
+  color:#53605a;
+  font-size:13px;
+  line-height:1.5;
+}
+.privacy-summary{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  margin:16px 0;
+}
+.privacy-summary>div{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  padding:13px;
+  border:1px solid var(--clean-border,#e5e9e4);
+  border-radius:12px;
+  background:#fafbf9;
+}
+.privacy-icon{font-size:20px}
+.privacy-summary b{font-size:13px}
+.privacy-summary small{
+  color:#68736d;
+  font-size:11px;
+  line-height:1.45;
+}
+.record-child-switch{
+  padding-bottom:2px;
+}
+.record-child-switch select{
+  width:100%;
+  min-height:46px;
+  padding:0 12px;
+  border:1px solid #dce2dd;
+  border-radius:11px;
+  background:#fff;
+  color:var(--clean-text,#1f2925);
+  font:inherit;
+}
+.record-child-switch select:focus{
+  outline:none;
+  border-color:#8fb5a1;
+  box-shadow:0 0 0 3px rgba(23,100,63,.08);
+}
+@media(max-width:720px){
+  .privacy-summary{grid-template-columns:1fr}
+  .bncc-info-card{padding:15px}
+}
+
 </style>
 </head>
 <body class="auth-checking">
@@ -526,7 +609,7 @@ main,.app-main{letter-spacing:0}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.20 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v5.21 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -817,6 +900,64 @@ main,.app-main{letter-spacing:0}
         <div class="notice" style="margin-top:16px">
           <b>Em resumo:</b> você registra a experiência; o Diário ajuda a relacioná-la à BNCC. A decisão final sobre qual habilidade representa a atividade continua sendo sua.
         </div>
+
+        <h3 style="margin-top:22px">✨ Como encontramos habilidades relacionadas</h3>
+        <div class="bncc-info-card">
+          <p>Ao descrever uma atividade, o Diário de Estudos analisa <b>o significado do que foi escrito</b> e procura na BNCC habilidades que tenham relação com aquela aprendizagem.</p>
+          <p>A busca não depende apenas de palavras iguais. Uma atividade pode envolver medidas, construção, linguagem, criatividade ou outras aprendizagens mesmo que esses termos não tenham sido escritos exatamente da mesma forma.</p>
+          <p>Para tornar a sugestão mais adequada ao momento da criança, consideramos seu <b>ano de referência</b> e, no Ensino Fundamental, também habilidades de <b>um ano antes e um ano depois</b>. Depois, a IA analisa as opções mais relacionadas e apresenta as melhores sugestões.</p>
+          <p>Também podemos indicar <b>competências da BNCC</b> relacionadas à experiência, inclusive competências que não pertencem a uma série específica.</p>
+
+          <div class="bncc-flow">
+            <span>Atividade descrita</span><b>→</b>
+            <span>busca por significado</span><b>→</b>
+            <span>habilidades relacionadas</span><b>→</b>
+            <span>análise da IA</span><b>→</b>
+            <span>escolha do responsável</span>
+          </div>
+
+          <div class="bncc-soft-note">
+            <b>A sugestão é um apoio, não uma decisão automática.</b><br>
+            O responsável continua escolhendo a habilidade que melhor representa o que realmente foi aprendido.
+          </div>
+        </div>
+
+        <h3 style="margin-top:22px">🔒 Seus dados e sua privacidade</h3>
+        <div class="bncc-info-card">
+          <p>O Diário de Estudos foi pensado para que os registros da família não precisem ficar todos armazenados em um servidor central do aplicativo.</p>
+
+          <p><b>No banco de dados do Diário</b>, mantemos as informações necessárias para o funcionamento e compartilhamento do aplicativo, como conta, família, responsáveis, crianças e informações técnicas necessárias para organizar o acesso.</p>
+
+          <p><b>No Google Drive da família</b>, ficam os dados educacionais mantidos pela própria família e os arquivos associados aos registros, como fotos.</p>
+
+          <p>Assim, o banco do Diário cuida principalmente da <b>estrutura e das permissões</b>, enquanto o Drive da família é usado para manter o <b>conteúdo educacional e os arquivos da família</b>.</p>
+
+          <p>Quando você utiliza a sugestão de BNCC por IA, são enviadas ao serviço de inteligência artificial apenas as informações necessárias para analisar aquela atividade. <b>Não enviamos toda a biblioteca de registros da família para realizar uma sugestão.</b></p>
+
+          <div class="privacy-summary">
+            <div>
+              <span class="privacy-icon">🗂️</span>
+              <b>Diário de Estudos</b>
+              <small>Conta, família, membros, crianças e informações necessárias ao funcionamento.</small>
+            </div>
+            <div>
+              <span class="privacy-icon">☁️</span>
+              <b>Drive da família</b>
+              <small>Registros educacionais e arquivos da família, como fotos.</small>
+            </div>
+            <div>
+              <span class="privacy-icon">✨</span>
+              <b>IA</b>
+              <small>Recebe somente as informações necessárias para realizar a análise solicitada.</small>
+            </div>
+          </div>
+
+          <div class="bncc-soft-note">
+            <b>Transparência faz parte do Diário.</b><br>
+            Conforme novos recursos forem adicionados, esta página será atualizada para explicar de forma simples quais informações são utilizadas e onde são armazenadas.
+          </div>
+        </div>
+
         <div class="toolbar" style="margin-top:14px"><button class="btn" onclick="showPage('mais')">← Voltar para Mais</button></div>
       </div>
     </section>
@@ -4103,6 +4244,40 @@ function skillsForScope(comp,stage,scope,selectedCode=""){
  return list;
 }
 
+
+function switchRecordChild(id){
+ const nextId=String(id||"").trim();
+ if(!nextId||nextId===activeChildId)return;
+ if(editing){
+   alert("Para alterar a criança de uma atividade já existente, conclua ou cancele a edição atual.");
+   return;
+ }
+
+ const previousId=activeChildId;
+ const d=collectRecordDraft();
+
+ try{
+   if(d){
+     const transferred={...d,childId:nextId,savedAt:now()};
+     localStorage.setItem(recordDraftKey(nextId),JSON.stringify(transferred));
+
+     // A troca representa correção da criança do mesmo registro.
+     // Remove o rascunho da criança anterior para não deixar uma cópia acidental.
+     if(previousId&&previousId!==nextId){
+       localStorage.removeItem(recordDraftKey(previousId));
+     }
+   }
+ }catch(e){
+   console.warn("Não foi possível transferir o rascunho entre crianças:",e);
+ }
+
+ activeChildId=nextId;
+ renderRecordPage();
+
+ const s=$("draftStatus");
+ if(s)s.textContent="Criança alterada sem perder o preenchimento.";
+}
+
 function startNewRecord(){
  clearRecordDraft(activeChildId);
  editing=null;
@@ -4180,7 +4355,7 @@ function updateRecordPreview(){
 }
 
 function renderRecordPage(){
- renderChildButtons("recordChildTabs","selectChild");
+ renderChildButtons("recordChildTabs",(!editing&&recordFormOpen)?"switchRecordChild":"selectChild");
  let box=$("recordApp"),child=currentChild();if(!box)return;
  if(!child){box.innerHTML="<div class='card notice'>Cadastre uma criança em Configurações.</div>";return}
 
@@ -4238,6 +4413,13 @@ function renderRecordPage(){
  <div class="record-shell">
   <div class="record-main">
    <div class="record-grid">
+    ${!editing?`<div class="full record-child-switch">
+      <label class="field clean-label">Criança <span class="field-pill required-pill">Obrigatório</span></label>
+      <div class="field-help">Percebeu que começou o registro para a criança errada? Troque aqui. O que você já preencheu será mantido.</div>
+      <select id="recordChildSelect" onchange="switchRecordChild(this.value)">
+        ${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===activeChildId?"selected":""}>${esc(c.name)}${c.stage?" · "+esc(c.stage):""}</option>`).join("")}
+      </select>
+    </div>`:""}
     <div><label class="field clean-label">Data <span class="field-pill required-pill">Obrigatório</span></label><input id="fDate" type="date" value="${esc(f.date)}"></div>
     <div><label class="field">Tipo <span class="required-mark">*</span></label><select id="fType" onchange="changeRecordType()"><option value="bncc" ${f.type!=="complementar"?"selected":""}>Habilidade BNCC</option><option value="complementar" ${f.type==="complementar"?"selected":""}>Atividade complementar</option></select></div>
     <div id="compBlock" class="full ${f.type==="complementar"?"":"hidden"}"><label class="field">Atividade complementar <span class="required-mark">*</span></label><select id="fComplementary"><option value="">Selecione...</option>${state.complementaryActivities.map(x=>`<option value="${x.id}" ${x.id===f.complementaryId?"selected":""}>${esc(x.name)}${x.category?" — "+esc(x.category):""}</option>`).join("")}</select></div>
@@ -4618,7 +4800,7 @@ function applyAiBnccSuggestion(index){
 
 
 // =========================================================
-// ROADMAP PÓS-v5.20
+// ROADMAP PÓS-v5.21
 // 1) Persistir no D1, por código BNCC escolhido, a origem da classificação,
 //    semantic_similarity, ranking da IA e modelos utilizados. Na v5.19 o
 //    percentual é apenas exibido durante a sugestão e NÃO é salvo no registro.
@@ -5335,7 +5517,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.20";
+const APP_VERSION = "5.21";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
