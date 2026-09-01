@@ -726,6 +726,221 @@ details[open]>summary:after{content:"⌃"}
   .btn{min-height:42px}
 }
 
+
+/* =========================================================
+   v5.23 — VISUAL CLEAN REAL + HISTÓRICO RESTAURADO
+   ========================================================= */
+body{background:#f6f7f4}
+.page>.card{
+  border:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+  padding-left:4px!important;
+  padding-right:4px!important;
+}
+.page>.card>h2{
+  font-size:24px;
+  margin-bottom:4px;
+}
+.clean-kicker{
+  font-size:16px;
+  font-weight:850;
+  color:#21352c;
+}
+.record-clean-intro{
+  color:#68736d;
+  font-size:13px;
+  line-height:1.5;
+  margin-top:4px;
+}
+
+/* Histórico principal */
+.history-main-browser{
+  background:#fff;
+  border:1px solid #e5e9e4;
+  border-radius:16px;
+  padding:17px;
+  margin-top:16px;
+}
+.history-main-top{margin-bottom:14px}
+.history-simple-filters{
+  display:grid;
+  grid-template-columns:1.05fr 2fr 1fr;
+  gap:12px;
+  align-items:end;
+}
+.history-simple-filters input,.history-simple-filters select,
+.history-extra-grid select{
+  width:100%;
+  min-height:44px;
+  border:1px solid #dce2dd;
+  border-radius:11px;
+  background:#fff;
+  padding:0 11px;
+  font:inherit;
+}
+.history-more-filters{
+  margin-top:10px;
+  border-top:1px solid #edf0ed;
+  padding-top:10px;
+}
+.history-more-filters>summary,.history-tools-panel>summary{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  color:#526059;
+  font-weight:750;
+  padding:5px 1px;
+}
+.history-more-filters summary small,.history-tools-panel summary small{
+  color:#8a938e;
+  font-weight:500;
+}
+.history-extra-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:12px;
+}
+.history-browse-summary{
+  margin:16px 0 8px;
+  color:#68736d;
+  font-size:12px;
+}
+.history-browse-list{display:grid;gap:8px}
+.history-clean-entry{
+  display:grid;
+  grid-template-columns:82px 1fr 24px;
+  gap:12px;
+  align-items:center;
+  border-top:1px solid #edf0ed;
+  padding:13px 3px;
+  cursor:pointer;
+}
+.history-clean-entry:first-child{border-top:0}
+.history-clean-entry:hover{background:#fafbf9}
+.history-clean-date{
+  color:#6b756f;
+  font-size:12px;
+  font-weight:700;
+}
+.history-clean-title{
+  font-size:14px;
+  font-weight:800;
+  color:#25342d;
+  line-height:1.35;
+}
+.history-clean-meta{
+  margin-top:4px;
+  color:#768079;
+  font-size:11px;
+  line-height:1.4;
+}
+.history-clean-bottom{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-top:7px;
+}
+.history-status{
+  display:inline-flex;
+  padding:3px 7px;
+  border-radius:999px;
+  background:#f0f4f1;
+  color:#526059;
+  font-size:10px;
+  font-weight:750;
+}
+.history-evidence{font-size:12px}
+.history-clean-open{
+  color:#9aa39e;
+  font-size:25px;
+  text-align:right;
+}
+.history-empty{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  padding:24px 6px;
+  color:#68736d;
+  text-align:center;
+}
+.history-tools-panel{
+  margin-top:16px;
+  border:1px solid #e5e9e4;
+  border-radius:14px;
+  background:#fafbf9;
+  padding:11px 13px;
+}
+.history-tools-inner{
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid #e5e9e4;
+}
+/* Legacy cards inside optional history tools should not dominate */
+.history-tools-inner>.card,
+.history-tools-inner .card{
+  box-shadow:none!important;
+  border:1px solid #e8ebe8!important;
+  background:#fff!important;
+}
+
+/* Record: essential content visually first */
+#recordFormWrap .record-form-card,
+.record-form-card{
+  border:0!important;
+  box-shadow:none!important;
+  background:#fff!important;
+}
+.record-grid>.full,
+.record-grid>div{
+  position:relative;
+}
+.record-grid .clean-secondary-section{
+  margin-top:6px;
+}
+.bncc-advanced{
+  margin-top:8px!important;
+}
+.ai-main-card{
+  margin-top:4px!important;
+}
+
+/* Planning: cards behave more like a simple agenda */
+.plan-card,.planning-card{
+  border:0!important;
+  border-bottom:1px solid #e5e9e4!important;
+  border-radius:0!important;
+  background:transparent!important;
+  padding:15px 4px!important;
+}
+.plan-card:last-child,.planning-card:last-child{border-bottom:0!important}
+
+/* Materials: flatter search/result experience */
+.material-card{
+  border:0!important;
+  border-bottom:1px solid #e5e9e4!important;
+  border-radius:0!important;
+  background:transparent!important;
+  padding:14px 3px!important;
+}
+.material-card:last-child{border-bottom:0!important}
+
+/* Less visual competition from notices */
+.notice{
+  border:0!important;
+  box-shadow:none!important;
+  background:#f1f5f2!important;
+  color:#56635c!important;
+}
+@media(max-width:720px){
+  .history-main-browser{padding:14px}
+  .history-simple-filters{grid-template-columns:1fr}
+  .history-extra-grid{grid-template-columns:1fr}
+  .history-clean-entry{grid-template-columns:68px 1fr 18px;gap:9px}
+  .history-tools-panel summary small{display:none}
+}
+
 </style>
 </head>
 <body class="auth-checking">
@@ -734,7 +949,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.22 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v5.23 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -909,7 +1124,66 @@ details[open]>summary:after{content:"⌃"}
     <section id="page-historico" class="page">
       <div class="card">
         <h2>Histórico</h2><div class="field-help">Encontre rapidamente o que foi registrado. Use mais filtros somente quando precisar.</div>
-        <div class="notice">Consulte o histórico normalmente ou adicione uma atividade realizada anteriormente.</div>
+
+        <div class="history-main-browser">
+          <div class="history-main-top">
+            <div>
+              <div class="clean-kicker">Registros da criança</div>
+              <div class="field-help">Veja, pesquise e abra qualquer atividade já registrada.</div>
+            </div>
+          </div>
+
+          <div class="history-simple-filters">
+            <div>
+              <label class="field clean-label">Criança</label>
+              <select id="historyBrowseChild" onchange="historyBrowseChildChanged(this.value)"></select>
+            </div>
+            <div class="history-search-wide">
+              <label class="field clean-label">Buscar</label>
+              <input id="historyBrowseSearch" placeholder="Atividade, componente ou código BNCC" oninput="renderHistoryBrowser()">
+            </div>
+            <div>
+              <label class="field clean-label">Período</label>
+              <select id="historyBrowsePeriod" onchange="renderHistoryBrowser()">
+                <option value="all">Todo o histórico</option>
+                <option value="30">Últimos 30 dias</option>
+                <option value="90">Últimos 3 meses</option>
+                <option value="year">Este ano</option>
+              </select>
+            </div>
+          </div>
+
+          <details class="history-more-filters">
+            <summary><span>Mais filtros</span><small>Avaliação e tipo</small></summary>
+            <div class="history-extra-grid">
+              <div>
+                <label class="field clean-label">Avaliação</label>
+                <select id="historyBrowseStatus" onchange="renderHistoryBrowser()">
+                  <option value="">Todas</option>
+                  <option>Dominado</option>
+                  <option>Em progresso</option>
+                  <option>Precisa de revisão</option>
+                </select>
+              </div>
+              <div>
+                <label class="field clean-label">Tipo</label>
+                <select id="historyBrowseType" onchange="renderHistoryBrowser()">
+                  <option value="">Todos</option>
+                  <option value="bncc">BNCC</option>
+                  <option value="complementar">Complementar</option>
+                </select>
+              </div>
+            </div>
+          </details>
+
+          <div id="historyBrowseSummary" class="history-browse-summary"></div>
+          <div id="historyBrowseList" class="history-browse-list"></div>
+        </div>
+
+        <details class="history-tools-panel">
+          <summary><span>Adicionar ou importar registros antigos</span><small>Ferramentas opcionais</small></summary>
+          <div class="history-tools-inner">
+
         <div class="card" style="margin-top:12px;background:#F8F5EC"><div class="toolbar" style="justify-content:space-between"><div><h3 style="margin-bottom:3px">Adicionar atividade antiga</h3><div class="meta">Um registro simples, sem exigir código BNCC.</div></div><button class="btn" onclick="toggleOldRecordForm(true)">+ Adicionar</button></div>
         <div id="oldRecordForm" class="hidden" style="margin-top:12px"><div class="grid">
           <div><label class="field">Criança</label><select id="oldRecordChild"></select></div><div><label class="field">Data</label><input id="oldRecordDate" type="date"></div>
@@ -957,7 +1231,9 @@ details[open]>summary:after{content:"⌃"}
 <h3>Importar CSV</h3>
         <div class="toolbar"><button class="btn" onclick="downloadHistoryTemplate()">Modelo CSV</button><label class="btn">Importar CSV<input type="file" accept=".csv,text/csv" style="display:none" onchange="importHistoryCSV(event)"></label></div>
         </div></details>
-      </div>
+                </div>
+        </details>
+</div>
     </section>
 
     <section id="page-mais" class="page">
@@ -1472,7 +1748,7 @@ function showPage(name){
  if(name==="registro")renderRecordPage();
  if(name==="planejamento")renderPlans();
  if(name==="relatorios")renderReportPage();
- if(name==="historico"){renderHistoryBatchRows();refreshHistoryActivityOptions();}
+ if(name==="historico"){renderHistoryBrowser();renderHistoryBatchRows();refreshHistoryActivityOptions();}
  if(name==="manutencao")renderComplementaryList();
  if(name==="configuracoes")renderSettingsChildren();
 }
@@ -4555,7 +4831,7 @@ function renderRecordPage(){
     </div>
     <div id="recordMaterialWrap" class="full ${f.type==="complementar"?"hidden":""}">
       ${editing?.planId?`<div class="notice" style="margin-bottom:10px"><b>✓ Veio do planejamento</b><br><span class="meta">Confira o material e, se aparecerem vários códigos BNCC, toque no código que melhor corresponde ao que foi feito.</span></div>`:""}
-      <label class="field">Material utilizado (opcional)</label>
+      <label class="field">Material utilizado</label>
       <input id="recordMaterialSearch" placeholder="Busque pelo nome do livro, apostila ou material" oninput="recordMaterialSearchChanged()">
       <div id="recordMaterialResults"></div>
       <div id="recordMaterialSelected" class="${f.materialName?"":"hidden"}">${f.materialName?`<div class="notice" style="margin-top:7px"><b>📘 ${esc(f.materialName)}</b>${f.materialPublisher?` · ${esc(f.materialPublisher)}`:""}<button type="button" class="btn small" style="margin-top:6px" onclick="clearRecordMaterial()">Trocar / remover material</button></div>`:""}</div>
@@ -4925,7 +5201,7 @@ function applyAiBnccSuggestion(index){
 
 
 // =========================================================
-// ROADMAP PÓS-v5.22
+// ROADMAP PÓS-v5.23
 // 1) Persistir no D1, por código BNCC escolhido, a origem da classificação,
 //    semantic_similarity, ranking da IA e modelos utilizados. Na v5.19 o
 //    percentual é apenas exibido durante a sugestão e NÃO é salvo no registro.
@@ -5523,6 +5799,65 @@ async function shareReportHtml(){
  </style></head><body>${content}</body></html>`;
  shareOrDownloadText(h,"relatorio_"+child.name.replace(/\s+/g,"_")+".html","text/html","Relatório");
 }
+
+function historyBrowseChildChanged(id){
+  if(!id)return;
+  activeChildId=id;
+  renderHistoryBrowser();
+}
+function fillHistoryBrowseChildren(){
+  const s=$("historyBrowseChild"); if(!s)return;
+  const kids=(state.family.children||[]).filter(c=>!c.archived&&!c.legacyOrphan);
+  if(!kids.some(c=>c.id===activeChildId) && kids[0]) activeChildId=kids[0].id;
+  s.innerHTML=kids.map(c=>`<option value="${esc(c.id)}" ${c.id===activeChildId?"selected":""}>${esc(c.name)}${c.stage?" · "+esc(c.stage):""}</option>`).join("");
+}
+function historyBrowsePeriodStart(mode){
+  const n=new Date();
+  if(mode==="30"){n.setDate(n.getDate()-30);return iso(n)}
+  if(mode==="90"){n.setDate(n.getDate()-90);return iso(n)}
+  if(mode==="year")return `${n.getFullYear()}-01-01`;
+  return "";
+}
+function renderHistoryBrowser(){
+  const list=$("historyBrowseList"),sum=$("historyBrowseSummary");
+  if(!list)return;
+  fillHistoryBrowseChildren();
+  const childId=$("historyBrowseChild")?.value||activeChildId;
+  const q=String($("historyBrowseSearch")?.value||"").trim().toLowerCase();
+  const period=$("historyBrowsePeriod")?.value||"all";
+  const start=historyBrowsePeriodStart(period);
+  const status=$("historyBrowseStatus")?.value||"";
+  const type=$("historyBrowseType")?.value||"";
+  let rows=[...(state.entries[childId]||[])];
+  rows=rows.filter(x=>{
+    if(start && String(x.date||"")<start)return false;
+    if(status && x.status!==status)return false;
+    if(type && x.type!==type)return false;
+    if(q){
+      const hay=[x.atividade,x.componente,x.codigo,x.habilidade,x.observacoes,x.materialName].filter(Boolean).join(" ").toLowerCase();
+      if(!hay.includes(q))return false;
+    }
+    return true;
+  }).sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))||ts(b.createdAt)-ts(a.createdAt));
+
+  if(sum)sum.innerHTML=`<b>${rows.length}</b> ${rows.length===1?"registro encontrado":"registros encontrados"}`;
+
+  list.innerHTML=rows.map(x=>`
+    <article class="history-clean-entry" onclick="viewEntry('${x.id}','${childId}')">
+      <div class="history-clean-date">${esc(fmtDate(x.date))}</div>
+      <div class="history-clean-body">
+        <div class="history-clean-title">${esc(x.atividade||"Registro")}</div>
+        <div class="history-clean-meta">${[x.componente,x.codigo,x.materialName?("📘 "+x.materialName):""].filter(Boolean).map(esc).join(" · ")}</div>
+        <div class="history-clean-bottom">
+          ${x.status?`<span class="history-status">${esc(x.status)}</span>`:""}
+          ${x.foto?`<span class="history-evidence">📷</span>`:""}
+          ${x.audio?`<span class="history-evidence">🎙️</span>`:""}
+        </div>
+      </div>
+      <div class="history-clean-open">›</div>
+    </article>`).join("") || `<div class="history-empty"><b>Nenhum registro encontrado.</b><span>Tente outro período ou limpe os filtros.</span></div>`;
+}
+
 function newHistoryBatchRow(){return{id:uid(),date:today(),activity:"",component:"",status:""}}
 function renderHistoryBatchRows(){let b=$("historyBatchRows");if(!b)return;if(!historyBatchRows.length)historyBatchRows=[newHistoryBatchRow(),newHistoryBatchRow(),newHistoryBatchRow()];b.innerHTML=historyBatchRows.map(r=>`<div class="history-row"><div><label class="field">Data</label><input type="date" value="${r.date}" onchange="updateHistoryRow('${r.id}','date',this.value)"></div><div><label class="field">Atividade</label><input value="${esc(r.activity)}" onchange="updateHistoryRow('${r.id}','activity',this.value)"></div><div><label class="field">Componente</label><input value="${esc(r.component)}" onchange="updateHistoryRow('${r.id}','component',this.value)"></div><div><label class="field">Avaliação</label><select onchange="updateHistoryRow('${r.id}','status',this.value)"><option value="">Padrão</option><option ${r.status==="Dominado"?"selected":""}>Dominado</option><option ${r.status==="Em progresso"?"selected":""}>Em progresso</option><option ${r.status==="Precisa de revisão"?"selected":""}>Precisa de revisão</option></select><button class="btn danger small" onclick="removeHistoryBatchRow('${r.id}')">Excluir linha</button></div></div>`).join("")}
 function updateHistoryRow(id,k,v){let r=historyBatchRows.find(x=>x.id===id);if(r)r[k]=v}
@@ -5642,7 +5977,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.22";
+const APP_VERSION = "5.23";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
