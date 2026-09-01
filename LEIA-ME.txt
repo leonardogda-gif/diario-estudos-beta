@@ -1,27 +1,35 @@
-DIÁRIO DE ESTUDOS — v5.26
-LEITURAS + GOOGLE BOOKS
+DIÁRIO DE ESTUDOS — v5.28
+CATÁLOGO COMUNITÁRIO DE LIVROS + BIBLIOTECA SINCRONIZADA
 
-Frontend
-- Nova área 📚 Leituras.
-- Seleção da criança pelo padrão verde.
-- Busca por título, autor ou ISBN.
-- Resultados via Google Books API.
-- Preenchimento automático de título, autores, editora, publicação, ISBN, páginas, categorias, idioma, descrição e capa quando disponíveis.
-- Cadastro manual permanece como fallback quando o Google não encontra o livro.
-- Livros podem ficar como Lendo ou Concluído.
-- “Registrar momento de leitura” abre um novo registro para a mesma criança com o livro já identificado.
-- A BNCC continua pertencendo ao momento/atividade de leitura, e não ao livro.
+FLUXO DE BUSCA
+1. Pesquisa primeiro na fonte externa já configurada.
+2. Se não houver resultado, pesquisa no catálogo comunitário do Diário.
+3. Se também não houver resultado, a família pode cadastrar o livro.
+4. O cadastro manual entra como PENDENTE para moderação.
+5. A família que cadastrou pode usar o livro imediatamente.
 
-Backend
-- Worker v0.16-beta.
-- Novo GET /books/search?q=...
-- Nova variável/Secret necessária no Cloudflare Worker: GOOGLE_BOOKS_API_KEY
-- A chave fica no Worker, não no index.html.
-- Google Books é a única fonte externa de livros nesta versão.
-- Nenhuma integração Open Library.
+MODERAÇÃO
+- Admin vê “📚 Livros aguardando validação”.
+- Pode editar, aprovar, rejeitar ou mesclar duplicata com um livro aprovado.
+- Ao mesclar, os vínculos das famílias são movidos para o livro canônico.
 
-IMPORTANTE
-Nesta primeira versão a biblioteca de leitura fica no armazenamento local do app. A sincronização/estrutura compartilhada pode ser promovida para o backend/Drive em uma versão seguinte depois de validarmos a experiência.
+ATUALIZAÇÃO AUTOMÁTICA
+- family_books guarda o vínculo com community_books.
+- Título, autor, editora e capa de livros comunitários são lidos do registro canônico.
+- Se a moderação corrigir/adicionar a capa, as famílias vinculadas veem a atualização na próxima carga/sincronização.
 
-D1
-- Nenhuma migração nesta versão.
+CAPAS
+- Cadastro manual aceita foto opcional da capa (até 2,5 MB no frontend).
+- Nesta versão a imagem é armazenada como data URL no registro do catálogo para viabilizar o beta.
+- Recomendação para produção: mover capas comunitárias aprovadas para armazenamento de objetos/arquivo e manter somente URL/ID no D1.
+
+BIBLIOTECA DA FAMÍLIA
+- Livros agora podem ser persistidos no backend por família/criança.
+- Status Lendo/Concluído sincroniza entre dispositivos.
+- Livros vindos da fonte externa usam snapshot de metadados.
+- Livros comunitários usam referência ao catálogo canônico.
+
+BACKEND
+- Worker v0.17-beta.
+- Requer migração D1: migracao-livros-v5.28.sql
+- GOOGLE_BOOKS_API_KEY continua necessária.

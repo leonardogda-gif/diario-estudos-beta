@@ -817,6 +817,14 @@ details[open]>summary:after{content:"⌃"}
 .reading-status{font-size:10px;font-weight:750;color:#456152;background:#eef4f0;border-radius:999px;padding:3px 7px;display:inline-flex}
 @media(max-width:650px){.book-result{grid-template-columns:52px 1fr}.book-result>.btn{grid-column:2}.book-cover,.book-cover-placeholder{width:48px;height:68px}}
 
+/* v5.27 */
+.book-search-auto{grid-template-columns:1fr}.book-more-btn{justify-self:start;margin-top:2px}
+.plan-details-later{margin-top:3px;padding:11px;border:1px solid #ebe8df;border-radius:12px;background:#faf9f5}
+.record-more-options{border:1px solid #e7ebe7;border-radius:12px;padding:10px 12px;background:#fafbf9}
+.record-more-options>summary{display:flex;justify-content:space-between;gap:10px;cursor:pointer;color:#56635c;font-size:12px}.record-more-options>summary span{font-weight:500;color:#89918c}
+/* v5.28 catálogo comunitário */
+.reading-status+ .reading-status{margin-left:4px}
+#pendingCommunityBooksBox .book-cover,#pendingCommunityBooksBox .book-cover-placeholder{width:48px;height:68px}
 </style>
 </head>
 <body class="auth-checking">
@@ -825,7 +833,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.26 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v5.28 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -924,50 +932,34 @@ details[open]>summary:after{content:"⌃"}
       <div class="card">
         <div class="toolbar" style="justify-content:space-between"><div><h2 style="margin-bottom:3px">Planejar</h2><div class="meta">Veja primeiro o que precisa de atenção. Crie um novo planejamento só quando precisar.</div></div><button class="btn success" onclick="togglePlanForm(true)">+ Planejar atividade</button></div>
       </div>
-      <div class="card">
-        <div class="toolbar" style="justify-content:space-between">
-          <div><h3 style="margin-bottom:3px">Cadastrar material de estudo</h3><div class="meta">Cadastre ou selecione os materiais de estudo utilizados pela família. Materiais já cadastrados podem ser reutilizados por outras famílias.</div></div>
-          <button class="btn" onclick="toggleMaterialSearch(true)">+ Material</button>
-        </div>
-      </div>
-
-      <div id="materialSearchCard" class="card hidden">
-        <label class="field">Nome do material <span class="required-mark">*</span></label>
-        <input id="materialSearchInput" placeholder="Ex.: Via Bela — Fábulas e Contos, 2º ano" oninput="materialSearchChanged()">
-        <div id="materialSearchResults"></div>
-
-        <div id="materialNewForm" class="notice hidden" style="margin-top:10px">
-          <div class="meta" style="margin-bottom:8px">Preencha os dados básicos para solicitar a inclusão deste material.</div>
-          <div class="grid">
-            <div><label class="field">Editora / autor (opcional)</label><input id="materialPublisher"></div>
-            <div><label class="field">Faixa etária / ano (opcional)</label><select id="materialAgeRange"><option value="">Não informar</option></select></div>
-            <div class="full"><label class="field">Descrição / observações (opcional)</label><textarea id="materialDescription" rows="2" placeholder="Ex.: apostila anual do 2º ano; coleção de exercícios; livro de apoio."></textarea></div>
-          </div>
-          <div class="toolbar" style="margin-top:10px">
-            <button type="button" class="btn success" onclick="submitMaterialRequest()">Enviar para validação do admin</button>
-            <button type="button" class="btn" onclick="toggleMaterialSearch(false)">Cancelar</button>
-          </div>
-          <div class="meta" style="margin-top:6px">Enquanto aguarda validação, este material fica visível só para a sua família.</div>
-        </div>
-      </div>
-
       <div id="planFormCard" class="card hidden"><h3>Novo planejamento</h3><div class="grid">
         <div><label class="field">Para quem? <span class="required-mark">*</span></label><select id="planChild"></select></div>
         <div><label class="field">Quando? <span class="required-mark">*</span></label><input id="planDate" type="date"></div>
-        <div><label class="field clean-label">Tipo <span class="field-pill required-pill">Obrigatório</span></label><select id="planType" onchange="togglePlanTypeFields()"><option value="bncc">BNCC</option><option value="complementar">Complementar</option></select></div>
-        <div id="planComponentWrap"><label class="field">Componente (opcional)</label><input id="planComponent"></div>
-        <div id="planComplementaryWrap" class="full hidden"><label class="field clean-label">Atividade complementar <span class="field-pill required-pill">Obrigatório</span></label><div class="toolbar"><select id="planComplementary" onchange="planComplementaryChanged()" style="flex:1"><option value="">Selecione...</option></select><button type="button" class="btn" onclick="toggleInlineComplementary(true)">+ Criar nova</button></div>
-          <div id="inlineComplementaryForm" class="notice hidden" style="margin-top:8px"><div class="grid"><div><label class="field">Nome <span class="required-mark">*</span></label><input id="inlineCompName" placeholder="Ex.: Judô"></div><div><label class="field">Categoria (opcional)</label><input id="inlineCompCategory" placeholder="Ex.: Esporte"></div><div class="full"><label class="field">Descrição (opcional)</label><input id="inlineCompDescription"></div></div><div class="toolbar" style="margin-top:8px"><button type="button" class="btn success" onclick="createInlineComplementary()">Criar e usar</button><button type="button" class="btn" onclick="toggleInlineComplementary(false)">Cancelar</button></div></div>
-        </div>
+
+        <div class="full"><label class="field">O que vamos fazer? <span class="required-mark">*</span></label><input id="planTitle" placeholder="Ex.: Leitura do capítulo 3"></div>
+
         <div id="planMaterialWrap" class="full">
-          <label class="field clean-label">Material utilizado <span class="field-pill optional-pill">Opcional</span></label><div class="field-help">Livro, apostila, jogo ou outro material usado na atividade.</div>
-          <input id="planMaterialSearch" placeholder="Digite pelo menos 3 letras para buscar no catálogo" oninput="planMaterialSearchChanged()">
+          <label class="field clean-label">Material utilizado <span class="field-pill optional-pill">Opcional</span></label>
+          <div class="field-help">Busque um material já cadastrado. Se não encontrar, cadastre apenas pelo título.</div>
+          <input id="planMaterialSearch" placeholder="Digite o título do livro, apostila, jogo ou material" oninput="planMaterialSearchChanged()">
           <div id="planMaterialResults"></div>
           <div id="planMaterialSelected" class="hidden"></div>
           <input id="planMaterialId" type="hidden"><input id="planMaterialName" type="hidden"><input id="planMaterialPublisher" type="hidden">
         </div>
-        <div class="full"><label class="field">O que vamos fazer? <span class="required-mark">*</span></label><input id="planTitle" placeholder="Ex.: Leitura do capítulo 3"></div>
-        <div class="full"><label class="field">Observações (opcional)</label><textarea id="planNotes" rows="2"></textarea></div>
+
+        <div class="full"><label class="field">Como vamos fazer? (opcional)</label><textarea id="planNotes" rows="2" placeholder="Ex.: Ler juntos e conversar sobre os personagens; fazer os exercícios 1 a 5."></textarea></div>
+
+        <div class="full plan-details-later">
+          <div class="meta" style="margin-bottom:7px">Organização da atividade</div>
+          <div class="grid">
+            <div><label class="field clean-label">Tipo <span class="field-pill required-pill">Obrigatório</span></label><select id="planType" onchange="togglePlanTypeFields()"><option value="bncc">BNCC</option><option value="complementar">Complementar</option></select></div>
+            <div id="planComponentWrap"><label class="field">Componente (opcional)</label><input id="planComponent"></div>
+            <div id="planComplementaryWrap" class="full hidden"><label class="field clean-label">Atividade complementar <span class="field-pill required-pill">Obrigatório</span></label><div class="toolbar"><select id="planComplementary" onchange="planComplementaryChanged()" style="flex:1"><option value="">Selecione...</option></select><button type="button" class="btn" onclick="toggleInlineComplementary(true)">+ Criar nova</button></div>
+              <div id="inlineComplementaryForm" class="notice hidden" style="margin-top:8px"><div class="grid"><div><label class="field">Nome <span class="required-mark">*</span></label><input id="inlineCompName" placeholder="Ex.: Judô"></div><div><label class="field">Categoria (opcional)</label><input id="inlineCompCategory" placeholder="Ex.: Esporte"></div><div class="full"><label class="field">Descrição (opcional)</label><input id="inlineCompDescription"></div></div><div class="toolbar" style="margin-top:8px"><button type="button" class="btn success" onclick="createInlineComplementary()">Criar e usar</button><button type="button" class="btn" onclick="toggleInlineComplementary(false)">Cancelar</button></div></div>
+            </div>
+          </div>
+        </div>
+
         <div class="full recurrence-box"><label class="field">Repetir?</label>
           <select id="planRecurrence" onchange="togglePlanRecurrenceOptions()"><option value="none">Não repetir</option><option value="daily">Todos os dias</option><option value="weekly">Semanal</option><option value="weekdays">Dias específicos da semana</option><option value="monthly">Mensal</option></select>
           <div id="planWeekdaysBox" class="hidden" style="margin-top:8px"><div class="weekdays"><label><input type="checkbox" value="1">Seg</label><label><input type="checkbox" value="2">Ter</label><label><input type="checkbox" value="3">Qua</label><label><input type="checkbox" value="4">Qui</label><label><input type="checkbox" value="5">Sex</label><label><input type="checkbox" value="6">Sáb</label><label><input type="checkbox" value="0">Dom</label></div></div>
@@ -997,9 +989,8 @@ details[open]>summary:after{content:"⌃"}
         <div><b>Qual livro vocês estão lendo?</b><div class="meta">Pesquise pelo título, autor ou ISBN.</div></div>
         <button class="btn small" type="button" onclick="closeBookSearch()">Fechar</button>
       </div>
-      <div class="book-search-row">
-        <input id="bookSearchQuery" placeholder="Ex.: O Pequeno Príncipe" onkeydown="if(event.key==='Enter')searchGoogleBooks()">
-        <button class="btn dark" type="button" onclick="searchGoogleBooks()">Buscar</button>
+      <div class="book-search-row book-search-auto">
+        <input id="bookSearchQuery" placeholder="Ex.: O Pequeno Príncipe" oninput="scheduleBookSearch()" autocomplete="off">
       </div>
       <div id="bookSearchStatus" class="meta" style="margin-top:8px"></div>
       <div id="bookSearchResults" class="book-results"></div>
@@ -1009,6 +1000,8 @@ details[open]>summary:after{content:"⌃"}
           <div class="full"><label class="field">Título</label><input id="manualBookTitle"></div>
           <div><label class="field">Autor <span class="field-pill optional-pill">Opcional</span></label><input id="manualBookAuthor"></div>
           <div><label class="field">Editora <span class="field-pill optional-pill">Opcional</span></label><input id="manualBookPublisher"></div>
+          <div><label class="field">ISBN <span class="field-pill optional-pill">Opcional</span></label><input id="manualBookIsbn"></div>
+          <div class="full"><label class="field">Foto da capa <span class="field-pill optional-pill">Opcional</span></label><input id="manualBookCover" type="file" accept="image/*" onchange="previewManualBookCover(event)"><div id="manualBookCoverPreview" style="margin-top:7px"></div><div class="field-help">Se enviada, a capa poderá ser revisada pela moderação antes de aparecer para outras famílias.</div></div>
         </div>
         <button class="btn primary" type="button" onclick="addManualBook()">Adicionar livro</button>
       </div>
@@ -1408,7 +1401,8 @@ details[open]>summary:after{content:"⌃"}
 
 <details class="tech-details"><summary>Diagnóstico técnico do beta</summary><div class="drive-folder-card" style="margin-top:8px"><div id="backendDetails" class="meta">Aguardando backend.</div><div id="backendFamilyInfo" class="meta" style="margin-top:6px"></div><div id="backendFamilyChooser" class="hidden"></div><div class="toolbar" style="margin-top:8px"><button class="btn small" onclick="testBackendConnection()">Testar backend</button><button id="syncFamilyBtn" class="btn small hidden" onclick="syncFamilyFromBackend(true)">Atualizar família</button><button id="linkFamilyBtn" class="btn small hidden" onclick="linkCurrentFamilyToBackend()">Vincular família local</button></div><hr style="margin:12px 0"><div class="meta">OAuth Drive: acesso por arquivo/pasta autorizado (`drive.file`) + dados privados do app (`drive.appdata`).</div><hr style="margin:10px 0"><div class="meta">Ferramentas temporárias do beta</div><button class="btn danger small" style="margin-top:8px" onclick="resetLocalBetaData()">Apagar dados locais deste dispositivo</button></div></details>
 
-<details class="tech-details" ontoggle="if(this.open){loadPendingMaterials();loadBnccEmbeddingStatus();}"><summary>Materiais pendentes de validação</summary><div class="drive-folder-card" style="margin-top:8px"><div id="pendingMaterialsBox" class="meta">Carregando...</div><div id="bnccEmbeddingAdmin" style="margin-top:14px;border-top:1px solid #E8E1D2;padding-top:12px"><b>Busca semântica BNCC</b><div id="bnccEmbeddingStatus" class="meta" style="margin:6px 0">Verificando índice...</div><button type="button" class="btn dark small" id="bnccEmbeddingBuildBtn" onclick="buildBnccEmbeddings()">Preparar embeddings da BNCC</button></div></div></details>
+<details class="tech-details" ontoggle="if(this.open){loadPendingCommunityBooks();}"><summary>📚 Livros aguardando validação</summary><div class="drive-folder-card" style="margin-top:8px"><div id="pendingCommunityBooksBox" class="meta">Carregando...</div></div></details>
+          <details class="tech-details" ontoggle="if(this.open){loadPendingMaterials();loadBnccEmbeddingStatus();}"><summary>Materiais pendentes de validação</summary><div class="drive-folder-card" style="margin-top:8px"><div id="pendingMaterialsBox" class="meta">Carregando...</div><div id="bnccEmbeddingAdmin" style="margin-top:14px;border-top:1px solid #E8E1D2;padding-top:12px"><b>Busca semântica BNCC</b><div id="bnccEmbeddingStatus" class="meta" style="margin:6px 0">Verificando índice...</div><button type="button" class="btn dark small" id="bnccEmbeddingBuildBtn" onclick="buildBnccEmbeddings()">Preparar embeddings da BNCC</button></div></div></details>
 </div></section>
   </div>
 </main>
@@ -4779,7 +4773,7 @@ function renderRecordPage(){
       </div>
      </details>
     </div>
-    <div class="full clean-secondary-section"><div class="clean-section-heading"><div><b>Outras informações</b><div class="field-help">Complete somente o que fizer sentido para esta atividade.</div></div></div></div><div class="full"><label class="field clean-label">Observações <span class="field-pill optional-pill">Opcional</span></label><textarea id="fObs" rows="2">${esc(f.observacoes)}</textarea></div>
+    <div class="full"><details class="record-more-options"><summary><b>Mais opções</b><span>Observações</span></summary><div style="margin-top:10px"><label class="field clean-label">Observações <span class="field-pill optional-pill">Opcional</span></label><textarea id="fObs" rows="2">${esc(f.observacoes)}</textarea></div></details></div>
     <div><label class="field clean-label">Avaliação <span class="field-pill required-pill">Obrigatório</span></label><select id="fStatus"><option value="">Selecione...</option><option ${f.status==="Dominado"?"selected":""}>Dominado</option><option ${f.status==="Em progresso"?"selected":""}>Em progresso</option><option ${f.status==="Precisa de revisão"?"selected":""}>Precisa de revisão</option></select></div>
     <div><label class="field clean-label">Foto <span class="field-pill optional-pill">Opcional</span></label><div class="media-actions">
       <label class="btn" onclick="saveRecordDraft(true)">Tirar foto<input type="file" accept="image/*" capture="environment" style="display:none" onchange="readPhoto(event)"></label>
@@ -5142,8 +5136,22 @@ function planMaterialSearchChanged(){
  box.innerHTML='<div class="meta" style="margin-top:6px">Buscando materiais…</div>';
  setTimeout(async()=>{
    if(seq!==planMaterialSearchSeq)return;
-   try{planMaterialSearchResults=await searchMaterialsCatalog(q);if(seq!==planMaterialSearchSeq)return;box.innerHTML=planMaterialSearchResults.length?planMaterialSearchResults.map((m,i)=>materialResultCard(m,i,"plan")).join(""):'<div class="meta" style="margin-top:6px">Nenhum material encontrado no catálogo.</div>'}catch(e){box.innerHTML=`<div class="notice" style="margin-top:6px">Erro ao buscar material: ${esc(e.message||"")}</div>`}
+   try{planMaterialSearchResults=await searchMaterialsCatalog(q);if(seq!==planMaterialSearchSeq)return;box.innerHTML=(planMaterialSearchResults.length?planMaterialSearchResults.map((m,i)=>materialResultCard(m,i,"plan")).join(""):'<div class="meta" style="margin-top:6px">Nenhum material encontrado.</div>')+`<button type="button" class="btn small" style="margin-top:7px" onclick="quickCreatePlanMaterial(${JSON.stringify(q)})">+ Cadastrar “${esc(q)}”</button>`}catch(e){box.innerHTML=`<div class="notice" style="margin-top:6px">Erro ao buscar material: ${esc(e.message||"")}</div>`}
  },250);
+}
+async function quickCreatePlanMaterial(name){
+ const title=String(name||$("planMaterialSearch")?.value||"").trim();if(!title)return;
+ const fam=currentBackendFamily();if(!fam?.id)return alert("Crie ou selecione uma família primeiro.");
+ try{
+  const data=await backendFetch("/materials",{method:"POST",body:JSON.stringify({family_id:fam.id,name:title,publisher:"",age_range:"",content_description:""})});
+  const m=data?.material||{id:"",name:title,publisher:""};
+  if($("planMaterialId"))$("planMaterialId").value=m.id||"";
+  if($("planMaterialName"))$("planMaterialName").value=m.name||title;
+  if($("planMaterialPublisher"))$("planMaterialPublisher").value=m.publisher||"";
+  if($("planMaterialSearch"))$("planMaterialSearch").value="";
+  if($("planMaterialResults"))$("planMaterialResults").innerHTML="";
+  renderPlanMaterialSelection(m);
+ }catch(e){alert("Não foi possível cadastrar o material: "+(e.message||e))}
 }
 async function choosePlanMaterial(index){
  const m=planMaterialSearchResults[index]||catalogMaterialSearchResults[index];if(!m)return;
@@ -5351,6 +5359,46 @@ async function buildBnccEmbeddings(){
    if(btn){btn.disabled=false;btn.textContent="Preparar embeddings da BNCC";}
    loadBnccEmbeddingStatus();
  }
+}
+
+let pendingCommunityBooksCache=[];
+async function loadPendingCommunityBooks(){
+ const box=$("pendingCommunityBooksBox");if(!box)return;box.innerHTML="Carregando...";
+ try{
+  const data=await backendFetch("/community-books/pending"),list=data?.books||[];pendingCommunityBooksCache=list;
+  if(!list.length){box.innerHTML="Nenhum livro aguardando validação.";return}
+  box.innerHTML=list.map((b,i)=>`<div class="duplicate-card">
+   <div style="display:grid;grid-template-columns:54px 1fr;gap:10px">
+    ${b.thumbnail?`<img class="book-cover" src="${esc(b.thumbnail)}" alt="">`:`<div class="book-cover-placeholder">📖</div>`}
+    <div><div style="font-size:13px"><b>${esc(b.title)}</b></div><div class="meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.publisher?" · "+esc(b.publisher):""}</div>${b.isbn13?`<div class="meta">ISBN: ${esc(b.isbn13)}</div>`:""}<div class="meta">Solicitado por: ${esc(b.family_name||"Família")}</div></div>
+   </div>
+   <div class="toolbar" style="margin-top:7px"><button class="btn small" onclick="editPendingCommunityBook(${i})">Editar</button><button class="btn success small" onclick="reviewCommunityBook('${b.id}','approve')">Aprovar</button><button class="btn small" onclick="mergeCommunityBookPrompt('${b.id}')">Mesclar</button><button class="btn danger small" onclick="reviewCommunityBook('${b.id}','reject')">Rejeitar</button></div>
+   <div id="pendingCommunityBookEdit${i}" class="hidden" style="margin-top:8px"></div>
+  </div>`).join("")
+ }catch(e){box.innerHTML=`<div class="notice">${esc(String(e.message||"Você não tem permissão para ver esta lista."))}</div>`}
+}
+function editPendingCommunityBook(i){
+ const b=pendingCommunityBooksCache[i],box=$("pendingCommunityBookEdit"+i);if(!b||!box)return;box.classList.remove("hidden");
+ box.innerHTML=`<div class="notice"><div class="grid"><div class="full"><label class="field">Título</label><input id="adminBookTitle${i}" value="${esc(b.title||"")}"></div><div><label class="field">Autor(es)</label><input id="adminBookAuthors${i}" value="${esc((b.authors||[]).join(", "))}"></div><div><label class="field">Editora</label><input id="adminBookPublisher${i}" value="${esc(b.publisher||"")}"></div><div><label class="field">ISBN</label><input id="adminBookIsbn${i}" value="${esc(b.isbn13||"")}"></div><div class="full"><label class="field">URL da capa</label><input id="adminBookCover${i}" value="${esc(b.thumbnail||"")}"></div></div><div class="toolbar" style="margin-top:8px"><button class="btn" onclick="savePendingCommunityBook(${i},false)">Salvar</button><button class="btn success" onclick="savePendingCommunityBook(${i},true)">Salvar e aprovar</button></div></div>`
+}
+async function savePendingCommunityBook(i,approve){
+ const b=pendingCommunityBooksCache[i];if(!b)return;
+ const title=$("adminBookTitle"+i)?.value.trim()||"";if(!title)return alert("Informe o título.");
+ try{
+  await backendFetch(`/community-books/${encodeURIComponent(b.id)}`,{method:"PUT",body:JSON.stringify({title,authors:String($("adminBookAuthors"+i)?.value||"").split(",").map(x=>x.trim()).filter(Boolean),publisher:$("adminBookPublisher"+i)?.value.trim()||"",isbn13:$("adminBookIsbn"+i)?.value.trim()||"",thumbnail:$("adminBookCover"+i)?.value.trim()||""})});
+  if(approve)await backendFetch(`/community-books/${encodeURIComponent(b.id)}/approve`,{method:"POST"});loadPendingCommunityBooks()
+ }catch(e){alert("Não foi possível salvar: "+(e.message||e))}
+}
+async function reviewCommunityBook(id,action){try{await backendFetch(`/community-books/${encodeURIComponent(id)}/${action}`,{method:"POST"});loadPendingCommunityBooks()}catch(e){alert("Não foi possível revisar: "+(e.message||e))}}
+async function mergeCommunityBookPrompt(id){
+ const q=prompt("Digite parte do título, autor ou ISBN do livro correto para mesclar:");if(!q)return;
+ try{
+  const data=await backendFetch("/community-books/admin-search?q="+encodeURIComponent(q)),list=data?.items||[];
+  if(!list.length)return alert("Nenhum livro aprovado encontrado.");
+  const options=list.slice(0,8).map((b,i)=>`${i+1}. ${b.title}${(b.authors||[]).length?" — "+b.authors.join(", "):""}`).join("\n");
+  const choice=Number(prompt("Escolha o livro canônico:\n\n"+options));if(!choice||!list[choice-1])return;
+  await backendFetch(`/community-books/${encodeURIComponent(id)}/merge`,{method:"POST",body:JSON.stringify({target_book_id:list[choice-1].community_book_id})});loadPendingCommunityBooks()
+ }catch(e){alert("Não foi possível mesclar: "+(e.message||e))}
 }
 
 let pendingMaterialsCache=[];
@@ -5639,6 +5687,7 @@ async function generateReportAiSummary(){const childId=$("reportChild")?.value||
 
 
 const READING_LIBRARY_KEY="diario_reading_library_v1";
+let manualBookCoverData="";
 function getReadingLibrary(){try{return JSON.parse(localStorage.getItem(READING_LIBRARY_KEY)||"[]")||[]}catch(e){return []}}
 function saveReadingLibrary(v){localStorage.setItem(READING_LIBRARY_KEY,JSON.stringify(v||[]))}
 function readingChildId(){return window.readingActiveChildId||activeChildId}
@@ -5650,54 +5699,115 @@ function renderReadingChildButtons(){
  const current=readingChildId();
  box.innerHTML=kids.map(c=>`<button type="button" class="child ${c.id===current?"active":""}" onclick="selectReadingChild('${c.id}')">${esc(c.name)}</button>`).join("")
 }
-function renderReadingPage(){
- renderReadingChildButtons();
+async function loadReadingLibraryFromBackend(){
+ const fam=currentBackendFamily(),localChild=readingChildId(),backendChild=localToBackendChildId(localChild);
+ if(!fam?.id||!backendChild)return null;
+ try{
+   const data=await backendFetch(`/family-books?family_id=${encodeURIComponent(fam.id)}&child_id=${encodeURIComponent(backendChild)}`);
+   return Array.isArray(data?.books)?data.books:[];
+ }catch(e){console.warn("Biblioteca compartilhada:",e);return null}
+}
+function renderReadingCards(books){
  const box=$("readingCurrent");if(!box)return;
- const books=getReadingLibrary().filter(b=>b.childId===readingChildId());
  box.innerHTML=books.length?`<div class="reading-list">${books.map(b=>`
   <div class="reading-card">
    ${b.thumbnail?`<img class="book-cover" src="${esc(b.thumbnail)}" alt="">`:`<div class="book-cover-placeholder">📖</div>`}
    <div><div class="book-title">${esc(b.title)}</div><div class="book-meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.publisher?" · "+esc(b.publisher):""}</div>
-   <div style="margin-top:6px"><span class="reading-status">${esc(b.status||"Lendo")}</span></div>
+   <div style="margin-top:6px"><span class="reading-status">${esc(b.status||"Lendo")}</span>${b.catalog_status==="pending"?` <span class="reading-status">Aguardando validação</span>`:""}</div>
    <div class="reading-actions"><button class="btn small primary" type="button" onclick="startReadingMoment('${b.id}')">+ Registrar momento de leitura</button><button class="btn small" type="button" onclick="toggleBookFinished('${b.id}')">${b.status==="Concluído"?"Marcar como lendo":"Concluir livro"}</button></div>
    </div>
   </div>`).join("")}</div>`:`<div class="notice" style="margin:14px 0">Nenhum livro cadastrado para esta criança ainda.</div>`
 }
+async function renderReadingPage(){
+ renderReadingChildButtons();
+ const box=$("readingCurrent");if(!box)return;
+ box.innerHTML='<div class="meta" style="margin:14px 0">Carregando biblioteca…</div>';
+ const remote=await loadReadingLibraryFromBackend();
+ if(remote!==null){window.currentReadingBooks=remote;renderReadingCards(remote);return}
+ const local=getReadingLibrary().filter(b=>b.childId===readingChildId());window.currentReadingBooks=local;renderReadingCards(local)
+}
 function openBookSearch(){$("bookSearchPanel")?.classList.remove("hidden");$("bookSearchQuery")?.focus()}
 function closeBookSearch(){$("bookSearchPanel")?.classList.add("hidden")}
+let bookSearchTimer=null,bookSearchSeq=0,bookVisibleCount=3;
+function scheduleBookSearch(){
+ clearTimeout(bookSearchTimer);
+ const q=String($("bookSearchQuery")?.value||"").trim();
+ if(q.length<2){$("bookSearchStatus").textContent="";$("bookSearchResults").innerHTML="";$("manualBookBox")?.classList.add("hidden");return}
+ bookSearchTimer=setTimeout(()=>searchGoogleBooks(),650);
+}
+function renderBookSearchResults(){
+ const items=window.lastGoogleBookResults||[],box=$("bookSearchResults");if(!box)return;
+ const visible=items.slice(0,bookVisibleCount);
+ box.innerHTML=visible.map((b,i)=>`<div class="book-result">
+   ${b.thumbnail?`<img class="book-cover" src="${esc(b.thumbnail)}" alt="">`:`<div class="book-cover-placeholder">📖</div>`}
+   <div><div class="book-title">${esc(b.title||"Sem título")}</div><div class="book-meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.publisher?" · "+esc(b.publisher):""}${b.published_date?" · "+esc(b.published_date):""}${b.source==="community"?" · Catálogo compartilhado":""}</div></div>
+   <button class="btn small primary" type="button" onclick="addLibrarySearchBook(${i})">Adicionar</button></div>`).join("");
+ if(items.length>visible.length)box.innerHTML+=`<button class="btn book-more-btn" type="button" onclick="showMoreBookResults()">+ Ver mais resultados</button>`;
+}
+function showMoreBookResults(){bookVisibleCount+=3;renderBookSearchResults()}
 async function searchGoogleBooks(){
- const q=String($("bookSearchQuery")?.value||"").trim();if(q.length<2)return alert("Digite pelo menos 2 caracteres.");
- $("bookSearchStatus").textContent="Procurando no Google Books…";$("bookSearchResults").innerHTML="";$("manualBookBox").classList.add("hidden");
+ const q=String($("bookSearchQuery")?.value||"").trim();if(q.length<2)return;
+ const seq=++bookSearchSeq;bookVisibleCount=3;
+ $("bookSearchStatus").textContent="Consultando biblioteca…";$("bookSearchResults").innerHTML="";$("manualBookBox").classList.add("hidden");
  try{
   const data=await backendFetch("/books/search?q="+encodeURIComponent(q));
-  const items=Array.isArray(data?.items)?data.items:[];
-  $("bookSearchStatus").textContent=items.length?`${items.length} opções encontradas`:"Nenhum livro encontrado.";
-  $("bookSearchResults").innerHTML=items.map((b,i)=>`<div class="book-result">
-   ${b.thumbnail?`<img class="book-cover" src="${esc(b.thumbnail)}" alt="">`:`<div class="book-cover-placeholder">📖</div>`}
-   <div><div class="book-title">${esc(b.title||"Sem título")}</div><div class="book-meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.publisher?" · "+esc(b.publisher):""}${b.published_date?" · "+esc(b.published_date):""}</div></div>
-   <button class="btn small primary" type="button" onclick="addGoogleBook(${i})">Adicionar</button></div>`).join("");
-  window.lastGoogleBookResults=items;$("manualBookBox").classList.remove("hidden");$("manualBookTitle").value=q;
- }catch(e){$("bookSearchStatus").textContent="Não foi possível pesquisar agora.";$("manualBookBox").classList.remove("hidden");$("manualBookTitle").value=q}
+  if(seq!==bookSearchSeq)return;
+  let items=Array.isArray(data?.items)?data.items:[];
+  if(!items.length){
+    const community=await backendFetch("/community-books/search?q="+encodeURIComponent(q));
+    if(seq!==bookSearchSeq)return;
+    items=Array.isArray(community?.items)?community.items:[];
+  }
+  window.lastGoogleBookResults=items;
+  $("bookSearchStatus").textContent=items.length?`${items.length} opções na biblioteca`:"Nenhum livro encontrado na biblioteca.";
+  renderBookSearchResults();
+  if(!items.length){$("manualBookBox").classList.remove("hidden");$("manualBookTitle").value=q}
+ }catch(e){if(seq!==bookSearchSeq)return;$("bookSearchStatus").textContent="Não foi possível consultar a biblioteca agora.";$("manualBookBox").classList.remove("hidden");$("manualBookTitle").value=q}
 }
-function addGoogleBook(i){
+async function addLibrarySearchBook(i){
  const b=(window.lastGoogleBookResults||[])[i];if(!b)return;
- const books=getReadingLibrary();books.push({id:"book_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),childId:readingChildId(),source:"google_books",googleVolumeId:b.google_volume_id||"",title:b.title||"",authors:b.authors||[],publisher:b.publisher||"",publishedDate:b.published_date||"",isbn13:b.isbn13||"",isbn10:b.isbn10||"",pageCount:b.page_count||null,categories:b.categories||[],language:b.language||"",description:b.description||"",thumbnail:b.thumbnail||"",status:"Lendo",addedAt:new Date().toISOString()});saveReadingLibrary(books);closeBookSearch();renderReadingPage()
+ const fam=currentBackendFamily(),backendChild=localToBackendChildId(readingChildId());
+ if(fam?.id&&backendChild){
+  try{
+   await backendFetch("/family-books",{method:"POST",body:JSON.stringify({family_id:fam.id,child_id:backendChild,source:b.source||"google_books",google_volume_id:b.google_volume_id||"",community_book_id:b.community_book_id||"",title:b.title||"",authors:b.authors||[],publisher:b.publisher||"",published_date:b.published_date||"",isbn13:b.isbn13||"",isbn10:b.isbn10||"",page_count:b.page_count||null,categories:b.categories||[],language:b.language||"",description:b.description||"",thumbnail:b.thumbnail||""})});
+   closeBookSearch();await renderReadingPage();return;
+  }catch(e){return alert("Não foi possível adicionar o livro: "+(e.message||e))}
+ }
+ // fallback local if family is not synchronized
+ const books=getReadingLibrary();books.push({id:"book_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),childId:readingChildId(),source:b.source||"google_books",googleVolumeId:b.google_volume_id||"",communityBookId:b.community_book_id||"",title:b.title||"",authors:b.authors||[],publisher:b.publisher||"",publishedDate:b.published_date||"",isbn13:b.isbn13||"",isbn10:b.isbn10||"",pageCount:b.page_count||null,categories:b.categories||[],language:b.language||"",description:b.description||"",thumbnail:b.thumbnail||"",status:"Lendo",addedAt:new Date().toISOString()});saveReadingLibrary(books);closeBookSearch();renderReadingPage()
 }
-function addManualBook(){
+function addGoogleBook(i){return addLibrarySearchBook(i)}
+function previewManualBookCover(event){
+ const file=event?.target?.files?.[0];manualBookCoverData="";$("manualBookCoverPreview").innerHTML="";
+ if(!file)return;if(file.size>2.5*1024*1024){event.target.value="";return alert("Escolha uma imagem de até 2,5 MB.");}
+ const r=new FileReader();r.onload=()=>{manualBookCoverData=String(r.result||"");$("manualBookCoverPreview").innerHTML=manualBookCoverData?`<img src="${manualBookCoverData}" class="book-cover" alt="Prévia da capa">`:""};r.readAsDataURL(file)
+}
+async function addManualBook(){
  const title=String($("manualBookTitle")?.value||"").trim();if(!title)return alert("Informe o título.");
- const author=String($("manualBookAuthor")?.value||"").trim(),publisher=String($("manualBookPublisher")?.value||"").trim(),books=getReadingLibrary();
- books.push({id:"book_"+Date.now(),childId:readingChildId(),source:"manual",title,authors:author?[author]:[],publisher,status:"Lendo",addedAt:new Date().toISOString()});saveReadingLibrary(books);closeBookSearch();renderReadingPage()
+ const author=String($("manualBookAuthor")?.value||"").trim(),publisher=String($("manualBookPublisher")?.value||"").trim(),isbn=String($("manualBookIsbn")?.value||"").trim();
+ const fam=currentBackendFamily(),backendChild=localToBackendChildId(readingChildId());
+ if(fam?.id&&backendChild){
+   try{
+     await backendFetch("/community-books",{method:"POST",body:JSON.stringify({family_id:fam.id,child_id:backendChild,title,authors:author?[author]:[],publisher,isbn13:isbn,cover_data:manualBookCoverData||""})});
+     manualBookCoverData="";closeBookSearch();await renderReadingPage();alert("Livro adicionado. O cadastro ficará disponível para outras famílias após a validação.");return;
+   }catch(e){return alert("Não foi possível cadastrar o livro: "+(e.message||e))}
+ }
+ const books=getReadingLibrary();books.push({id:"book_"+Date.now(),childId:readingChildId(),source:"manual",title,authors:author?[author]:[],publisher,isbn13:isbn,thumbnail:manualBookCoverData||"",status:"Lendo",catalog_status:"pending",addedAt:new Date().toISOString()});saveReadingLibrary(books);manualBookCoverData="";closeBookSearch();renderReadingPage()
 }
-function toggleBookFinished(id){const books=getReadingLibrary(),b=books.find(x=>x.id===id);if(!b)return;b.status=b.status==="Concluído"?"Lendo":"Concluído";b.finishedAt=b.status==="Concluído"?new Date().toISOString():"";saveReadingLibrary(books);renderReadingPage()}
+async function toggleBookFinished(id){
+ const b=(window.currentReadingBooks||[]).find(x=>x.id===id);
+ if(b?.backend){
+   try{await backendFetch(`/family-books/${encodeURIComponent(id)}`,{method:"PATCH",body:JSON.stringify({status:b.status==="Concluído"?"Lendo":"Concluído"})});await renderReadingPage();return}catch(e){return alert("Não foi possível atualizar: "+(e.message||e))}
+ }
+ const books=getReadingLibrary(),local=books.find(x=>x.id===id);if(!local)return;local.status=local.status==="Concluído"?"Lendo":"Concluído";local.finishedAt=local.status==="Concluído"?new Date().toISOString():"";saveReadingLibrary(books);renderReadingPage()
+}
 function startReadingMoment(id){
- const b=getReadingLibrary().find(x=>x.id===id);if(!b)return;
- activeChildId=b.childId;
- showPage("registro");
- setTimeout(()=>{
-   const activity=$("atividade");if(activity&&!activity.value)activity.value=`Leitura — ${b.title}`;
-   const obs=$("observacoes");if(obs&&!obs.value)obs.value=`Livro: ${b.title}${(b.authors||[]).length?" — "+b.authors.join(", "):""}`;
-   if(typeof saveRecordDraft==="function")try{saveRecordDraft()}catch(e){}
- },60)
+ const b=(window.currentReadingBooks||[]).find(x=>x.id===id)||getReadingLibrary().find(x=>x.id===id);if(!b)return;
+ const localChild=b.childId&&state.family.children.some(c=>c.id===b.childId)?b.childId:(backendToLocalChildId(b.child_id)||readingChildId());
+ activeChildId=localChild;editing=null;recordFormOpen=true;photoData="";audioData="";photoTakenAt="";photoDateSource="";
+ clearRecordDraft(activeChildId);
+ const draft={version:1,childId:activeChildId,mode:"new",editingId:"",savedAt:now(),date:today(),type:"bncc",search:"",scope:"referencia",complementaryId:"",area:"",componente:"",codigo:"",habilidade:"",materialId:b.community_book_id?`communitybook:${b.community_book_id}`:(b.google_volume_id?`googlebook:${b.google_volume_id}`:`reading:${b.id}`),materialName:b.title||"",materialPublisher:b.publisher||"",materialBnccSkills:[],atividade:`Leitura — ${b.title||"Livro"}`,observacoes:"",status:"",photoData:"",photoTakenAt:"",photoDateSource:""};
+ localStorage.setItem(recordDraftKey(activeChildId),JSON.stringify(draft));showPage("registro")
 }
 
 function learningTopCounts(rows,keyFn){
@@ -6043,7 +6153,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.26";
+const APP_VERSION = "5.28";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
