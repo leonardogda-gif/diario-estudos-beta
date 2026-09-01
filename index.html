@@ -799,6 +799,24 @@ details[open]>summary:after{content:"⌃"}
 #reportSummary{display:none!important}.learning-hero{padding:12px 15px}.learning-summary-grid{gap:6px}.learning-summary-item{padding:8px 10px;background:#fafbf9}.learning-summary-item b{font-size:17px}.learning-summary-item span{font-size:10px}
 .ai-period-summary{background:#f5f8f6;border:1px solid #dce6df;border-radius:15px;padding:16px}.ai-period-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.ai-period-head h3{margin:0 0 4px;font-size:16px}.ai-period-text{font-size:13px;line-height:1.65;color:#39473f;margin-top:12px}.ai-period-note{font-size:10px;color:#78827c;margin-top:10px;line-height:1.45}.ai-period-loading{font-size:12px;color:#66736c;margin-top:10px}
 @media(max-width:700px){.learning-summary-grid{grid-template-columns:repeat(4,1fr)}.learning-summary-item{padding:7px 4px;text-align:center}.learning-summary-item b{font-size:15px}.learning-summary-item span{font-size:9px}.ai-period-head{display:block}.ai-period-head .btn{margin-top:9px}}
+
+/* v5.26 — Leituras */
+.book-search-panel{margin-top:14px;padding:15px;border:1px solid #e1e7e2;border-radius:15px;background:#fafbf9}
+.book-search-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.book-search-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:13px}
+.book-search-row input{min-height:44px}
+.book-results{display:grid;gap:9px;margin-top:12px}
+.book-result{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;background:#fff;border:1px solid #e3e8e4;border-radius:13px;padding:10px}
+.book-cover{width:58px;height:82px;object-fit:cover;border-radius:6px;background:#edf0ed}
+.book-cover-placeholder{width:58px;height:82px;border-radius:6px;background:#edf0ed;display:flex;align-items:center;justify-content:center;font-size:24px}
+.book-title{font-size:13px;font-weight:850;line-height:1.3}.book-meta{font-size:10px;color:#6f7973;margin-top:4px;line-height:1.4}
+.reading-list{display:grid;gap:10px;margin:14px 0}
+.reading-card{display:grid;grid-template-columns:58px 1fr;gap:12px;border:1px solid #e3e8e4;border-radius:14px;padding:11px;background:#fff}
+.reading-card .book-cover{width:52px;height:74px}
+.reading-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.reading-status{font-size:10px;font-weight:750;color:#456152;background:#eef4f0;border-radius:999px;padding:3px 7px;display:inline-flex}
+@media(max-width:650px){.book-result{grid-template-columns:52px 1fr}.book-result>.btn{grid-column:2}.book-cover,.book-cover-placeholder{width:48px;height:68px}}
+
 </style>
 </head>
 <body class="auth-checking">
@@ -807,7 +825,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.25 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v5.26 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -887,6 +905,7 @@ details[open]>summary:after{content:"⌃"}
       <nav class="nav-tabs">
         <button class="nav-tab active" data-page="inicio" onclick="showPage('inicio')">Hoje</button>
         <button class="nav-tab" data-page="planejamento" onclick="showPage('planejamento')">Planejar</button>
+        <button class="nav-tab" data-page="leituras" onclick="showPage('leituras')">Leituras</button>
         <button class="nav-tab" data-page="historico" onclick="showPage('historico')">Histórico</button>
         <button class="nav-tab" data-page="mais" onclick="showPage('mais')">Mais</button>
       </nav>
@@ -958,7 +977,46 @@ details[open]>summary:after{content:"⌃"}
       <div class="card"><div id="plansList"></div></div>
     </section>
 
-    <section id="page-relatorios" class="page">
+    
+<section id="page-leituras" class="page">
+  <div class="card">
+    <h2 style="margin-top:12px">📚 Leituras</h2>
+    <div class="field-help">Cadastre os livros uma vez e registre cada momento de leitura como uma experiência da criança.</div>
+
+    <div class="report-child-picker" style="margin-top:14px">
+      <div class="meta" style="margin-bottom:7px">Criança</div>
+      <div id="readingChildButtons" class="child-tabs"></div>
+    </div>
+
+    <div id="readingCurrent"></div>
+
+    <button class="btn primary" type="button" onclick="openBookSearch()">+ Adicionar livro</button>
+
+    <div id="bookSearchPanel" class="book-search-panel hidden">
+      <div class="book-search-head">
+        <div><b>Qual livro vocês estão lendo?</b><div class="meta">Pesquise pelo título, autor ou ISBN.</div></div>
+        <button class="btn small" type="button" onclick="closeBookSearch()">Fechar</button>
+      </div>
+      <div class="book-search-row">
+        <input id="bookSearchQuery" placeholder="Ex.: O Pequeno Príncipe" onkeydown="if(event.key==='Enter')searchGoogleBooks()">
+        <button class="btn dark" type="button" onclick="searchGoogleBooks()">Buscar</button>
+      </div>
+      <div id="bookSearchStatus" class="meta" style="margin-top:8px"></div>
+      <div id="bookSearchResults" class="book-results"></div>
+      <div id="manualBookBox" class="hidden" style="margin-top:12px">
+        <div class="notice">Não encontrou? Você ainda pode cadastrar o livro manualmente.</div>
+        <div class="grid">
+          <div class="full"><label class="field">Título</label><input id="manualBookTitle"></div>
+          <div><label class="field">Autor <span class="field-pill optional-pill">Opcional</span></label><input id="manualBookAuthor"></div>
+          <div><label class="field">Editora <span class="field-pill optional-pill">Opcional</span></label><input id="manualBookPublisher"></div>
+        </div>
+        <button class="btn primary" type="button" onclick="addManualBook()">Adicionar livro</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="page-relatorios" class="page">
       <div class="card">
         <div class="toolbar no-print">
           <button class="btn dark" onclick="window.print()">Imprimir / Salvar PDF</button>
@@ -1596,6 +1654,7 @@ function showPage(name){
  if(name==="planejamento")renderPlans();
  if(name==="relatorios")renderReportPage();
  if(name==="historico"){renderHistoryBrowser();renderHistoryBatchRows();refreshHistoryActivityOptions();}
+ if(name==="leituras"){renderReadingPage();}
  if(name==="manutencao")renderComplementaryList();
  if(name==="configuracoes")renderSettingsChildren();
 }
@@ -5578,6 +5637,69 @@ function reportAiKey(childId,from,to,status,type,comp,rows){return [childId,from
 function reportAiBox(key,hasRows){const cached=reportAiSummaryCache[key];return `<div class="ai-period-summary"><div class="ai-period-head"><div><h3>✨ Resumo do período</h3><div class="learning-section-intro" style="margin:0">Uma leitura breve dos registros selecionados.</div></div>${hasRows?`<button class="btn small" type="button" onclick="generateReportAiSummary()">${cached?"↻ Atualizar resumo":"✨ Gerar resumo com IA"}</button>`:""}</div><div id="reportAiSummaryText" class="ai-period-text">${cached?esc(cached).replace(/\n/g,"<br>"):(hasRows?"Clique em “Gerar resumo com IA” para criar uma síntese deste período.":"Não há registros suficientes para gerar um resumo.")}</div><div id="reportAiSummaryLoading" class="ai-period-loading hidden">Analisando os registros do período...</div><div class="ai-period-note">Resumo elaborado por IA a partir dos registros selecionados. Revise antes de compartilhar ou exportar.</div></div>`}
 async function generateReportAiSummary(){const childId=$("reportChild")?.value||activeChildId,child=state.family.children.find(c=>c.id===childId);if(!child)return;const all=state.entries[childId]||[],from=$("reportFrom")?.value||"",to=$("reportTo")?.value||"",status=$("reportStatus")?.value||"",type=$("reportType")?.value||"",comp=$("reportComponent")?.value||"",rows=all.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!status||x.status===status)&&(!type||x.type===type)&&(!comp||x.componente===comp));if(!rows.length)return alert("Não há registros neste período para resumir.");const period=reportPeriodText(from,to),key=reportAiKey(childId,from,to,status,type,comp,rows),backendChildId=localToBackendChildId(child.id);if(!backendChildId)return alert("Sincronize a criança com a família antes de gerar o resumo.");$("reportAiSummaryLoading")?.classList.remove("hidden");try{const data=await backendFetch("/ai/report-summary",{method:"POST",body:JSON.stringify({child_id:backendChildId,child_name:child.name||"",reference_stage:child.stage||"",period,activities:rows.slice(0,120).map(x=>({date:x.date||"",activity:String(x.atividade||"").slice(0,500),component:x.componente||"",status:x.status||"",bncc_code:x.codigo||"",bncc_skill:String(x.habilidade||"").slice(0,500),notes:String(x.observacoes||"").slice(0,350)}))})});const text=String(data?.summary||"").trim();if(!text)throw new Error("A IA não retornou um resumo.");reportAiSummaryCache[key]=text;renderReportPage()}catch(e){alert("Não foi possível gerar o resumo: "+(e.message||e))}finally{$("reportAiSummaryLoading")?.classList.add("hidden")}}
 
+
+const READING_LIBRARY_KEY="diario_reading_library_v1";
+function getReadingLibrary(){try{return JSON.parse(localStorage.getItem(READING_LIBRARY_KEY)||"[]")||[]}catch(e){return []}}
+function saveReadingLibrary(v){localStorage.setItem(READING_LIBRARY_KEY,JSON.stringify(v||[]))}
+function readingChildId(){return window.readingActiveChildId||activeChildId}
+function selectReadingChild(id){window.readingActiveChildId=id;renderReadingPage()}
+function renderReadingChildButtons(){
+ const box=$("readingChildButtons");if(!box)return;
+ const kids=(state.family.children||[]).filter(c=>!c.archived&&!c.legacyOrphan),sel=readingChildId();
+ if(!kids.some(c=>c.id===sel)&&kids[0])window.readingActiveChildId=kids[0].id;
+ const current=readingChildId();
+ box.innerHTML=kids.map(c=>`<button type="button" class="child ${c.id===current?"active":""}" onclick="selectReadingChild('${c.id}')">${esc(c.name)}</button>`).join("")
+}
+function renderReadingPage(){
+ renderReadingChildButtons();
+ const box=$("readingCurrent");if(!box)return;
+ const books=getReadingLibrary().filter(b=>b.childId===readingChildId());
+ box.innerHTML=books.length?`<div class="reading-list">${books.map(b=>`
+  <div class="reading-card">
+   ${b.thumbnail?`<img class="book-cover" src="${esc(b.thumbnail)}" alt="">`:`<div class="book-cover-placeholder">📖</div>`}
+   <div><div class="book-title">${esc(b.title)}</div><div class="book-meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.publisher?" · "+esc(b.publisher):""}</div>
+   <div style="margin-top:6px"><span class="reading-status">${esc(b.status||"Lendo")}</span></div>
+   <div class="reading-actions"><button class="btn small primary" type="button" onclick="startReadingMoment('${b.id}')">+ Registrar momento de leitura</button><button class="btn small" type="button" onclick="toggleBookFinished('${b.id}')">${b.status==="Concluído"?"Marcar como lendo":"Concluir livro"}</button></div>
+   </div>
+  </div>`).join("")}</div>`:`<div class="notice" style="margin:14px 0">Nenhum livro cadastrado para esta criança ainda.</div>`
+}
+function openBookSearch(){$("bookSearchPanel")?.classList.remove("hidden");$("bookSearchQuery")?.focus()}
+function closeBookSearch(){$("bookSearchPanel")?.classList.add("hidden")}
+async function searchGoogleBooks(){
+ const q=String($("bookSearchQuery")?.value||"").trim();if(q.length<2)return alert("Digite pelo menos 2 caracteres.");
+ $("bookSearchStatus").textContent="Procurando no Google Books…";$("bookSearchResults").innerHTML="";$("manualBookBox").classList.add("hidden");
+ try{
+  const data=await backendFetch("/books/search?q="+encodeURIComponent(q));
+  const items=Array.isArray(data?.items)?data.items:[];
+  $("bookSearchStatus").textContent=items.length?`${items.length} opções encontradas`:"Nenhum livro encontrado.";
+  $("bookSearchResults").innerHTML=items.map((b,i)=>`<div class="book-result">
+   ${b.thumbnail?`<img class="book-cover" src="${esc(b.thumbnail)}" alt="">`:`<div class="book-cover-placeholder">📖</div>`}
+   <div><div class="book-title">${esc(b.title||"Sem título")}</div><div class="book-meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.publisher?" · "+esc(b.publisher):""}${b.published_date?" · "+esc(b.published_date):""}</div></div>
+   <button class="btn small primary" type="button" onclick="addGoogleBook(${i})">Adicionar</button></div>`).join("");
+  window.lastGoogleBookResults=items;$("manualBookBox").classList.remove("hidden");$("manualBookTitle").value=q;
+ }catch(e){$("bookSearchStatus").textContent="Não foi possível pesquisar agora.";$("manualBookBox").classList.remove("hidden");$("manualBookTitle").value=q}
+}
+function addGoogleBook(i){
+ const b=(window.lastGoogleBookResults||[])[i];if(!b)return;
+ const books=getReadingLibrary();books.push({id:"book_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),childId:readingChildId(),source:"google_books",googleVolumeId:b.google_volume_id||"",title:b.title||"",authors:b.authors||[],publisher:b.publisher||"",publishedDate:b.published_date||"",isbn13:b.isbn13||"",isbn10:b.isbn10||"",pageCount:b.page_count||null,categories:b.categories||[],language:b.language||"",description:b.description||"",thumbnail:b.thumbnail||"",status:"Lendo",addedAt:new Date().toISOString()});saveReadingLibrary(books);closeBookSearch();renderReadingPage()
+}
+function addManualBook(){
+ const title=String($("manualBookTitle")?.value||"").trim();if(!title)return alert("Informe o título.");
+ const author=String($("manualBookAuthor")?.value||"").trim(),publisher=String($("manualBookPublisher")?.value||"").trim(),books=getReadingLibrary();
+ books.push({id:"book_"+Date.now(),childId:readingChildId(),source:"manual",title,authors:author?[author]:[],publisher,status:"Lendo",addedAt:new Date().toISOString()});saveReadingLibrary(books);closeBookSearch();renderReadingPage()
+}
+function toggleBookFinished(id){const books=getReadingLibrary(),b=books.find(x=>x.id===id);if(!b)return;b.status=b.status==="Concluído"?"Lendo":"Concluído";b.finishedAt=b.status==="Concluído"?new Date().toISOString():"";saveReadingLibrary(books);renderReadingPage()}
+function startReadingMoment(id){
+ const b=getReadingLibrary().find(x=>x.id===id);if(!b)return;
+ activeChildId=b.childId;
+ showPage("registro");
+ setTimeout(()=>{
+   const activity=$("atividade");if(activity&&!activity.value)activity.value=`Leitura — ${b.title}`;
+   const obs=$("observacoes");if(obs&&!obs.value)obs.value=`Livro: ${b.title}${(b.authors||[]).length?" — "+b.authors.join(", "):""}`;
+   if(typeof saveRecordDraft==="function")try{saveRecordDraft()}catch(e){}
+ },60)
+}
+
 function learningTopCounts(rows,keyFn){
  const m={};
  rows.forEach(x=>{const k=String(keyFn(x)||"").trim();if(k)m[k]=(m[k]||0)+1});
@@ -5921,7 +6043,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.25";
+const APP_VERSION = "5.26";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

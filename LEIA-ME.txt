@@ -1,4 +1,27 @@
-Diário de Estudos v5.25
+DIÁRIO DE ESTUDOS — v5.26
+LEITURAS + GOOGLE BOOKS
 
-Relatório: seletor verde de criança; filtros recolhidos; indicadores sutis; resumo opcional por IA no topo.
-Worker v0.15-beta: POST /ai/report-summary usando Gemini 3.5 Flash-Lite. Fotos e áudios não são enviados. Sem migração D1.
+Frontend
+- Nova área 📚 Leituras.
+- Seleção da criança pelo padrão verde.
+- Busca por título, autor ou ISBN.
+- Resultados via Google Books API.
+- Preenchimento automático de título, autores, editora, publicação, ISBN, páginas, categorias, idioma, descrição e capa quando disponíveis.
+- Cadastro manual permanece como fallback quando o Google não encontra o livro.
+- Livros podem ficar como Lendo ou Concluído.
+- “Registrar momento de leitura” abre um novo registro para a mesma criança com o livro já identificado.
+- A BNCC continua pertencendo ao momento/atividade de leitura, e não ao livro.
+
+Backend
+- Worker v0.16-beta.
+- Novo GET /books/search?q=...
+- Nova variável/Secret necessária no Cloudflare Worker: GOOGLE_BOOKS_API_KEY
+- A chave fica no Worker, não no index.html.
+- Google Books é a única fonte externa de livros nesta versão.
+- Nenhuma integração Open Library.
+
+IMPORTANTE
+Nesta primeira versão a biblioteca de leitura fica no armazenamento local do app. A sincronização/estrutura compartilhada pode ser promovida para o backend/Drive em uma versão seguinte depois de validarmos a experiência.
+
+D1
+- Nenhuma migração nesta versão.
