@@ -1,37 +1,26 @@
-DIÁRIO DE ESTUDOS — v6.0
+DIÁRIO DE ESTUDOS — v6.1
 
-Esta versão parte da v5.28 corrigida para Leituras/Material e incorpora o Google Calendar.
+MATERIAIS
+- Cadastro rápido reativado no Registro.
+- Continua disponível no Planejamento.
+- Família usa imediatamente.
+- Pending: aguarda catálogo.
+- Rejected: não aparece para outras famílias, mas continua utilizável pela família que cadastrou.
 
-LEITURAS
-- Livro recebe data de início.
-- A família pode alterar a data de início.
-- Ao clicar “Concluir livro”, a data de conclusão é gravada.
-- “Reabrir leitura” remove a conclusão.
-- As datas ficam sincronizadas em family_books.
+MAIS
+- Removido botão Manutenção.
+- Entenda a BNCC ficou só com conteúdo introdutório.
+- Nova página: Como encontramos habilidades.
+- Nova página: Como tratamos seus dados.
+- Privacidade inclui IA, Drive, Calendar, livros/leitura, materiais e banco do Diário.
 
-RELATÓRIOS
-Novo filtro “Leituras”:
-- Todos
-- Registros de leitura
-- Livros concluídos
-
-A seção de livros concluídos mostra:
-- título
-- autor
-- data de início
-- data de conclusão
-
-CALENDAR
-Mantida a integração preparada na v5.29:
-- importar um evento pessoal para o Planejamento;
-- enviar um planejamento para o calendário secundário “Diário de Estudos”.
-
-GOOGLE CLOUD
-A Google Calendar API deve estar habilitada e o OAuth deve conter:
-- calendar.events.readonly
-- calendar.app.created
-- calendar.calendarlist.readonly
+ADMIN
+- Aviso dentro de Mais quando existem validações pendentes.
+- Alertas do navegador opcionais.
+- Verificação a cada 10 minutos enquanto o app estiver aberto.
+- Livros + materiais entram na contagem.
+- Usuários normais não veem o aviso.
 
 BACKEND
-- Worker v0.18-beta
-- Não há nova migração D1.
+- Worker v0.19-beta.
+- Sem migração D1.
