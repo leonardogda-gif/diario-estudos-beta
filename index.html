@@ -601,6 +601,131 @@ main,.app-main{letter-spacing:0}
   .bncc-info-card{padding:15px}
 }
 
+
+/* =========================================================
+   v5.22 — VISUAL CLEAN COMPLETO / DIVULGAÇÃO PROGRESSIVA
+   Nenhuma função removida: reduzimos o peso visual e
+   destacamos primeiro as ações que a família mais usa.
+   ========================================================= */
+:root{
+  --v522-gap:18px;
+  --v522-line:#e7ebe7;
+  --v522-muted:#6b756f;
+  --v522-soft:#f7f9f7;
+}
+main{padding-bottom:92px}
+h1,h2,h3{letter-spacing:-.15px}
+.page-head,.section-head{margin-bottom:18px}
+.card{margin-bottom:var(--v522-gap)}
+.grid,.record-grid{row-gap:18px}
+label.field{margin-bottom:7px}
+.meta,.help,.hint{line-height:1.5}
+
+/* Planejamento: ações principais primeiro; detalhes parecem secundários */
+.plan-card,.planning-card{
+  border:1px solid var(--v522-line)!important;
+  box-shadow:none!important;
+}
+.plan-card .meta,.planning-card .meta{color:var(--v522-muted)}
+details{
+  border-radius:12px;
+}
+details>summary{
+  cursor:pointer;
+  list-style:none;
+}
+details>summary::-webkit-details-marker{display:none}
+details>summary:after{
+  content:"⌄";
+  float:right;
+  opacity:.55;
+  font-size:14px;
+}
+details[open]>summary:after{content:"⌃"}
+
+/* Histórico: busca e filtros com menos ruído */
+.filters,.filter-box,.history-filters{
+  background:#fff;
+  border:1px solid var(--v522-line)!important;
+  box-shadow:none!important;
+  border-radius:14px!important;
+}
+.filters label,.filter-box label,.history-filters label{
+  text-transform:none!important;
+  letter-spacing:0!important;
+}
+.history-card,.entry{
+  border:1px solid var(--v522-line)!important;
+  box-shadow:none!important;
+}
+.history-card+.history-card,.entry+.entry{margin-top:12px}
+
+/* Materiais: busca é protagonista */
+.material-search,.materials-search{
+  background:#fff;
+  border:1px solid var(--v522-line);
+  border-radius:14px;
+}
+.material-card{
+  box-shadow:none!important;
+  border:1px solid var(--v522-line)!important;
+}
+.material-card .meta{color:var(--v522-muted)}
+
+/* Mais: grupos mais leves, sem aparência de painel administrativo */
+.settings-section{
+  border:1px solid var(--v522-line)!important;
+  box-shadow:none!important;
+  background:#fff!important;
+  margin-bottom:14px!important;
+}
+.settings-section h3{
+  text-transform:none!important;
+  letter-spacing:0!important;
+}
+
+/* Botões: uma ação principal forte; secundárias mais discretas */
+.btn:not(.primary):not(.danger){
+  box-shadow:none!important;
+}
+.btn.ghost,.btn.secondary{
+  background:#fff;
+  border-color:#dfe5e0;
+}
+.btn.danger{
+  box-shadow:none!important;
+}
+
+/* Campos avançados ficam visualmente atrás dos essenciais */
+.advanced-options,.secondary-options,.optional-group{
+  background:var(--v522-soft);
+  border:1px solid var(--v522-line);
+  border-radius:13px;
+  padding:13px;
+}
+.progressive-summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  font-size:13px;
+  font-weight:750;
+  color:#526059;
+}
+.progressive-summary small{
+  font-weight:500;
+  color:var(--v522-muted);
+}
+
+/* Mobile: ainda mais respiro sem desperdiçar tela */
+@media(max-width:720px){
+  main{padding-left:12px;padding-right:12px}
+  .card{margin-bottom:14px}
+  .page-head,.section-head{margin-bottom:14px}
+  .grid,.record-grid{row-gap:16px}
+  .btn{min-height:42px}
+}
+
 </style>
 </head>
 <body class="auth-checking">
@@ -609,7 +734,7 @@ main,.app-main{letter-spacing:0}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.21 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v5.22 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -783,7 +908,7 @@ main,.app-main{letter-spacing:0}
 
     <section id="page-historico" class="page">
       <div class="card">
-        <h2>Histórico</h2>
+        <h2>Histórico</h2><div class="field-help">Encontre rapidamente o que foi registrado. Use mais filtros somente quando precisar.</div>
         <div class="notice">Consulte o histórico normalmente ou adicione uma atividade realizada anteriormente.</div>
         <div class="card" style="margin-top:12px;background:#F8F5EC"><div class="toolbar" style="justify-content:space-between"><div><h3 style="margin-bottom:3px">Adicionar atividade antiga</h3><div class="meta">Um registro simples, sem exigir código BNCC.</div></div><button class="btn" onclick="toggleOldRecordForm(true)">+ Adicionar</button></div>
         <div id="oldRecordForm" class="hidden" style="margin-top:12px"><div class="grid">
@@ -4800,7 +4925,7 @@ function applyAiBnccSuggestion(index){
 
 
 // =========================================================
-// ROADMAP PÓS-v5.21
+// ROADMAP PÓS-v5.22
 // 1) Persistir no D1, por código BNCC escolhido, a origem da classificação,
 //    semantic_similarity, ranking da IA e modelos utilizados. Na v5.19 o
 //    percentual é apenas exibido durante a sugestão e NÃO é salvo no registro.
@@ -5517,7 +5642,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.21";
+const APP_VERSION = "5.22";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

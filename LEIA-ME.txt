@@ -1,40 +1,56 @@
-DIÁRIO DE ESTUDOS — v5.21
+DIÁRIO DE ESTUDOS — v5.22
+VISUAL CLEAN COMPLETO
 
 Base:
-- Frontend v5.20
+- Frontend v5.21
 - Worker v0.14-beta (inalterado)
+- D1 sem alterações
 
-NOVIDADES
+OBJETIVO
+Reduzir a sensação de processo/burocracia sem retirar estrutura ou funcionalidades.
 
-1. MAIS → ENTENDA A BNCC
-Foi acrescentada uma explicação em linguagem simples para as famílias:
-- a busca BNCC analisa significado, e não apenas palavras iguais;
-- no Ensino Fundamental considera ano de referência + um ano antes + um ano depois;
-- diferencia habilidades e competências;
-- reforça que a IA sugere, mas o responsável decide.
+ALTERAÇÕES VISUAIS
+- Mais espaço entre blocos e cartões.
+- Bordas e sombras mais discretas.
+- Menos caixa alta e menos aparência de painel administrativo.
+- Ações principais recebem mais destaque.
+- Ações secundárias ficam visualmente mais leves.
+- Textos auxiliares usam hierarquia menor.
+- “Filtros avançados” passa a ser apresentado como “Mais filtros”.
+- “Opções avançadas” passa a ser apresentado como “Mais opções”.
+- “Informações adicionais” passa a ser “Outras informações”.
 
-2. DADOS E PRIVACIDADE
-A página agora explica:
-- o que é mantido no banco do Diário;
-- o que é mantido no Google Drive da família;
-- o que é enviado à IA durante uma análise;
-- resumo visual Diário / Drive / IA;
-- compromisso de transparência quando novos recursos forem adicionados.
+PLANEJAMENTO
+- Tratamento visual mais leve.
+- Prioridade visual para o que será feito e quando.
+- Informações complementares permanecem disponíveis, mas com menor peso.
 
-3. NOVO REGISTRO — TROCAR CRIANÇA SEM PERDER O PREENCHIMENTO
-- Há um seletor de criança dentro do formulário de novo registro.
-- Se o responsável perceber que começou para a criança errada, pode trocar ali.
-- O rascunho preenchido é transferido para a criança escolhida.
-- Os blocos verdes de criança no topo também passam a fazer essa troca segura enquanto um NOVO registro estiver aberto.
-- O rascunho antigo é removido da criança anterior para evitar cópia acidental.
-- Em edição de atividade existente, a criança não é alterada por essa função.
+HISTÓRICO
+- Busca e filtros ficam visualmente mais simples.
+- Filtros principais têm prioridade.
+- Filtros secundários são tratados como “Mais filtros”.
+- Cards de atividades ficam mais leves.
 
-D1:
-- Nenhuma migração necessária.
+MATERIAIS
+- A busca passa a ser o elemento visual prioritário.
+- Cards de materiais mais simples.
+- Cadastro continua disponível quando a busca não encontrar o material.
 
-BACKEND:
-- Worker permanece v0.14-beta.
+MAIS
+- Seções com aparência mais leve.
+- Mantidas as explicações de BNCC, busca semântica e privacidade da v5.21.
+- Recursos administrativos permanecem intactos.
 
-ROADMAP MANTIDO:
-- Persistir similaridade semântica, ranking, método/origem e modelos usados no D1.
-- Criar a área de feedback/contato das famílias com diagnóstico técnico e painel administrativo.
+IMPORTANTE
+Nenhuma funcionalidade foi removida nesta versão.
+O Worker continua v0.14-beta.
+Nenhuma migração D1 é necessária.
+
+PRÓXIMO PASSO RECOMENDADO
+v5.23 — Relatório de Aprendizagem:
+- resumo visual do período;
+- atividades e habilidades trabalhadas;
+- áreas/componentes explorados;
+- avaliações;
+- momentos/fotos;
+- seção técnica BNCC detalhada.
