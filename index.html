@@ -825,6 +825,22 @@ details[open]>summary:after{content:"⌃"}
 /* v5.28 catálogo comunitário */
 .reading-status+ .reading-status{margin-left:4px}
 #pendingCommunityBooksBox .book-cover,#pendingCommunityBooksBox .book-cover-placeholder{width:48px;height:68px}
+
+/* v5.29 · Google Calendar */
+.calendar-plan-box{border:1px solid var(--v522-border);border-radius:14px;padding:12px;background:var(--v522-soft)}
+.calendar-event-card{border:1px solid var(--v522-border);border-radius:14px;padding:11px 12px;margin:8px 0;background:#fff}
+.calendar-event-card .event-time{font-size:12px;font-weight:700;margin-bottom:3px}
+.calendar-event-card .event-title{font-weight:800}
+.calendar-event-card .event-location{font-size:12px;color:var(--v522-muted);margin-top:3px}
+.calendar-integration-card{padding:12px}
+
+
+/* v6.0 · leitura e relatório */
+.book-reading-dates{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:#66706a;margin-top:5px}
+.report-books-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.report-book-card{display:grid;grid-template-columns:auto 1fr;gap:10px;border:1px solid #e1e6e2;border-radius:12px;padding:10px;background:#fff}
+.report-book-card img{width:48px;height:68px;object-fit:cover;border-radius:6px}
+@media(max-width:600px){.report-books-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body class="auth-checking">
@@ -833,7 +849,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.28 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v6.0 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -930,8 +946,17 @@ details[open]>summary:after{content:"⌃"}
 
     <section id="page-planejamento" class="page">
       <div class="card">
-        <div class="toolbar" style="justify-content:space-between"><div><h2 style="margin-bottom:3px">Planejar</h2><div class="meta">Veja primeiro o que precisa de atenção. Crie um novo planejamento só quando precisar.</div></div><button class="btn success" onclick="togglePlanForm(true)">+ Planejar atividade</button></div>
+        <div class="toolbar" style="justify-content:space-between"><div><h2 style="margin-bottom:3px">Planejar</h2><div class="meta">Veja primeiro o que precisa de atenção. Crie um novo planejamento só quando precisar.</div></div><div class="toolbar"><button class="btn" type="button" onclick="openCalendarImport()">📅 Importar do calendário</button><button class="btn success" onclick="togglePlanForm(true)">+ Planejar atividade</button></div></div>
       </div>
+      <div id="calendarImportCard" class="card hidden">
+        <div class="toolbar" style="justify-content:space-between">
+          <div><h3 style="margin-bottom:3px">📅 Próximos eventos</h3><div class="meta">Escolha somente o compromisso que você quer aproveitar no Diário. Os demais eventos não viram registros.</div></div>
+          <button class="btn small" type="button" onclick="closeCalendarImport()">Fechar</button>
+        </div>
+        <div id="calendarImportStatus" class="meta" style="margin:10px 0">Carregando eventos…</div>
+        <div id="calendarImportList"></div>
+      </div>
+
       <div id="planFormCard" class="card hidden"><h3>Novo planejamento</h3><div class="grid">
         <div><label class="field">Para quem? <span class="required-mark">*</span></label><select id="planChild"></select></div>
         <div><label class="field">Quando? <span class="required-mark">*</span></label><input id="planDate" type="date"></div>
@@ -948,6 +973,14 @@ details[open]>summary:after{content:"⌃"}
         </div>
 
         <div class="full"><label class="field">Como vamos fazer? (opcional)</label><textarea id="planNotes" rows="2" placeholder="Ex.: Ler juntos e conversar sobre os personagens; fazer os exercícios 1 a 5."></textarea></div>
+
+        <div id="planCalendarWrap" class="full calendar-plan-box">
+          <label style="display:flex;gap:9px;align-items:flex-start;cursor:pointer">
+            <input id="planAddToCalendar" type="checkbox" style="width:auto;margin-top:3px">
+            <span><b>Mostrar este planejamento no meu Google Calendar</b><br><span class="meta">O Diário usa um calendário separado chamado “Diário de Estudos”.</span></span>
+          </label>
+          <div id="planCalendarImportedInfo" class="meta hidden" style="margin-top:7px"></div>
+        </div>
 
         <div class="full plan-details-later">
           <div class="meta" style="margin-bottom:7px">Organização da atividade</div>
@@ -1001,6 +1034,7 @@ details[open]>summary:after{content:"⌃"}
           <div><label class="field">Autor <span class="field-pill optional-pill">Opcional</span></label><input id="manualBookAuthor"></div>
           <div><label class="field">Editora <span class="field-pill optional-pill">Opcional</span></label><input id="manualBookPublisher"></div>
           <div><label class="field">ISBN <span class="field-pill optional-pill">Opcional</span></label><input id="manualBookIsbn"></div>
+          <div><label class="field">Início da leitura <span class="field-pill optional-pill">Opcional</span></label><input id="manualBookStartedAt" type="date"></div>
           <div class="full"><label class="field">Foto da capa <span class="field-pill optional-pill">Opcional</span></label><input id="manualBookCover" type="file" accept="image/*" onchange="previewManualBookCover(event)"><div id="manualBookCoverPreview" style="margin-top:7px"></div><div class="field-help">Se enviada, a capa poderá ser revisada pela moderação antes de aparecer para outras famílias.</div></div>
         </div>
         <button class="btn primary" type="button" onclick="addManualBook()">Adicionar livro</button>
@@ -1023,7 +1057,7 @@ details[open]>summary:after{content:"⌃"}
         <div><label class="field">De</label><input id="reportFrom" type="date" onchange="renderReportPage()"></div>
         <div><label class="field">Até</label><input id="reportTo" type="date" onchange="renderReportPage()"></div>
         <div><label class="field">Avaliação</label><select id="reportStatus" onchange="renderReportPage()"><option value="">Todos</option><option>Precisa de revisão</option><option>Em progresso</option><option>Dominado</option></select></div>
-        <div><label class="field">Tipo</label><select id="reportType" onchange="renderReportPage()"><option value="">Todos</option><option value="bncc">BNCC</option><option value="complementar">Complementar</option></select></div>
+        <div><label class="field">Leituras</label><select id="reportReading" onchange="renderReportPage()"><option value="">Todos</option><option value="reading_records">Registros de leitura</option><option value="completed_books">Livros concluídos</option></select></div><div><label class="field">Tipo</label><select id="reportType" onchange="renderReportPage()"><option value="">Todos</option><option value="bncc">BNCC</option><option value="complementar">Complementar</option></select></div>
         <div><label class="field clean-label">Componente <span class="field-pill optional-pill">Opcional</span></label><select id="reportComponent" onchange="renderReportPage()"><option value="">Todos</option></select></div>
       </div></details>
       <div id="reportContent"></div>
@@ -1393,13 +1427,22 @@ details[open]>summary:after{content:"⌃"}
 </div>
 
 <div class="settings-section">
-  <h3>Conta Google</h3>
+  <h3>Integrações</h3>
+  <div class="notice calendar-integration-card">
+    <div class="toolbar" style="justify-content:space-between;align-items:flex-start">
+      <div><b>📅 Google Calendar</b><div id="calendarIntegrationStatus" class="meta" style="margin-top:3px">Verificando integração…</div></div>
+      <button id="calendarIntegrationBtn" class="btn small" type="button" onclick="setupDiaryCalendar()">Conectar</button>
+    </div>
+    <div class="meta" style="margin-top:8px">Você escolhe quais eventos pessoais importar. Planejamentos enviados pelo Diário ficam em um calendário separado.</div>
+  </div>
+
+<h3>Conta Google</h3>
   <div class="notice"><label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer"><input id="rememberGoogle" type="checkbox" style="width:auto;margin-top:2px" onchange="setRememberGoogle(this.checked)"><span><b>Manter esta conta conectada neste dispositivo</b><br><span class="meta">A preferência é salva localmente; o token Google não é armazenado permanentemente.</span></span></label></div>
 </div>
 
 
 
-<details class="tech-details"><summary>Diagnóstico técnico do beta</summary><div class="drive-folder-card" style="margin-top:8px"><div id="backendDetails" class="meta">Aguardando backend.</div><div id="backendFamilyInfo" class="meta" style="margin-top:6px"></div><div id="backendFamilyChooser" class="hidden"></div><div class="toolbar" style="margin-top:8px"><button class="btn small" onclick="testBackendConnection()">Testar backend</button><button id="syncFamilyBtn" class="btn small hidden" onclick="syncFamilyFromBackend(true)">Atualizar família</button><button id="linkFamilyBtn" class="btn small hidden" onclick="linkCurrentFamilyToBackend()">Vincular família local</button></div><hr style="margin:12px 0"><div class="meta">OAuth Drive: acesso por arquivo/pasta autorizado (`drive.file`) + dados privados do app (`drive.appdata`).</div><hr style="margin:10px 0"><div class="meta">Ferramentas temporárias do beta</div><button class="btn danger small" style="margin-top:8px" onclick="resetLocalBetaData()">Apagar dados locais deste dispositivo</button></div></details>
+<details class="tech-details"><summary>Diagnóstico técnico do beta</summary><div class="drive-folder-card" style="margin-top:8px"><div id="backendDetails" class="meta">Aguardando backend.</div><div id="backendFamilyInfo" class="meta" style="margin-top:6px"></div><div id="backendFamilyChooser" class="hidden"></div><div class="toolbar" style="margin-top:8px"><button class="btn small" onclick="testBackendConnection()">Testar backend</button><button id="syncFamilyBtn" class="btn small hidden" onclick="syncFamilyFromBackend(true)">Atualizar família</button><button id="linkFamilyBtn" class="btn small hidden" onclick="linkCurrentFamilyToBackend()">Vincular família local</button></div><hr style="margin:12px 0"><div class="meta">OAuth: Drive por arquivo/pasta (`drive.file`) + dados privados do app (`drive.appdata`) + Calendar com leitura de eventos para importação e escrita restrita ao calendário criado pelo Diário.</div><hr style="margin:10px 0"><div class="meta">Ferramentas temporárias do beta</div><button class="btn danger small" style="margin-top:8px" onclick="resetLocalBetaData()">Apagar dados locais deste dispositivo</button></div></details>
 
 <details class="tech-details" ontoggle="if(this.open){loadPendingCommunityBooks();}"><summary>📚 Livros aguardando validação</summary><div class="drive-folder-card" style="margin-top:8px"><div id="pendingCommunityBooksBox" class="meta">Carregando...</div></div></details>
           <details class="tech-details" ontoggle="if(this.open){loadPendingMaterials();loadBnccEmbeddingStatus();}"><summary>Materiais pendentes de validação</summary><div class="drive-folder-card" style="margin-top:8px"><div id="pendingMaterialsBox" class="meta">Carregando...</div><div id="bnccEmbeddingAdmin" style="margin-top:14px;border-top:1px solid #E8E1D2;padding-top:12px"><b>Busca semântica BNCC</b><div id="bnccEmbeddingStatus" class="meta" style="margin:6px 0">Verificando índice...</div><button type="button" class="btn dark small" id="bnccEmbeddingBuildBtn" onclick="buildBnccEmbeddings()">Preparar embeddings da BNCC</button></div></div></details>
@@ -1412,7 +1455,7 @@ details[open]>summary:after{content:"⌃"}
 
 <script>
 const GOOGLE_CLIENT_ID = "629410527657-f5b9r4o0jvcvf0517oracmhpvhsj19pn.apps.googleusercontent.com";
-const GOOGLE_SCOPES = "openid email profile https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.appdata";
+const GOOGLE_SCOPES = "openid email profile https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/calendar.calendarlist.readonly";
 const GOOGLE_PICKER_APP_ID = "629410527657";
 const GOOGLE_PICKER_API_KEY = "AIzaSyDyKazsHTfiqb5mQuTK14FsBq8AIafWNy4";
 let googlePickerReady = false;
@@ -1645,7 +1688,7 @@ function showPage(name){
  document.querySelectorAll(".nav-tab").forEach(x=>x.classList.toggle("active",x.dataset.page===name));
  if(name==="inicio")renderDashboard();
  if(name==="registro")renderRecordPage();
- if(name==="planejamento")renderPlans();
+ if(name==="planejamento"){renderPlans();refreshCalendarIntegrationUI();} if(name==="mais")refreshCalendarIntegrationUI();
  if(name==="relatorios")renderReportPage();
  if(name==="historico"){renderHistoryBrowser();renderHistoryBatchRows();refreshHistoryActivityOptions();}
  if(name==="leituras"){renderReadingPage();}
@@ -5622,6 +5665,121 @@ function nextPlanDate(plan,fromDate){
  }
  const next=iso(d);if(plan.endDate&&next>plan.endDate)return "";return next
 }
+
+const DIARY_CALENDAR_NAME="Diário de Estudos";
+const DIARY_CALENDAR_ID_KEY="DE_V529_DIARY_CALENDAR_ID";
+let diaryCalendarId=localStorage.getItem(DIARY_CALENDAR_ID_KEY)||"";
+let pendingImportedCalendarEvent=null;
+
+async function calendarApiFetch(url,options={}){
+ await ensureFreshGoogleToken();
+ if(!googleAccessToken)throw new Error("Entre com Google para usar o calendário.");
+ const headers={...(options.headers||{}),"Authorization":"Bearer "+googleAccessToken};
+ if(options.body&&!headers["Content-Type"])headers["Content-Type"]="application/json";
+ let res=await fetch(url,{...options,headers});
+ if(res.status===401){
+  googleTokenExpiresAt=0;await ensureFreshGoogleToken(true);headers["Authorization"]="Bearer "+googleAccessToken;
+  res=await fetch(url,{...options,headers});
+ }
+ if(!res.ok){
+  let msg="Não foi possível acessar o Google Calendar.";
+  try{const d=await res.json();msg=d?.error?.message||msg}catch(e){}
+  throw new Error(msg);
+ }
+ if(res.status===204)return null;
+ return res.json()
+}
+async function findExistingDiaryCalendar(){
+ let pageToken="";
+ do{
+  const u=new URL("https://www.googleapis.com/calendar/v3/users/me/calendarList");u.searchParams.set("maxResults","250");if(pageToken)u.searchParams.set("pageToken",pageToken);
+  const data=await calendarApiFetch(u.toString()),found=(data.items||[]).find(c=>String(c.summary||"").trim()===DIARY_CALENDAR_NAME);
+  if(found){diaryCalendarId=found.id;localStorage.setItem(DIARY_CALENDAR_ID_KEY,diaryCalendarId);return found}
+  pageToken=data.nextPageToken||""
+ }while(pageToken);
+ return null
+}
+async function ensureDiaryCalendar(createIfMissing=true){
+ if(diaryCalendarId){
+  try{const cal=await calendarApiFetch("https://www.googleapis.com/calendar/v3/calendars/"+encodeURIComponent(diaryCalendarId));if(cal?.id)return cal}
+  catch(e){diaryCalendarId="";localStorage.removeItem(DIARY_CALENDAR_ID_KEY)}
+ }
+ const existing=await findExistingDiaryCalendar();if(existing)return existing;
+ if(!createIfMissing)return null;
+ const cal=await calendarApiFetch("https://www.googleapis.com/calendar/v3/calendars",{method:"POST",body:JSON.stringify({summary:DIARY_CALENDAR_NAME,description:"Planejamentos enviados pelo Diário de Estudos."})});
+ diaryCalendarId=cal.id;localStorage.setItem(DIARY_CALENDAR_ID_KEY,diaryCalendarId);return cal
+}
+async function setupDiaryCalendar(){
+ if(!googleAccessToken)return googleLogin();
+ const status=$("calendarIntegrationStatus"),btn=$("calendarIntegrationBtn");if(status)status.textContent="Preparando o calendário…";if(btn)btn.disabled=true;
+ try{const cal=await ensureDiaryCalendar(true);if(status)status.textContent=`Conectado · ${cal.summary||DIARY_CALENDAR_NAME}`;if(btn){btn.textContent="Conectado";btn.classList.add("success")}}
+ catch(e){if(status)status.textContent=e.message||"Não foi possível conectar.";if(btn){btn.textContent="Tentar novamente";btn.classList.remove("success")}}
+ finally{if(btn)btn.disabled=false}
+}
+async function refreshCalendarIntegrationUI(){
+ const status=$("calendarIntegrationStatus"),btn=$("calendarIntegrationBtn");if(!status||!btn)return;
+ if(!googleAccessToken){status.textContent="Entre com Google para conectar.";btn.textContent="Conectar";btn.classList.remove("success");return}
+ try{
+  const cal=await ensureDiaryCalendar(false);
+  if(cal){status.textContent=`Conectado · ${cal.summary||DIARY_CALENDAR_NAME}`;btn.textContent="Conectado";btn.classList.add("success")}
+  else{status.textContent="Disponível para conectar.";btn.textContent="Conectar";btn.classList.remove("success")}
+ }catch(e){status.textContent="A integração precisa de autorização.";btn.textContent="Conectar";btn.classList.remove("success")}
+}
+function calendarEventDate(ev){return ev?.start?.date||String(ev?.start?.dateTime||"").slice(0,10)||""}
+function calendarEventTimeLabel(ev){
+ if(ev?.start?.date)return "Dia inteiro";
+ const d=new Date(ev?.start?.dateTime||"");if(Number.isNaN(d.getTime()))return "";
+ return d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})
+}
+function cleanCalendarDescription(text){return String(text||"").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim().slice(0,1200)}
+async function openCalendarImport(){
+ const card=$("calendarImportCard"),status=$("calendarImportStatus"),box=$("calendarImportList");card?.classList.remove("hidden");if(status)status.textContent="Carregando próximos eventos…";if(box)box.innerHTML="";
+ if(!googleAccessToken){if(status)status.textContent="Entre com Google para consultar seus eventos.";return}
+ try{
+  const start=new Date(),end=new Date();end.setDate(end.getDate()+30);
+  const u=new URL("https://www.googleapis.com/calendar/v3/calendars/primary/events");
+  u.searchParams.set("timeMin",start.toISOString());u.searchParams.set("timeMax",end.toISOString());u.searchParams.set("singleEvents","true");u.searchParams.set("orderBy","startTime");u.searchParams.set("maxResults","30");
+  const data=await calendarApiFetch(u.toString()),items=(data.items||[]).filter(ev=>ev.status!=="cancelled"&&(ev.summary||"").trim());
+  if(!items.length){if(status)status.textContent="Nenhum evento nos próximos 30 dias.";return}
+  window.diaryCalendarImportItems=items;if(status)status.textContent="Escolha um evento para aproveitar no planejamento.";
+  if(box)box.innerHTML=items.map((ev,i)=>{const date=calendarEventDate(ev),time=calendarEventTimeLabel(ev);return `<div class="calendar-event-card"><div class="event-time">${date?fmtDate(date):""}${time?" · "+esc(time):""}</div><div class="event-title">${esc(ev.summary||"Evento")}</div>${ev.location?`<div class="event-location">📍 ${esc(ev.location)}</div>`:""}<div class="toolbar" style="margin-top:8px"><button class="btn small primary" type="button" onclick="useCalendarEvent(${i})">Usar no Diário</button></div></div>`}).join("")
+ }catch(e){if(status)status.textContent=e.message||"Não foi possível carregar os eventos."}
+}
+function closeCalendarImport(){$("calendarImportCard")?.classList.add("hidden")}
+function useCalendarEvent(i){
+ const ev=(window.diaryCalendarImportItems||[])[i];if(!ev)return;
+ pendingImportedCalendarEvent={calendarId:"primary",eventId:ev.id||"",htmlLink:ev.htmlLink||"",summary:ev.summary||"",date:calendarEventDate(ev),location:ev.location||""};
+ togglePlanForm(true);if($("planTitle"))$("planTitle").value=ev.summary||"";if($("planDate")&&calendarEventDate(ev))$("planDate").value=calendarEventDate(ev);
+ const desc=cleanCalendarDescription(ev.description||"");if($("planNotes"))$("planNotes").value=[desc,ev.location?`Local: ${ev.location}`:""].filter(Boolean).join("\n");
+ const cb=$("planAddToCalendar");if(cb){cb.checked=false;cb.disabled=true}
+ const info=$("planCalendarImportedInfo");if(info){info.classList.remove("hidden");info.textContent="📅 Este planejamento veio do seu calendário. O Diário não alterará o compromisso original."}
+ closeCalendarImport()
+}
+function resetPlanCalendarOrigin(){
+ pendingImportedCalendarEvent=null;const cb=$("planAddToCalendar");if(cb){cb.checked=false;cb.disabled=false}
+ const info=$("planCalendarImportedInfo");if(info){info.classList.add("hidden");info.textContent=""}
+}
+function googleCalendarRecurrence(plan){
+ const type=plan.recurrence||"none";if(type==="none")return [];
+ let rule="";
+ if(type==="daily")rule="RRULE:FREQ=DAILY";else if(type==="weekly")rule="RRULE:FREQ=WEEKLY";else if(type==="monthly")rule="RRULE:FREQ=MONTHLY";
+ else if(type==="weekdays"){const map={0:"SU",1:"MO",2:"TU",3:"WE",4:"TH",5:"FR",6:"SA"},days=(plan.weekdays||[]).map(x=>map[Number(x)]).filter(Boolean);if(days.length)rule="RRULE:FREQ=WEEKLY;BYDAY="+days.join(",")}
+ if(!rule)return [];if(plan.endDate)rule+=";UNTIL="+String(plan.endDate).replace(/-/g,"")+"T235959Z";return [rule]
+}
+async function createCalendarEventForPlan(plan){
+ const cal=await ensureDiaryCalendar(true),startDate=plan.date||plan.nextDate,end=new Date(startDate+"T00:00:00");end.setDate(end.getDate()+1);
+ const endDate=[end.getFullYear(),String(end.getMonth()+1).padStart(2,"0"),String(end.getDate()).padStart(2,"0")].join("-"),child=state.family.children.find(c=>c.id===plan.childId);
+ const description=[child?.name?`Criança: ${child.name}`:"",plan.component?`Componente: ${plan.component}`:"",plan.materialName?`Material: ${plan.materialName}`:"",plan.notes||"","Criado pelo Diário de Estudos."].filter(Boolean).join("\n");
+ const body={summary:plan.title,description,start:{date:startDate},end:{date:endDate},extendedProperties:{private:{diarioPlanId:plan.id}}},recurrence=googleCalendarRecurrence(plan);if(recurrence.length)body.recurrence=recurrence;
+ const event=await calendarApiFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(cal.id)}/events`,{method:"POST",body:JSON.stringify(body)});
+ plan.calendarId=cal.id;plan.calendarEventId=event.id||"";plan.calendarHtmlLink=event.htmlLink||"";plan.calendarSyncedAt=now();return event
+}
+async function deleteCalendarEventForPlan(plan){
+ if(!plan?.calendarId||!plan?.calendarEventId)return;
+ try{await calendarApiFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(plan.calendarId)}/events/${encodeURIComponent(plan.calendarEventId)}`,{method:"DELETE"})}
+ catch(e){console.warn("Não foi possível remover o evento do calendário:",e)}
+}
+
 function refreshPlanComplementaryOptions(selectedId=""){
  const sel=$("planComplementary");if(!sel)return;
  sel.innerHTML='<option value="">Selecione...</option>'+state.complementaryActivities.map(x=>`<option value="${x.id}" ${x.id===selectedId?"selected":""}>${esc(x.name)}${x.category?" — "+esc(x.category):""}</option>`).join("");
@@ -5652,29 +5810,41 @@ function createInlineComplementary(){
  if($("inlineCompName"))$("inlineCompName").value="";if($("inlineCompCategory"))$("inlineCompCategory").value="";if($("inlineCompDescription"))$("inlineCompDescription").value="";
  toggleInlineComplementary(false);
 }
-function addPlan(){
+async function addPlan(){
  let childId=$("planChild").value,title=$("planTitle").value.trim(),type=$("planType").value;
  if(!childId||!title)return alert("Escolha a criança e informe a atividade.");
  const compAct=type==="complementar"?state.complementaryActivities.find(x=>x.id===$("planComplementary")?.value):null;
  if(type==="complementar"&&!compAct)return alert("Selecione ou crie a atividade complementar.");
  const recurrence=$("planRecurrence")?.value||"none",weekdays=recurrence==="weekdays"?selectedPlanWeekdays():[];
  if(recurrence==="weekdays"&&!weekdays.length)return alert("Escolha pelo menos um dia da semana.");
- const start=$("planDate").value||today();
- state.plans.push({id:uid(),childId,date:start,nextDate:start,type,complementaryId:compAct?.id||"",component:type==="complementar"?(compAct?.category||"Atividade Complementar"):$("planComponent").value.trim(),title,notes:$("planNotes").value.trim(),materialId:type==="bncc"?($("planMaterialId")?.value||""):"",materialName:type==="bncc"?($("planMaterialName")?.value||""):"",materialPublisher:type==="bncc"?($("planMaterialPublisher")?.value||""):"",materialBnccCode:"",materialBnccDescription:"",materialBnccComponent:"",materialBnccArea:"",materialBnccSkills:[],recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],createdAt:now(),updatedAt:now(),completedAt:""});
- $("planTitle").value="";$("planNotes").value="";if($("planComplementary"))$("planComplementary").value="";clearPlanMaterial();saveLocal();renderPlans();renderDashboard()
+ const start=$("planDate").value||today(),imported=pendingImportedCalendarEvent?{...pendingImportedCalendarEvent}:null;
+ const plan={id:uid(),childId,date:start,nextDate:start,type,complementaryId:compAct?.id||"",component:type==="complementar"?(compAct?.category||"Atividade Complementar"):$("planComponent").value.trim(),title,notes:$("planNotes").value.trim(),materialId:type==="bncc"?($("planMaterialId")?.value||""):"",materialName:type==="bncc"?($("planMaterialName")?.value||""):"",materialPublisher:type==="bncc"?($("planMaterialPublisher")?.value||""):"",materialBnccCode:"",materialBnccDescription:"",materialBnccComponent:"",materialBnccArea:"",materialBnccSkills:[],recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],createdAt:now(),updatedAt:now(),completedAt:"",importedCalendarId:imported?.calendarId||"",importedCalendarEventId:imported?.eventId||"",importedCalendarHtmlLink:imported?.htmlLink||""};
+ state.plans.push(plan);
+ const shouldAddCalendar=!!$("planAddToCalendar")?.checked&&!imported;
+ $("planTitle").value="";$("planNotes").value="";if($("planComplementary"))$("planComplementary").value="";clearPlanMaterial();resetPlanCalendarOrigin();saveLocal();renderPlans();renderDashboard();
+ if(shouldAddCalendar){try{await createCalendarEventForPlan(plan);saveLocal();renderPlans()}catch(e){alert("O planejamento foi salvo no Diário, mas não foi possível adicioná-lo ao Google Calendar: "+(e.message||e))}}
 }
-function togglePlanForm(open){$('planFormCard')?.classList.toggle('hidden',!open);if(open){if($('planDate')&&!$('planDate').value)$('planDate').value=today();if($('planChild')&&activeChildId)$('planChild').value=activeChildId;refreshPlanComplementaryOptions();togglePlanTypeFields();$('planTitle')?.focus()}}
+function togglePlanForm(open){
+ $('planFormCard')?.classList.toggle('hidden',!open);
+ if(open){
+  if($('planDate')&&!$('planDate').value)$('planDate').value=today();
+  if($('planChild')&&activeChildId)$('planChild').value=activeChildId;
+  refreshPlanComplementaryOptions();togglePlanTypeFields();
+  if(!pendingImportedCalendarEvent){const cb=$("planAddToCalendar");if(cb)cb.disabled=false;$("planCalendarImportedInfo")?.classList.add("hidden")}
+  $('planTitle')?.focus()
+ }else resetPlanCalendarOrigin()
+}
 function renderPlans(){
  let box=$("plansList");if(!box)return;let childId=$("planChild")?.value||activeChildId,td=today();
  let l=state.plans.filter(x=>!x.completedAt&&(!childId||x.childId===childId)&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
- const card=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':(p.nextDate||p.date)===td?'is-today':''}"><div class="plan-date">${fmtDate(p.nextDate||p.date)} · ${esc(state.family.children.find(c=>c.id===p.childId)?.name||'')}</div><div class="entry-title">${esc(p.title)}</div>${p.component?`<div class="skill">${esc(p.component)}</div>`:''}${p.materialName?`<div class="meta" style="margin-top:4px">📘 ${esc(p.materialName)}</div>`:""}${p.notes?`<div class="obs">${esc(p.notes)}</div>`:''}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">✓ Concluir e registrar</button>${p.recurrence!=='none'?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular / próxima</button>`:''}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`;
+ const card=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':(p.nextDate||p.date)===td?'is-today':''}"><div class="plan-date">${fmtDate(p.nextDate||p.date)} · ${esc(state.family.children.find(c=>c.id===p.childId)?.name||'')}</div><div class="entry-title">${esc(p.title)}</div>${p.component?`<div class="skill">${esc(p.component)}</div>`:''}${p.materialName?`<div class="meta" style="margin-top:4px">📘 ${esc(p.materialName)}</div>`:""}${p.notes?`<div class="obs">${esc(p.notes)}</div>`:''}${p.calendarEventId?`<div class="meta" style="margin-top:4px">📅 No Google Calendar</div>`:p.importedCalendarEventId?`<div class="meta" style="margin-top:4px">📅 Importado do seu calendário</div>`:""}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">✓ Concluir e registrar</button>${p.recurrence!=='none'?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular / próxima</button>`:''}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`;
  const late=l.filter(p=>(p.nextDate||p.date)<td),now=l.filter(p=>(p.nextDate||p.date)===td),future=l.filter(p=>(p.nextDate||p.date)>td);
  box.innerHTML=`${late.length?`<div class="plan-section-title">Atrasadas · ${late.length}</div>${late.map(card).join('')}`:''}<div class="plan-section-title">Hoje · ${now.length}</div>${now.map(card).join('')||"<div class='notice'>Nada planejado para hoje.</div>"}${future.length?`<div class="plan-section-title">Próximos dias · ${future.length}</div>${future.map(card).join('')}`:''}`;
 }
 function startPlan(id){let p=state.plans.find(x=>x.id===id);if(!p)return;activeChildId=p.childId;recordFormOpen=true;editing={id:uid(),isNewFromPlan:true,childId:p.childId,date:p.nextDate||p.date,type:p.type,complementaryId:p.complementaryId||"",area:"",componente:p.component||"",codigo:"",habilidade:"",materialId:p.materialId||"",materialName:p.materialName||"",materialPublisher:p.materialPublisher||"",materialBnccSkills:[],atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,planOccurrenceDate:p.nextDate||p.date};showPage("registro");renderRecordPage()}
 function completePlanOccurrence(planId,occurrenceDate){const p=state.plans.find(x=>x.id===planId);if(!p)return;p.occurrences??=[];p.occurrences.push({date:occurrenceDate,status:"completed",updatedAt:now()});if(p.recurrence==="none"){p.completedAt=now();p.nextDate=""}else{p.nextDate=nextPlanDate(p,occurrenceDate);if(!p.nextDate)p.completedAt=now()}p.updatedAt=now()}
 function skipPlanOccurrence(id){const p=state.plans.find(x=>x.id===id);if(!p)return;const current=p.nextDate||p.date;if(!confirm(`Pular a ocorrência de ${fmtDate(current)}?`))return;p.occurrences??=[];p.occurrences.push({date:current,status:"skipped",updatedAt:now()});p.nextDate=nextPlanDate(p,current);if(!p.nextDate)p.completedAt=now();p.updatedAt=now();saveLocal();renderPlans();renderDashboard()}
-function deletePlan(id){state.plans=state.plans.filter(x=>x.id!==id);addTomb("plans",id);saveLocal();renderPlans();renderDashboard()}
+async function deletePlan(id){const p=state.plans.find(x=>x.id===id);if(!p)return;if(!confirm("Excluir este planejamento?"))return;state.plans=state.plans.filter(x=>x.id!==id);addTomb("plans",id);saveLocal();renderPlans();renderDashboard();if(p.calendarEventId)await deleteCalendarEventForPlan(p)}
 
 
 
@@ -5714,7 +5884,8 @@ function renderReadingCards(books){
    ${b.thumbnail?`<img class="book-cover" src="${esc(b.thumbnail)}" alt="">`:`<div class="book-cover-placeholder">📖</div>`}
    <div><div class="book-title">${esc(b.title)}</div><div class="book-meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.publisher?" · "+esc(b.publisher):""}</div>
    <div style="margin-top:6px"><span class="reading-status">${esc(b.status||"Lendo")}</span>${b.catalog_status==="pending"?` <span class="reading-status">Aguardando validação</span>`:""}</div>
-   <div class="reading-actions"><button class="btn small primary" type="button" onclick="startReadingMoment('${b.id}')">+ Registrar momento de leitura</button><button class="btn small" type="button" onclick="toggleBookFinished('${b.id}')">${b.status==="Concluído"?"Marcar como lendo":"Concluir livro"}</button></div>
+   <div class="book-reading-dates">${b.started_at?`<span>Início: <b>${fmtDate(b.started_at)}</b></span>`:""}${b.finished_at?`<span>Conclusão: <b>${fmtDate(b.finished_at)}</b></span>`:""}</div>
+   <div class="reading-actions"><button class="btn small primary" type="button" onclick="startReadingMoment('${b.id}')">+ Registrar momento de leitura</button><button class="btn small" type="button" onclick="setBookStartDate('${b.id}')">Data de início</button><button class="btn small" type="button" onclick="toggleBookFinished('${b.id}')">${b.status==="Concluído"?"Reabrir leitura":"Concluir livro"}</button></div>
    </div>
   </div>`).join("")}</div>`:`<div class="notice" style="margin:14px 0">Nenhum livro cadastrado para esta criança ainda.</div>`
 }
@@ -5769,12 +5940,12 @@ async function addLibrarySearchBook(i){
  const fam=currentBackendFamily(),backendChild=localToBackendChildId(readingChildId());
  if(fam?.id&&backendChild){
   try{
-   await backendFetch("/family-books",{method:"POST",body:JSON.stringify({family_id:fam.id,child_id:backendChild,source:b.community_book_id?"community":"google_books",google_volume_id:b.google_volume_id||"",community_book_id:b.community_book_id||"",title:b.title||"",authors:b.authors||[],publisher:b.publisher||"",published_date:b.published_date||"",isbn13:b.isbn13||"",isbn10:b.isbn10||"",page_count:b.page_count||null,categories:b.categories||[],language:b.language||"",description:b.description||"",thumbnail:b.thumbnail||""})});
+   await backendFetch("/family-books",{method:"POST",body:JSON.stringify({family_id:fam.id,child_id:backendChild,source:b.community_book_id?"community":"google_books",google_volume_id:b.google_volume_id||"",community_book_id:b.community_book_id||"",title:b.title||"",authors:b.authors||[],publisher:b.publisher||"",published_date:b.published_date||"",isbn13:b.isbn13||"",isbn10:b.isbn10||"",page_count:b.page_count||null,categories:b.categories||[],language:b.language||"",description:b.description||"",thumbnail:b.thumbnail||"",started_at:today()})});
    closeBookSearch();await renderReadingPage();return;
   }catch(e){return alert("Não foi possível adicionar o livro: "+(e.message||e))}
  }
  // fallback local if family is not synchronized
- const books=getReadingLibrary();books.push({id:"book_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),childId:readingChildId(),source:b.source||"google_books",googleVolumeId:b.google_volume_id||"",communityBookId:b.community_book_id||"",title:b.title||"",authors:b.authors||[],publisher:b.publisher||"",publishedDate:b.published_date||"",isbn13:b.isbn13||"",isbn10:b.isbn10||"",pageCount:b.page_count||null,categories:b.categories||[],language:b.language||"",description:b.description||"",thumbnail:b.thumbnail||"",status:"Lendo",addedAt:new Date().toISOString()});saveReadingLibrary(books);closeBookSearch();renderReadingPage()
+ const books=getReadingLibrary();books.push({id:"book_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),childId:readingChildId(),source:b.source||"google_books",googleVolumeId:b.google_volume_id||"",communityBookId:b.community_book_id||"",title:b.title||"",authors:b.authors||[],publisher:b.publisher||"",publishedDate:b.published_date||"",isbn13:b.isbn13||"",isbn10:b.isbn10||"",pageCount:b.page_count||null,categories:b.categories||[],language:b.language||"",description:b.description||"",thumbnail:b.thumbnail||"",status:"Lendo",started_at:today(),finished_at:"",addedAt:new Date().toISOString()});saveReadingLibrary(books);closeBookSearch();renderReadingPage()
 }
 function addGoogleBook(i){return addLibrarySearchBook(i)}
 function previewManualBookCover(event){
@@ -5788,18 +5959,28 @@ async function addManualBook(){
  const fam=currentBackendFamily(),backendChild=localToBackendChildId(readingChildId());
  if(fam?.id&&backendChild){
    try{
-     await backendFetch("/community-books",{method:"POST",body:JSON.stringify({family_id:fam.id,child_id:backendChild,title,authors:author?[author]:[],publisher,isbn13:isbn,cover_data:manualBookCoverData||""})});
+     await backendFetch("/community-books",{method:"POST",body:JSON.stringify({family_id:fam.id,child_id:backendChild,title,authors:author?[author]:[],publisher,isbn13:isbn,cover_data:manualBookCoverData||"",started_at:$("manualBookStartedAt")?.value||today()})});
      manualBookCoverData="";closeBookSearch();await renderReadingPage();alert("Livro adicionado. O cadastro ficará disponível para outras famílias após a validação.");return;
    }catch(e){return alert("Não foi possível cadastrar o livro: "+(e.message||e))}
  }
- const books=getReadingLibrary();books.push({id:"book_"+Date.now(),childId:readingChildId(),source:"manual",title,authors:author?[author]:[],publisher,isbn13:isbn,thumbnail:manualBookCoverData||"",status:"Lendo",catalog_status:"pending",addedAt:new Date().toISOString()});saveReadingLibrary(books);manualBookCoverData="";closeBookSearch();renderReadingPage()
+ const books=getReadingLibrary();books.push({id:"book_"+Date.now(),childId:readingChildId(),source:"manual",title,authors:author?[author]:[],publisher,isbn13:isbn,thumbnail:manualBookCoverData||"",status:"Lendo",catalog_status:"pending",started_at:$("manualBookStartedAt")?.value||today(),finished_at:"",addedAt:new Date().toISOString()});saveReadingLibrary(books);manualBookCoverData="";closeBookSearch();renderReadingPage()
+}
+async function setBookStartDate(id){
+ const b=(window.currentReadingBooks||[]).find(x=>x.id===id)||getReadingLibrary().find(x=>x.id===id);if(!b)return;
+ const chosen=prompt("Data de início da leitura (AAAA-MM-DD):",b.started_at||today());if(!chosen)return;
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(chosen))return alert("Use o formato AAAA-MM-DD.");
+ if(b.backend){
+  try{await backendFetch(`/family-books/${encodeURIComponent(id)}`,{method:"PATCH",body:JSON.stringify({started_at:chosen})});await renderReadingPage();return}catch(e){return alert("Não foi possível atualizar: "+(e.message||e))}
+ }
+ const books=getReadingLibrary(),local=books.find(x=>x.id===id);if(!local)return;local.started_at=chosen;saveReadingLibrary(books);renderReadingPage()
 }
 async function toggleBookFinished(id){
- const b=(window.currentReadingBooks||[]).find(x=>x.id===id);
- if(b?.backend){
-   try{await backendFetch(`/family-books/${encodeURIComponent(id)}`,{method:"PATCH",body:JSON.stringify({status:b.status==="Concluído"?"Lendo":"Concluído"})});await renderReadingPage();return}catch(e){return alert("Não foi possível atualizar: "+(e.message||e))}
+ const b=(window.currentReadingBooks||[]).find(x=>x.id===id)||getReadingLibrary().find(x=>x.id===id);if(!b)return;
+ const nextStatus=b.status==="Concluído"?"Lendo":"Concluído",finished=nextStatus==="Concluído"?today():"";
+ if(b.backend){
+  try{await backendFetch(`/family-books/${encodeURIComponent(id)}`,{method:"PATCH",body:JSON.stringify({status:nextStatus,finished_at:finished})});await renderReadingPage();return}catch(e){return alert("Não foi possível atualizar: "+(e.message||e))}
  }
- const books=getReadingLibrary(),local=books.find(x=>x.id===id);if(!local)return;local.status=local.status==="Concluído"?"Lendo":"Concluído";local.finishedAt=local.status==="Concluído"?new Date().toISOString():"";saveReadingLibrary(books);renderReadingPage()
+ const books=getReadingLibrary(),local=books.find(x=>x.id===id);if(!local)return;local.status=nextStatus;local.finished_at=finished;local.finishedAt=finished;saveReadingLibrary(books);renderReadingPage()
 }
 function startReadingMoment(id){
  const b=(window.currentReadingBooks||[]).find(x=>x.id===id)||getReadingLibrary().find(x=>x.id===id);if(!b)return;
@@ -5885,10 +6066,36 @@ function learningReportBncc(rows){
    </div>`).join("")}</div>`;
 }
 
+function isReadingReportEntry(x){
+ const atividade=String(x?.atividade||"").toLowerCase();
+ const material=String(x?.materialName||"").toLowerCase();
+ return atividade.startsWith("leitura —")||atividade.startsWith("leitura -")||material.startsWith("livro:");
+}
+function reportBooksForChild(childId){
+ const backendChild=localToBackendChildId(childId);
+ const remote=(window.currentReadingBooks||[]).filter(b=>(b.child_id&&b.child_id===backendChild)||(b.childId&&b.childId===childId));
+ const local=getReadingLibrary().filter(b=>b.childId===childId);
+ const map=new Map();
+ [...local,...remote].forEach(b=>map.set(String(b.id||b.community_book_id||b.google_volume_id||Math.random()),b));
+ return [...map.values()]
+}
+function completedReportBooks(childId,from,to){
+ return reportBooksForChild(childId).filter(b=>{
+  const d=b.finished_at||b.finishedAt||"";
+  return b.status==="Concluído"&&!!d&&(!from||d>=from)&&(!to||d<=to)
+ })
+}
+function renderCompletedBooksReportSection(books){
+ if(!books.length)return `<div class="notice">Nenhum livro concluído no período selecionado.</div>`;
+ return `<div class="report-books-grid">${books.map(b=>`<div class="report-book-card">${b.thumbnail?`<img src="${esc(b.thumbnail)}" alt="">`:""}<div><b>${esc(b.title||"Livro")}</b><div class="meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}</div><div class="book-reading-dates">${b.started_at?`<span>Início: <b>${fmtDate(b.started_at)}</b></span>`:""}${b.finished_at?`<span>Conclusão: <b>${fmtDate(b.finished_at)}</b></span>`:""}</div></div></div>`).join("")}</div>`
+}
+
 function renderReportPage(){
  let childId=$("reportChild")?.value||activeChildId;if(!childId)return;
- let all=state.entries[childId]||[],from=$("reportFrom")?.value||"",to=$("reportTo")?.value||"",status=$("reportStatus")?.value||"",type=$("reportType")?.value||"",comp=$("reportComponent")?.value||"";
+ let all=state.entries[childId]||[],from=$("reportFrom")?.value||"",to=$("reportTo")?.value||"",status=$("reportStatus")?.value||"",type=$("reportType")?.value||"",comp=$("reportComponent")?.value||"",reading=$("reportReading")?.value||"";
  let f=all.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!status||x.status===status)&&(!type||x.type===type)&&(!comp||x.componente===comp));
+ if(reading==="reading_records")f=f.filter(isReadingReportEntry);
+ const completedBooks=completedReportBooks(childId,from,to);
 
  let counts={dom:f.filter(x=>x.status==="Dominado").length,prog:f.filter(x=>x.status==="Em progresso").length,rev:f.filter(x=>x.status==="Precisa de revisão").length};
  if($("reportSummary"))$("reportSummary").innerHTML=`<div class="stat"><b>${f.length}</b><span>Atividades</span></div><div class="stat"><b>${counts.rev}</b><span>Revisão</span></div><div class="stat"><b>${counts.prog}</b><span>Em progresso</span></div><div class="stat"><b>${counts.dom}</b><span>Dominado</span></div>`;
@@ -5951,13 +6158,14 @@ function renderReportPage(){
  const activities=f.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=>`<div class="entry ${x.status==="Dominado"?"done":x.status==="Precisa de revisão"?"focus":"progress"}"><div class="meta">${fmtDate(x.date)} · ${esc(x.type==="complementar"?"Complementar":x.componente)} ${x.codigo?"· "+esc(x.codigo)+" · "+esc(anoBnccDoCodigo(x.codigo)):""}</div>${x.yearRefAtRecord?`<div class="meta">Ano de referência no registro: ${esc(x.yearRefAtRecord)}</div>`:""}<div class="entry-title">${esc(x.atividade)}</div>${x.materialName?`<div class="meta">📘 Material: ${esc(x.materialName)}</div>`:""}${x.habilidade?`<div class="skill">${esc(x.habilidade)}</div>`:""}${x.observacoes?`<div class="obs">${esc(x.observacoes)}</div>`:""}${x.status?`<span class="badge">${esc(x.status)}</span>`:""}${x.foto?`<br><img class="report-photo" src="${x.foto}">`:""}${x.audio?`<div class="audio-box no-print"><audio controls src="${x.audio}"></audio></div><div class="meta">Áudio anexado</div>`:""}</div>`).join("");
 
  renderReportChildButtons();
- const filterLabel=$("reportFilterLabel");if(filterLabel)filterLabel.textContent=(from||to)?period:"Todos os registros";
+ const filterLabel=$("reportFilterLabel");if(filterLabel)filterLabel.textContent=reading==="completed_books"?"Livros concluídos":reading==="reading_records"?"Registros de leitura":((from||to)?period:"Todos os registros");
  const aiSummary=reportAiBox(reportAiKey(childId,from,to,status,type,comp,f),f.length>0);
- const learningOverview=learningReportOverview(f,child,period);
- const learningMoments=learningReportMoments(f);
- const learningBncc=learningReportBncc(f);
- if($("reportContent"))$("reportContent").innerHTML= aiSummary + learningOverview + `
- <div class="learning-section" style="margin-top:14px">
+ const learningOverview=reading==="completed_books"?"":learningReportOverview(f,child,period);
+ const learningMoments=reading==="completed_books"?"":learningReportMoments(f);
+ const learningBncc=reading==="completed_books"?"":learningReportBncc(f);
+ const booksSection=(reading==="completed_books"||completedBooks.length)?`<div class="learning-section" style="margin-top:14px"><h3>📚 Livros concluídos${reading==="completed_books"?" no período":""}</h3><div class="learning-section-intro">Livros marcados como concluídos pela família.</div>${renderCompletedBooksReportSection(completedBooks)}</div>`:"";
+ if($("reportContent"))$("reportContent").innerHTML= (reading==="completed_books"?"":aiSummary) + learningOverview + booksSection + `
+ ${reading==="completed_books"?"":`<div class="learning-section" style="margin-top:14px">
   <h3>Momentos do período</h3>
   <div class="learning-section-intro">Algumas evidências visuais registradas pela família.</div>
   ${learningMoments}
@@ -5966,7 +6174,7 @@ function renderReportPage(){
   <h3>Habilidades BNCC trabalhadas</h3>
   <div class="learning-section-intro">Seção técnica com as habilidades vinculadas aos registros do período.</div>
   ${learningBncc}
- </div>
+ </div>`}
  <details style="margin-top:14px"><summary><b>Ver relatório detalhado</b></summary><div style="margin-top:12px">` + (reportHeader+overview+pathHeader+`<h3 class="report-section-title">Atividades realizadas</h3>`+(activities||"<div class='notice'>Nenhum registro para os filtros selecionados.</div>")) + `</div></details>`;
 }
 async function shareReportHtml(){
@@ -6153,7 +6361,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.28";
+const APP_VERSION = "6.0";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
