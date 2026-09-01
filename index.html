@@ -726,6 +726,72 @@ details[open]>summary:after{content:"⌃"}
   .btn{min-height:42px}
 }
 
+
+/* =========================================================
+   v5.24 — RELATÓRIO DE APRENDIZAGEM
+   ========================================================= */
+.learning-report{display:grid;gap:14px}
+.learning-hero{
+  border:1px solid #e2e7e2;background:#fff;border-radius:16px;padding:18px;
+}
+.learning-hero h2{margin:0 0 3px;font-size:22px}
+.learning-hero .period{font-size:12px;color:#6b756f}
+.learning-summary-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:9px
+}
+.learning-summary-item{
+  background:#fff;border:1px solid #e4e8e4;border-radius:13px;padding:13px
+}
+.learning-summary-item b{display:block;font-size:21px;color:#244337}
+.learning-summary-item span{font-size:11px;color:#6b756f}
+.learning-section{
+  background:#fff;border:1px solid #e4e8e4;border-radius:15px;padding:16px
+}
+.learning-section h3{margin:0 0 4px;font-size:16px}
+.learning-section-intro{font-size:12px;color:#6b756f;margin-bottom:12px;line-height:1.45}
+.learning-bars{display:grid;gap:9px}
+.learning-bar-row{display:grid;grid-template-columns:minmax(110px,1.3fr) 2fr 34px;gap:8px;align-items:center}
+.learning-bar-label{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.learning-bar-track{height:8px;background:#edf1ed;border-radius:999px;overflow:hidden}
+.learning-bar-fill{height:100%;background:#426b58;border-radius:999px}
+.learning-bar-count{font-size:11px;color:#6b756f;text-align:right}
+.learning-highlights{display:grid;gap:9px}
+.learning-highlight{
+  border-left:3px solid #9fb6aa;padding:8px 10px;background:#f8faf8;border-radius:0 10px 10px 0
+}
+.learning-highlight b{font-size:12px}
+.learning-highlight div{font-size:11px;color:#66726b;margin-top:3px;line-height:1.45}
+.learning-moments{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.learning-moment{
+  border:1px solid #e5e9e5;border-radius:12px;padding:11px;overflow:hidden
+}
+.learning-moment img{
+  width:100%;height:150px;object-fit:cover;border-radius:9px;margin-bottom:8px;background:#f2f4f2
+}
+.learning-moment-title{font-size:12px;font-weight:800;line-height:1.35}
+.learning-moment-meta{font-size:10px;color:#707a74;margin-top:4px}
+.learning-bncc-list{display:grid;gap:7px}
+.learning-bncc-item{
+  display:grid;grid-template-columns:92px 1fr 32px;gap:8px;align-items:start;
+  padding:9px 0;border-top:1px solid #edf0ed
+}
+.learning-bncc-item:first-child{border-top:0}
+.learning-bncc-code{font-size:11px;font-weight:850;color:#355745}
+.learning-bncc-desc{font-size:11px;line-height:1.45;color:#505c55}
+.learning-bncc-count{font-size:10px;color:#7b857f;text-align:right}
+.learning-empty{font-size:12px;color:#707a74;padding:6px 0}
+@media(max-width:700px){
+  .learning-summary-grid{grid-template-columns:repeat(2,1fr)}
+  .learning-moments{grid-template-columns:1fr}
+  .learning-bar-row{grid-template-columns:minmax(90px,1.1fr) 1.6fr 28px}
+  .learning-bncc-item{grid-template-columns:82px 1fr}
+  .learning-bncc-count{grid-column:2;text-align:left}
+}
+@media print{
+  .learning-report{gap:10px}
+  .learning-section,.learning-hero,.learning-summary-item{break-inside:avoid}
+}
+
 </style>
 </head>
 <body class="auth-checking">
@@ -734,7 +800,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.23 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v5.24 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -5497,6 +5563,82 @@ function skipPlanOccurrence(id){const p=state.plans.find(x=>x.id===id);if(!p)ret
 function deletePlan(id){state.plans=state.plans.filter(x=>x.id!==id);addTomb("plans",id);saveLocal();renderPlans();renderDashboard()}
 
 
+
+function learningTopCounts(rows,keyFn){
+ const m={};
+ rows.forEach(x=>{const k=String(keyFn(x)||"").trim();if(k)m[k]=(m[k]||0)+1});
+ return Object.entries(m).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"pt-BR"));
+}
+function learningReportOverview(rows,child,period){
+ const comps=learningTopCounts(rows,x=>x.type==="complementar"?(x.componente||"Atividade complementar"):(x.componente||"Sem componente"));
+ const codes=new Set(rows.map(x=>x.codigo).filter(Boolean));
+ const photos=rows.filter(x=>x.foto).length;
+ const evals=rows.filter(x=>x.status).length;
+ const maxComp=Math.max(1,...comps.map(x=>x[1]));
+
+ const bars=comps.slice(0,8).map(([name,n])=>`
+   <div class="learning-bar-row">
+    <div class="learning-bar-label" title="${esc(name)}">${esc(name)}</div>
+    <div class="learning-bar-track"><div class="learning-bar-fill" style="width:${Math.max(7,Math.round(n/maxComp*100))}%"></div></div>
+    <div class="learning-bar-count">${n}</div>
+   </div>`).join("")||`<div class="learning-empty">Ainda não há componentes suficientes neste período.</div>`;
+
+ const highlights=comps.slice(0,4).map(([name,n])=>{
+   const related=rows.filter(x=>(x.componente||"Sem componente")===name).sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")))[0];
+   return `<div class="learning-highlight"><b>${esc(name)}</b><div>${n} ${n===1?"experiência registrada":"experiências registradas"}${related?.atividade?` · Mais recente: ${esc(related.atividade)}`:""}</div></div>`;
+ }).join("")||`<div class="learning-empty">Os destaques aparecerão conforme as atividades forem registradas.</div>`;
+
+ return `<div class="learning-report">
+   <div class="learning-hero">
+    <h2>${esc(child?.name||"Criança")}</h2>
+    <div class="period">Retrato da aprendizagem · ${esc(period)}</div>
+   </div>
+   <div class="learning-summary-grid">
+    <div class="learning-summary-item"><b>${rows.length}</b><span>Atividades</span></div>
+    <div class="learning-summary-item"><b>${comps.length}</b><span>Componentes explorados</span></div>
+    <div class="learning-summary-item"><b>${codes.size}</b><span>Habilidades BNCC</span></div>
+    <div class="learning-summary-item"><b>${photos}</b><span>Registros com foto</span></div>
+   </div>
+   <div class="learning-section">
+    <h3>Áreas e componentes explorados</h3>
+    <div class="learning-section-intro">Uma visão simples de onde as experiências do período se concentraram.</div>
+    <div class="learning-bars">${bars}</div>
+   </div>
+   <div class="learning-section">
+    <h3>Destaques do período</h3>
+    <div class="learning-section-intro">Resumo objetivo construído a partir dos registros da família, sem gerar interpretações automáticas.</div>
+    <div class="learning-highlights">${highlights}</div>
+   </div>
+  </div>`;
+}
+function learningReportMoments(rows){
+ const moments=rows.filter(x=>x.foto).sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).slice(0,6);
+ if(!moments.length)return `<div class="learning-empty">Nenhuma foto registrada neste período.</div>`;
+ return `<div class="learning-moments">${moments.map(x=>`
+  <div class="learning-moment">
+   <img src="${x.foto}" alt="Registro da atividade">
+   <div class="learning-moment-title">${esc(x.atividade||"Atividade")}</div>
+   <div class="learning-moment-meta">${esc(fmtDate(x.date))}${x.componente?" · "+esc(x.componente):""}${x.codigo?" · "+esc(x.codigo):""}</div>
+  </div>`).join("")}</div>`;
+}
+function learningReportBncc(rows){
+ const map={};
+ rows.filter(x=>x.codigo).forEach(x=>{
+   const code=String(x.codigo).trim();
+   if(!map[code])map[code]={description:x.habilidade||"",component:x.componente||"",count:0};
+   map[code].count++;
+   if(!map[code].description&&x.habilidade)map[code].description=x.habilidade;
+ });
+ const items=Object.entries(map).sort((a,b)=>b[1].count-a[1].count||a[0].localeCompare(b[0]));
+ if(!items.length)return `<div class="learning-empty">Nenhuma habilidade BNCC vinculada aos registros deste período.</div>`;
+ return `<div class="learning-bncc-list">${items.map(([code,d])=>`
+   <div class="learning-bncc-item">
+    <div class="learning-bncc-code">${esc(code)}</div>
+    <div class="learning-bncc-desc">${d.component?`<b>${esc(d.component)}</b><br>`:""}${esc(d.description||"Habilidade vinculada ao registro.")}</div>
+    <div class="learning-bncc-count">${d.count}×</div>
+   </div>`).join("")}</div>`;
+}
+
 function renderReportPage(){
  let childId=$("reportChild")?.value||activeChildId;if(!childId)return;
  let all=state.entries[childId]||[],from=$("reportFrom")?.value||"",to=$("reportTo")?.value||"",status=$("reportStatus")?.value||"",type=$("reportType")?.value||"",comp=$("reportComponent")?.value||"";
@@ -5562,7 +5704,21 @@ function renderReportPage(){
 
  const activities=f.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=>`<div class="entry ${x.status==="Dominado"?"done":x.status==="Precisa de revisão"?"focus":"progress"}"><div class="meta">${fmtDate(x.date)} · ${esc(x.type==="complementar"?"Complementar":x.componente)} ${x.codigo?"· "+esc(x.codigo)+" · "+esc(anoBnccDoCodigo(x.codigo)):""}</div>${x.yearRefAtRecord?`<div class="meta">Ano de referência no registro: ${esc(x.yearRefAtRecord)}</div>`:""}<div class="entry-title">${esc(x.atividade)}</div>${x.materialName?`<div class="meta">📘 Material: ${esc(x.materialName)}</div>`:""}${x.habilidade?`<div class="skill">${esc(x.habilidade)}</div>`:""}${x.observacoes?`<div class="obs">${esc(x.observacoes)}</div>`:""}${x.status?`<span class="badge">${esc(x.status)}</span>`:""}${x.foto?`<br><img class="report-photo" src="${x.foto}">`:""}${x.audio?`<div class="audio-box no-print"><audio controls src="${x.audio}"></audio></div><div class="meta">Áudio anexado</div>`:""}</div>`).join("");
 
- if($("reportContent"))$("reportContent").innerHTML=reportHeader+overview+pathHeader+`<h3 class="report-section-title">Atividades realizadas</h3>`+(activities||"<div class='notice'>Nenhum registro para os filtros selecionados.</div>");
+ const learningOverview=learningReportOverview(f,child,period);
+ const learningMoments=learningReportMoments(f);
+ const learningBncc=learningReportBncc(f);
+ if($("reportContent"))$("reportContent").innerHTML= learningOverview + `
+ <div class="learning-section" style="margin-top:14px">
+  <h3>Momentos do período</h3>
+  <div class="learning-section-intro">Algumas evidências visuais registradas pela família.</div>
+  ${learningMoments}
+ </div>
+ <div class="learning-section" style="margin-top:14px">
+  <h3>Habilidades BNCC trabalhadas</h3>
+  <div class="learning-section-intro">Seção técnica com as habilidades vinculadas aos registros do período.</div>
+  ${learningBncc}
+ </div>
+ <details style="margin-top:14px"><summary><b>Ver relatório detalhado</b></summary><div style="margin-top:12px">` + (reportHeader+overview+pathHeader+`<h3 class="report-section-title">Atividades realizadas</h3>`+(activities||"<div class='notice'>Nenhum registro para os filtros selecionados.</div>")) + `</div></details>`;
 }
 async function shareReportHtml(){
  let child=state.family.children.find(c=>c.id===($("reportChild")?.value||activeChildId)),content=$("reportContent")?.innerHTML||"";
@@ -5748,7 +5904,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.23";
+const APP_VERSION = "5.24";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
