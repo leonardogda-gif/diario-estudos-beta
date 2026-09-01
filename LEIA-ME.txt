@@ -1,44 +1,19 @@
 DIÁRIO DE ESTUDOS — v5.23
-VISUAL CLEAN REAL + HISTÓRICO RESTAURADO
+CORREÇÃO DO HISTÓRICO SOBRE A BASE VISUAL v5.22
 
-Base:
-- v5.22
-- Worker v0.14-beta inalterado
-- sem migração D1
+Base visual:
+- v5.22 preservada.
+- Não foram aplicadas as mudanças visuais experimentais da outra v5.23.
 
-CORREÇÃO PRINCIPAL — HISTÓRICO
-A aba Histórico volta a cumprir sua função principal.
-Ao abrir Histórico, a família encontra diretamente:
-- criança;
-- busca por atividade, componente ou código BNCC;
-- período;
-- lista completa de registros;
-- abertura do registro ao tocar;
-- Mais filtros para avaliação e tipo.
+Correção:
+- A aba Histórico volta a mostrar diretamente os registros da criança.
+- Seleção de criança.
+- Busca por atividade, componente ou código BNCC.
+- Filtro de período.
+- “Mais filtros” para avaliação e tipo.
+- Toque no registro abre a visualização existente.
+- As ferramentas de adicionar atividade antiga, registro em lote e importação continuam no mesmo local.
 
-As ferramentas de:
-- adicionar atividade antiga;
-- registro em lote;
-- importações;
-continuam disponíveis, mas ficam recolhidas em
-“Adicionar ou importar registros antigos”.
-
-VISUAL CLEAN
-A v5.22 havia feito principalmente ajustes cosméticos.
-Na v5.23 a hierarquia foi alterada de forma perceptível:
-- páginas principais mais planas;
-- menos “card dentro de card”;
-- histórico em lista limpa;
-- filtros principais primeiro;
-- filtros secundários recolhidos;
-- avisos com menor peso;
-- Planejamento com aparência de agenda;
-- Materiais com resultados mais planos;
-- Registro com maior prioridade visual ao essencial.
-
-Nada foi removido.
-Worker: v0.14-beta.
-D1: sem alterações.
-
-Próximo passo sugerido:
-v5.24 — novo Relatório de Aprendizagem.
+Backend:
+- Worker v0.14-beta inalterado.
+- Nenhuma migração D1.
