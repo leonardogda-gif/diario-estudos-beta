@@ -3261,7 +3261,7 @@ async function backendFetch(path, options={}){
   let data=null;
   try{data=await response.json()}catch(e){}
   if(!response.ok){
-    const detail=data?.error||data?.detail||data?.message||("Backend HTTP "+response.status);
+    const detail=(data?.error==="Erro interno"&&data?.detail)?data.detail:(data?.error||data?.detail||data?.message||("Backend HTTP "+response.status));
     const err=new Error(detail);err.status=response.status;err.payload=data;throw err;
   }
   return data;
@@ -5136,7 +5136,7 @@ function planMaterialSearchChanged(){
  box.innerHTML='<div class="meta" style="margin-top:6px">Buscando materiais…</div>';
  setTimeout(async()=>{
    if(seq!==planMaterialSearchSeq)return;
-   try{planMaterialSearchResults=await searchMaterialsCatalog(q);if(seq!==planMaterialSearchSeq)return;box.innerHTML=(planMaterialSearchResults.length?planMaterialSearchResults.map((m,i)=>materialResultCard(m,i,"plan")).join(""):'<div class="meta" style="margin-top:6px">Nenhum material encontrado.</div>')+`<button type="button" class="btn small" style="margin-top:7px" onclick="quickCreatePlanMaterial(${JSON.stringify(q)})">+ Cadastrar “${esc(q)}”</button>`}catch(e){box.innerHTML=`<div class="notice" style="margin-top:6px">Erro ao buscar material: ${esc(e.message||"")}</div>`}
+   try{planMaterialSearchResults=await searchMaterialsCatalog(q);if(seq!==planMaterialSearchSeq)return;box.innerHTML=(planMaterialSearchResults.length?planMaterialSearchResults.map((m,i)=>materialResultCard(m,i,"plan")).join(""):'<div class="meta" style="margin-top:6px">Nenhum material encontrado.</div>')+`<button type="button" class="btn small" style="margin-top:7px" data-quick-plan-material="${esc(q)}" onclick="quickCreatePlanMaterial(this.dataset.quickPlanMaterial)">+ Cadastrar “${esc(q)}”</button>`}catch(e){box.innerHTML=`<div class="notice" style="margin-top:6px">Erro ao buscar material: ${esc(e.message||"")}</div>`}
  },250);
 }
 async function quickCreatePlanMaterial(name){
@@ -5769,7 +5769,7 @@ async function addLibrarySearchBook(i){
  const fam=currentBackendFamily(),backendChild=localToBackendChildId(readingChildId());
  if(fam?.id&&backendChild){
   try{
-   await backendFetch("/family-books",{method:"POST",body:JSON.stringify({family_id:fam.id,child_id:backendChild,source:b.source||"google_books",google_volume_id:b.google_volume_id||"",community_book_id:b.community_book_id||"",title:b.title||"",authors:b.authors||[],publisher:b.publisher||"",published_date:b.published_date||"",isbn13:b.isbn13||"",isbn10:b.isbn10||"",page_count:b.page_count||null,categories:b.categories||[],language:b.language||"",description:b.description||"",thumbnail:b.thumbnail||""})});
+   await backendFetch("/family-books",{method:"POST",body:JSON.stringify({family_id:fam.id,child_id:backendChild,source:b.community_book_id?"community":"google_books",google_volume_id:b.google_volume_id||"",community_book_id:b.community_book_id||"",title:b.title||"",authors:b.authors||[],publisher:b.publisher||"",published_date:b.published_date||"",isbn13:b.isbn13||"",isbn10:b.isbn10||"",page_count:b.page_count||null,categories:b.categories||[],language:b.language||"",description:b.description||"",thumbnail:b.thumbnail||""})});
    closeBookSearch();await renderReadingPage();return;
   }catch(e){return alert("Não foi possível adicionar o livro: "+(e.message||e))}
  }
