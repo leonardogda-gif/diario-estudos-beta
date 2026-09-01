@@ -1,21 +1,43 @@
-DIÁRIO DE ESTUDOS — v5.19
+DIÁRIO DE ESTUDOS — v5.20
 
-Base: frontend v5.18 + Worker v0.13-beta.
+Base:
+- Frontend v5.19
+- Worker v0.13-beta
 
-Novidades do frontend:
-- Exibe a similaridade semântica (%) nas sugestões quando a busca usa embeddings.
-- Exibe separadamente as Competências relacionadas retornadas pelo Worker v0.13.
-- Competências são informativas/complementares e não substituem a habilidade escolhida.
-- Mantém o fluxo de seleção da habilidade BNCC existente.
+Nesta versão:
 
-Importante:
-- O percentual exibido é similaridade entre embeddings, não percentual de certeza da IA.
-- Na v5.19 essa informação ainda NÃO é persistida no registro/D1.
+1. VISUAL CLEAN
+- Redução do peso visual do formulário de Registro.
+- Menos aparência de “caixa dentro de caixa”.
+- Mais espaço vertical entre blocos.
+- Bordas e sombras mais discretas.
+- Rótulos sem caixa alta desnecessária.
+- Obrigatório e Opcional agora têm hierarquia visual própria.
+- Campos auxiliares e explicações usam peso menor.
+- Habilidades e competências sugeridas continuam separadas.
+- Similaridade semântica continua sendo exibida quando disponível.
+- Ajustes globais leves em cartões, badges e textos para deixar o app mais arejado sem trocar sua identidade.
+
+2. BNCC — ANOS PRÓXIMOS
+Worker v0.14-beta:
+- No Ensino Fundamental, a busca semântica não fica limitada ao ano exato.
+- O pool de 20 habilidades considera SEMPRE:
+  • 1 ano anterior
+  • ano de referência da criança
+  • 1 ano seguinte
+- Os limites são respeitados: 1º ano não procura “0º”; 9º ano não procura “10º”.
+- Habilidades multisseriadas compatíveis continuam participando.
+- Os 10 candidatos de competências continuam separados:
+  • Ensino Fundamental: CG + CEF
+  • Ensino Médio: CG + CEM
+  • demais etapas: CG
+- Continua sendo 1 embedding da atividade + 1 chamada ao Gemini.
+- Fallback textual usa o mesmo escopo ampliado dos anos próximos.
+
+IMPORTANTE:
 - Não há migração D1 nesta versão.
+- O percentual exibido é similaridade semântica, não probabilidade de acerto.
 
-Roadmap:
-1. Persistir origem da classificação, similaridade semântica, ranking e modelos por código BNCC escolhido.
-2. Criar área "Ajude a melhorar o Diário" para problema/sugestão/dúvida, com diagnóstico técnico automático e painel administrativo.
-
-Backend necessário:
-- Publicar o Worker v0.13-beta antes/junto deste frontend para receber o campo competencies.
+ROADMAP:
+- Persistir no D1 a similaridade semântica, ranking, método/origem e modelos usados na sugestão BNCC.
+- Criar “Ajude a melhorar o Diário” para problema/sugestão/dúvida, com diagnóstico técnico automático e painel administrativo.

@@ -360,6 +360,164 @@ body.app-authenticated .cloud-card{display:none!important}
 }
 @media print{.app-install-banner{display:none!important}}
 
+
+/* =========================================================
+   v5.20 — VISUAL CLEAN / MAIS RESPIRO
+   ========================================================= */
+:root{
+  --clean-bg:#f7f8f5;
+  --clean-surface:#ffffff;
+  --clean-border:#e5e9e4;
+  --clean-text:#1f2925;
+  --clean-muted:#68736d;
+  --clean-green:#17643f;
+  --clean-green-soft:#eef7f1;
+  --clean-blue-soft:#eef5fa;
+}
+body{background:var(--clean-bg);color:var(--clean-text)}
+main,.app-main{letter-spacing:0}
+.card{
+  background:var(--clean-surface);
+  border:1px solid var(--clean-border);
+  border-radius:16px;
+  box-shadow:0 2px 10px rgba(25,46,37,.035);
+  padding:18px;
+  margin-bottom:16px;
+}
+.settings-section,.child-card,.plan-card,.entry,.record-side-card{
+  border-color:var(--clean-border);
+  box-shadow:none;
+}
+.field{
+  text-transform:none!important;
+  letter-spacing:0!important;
+}
+.clean-label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  color:var(--clean-text);
+  font-size:14px;
+  font-weight:750;
+  margin-bottom:7px;
+}
+.clean-label-lg{font-size:16px}
+.field-help{
+  color:var(--clean-muted);
+  font-size:12px;
+  line-height:1.45;
+  margin:-2px 0 9px;
+  font-weight:450;
+}
+.field-pill{
+  display:inline-flex;
+  align-items:center;
+  border-radius:999px;
+  padding:3px 7px;
+  font-size:10px;
+  line-height:1;
+  font-weight:750;
+  letter-spacing:0;
+}
+.required-pill{background:var(--clean-green-soft);color:#275b42}
+.optional-pill{background:var(--clean-blue-soft);color:#526976}
+.record-form-card{padding:22px}
+.record-title-row{
+  padding-bottom:18px;
+  margin-bottom:8px;
+  border-bottom:1px solid var(--clean-border);
+}
+.record-title-row h2{font-size:23px;letter-spacing:-.2px;margin-bottom:4px}
+.record-grid{gap:20px 16px}
+.record-grid textarea,.record-grid input,.record-grid select{
+  border:1px solid #dce2dd;
+  border-radius:11px;
+  min-height:44px;
+  background:#fff;
+  box-shadow:none;
+}
+.record-grid textarea{padding:12px 13px;line-height:1.5}
+.record-grid input:focus,.record-grid select:focus,.record-grid textarea:focus{
+  border-color:#8fb5a1;
+  box-shadow:0 0 0 3px rgba(23,100,63,.08);
+  outline:none;
+}
+#recordMaterialWrap{
+  padding-top:18px;
+  border-top:1px solid var(--clean-border);
+}
+.ai-main-card{
+  padding:16px!important;
+  border:1px solid #dceae1!important;
+  border-radius:14px!important;
+  background:#f7fbf8!important;
+  box-shadow:none!important;
+}
+.ai-help-title{font-size:15px!important;font-weight:800!important;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ai-explain{color:var(--clean-muted)!important;line-height:1.5!important;margin:7px 0 12px!important}
+.ai-primary-btn{border-radius:10px!important;min-height:42px}
+.ai-suggestion{
+  border:1px solid var(--clean-border)!important;
+  border-left:0!important;
+  border-radius:13px!important;
+  padding:14px!important;
+  margin-top:10px!important;
+  background:#fff!important;
+  box-shadow:none!important;
+}
+.ai-suggestion:first-child{background:#f7fbf8!important;border-color:#dceae1!important}
+.ai-competency-section{margin-top:18px!important;padding-top:16px!important;border-top:1px solid var(--clean-border)!important}
+.ai-competency{background:#f8fbfd!important}
+.ai-semantic-match{font-weight:700!important}
+.bncc-advanced{
+  border:0!important;
+  border-top:1px solid var(--clean-border)!important;
+  border-radius:0!important;
+  padding-top:5px;
+}
+.bncc-advanced summary{color:#5f6b65;font-weight:700}
+.clean-secondary-section{
+  padding-top:20px;
+  margin-top:2px;
+  border-top:1px solid var(--clean-border);
+}
+.clean-section-heading b{font-size:15px}
+.record-actions{
+  margin-top:22px!important;
+  padding-top:18px!important;
+  border-top:1px solid var(--clean-border);
+  gap:9px!important;
+}
+.record-actions .btn{border-radius:10px}
+.record-actions .btn.primary{min-height:44px}
+.record-side{gap:14px!important}
+.record-side-card{
+  background:#fff!important;
+  border:1px solid var(--clean-border)!important;
+  border-radius:14px!important;
+  padding:15px!important;
+}
+.record-side-card h3{font-size:14px;margin:0 0 10px}
+.meta{color:var(--clean-muted)}
+.stat span{
+  text-transform:none!important;
+  letter-spacing:0!important;
+  font-weight:700!important;
+}
+.badge,.role-badge{text-transform:none!important;letter-spacing:0!important}
+.notice{border-radius:12px!important}
+.btn{box-shadow:none!important}
+@media(max-width:720px){
+  .card{border-radius:14px;padding:16px;margin-bottom:14px}
+  .record-form-card{padding:15px}
+  .record-grid{gap:18px}
+  .record-title-row{display:block}
+  .record-title-row>div:last-child{margin-top:7px}
+  .record-actions{display:grid!important;grid-template-columns:1fr 1fr}
+  .record-actions .btn.primary{grid-column:1/-1;grid-row:1}
+}
+
 </style>
 </head>
 <body class="auth-checking">
@@ -368,7 +526,7 @@ body.app-authenticated .cloud-card{display:none!important}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.19 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v5.20 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -496,13 +654,13 @@ body.app-authenticated .cloud-card{display:none!important}
       <div id="planFormCard" class="card hidden"><h3>Novo planejamento</h3><div class="grid">
         <div><label class="field">Para quem? <span class="required-mark">*</span></label><select id="planChild"></select></div>
         <div><label class="field">Quando? <span class="required-mark">*</span></label><input id="planDate" type="date"></div>
-        <div><label class="field">Tipo <span class="required-mark">*</span></label><select id="planType" onchange="togglePlanTypeFields()"><option value="bncc">BNCC</option><option value="complementar">Complementar</option></select></div>
+        <div><label class="field clean-label">Tipo <span class="field-pill required-pill">Obrigatório</span></label><select id="planType" onchange="togglePlanTypeFields()"><option value="bncc">BNCC</option><option value="complementar">Complementar</option></select></div>
         <div id="planComponentWrap"><label class="field">Componente (opcional)</label><input id="planComponent"></div>
-        <div id="planComplementaryWrap" class="full hidden"><label class="field">Atividade complementar <span class="required-mark">*</span></label><div class="toolbar"><select id="planComplementary" onchange="planComplementaryChanged()" style="flex:1"><option value="">Selecione...</option></select><button type="button" class="btn" onclick="toggleInlineComplementary(true)">+ Criar nova</button></div>
+        <div id="planComplementaryWrap" class="full hidden"><label class="field clean-label">Atividade complementar <span class="field-pill required-pill">Obrigatório</span></label><div class="toolbar"><select id="planComplementary" onchange="planComplementaryChanged()" style="flex:1"><option value="">Selecione...</option></select><button type="button" class="btn" onclick="toggleInlineComplementary(true)">+ Criar nova</button></div>
           <div id="inlineComplementaryForm" class="notice hidden" style="margin-top:8px"><div class="grid"><div><label class="field">Nome <span class="required-mark">*</span></label><input id="inlineCompName" placeholder="Ex.: Judô"></div><div><label class="field">Categoria (opcional)</label><input id="inlineCompCategory" placeholder="Ex.: Esporte"></div><div class="full"><label class="field">Descrição (opcional)</label><input id="inlineCompDescription"></div></div><div class="toolbar" style="margin-top:8px"><button type="button" class="btn success" onclick="createInlineComplementary()">Criar e usar</button><button type="button" class="btn" onclick="toggleInlineComplementary(false)">Cancelar</button></div></div>
         </div>
         <div id="planMaterialWrap" class="full">
-          <label class="field">Material utilizado (opcional)</label>
+          <label class="field clean-label">Material utilizado <span class="field-pill optional-pill">Opcional</span></label><div class="field-help">Livro, apostila, jogo ou outro material usado na atividade.</div>
           <input id="planMaterialSearch" placeholder="Digite pelo menos 3 letras para buscar no catálogo" oninput="planMaterialSearchChanged()">
           <div id="planMaterialResults"></div>
           <div id="planMaterialSelected" class="hidden"></div>
@@ -533,7 +691,7 @@ body.app-authenticated .cloud-card{display:none!important}
           <div><label class="field">Até</label><input id="reportTo" type="date" onchange="renderReportPage()"></div>
           <div><label class="field">Avaliação</label><select id="reportStatus" onchange="renderReportPage()"><option value="">Todos</option><option>Precisa de revisão</option><option>Em progresso</option><option>Dominado</option></select></div>
           <div><label class="field">Tipo</label><select id="reportType" onchange="renderReportPage()"><option value="">Todos</option><option value="bncc">BNCC</option><option value="complementar">Complementar</option></select></div>
-          <div><label class="field">Componente</label><select id="reportComponent" onchange="renderReportPage()"><option value="">Todos</option></select></div>
+          <div><label class="field clean-label">Componente <span class="field-pill optional-pill">Opcional</span></label><select id="reportComponent" onchange="renderReportPage()"><option value="">Todos</option></select></div>
         </div>
         <div id="reportSummary" class="stats" style="margin:12px 0"></div>
         <div id="reportContent"></div>
@@ -4074,17 +4232,17 @@ function renderRecordPage(){
 
  box.innerHTML=`<div class="card record-form-card">
  <div class="record-title-row">
-   <div><h2>${editing?.planId?"Concluir atividade planejada":editing?"Editar atividade":"Registrar"}</h2><div class="meta">${editing?.planId?"Revise os dados do planejamento, escolha a habilidade BNCC do material quando houver mais de uma e salve o registro.":"Conte o que vocês fizeram e relacione com a BNCC."}</div></div>
+   <div><h2>${editing?.planId?"Concluir atividade planejada":editing?"Editar atividade":"Registrar"}</h2><div class="meta">${editing?.planId?"Revise os dados do planejamento, escolha a habilidade BNCC do material quando houver mais de uma e salve o registro.":"Registre o essencial primeiro. Os detalhes e a BNCC podem ser completados abaixo."}</div></div>
    <div class="meta">${esc(child.name)} · ${esc(child.stage||"")}</div>
  </div>
  <div class="record-shell">
   <div class="record-main">
    <div class="record-grid">
-    <div><label class="field">Data <span class="required-mark">*</span></label><input id="fDate" type="date" value="${esc(f.date)}"></div>
+    <div><label class="field clean-label">Data <span class="field-pill required-pill">Obrigatório</span></label><input id="fDate" type="date" value="${esc(f.date)}"></div>
     <div><label class="field">Tipo <span class="required-mark">*</span></label><select id="fType" onchange="changeRecordType()"><option value="bncc" ${f.type!=="complementar"?"selected":""}>Habilidade BNCC</option><option value="complementar" ${f.type==="complementar"?"selected":""}>Atividade complementar</option></select></div>
     <div id="compBlock" class="full ${f.type==="complementar"?"":"hidden"}"><label class="field">Atividade complementar <span class="required-mark">*</span></label><select id="fComplementary"><option value="">Selecione...</option>${state.complementaryActivities.map(x=>`<option value="${x.id}" ${x.id===f.complementaryId?"selected":""}>${esc(x.name)}${x.category?" — "+esc(x.category):""}</option>`).join("")}</select></div>
     <div class="full">
-      <label class="field">O que vocês fizeram hoje? <span class="required-mark">*</span></label>
+      <label class="field clean-label clean-label-lg">O que vocês fizeram hoje? <span class="field-pill required-pill">Obrigatório</span></label><div class="field-help">Conte brevemente o que foi feito, explorado ou aprendido.</div>
       <textarea id="fActivity" rows="4" placeholder="Descreva a atividade realizada...">${esc(f.atividade)}</textarea>
       <div id="draftStatus" class="media-status">${draft?"Rascunho restaurado automaticamente.":"Rascunho salvo automaticamente neste dispositivo."}</div>
     </div>
@@ -4097,13 +4255,13 @@ function renderRecordPage(){
       <input id="fMaterialId" type="hidden" value="${esc(f.materialId||"")}"><input id="fMaterialName" type="hidden" value="${esc(f.materialName||"")}"><input id="fMaterialPublisher" type="hidden" value="${esc(f.materialPublisher||"")}">
     </div>
     <div id="aiBnccMain" class="full ai-main-card ${f.type==="complementar"?"hidden":""}">
-      <div class="ai-help-title">✨ Ajude a IA a acertar mais rápido <span class="meta">(opcional)</span></div>
+      <div class="ai-help-title">✨ Sugerir habilidades BNCC <span class="field-pill optional-pill">Opcional</span></div>
       <div class="ai-component-wrap">
         <label class="field">Componente</label>
         <select id="fComp" onchange="componentChanged()">${groupedComponentOptions(f.componente)}</select>
         <select id="fArea" class="hidden" aria-hidden="true"><option value=""></option>${Object.keys(AREAS).map(x=>`<option value="${esc(x)}" ${x===f.area?"selected":""}>${esc(x)}</option>`).join("")}</select>
       </div>
-      <div class="ai-explain">Se souber o componente, selecione-o para deixar a busca mais específica. Se não souber, deixe em branco — a IA procura em toda a BNCC compatível com o ano.</div>
+      <div class="ai-explain">Se souber o componente, selecione-o para deixar a busca mais específica. Se não souber, deixe em branco — a IA procura semanticamente no ano de referência e também nos anos próximos.</div>
       <button id="aiBnccTestBtn" type="button" class="btn ai-primary-btn" onclick="testAiBnccSuggestion()">✨ Sugerir habilidade BNCC</button>
       <div id="aiBnccTestStatus" class="meta" style="margin-top:7px">A atividade é suficiente. O componente é opcional.</div>
       <div id="aiBnccTestResults" class="ai-test-results"></div>
@@ -4132,13 +4290,13 @@ function renderRecordPage(){
       </div>
      </details>
     </div>
-    <div class="full"><label class="field">Observações</label><textarea id="fObs" rows="2">${esc(f.observacoes)}</textarea></div>
-    <div><label class="field">Avaliação <span class="required-mark">*</span></label><select id="fStatus"><option value="">Selecione...</option><option ${f.status==="Dominado"?"selected":""}>Dominado</option><option ${f.status==="Em progresso"?"selected":""}>Em progresso</option><option ${f.status==="Precisa de revisão"?"selected":""}>Precisa de revisão</option></select></div>
-    <div><label class="field">Foto</label><div class="media-actions">
+    <div class="full clean-secondary-section"><div class="clean-section-heading"><div><b>Outras informações</b><div class="field-help">Complete somente o que fizer sentido para esta atividade.</div></div></div></div><div class="full"><label class="field clean-label">Observações <span class="field-pill optional-pill">Opcional</span></label><textarea id="fObs" rows="2">${esc(f.observacoes)}</textarea></div>
+    <div><label class="field clean-label">Avaliação <span class="field-pill required-pill">Obrigatório</span></label><select id="fStatus"><option value="">Selecione...</option><option ${f.status==="Dominado"?"selected":""}>Dominado</option><option ${f.status==="Em progresso"?"selected":""}>Em progresso</option><option ${f.status==="Precisa de revisão"?"selected":""}>Precisa de revisão</option></select></div>
+    <div><label class="field clean-label">Foto <span class="field-pill optional-pill">Opcional</span></label><div class="media-actions">
       <label class="btn" onclick="saveRecordDraft(true)">Tirar foto<input type="file" accept="image/*" capture="environment" style="display:none" onchange="readPhoto(event)"></label>
       <label class="btn" onclick="saveRecordDraft(true)">Escolher foto<input type="file" accept="image/*" style="display:none" onchange="readPhoto(event)"></label>
     </div></div>
-    <div class="full"><div id="photoPreviewWrap">${f.foto?`<img id="photoPreviewImg" class="photo" src="${f.foto}">`:""}</div><div class="meta"><span class="required-mark">*</span> campo obrigatório · BNCC é opcional</div></div>
+    <div class="full"><div id="photoPreviewWrap">${f.foto?`<img id="photoPreviewImg" class="photo" src="${f.foto}">`:""}</div></div>
    </div>
    <div class="record-actions">
      <button class="btn" onclick="startNewRecord()">Limpar</button>
@@ -4158,7 +4316,7 @@ function renderRecordPage(){
     <div class="record-side-card"><h3>👁️ Prévia da atividade</h3><div id="recordPreview"></div></div>
     <div class="record-side-card">
       <h3>🤖 Como funciona a IA?</h3>
-      <p class="meta">A IA procura na BNCC as habilidades mais relacionadas ao que você escreveu, considerando o ano da criança. Se você informar o componente, a busca fica mais específica.</p>
+      <p class="meta">A IA procura na BNCC as habilidades mais relacionadas ao que você escreveu. No Ensino Fundamental, ela considera o ano da criança, um ano antes e um ano depois. Se você informar o componente, a busca fica mais específica.</p>
       <p class="meta"><b>A sugestão nunca é salva automaticamente.</b> Você escolhe qual habilidade usar.</p>
     </div>
   </aside>
@@ -4460,7 +4618,7 @@ function applyAiBnccSuggestion(index){
 
 
 // =========================================================
-// ROADMAP PÓS-v5.19
+// ROADMAP PÓS-v5.20
 // 1) Persistir no D1, por código BNCC escolhido, a origem da classificação,
 //    semantic_similarity, ranking da IA e modelos utilizados. Na v5.19 o
 //    percentual é apenas exibido durante a sugestão e NÃO é salvo no registro.
@@ -5177,7 +5335,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.19";
+const APP_VERSION = "5.20";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
