@@ -955,7 +955,7 @@ details[open]>summary:after{content:"⌃"}
       </div>
       <div id="calendarImportCard" class="card hidden">
         <div class="toolbar" style="justify-content:space-between">
-          <div><h3 style="margin-bottom:3px">📅 Próximos eventos</h3><div class="meta">Escolha somente o compromisso que você quer aproveitar no Diário. Os demais eventos não viram registros.</div></div>
+          <div><h3 style="margin-bottom:3px">📅 Eventos do calendário</h3><div class="meta">Mostramos eventos dos últimos 7 dias e dos próximos 90 dias, em todos os calendários visíveis. Só entra no Diário o que você escolher.</div></div>
           <button class="btn small" type="button" onclick="closeCalendarImport()">Fechar</button>
         </div>
         <div id="calendarImportStatus" class="meta" style="margin:10px 0">Carregando eventos…</div>
@@ -5808,22 +5808,86 @@ function calendarEventTimeLabel(ev){
 }
 function cleanCalendarDescription(text){return String(text||"").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim().slice(0,1200)}
 async function openCalendarImport(){
- const card=$("calendarImportCard"),status=$("calendarImportStatus"),box=$("calendarImportList");card?.classList.remove("hidden");if(status)status.textContent="Carregando próximos eventos…";if(box)box.innerHTML="";
+ const card=$("calendarImportCard"),status=$("calendarImportStatus"),box=$("calendarImportList");
+ card?.classList.remove("hidden");if(status)status.textContent="Carregando eventos…";if(box)box.innerHTML="";
  if(!googleAccessToken){if(status)status.textContent="Entre com Google para consultar seus eventos.";return}
  try{
-  const start=new Date(),end=new Date();end.setDate(end.getDate()+30);
-  const u=new URL("https://www.googleapis.com/calendar/v3/calendars/primary/events");
-  u.searchParams.set("timeMin",start.toISOString());u.searchParams.set("timeMax",end.toISOString());u.searchParams.set("singleEvents","true");u.searchParams.set("orderBy","startTime");u.searchParams.set("maxResults","30");
-  const data=await calendarApiFetch(u.toString()),items=(data.items||[]).filter(ev=>ev.status!=="cancelled"&&(ev.summary||"").trim());
-  if(!items.length){if(status)status.textContent="Nenhum evento nos próximos 30 dias.";return}
-  window.diaryCalendarImportItems=items;if(status)status.textContent="Escolha um evento para aproveitar no planejamento.";
-  if(box)box.innerHTML=items.map((ev,i)=>{const date=calendarEventDate(ev),time=calendarEventTimeLabel(ev);return `<div class="calendar-event-card"><div class="event-time">${date?fmtDate(date):""}${time?" · "+esc(time):""}</div><div class="event-title">${esc(ev.summary||"Evento")}</div>${ev.location?`<div class="event-location">📍 ${esc(ev.location)}</div>`:""}<div class="toolbar" style="margin-top:8px"><button class="btn small primary" type="button" onclick="useCalendarEvent(${i})">Usar no Diário</button></div></div>`}).join("")
- }catch(e){if(status)status.textContent=e.message||"Não foi possível carregar os eventos."}
+  // Begin at the start of the day 7 days ago.
+  // The old code used the exact current time, so an all-day event for "today"
+  // could disappear because it technically started at 00:00.
+  const start=new Date();start.setHours(0,0,0,0);start.setDate(start.getDate()-7);
+  const end=new Date();end.setHours(23,59,59,999);end.setDate(end.getDate()+90);
+
+  // Read every visible calendar in the connected Google account.
+  const calendars=[];
+  let pageToken="";
+  do{
+   const cu=new URL("https://www.googleapis.com/calendar/v3/users/me/calendarList");
+   cu.searchParams.set("maxResults","250");
+   if(pageToken)cu.searchParams.set("pageToken",pageToken);
+   const cd=await calendarApiFetch(cu.toString());
+   calendars.push(...(cd.items||[]).filter(c=>c.id&&!c.deleted));
+   pageToken=cd.nextPageToken||"";
+  }while(pageToken);
+
+  // CalendarList should include primary. Keep a defensive fallback.
+  if(!calendars.some(c=>c.primary)){
+   calendars.unshift({id:"primary",summary:"Principal",primary:true});
+  }
+
+  const batches=await Promise.all(calendars.map(async cal=>{
+   try{
+    const u=new URL(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(cal.id)}/events`);
+    u.searchParams.set("timeMin",start.toISOString());
+    u.searchParams.set("timeMax",end.toISOString());
+    u.searchParams.set("singleEvents","true");
+    u.searchParams.set("orderBy","startTime");
+    u.searchParams.set("maxResults","100");
+    const data=await calendarApiFetch(u.toString());
+    return (data.items||[]).filter(ev=>ev.status!=="cancelled"&&(ev.summary||"").trim()).map(ev=>({
+      ...ev,
+      _calendarId:cal.id,
+      _calendarName:cal.summaryOverride||cal.summary||(cal.primary?"Principal":"Calendário")
+    }));
+   }catch(e){
+    console.warn("Calendário ignorado na importação:",cal.summary||cal.id,e);
+    return [];
+   }
+  }));
+
+  // Deduplicate by calendar+event id and sort chronologically.
+  const seen=new Set(),items=[];
+  batches.flat().forEach(ev=>{
+   const key=`${ev._calendarId}|${ev.id}`;
+   if(!seen.has(key)){seen.add(key);items.push(ev)}
+  });
+  items.sort((a,b)=>String(a.start?.dateTime||a.start?.date||"").localeCompare(String(b.start?.dateTime||b.start?.date||"")));
+
+  if(!items.length){
+   if(status)status.textContent="Nenhum evento encontrado entre os últimos 7 dias e os próximos 90 dias.";
+   return;
+  }
+
+  window.diaryCalendarImportItems=items;
+  if(status)status.textContent=`${items.length} evento${items.length===1?"":"s"} encontrado${items.length===1?"":"s"}. Escolha o que deseja usar no Diário.`;
+  if(box)box.innerHTML=items.map((ev,i)=>{
+   const date=calendarEventDate(ev),time=calendarEventTimeLabel(ev);
+   return `<div class="calendar-event-card">
+    <div class="event-time">${date?fmtDate(date):""}${time?" · "+esc(time):""}</div>
+    <div class="event-title">${esc(ev.summary||"Evento")}</div>
+    <div class="event-location">📅 ${esc(ev._calendarName||"Calendário")}</div>
+    ${ev.location?`<div class="event-location">📍 ${esc(ev.location)}</div>`:""}
+    <div class="toolbar" style="margin-top:8px"><button class="btn small primary" type="button" onclick="useCalendarEvent(${i})">Usar no Diário</button></div>
+   </div>`;
+  }).join("");
+ }catch(e){
+  if(status)status.textContent=e.message||"Não foi possível carregar os eventos.";
+ }
 }
 function closeCalendarImport(){$("calendarImportCard")?.classList.add("hidden")}
 function useCalendarEvent(i){
  const ev=(window.diaryCalendarImportItems||[])[i];if(!ev)return;
- pendingImportedCalendarEvent={calendarId:"primary",eventId:ev.id||"",htmlLink:ev.htmlLink||"",summary:ev.summary||"",date:calendarEventDate(ev),location:ev.location||""};
+ pendingImportedCalendarEvent={calendarId:ev._calendarId||"primary",calendarName:ev._calendarName||"",eventId:ev.id||"",htmlLink:ev.htmlLink||"",summary:ev.summary||"",date:calendarEventDate(ev),location:ev.location||""};
  togglePlanForm(true);if($("planTitle"))$("planTitle").value=ev.summary||"";if($("planDate")&&calendarEventDate(ev))$("planDate").value=calendarEventDate(ev);
  const desc=cleanCalendarDescription(ev.description||"");if($("planNotes"))$("planNotes").value=[desc,ev.location?`Local: ${ev.location}`:""].filter(Boolean).join("\n");
  const cb=$("planAddToCalendar");if(cb){cb.checked=false;cb.disabled=true}
