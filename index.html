@@ -792,6 +792,13 @@ details[open]>summary:after{content:"⌃"}
   .learning-section,.learning-hero,.learning-summary-item{break-inside:avoid}
 }
 
+/* v5.25 relatório */
+.report-child-picker{margin:10px 0 12px;padding:12px 14px;border-radius:14px;background:#eaf1ec;border:1px solid #d8e4dc}
+.report-child-picker .child-tabs{display:flex;gap:8px;flex-wrap:wrap}.report-child-picker .child{border:1px solid #bfd0c5;background:#f8fbf9;color:#29483a;padding:9px 14px;border-radius:12px;font-weight:750;cursor:pointer}.report-child-picker .child.active{background:#244d3b;color:#fff;border-color:#244d3b}
+.report-filter-details{margin:8px 0 14px}.report-filter-details>summary{display:flex;justify-content:space-between;gap:12px;padding:8px 2px;color:#5e6b64;font-size:12px;cursor:pointer}.report-filter-details>summary span{font-weight:500;color:#89918c}.report-filters-subtle{margin-top:8px;padding:12px;border:1px solid #e6e9e5;background:#fafbf9;border-radius:12px}
+#reportSummary{display:none!important}.learning-hero{padding:12px 15px}.learning-summary-grid{gap:6px}.learning-summary-item{padding:8px 10px;background:#fafbf9}.learning-summary-item b{font-size:17px}.learning-summary-item span{font-size:10px}
+.ai-period-summary{background:#f5f8f6;border:1px solid #dce6df;border-radius:15px;padding:16px}.ai-period-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.ai-period-head h3{margin:0 0 4px;font-size:16px}.ai-period-text{font-size:13px;line-height:1.65;color:#39473f;margin-top:12px}.ai-period-note{font-size:10px;color:#78827c;margin-top:10px;line-height:1.45}.ai-period-loading{font-size:12px;color:#66736c;margin-top:10px}
+@media(max-width:700px){.learning-summary-grid{grid-template-columns:repeat(4,1fr)}.learning-summary-item{padding:7px 4px;text-align:center}.learning-summary-item b{font-size:15px}.learning-summary-item span{font-size:9px}.ai-period-head{display:block}.ai-period-head .btn{margin-top:9px}}
 </style>
 </head>
 <body class="auth-checking">
@@ -800,7 +807,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v5.24 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v5.25 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -959,16 +966,16 @@ details[open]>summary:after{content:"⌃"}
           <button class="btn report-profile-link" onclick="openReportInfoSettings()">⚙ Informações para relatório</button>
         </div>
         <h2 style="margin-top:12px">Relatórios</h2>
-        <div class="report-filters no-print">
-          <div><label class="field">Criança</label><select id="reportChild" onchange="renderReportPage()"></select></div>
-          <div><label class="field">De</label><input id="reportFrom" type="date" onchange="renderReportPage()"></div>
-          <div><label class="field">Até</label><input id="reportTo" type="date" onchange="renderReportPage()"></div>
-          <div><label class="field">Avaliação</label><select id="reportStatus" onchange="renderReportPage()"><option value="">Todos</option><option>Precisa de revisão</option><option>Em progresso</option><option>Dominado</option></select></div>
-          <div><label class="field">Tipo</label><select id="reportType" onchange="renderReportPage()"><option value="">Todos</option><option value="bncc">BNCC</option><option value="complementar">Complementar</option></select></div>
-          <div><label class="field clean-label">Componente <span class="field-pill optional-pill">Opcional</span></label><select id="reportComponent" onchange="renderReportPage()"><option value="">Todos</option></select></div>
-        </div>
-        <div id="reportSummary" class="stats" style="margin:12px 0"></div>
-        <div id="reportContent"></div>
+        <div class="report-child-picker no-print"><div class="meta" style="margin-bottom:7px">Criança</div><div id="reportChildButtons" class="child-tabs"></div><select id="reportChild" class="hidden" onchange="renderReportPage()"></select></div>
+      <details class="report-filter-details no-print"><summary><b>Filtrar período e registros</b><span id="reportFilterLabel">Todos os registros</span></summary>
+      <div class="report-filters report-filters-subtle">
+        <div><label class="field">De</label><input id="reportFrom" type="date" onchange="renderReportPage()"></div>
+        <div><label class="field">Até</label><input id="reportTo" type="date" onchange="renderReportPage()"></div>
+        <div><label class="field">Avaliação</label><select id="reportStatus" onchange="renderReportPage()"><option value="">Todos</option><option>Precisa de revisão</option><option>Em progresso</option><option>Dominado</option></select></div>
+        <div><label class="field">Tipo</label><select id="reportType" onchange="renderReportPage()"><option value="">Todos</option><option value="bncc">BNCC</option><option value="complementar">Complementar</option></select></div>
+        <div><label class="field clean-label">Componente <span class="field-pill optional-pill">Opcional</span></label><select id="reportComponent" onchange="renderReportPage()"><option value="">Todos</option></select></div>
+      </div></details>
+      <div id="reportContent"></div>
       </div>
     </section>
 
@@ -5564,6 +5571,13 @@ function deletePlan(id){state.plans=state.plans.filter(x=>x.id!==id);addTomb("pl
 
 
 
+const reportAiSummaryCache={};
+function selectReportChild(id){if(!id)return;activeChildId=id;const s=$("reportChild");if(s)s.value=id;renderReportPage()}
+function renderReportChildButtons(){const box=$("reportChildButtons");if(!box)return;const kids=(state.family.children||[]).filter(c=>!c.archived&&!c.legacyOrphan),selected=$("reportChild")?.value||activeChildId;box.innerHTML=kids.map(c=>`<button type="button" class="child ${c.id===selected?"active":""}" onclick="selectReportChild('${c.id}')">${esc(c.name)}</button>`).join("")}
+function reportAiKey(childId,from,to,status,type,comp,rows){return [childId,from,to,status,type,comp,rows.map(x=>`${x.id||""}:${x.updatedAt||x.createdAt||""}`).sort().join("|")].join("::")}
+function reportAiBox(key,hasRows){const cached=reportAiSummaryCache[key];return `<div class="ai-period-summary"><div class="ai-period-head"><div><h3>✨ Resumo do período</h3><div class="learning-section-intro" style="margin:0">Uma leitura breve dos registros selecionados.</div></div>${hasRows?`<button class="btn small" type="button" onclick="generateReportAiSummary()">${cached?"↻ Atualizar resumo":"✨ Gerar resumo com IA"}</button>`:""}</div><div id="reportAiSummaryText" class="ai-period-text">${cached?esc(cached).replace(/\n/g,"<br>"):(hasRows?"Clique em “Gerar resumo com IA” para criar uma síntese deste período.":"Não há registros suficientes para gerar um resumo.")}</div><div id="reportAiSummaryLoading" class="ai-period-loading hidden">Analisando os registros do período...</div><div class="ai-period-note">Resumo elaborado por IA a partir dos registros selecionados. Revise antes de compartilhar ou exportar.</div></div>`}
+async function generateReportAiSummary(){const childId=$("reportChild")?.value||activeChildId,child=state.family.children.find(c=>c.id===childId);if(!child)return;const all=state.entries[childId]||[],from=$("reportFrom")?.value||"",to=$("reportTo")?.value||"",status=$("reportStatus")?.value||"",type=$("reportType")?.value||"",comp=$("reportComponent")?.value||"",rows=all.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!status||x.status===status)&&(!type||x.type===type)&&(!comp||x.componente===comp));if(!rows.length)return alert("Não há registros neste período para resumir.");const period=reportPeriodText(from,to),key=reportAiKey(childId,from,to,status,type,comp,rows),backendChildId=localToBackendChildId(child.id);if(!backendChildId)return alert("Sincronize a criança com a família antes de gerar o resumo.");$("reportAiSummaryLoading")?.classList.remove("hidden");try{const data=await backendFetch("/ai/report-summary",{method:"POST",body:JSON.stringify({child_id:backendChildId,child_name:child.name||"",reference_stage:child.stage||"",period,activities:rows.slice(0,120).map(x=>({date:x.date||"",activity:String(x.atividade||"").slice(0,500),component:x.componente||"",status:x.status||"",bncc_code:x.codigo||"",bncc_skill:String(x.habilidade||"").slice(0,500),notes:String(x.observacoes||"").slice(0,350)}))})});const text=String(data?.summary||"").trim();if(!text)throw new Error("A IA não retornou um resumo.");reportAiSummaryCache[key]=text;renderReportPage()}catch(e){alert("Não foi possível gerar o resumo: "+(e.message||e))}finally{$("reportAiSummaryLoading")?.classList.add("hidden")}}
+
 function learningTopCounts(rows,keyFn){
  const m={};
  rows.forEach(x=>{const k=String(keyFn(x)||"").trim();if(k)m[k]=(m[k]||0)+1});
@@ -5704,10 +5718,13 @@ function renderReportPage(){
 
  const activities=f.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=>`<div class="entry ${x.status==="Dominado"?"done":x.status==="Precisa de revisão"?"focus":"progress"}"><div class="meta">${fmtDate(x.date)} · ${esc(x.type==="complementar"?"Complementar":x.componente)} ${x.codigo?"· "+esc(x.codigo)+" · "+esc(anoBnccDoCodigo(x.codigo)):""}</div>${x.yearRefAtRecord?`<div class="meta">Ano de referência no registro: ${esc(x.yearRefAtRecord)}</div>`:""}<div class="entry-title">${esc(x.atividade)}</div>${x.materialName?`<div class="meta">📘 Material: ${esc(x.materialName)}</div>`:""}${x.habilidade?`<div class="skill">${esc(x.habilidade)}</div>`:""}${x.observacoes?`<div class="obs">${esc(x.observacoes)}</div>`:""}${x.status?`<span class="badge">${esc(x.status)}</span>`:""}${x.foto?`<br><img class="report-photo" src="${x.foto}">`:""}${x.audio?`<div class="audio-box no-print"><audio controls src="${x.audio}"></audio></div><div class="meta">Áudio anexado</div>`:""}</div>`).join("");
 
+ renderReportChildButtons();
+ const filterLabel=$("reportFilterLabel");if(filterLabel)filterLabel.textContent=(from||to)?period:"Todos os registros";
+ const aiSummary=reportAiBox(reportAiKey(childId,from,to,status,type,comp,f),f.length>0);
  const learningOverview=learningReportOverview(f,child,period);
  const learningMoments=learningReportMoments(f);
  const learningBncc=learningReportBncc(f);
- if($("reportContent"))$("reportContent").innerHTML= learningOverview + `
+ if($("reportContent"))$("reportContent").innerHTML= aiSummary + learningOverview + `
  <div class="learning-section" style="margin-top:14px">
   <h3>Momentos do período</h3>
   <div class="learning-section-intro">Algumas evidências visuais registradas pela família.</div>
@@ -5904,7 +5921,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "5.24";
+const APP_VERSION = "5.25";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
