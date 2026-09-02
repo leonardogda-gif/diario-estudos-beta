@@ -1,4 +1,4 @@
-DIÁRIO DE ESTUDOS — v6.9
+DIÁRIO DE ESTUDOS — v7.2
 
 BASE
 - Evolução da v6.8 corrigida.
@@ -6,12 +6,20 @@ BASE
 - Não utiliza /ai/bncc-suggest.
 
 REGISTRO
+- Um registro agora aceita várias fotos.
+- “Escolher fotos” permite selecionar várias imagens de uma vez; “Tirar foto” adiciona imagens uma a uma.
+- Cada foto pode ser removida antes de salvar.
+- Registros antigos com apenas uma foto continuam compatíveis.
+- Todas as fotos aparecem na visualização e no relatório.
+- Cada foto é enviada separadamente para a pasta Fotos da família no Drive.
 - Material utilizado agora fica recolhido em uma lista suspensa opcional.
 - A seção visual “BNCC manual” foi retirada do fluxo do responsável.
 - A análise continua permitindo múltiplos componentes, habilidades e competências.
 - Atividade complementar continua podendo coexistir com relações BNCC.
 
 RELATÓRIOS
+- Corrigida a identificação do resumo entre dispositivos: agora a chave usa o ID estável da criança no backend.
+- Resumos existentes com IDs locais diferentes são encontrados por compatibilidade, sem exigir nova geração.
 - O resumo gerado por IA fica gravado nos dados compartilhados da família.
 - Ao sair e voltar ao relatório, o resumo permanece disponível.
 - A família pode usar “Atualizar resumo” para gerar uma nova versão.
@@ -19,6 +27,9 @@ RELATÓRIOS
 - A sincronização compartilhada preserva a versão mais recente de cada resumo.
 
 LIVROS
+- A busca agora consulta Google Books e catálogo comunitário aprovado simultaneamente.
+- Livros da própria família também aparecem na pesquisa como “Já adicionado”.
+- Resultados são desduplicados por ID, ISBN ou título e autor.
 - O cadastro manual está sempre disponível, mesmo quando Google Books ou o catálogo comunitário encontram resultados.
 - A busca pode preencher automaticamente o título informado no formulário manual.
 
@@ -39,5 +50,5 @@ ARQUIVOS
 PUBLICAÇÃO
 - Substitua os quatro arquivos correspondentes no GitHub.
 - Mantenha manifest.json e a pasta icons existentes.
-- APP_VERSION: 6.9.
-- Cache do service worker: diario-estudos-v6.9.
+- APP_VERSION: 7.2.
+- Cache do service worker: diario-estudos-v7.2.
