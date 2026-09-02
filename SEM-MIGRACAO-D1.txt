@@ -1,5 +1,0 @@
-DIÁRIO DE ESTUDOS — v5.18
-
-Esta versão NÃO exige nova migração no D1.
-A tabela bncc_embeddings criada na v5.17 continua sendo utilizada.
-As estruturas antigas de vínculo material-BNCC permanecem no banco apenas por compatibilidade, mas a interface v5.18 não cria nem herda esses vínculos.
