@@ -1059,6 +1059,7 @@ details[open]>summary:after{content:"⌃"}
       </div>
       <div id="bookSearchStatus" class="meta" style="margin-top:8px"></div>
       <div id="bookSearchResults" class="book-results"></div>
+      <button class="btn" type="button" style="margin-top:12px" onclick="toggleManualBookForm()">+ Cadastrar outro livro manualmente</button>
       <div id="manualBookBox" class="hidden" style="margin-top:12px">
         <div class="notice">Não encontrou? Você ainda pode cadastrar o livro manualmente.</div>
         <div class="grid">
@@ -1753,6 +1754,7 @@ function normalizeState(){
  state.family=state.family||{name:"",social:"",updatedAt:"",responsibles:[],children:[]};
  state.family.name=state.family.name||"";state.family.responsibles=state.family.responsibles||[];
  state.family.reportInfo=state.family.reportInfo||{responsibleName:"",responsibleRelation:"",city:"",state:"",modality:"",institution:""};
+ state.family.reportAiSummaries=state.family.reportAiSummaries||{};
  state.family.children=(state.family.children||[]).map(c=>({...c,stage:c.stage||"Sem ano de referência",stageHistory:c.stageHistory||[{stage:c.stage||"Sem ano de referência",startDate:"",endDate:""}],reportInfo:c.reportInfo||{fullName:"",schoolYear:"",notes:""}}));
  state.plans=state.plans||[];state.customBncc=Array.isArray(state.customBncc)?state.customBncc:[];state.tombstones={entries:[],children:[],complementary:[],plans:[],...(state.tombstones||{})};
 }
@@ -4001,6 +4003,7 @@ function sharedEducationalPayload(){
     updatedAt:now(),
     entries,
     plans,
+    reportAiSummaries:JSON.parse(JSON.stringify(state.family.reportAiSummaries||{})),
     complementaryActivities:JSON.parse(JSON.stringify(state.complementaryActivities||[])),
     tombstones:{
       entries:JSON.parse(JSON.stringify(state.tombstones?.entries||[])),
@@ -4017,6 +4020,8 @@ function mergeSharedEducational(local,remote){
     plans:newestTombstones(local.tombstones?.plans,remote?.tombstones?.plans)
   };
 
+  const reportAiSummaries={...(remote?.reportAiSummaries||{})};
+  Object.entries(local.reportAiSummaries||{}).forEach(([key,value])=>{const current=reportAiSummaries[key];if(!current||ts(value?.updatedAt)>=ts(current?.updatedAt))reportAiSummaries[key]=value});
   return {
     version:1,
     updatedAt:now(),
@@ -4027,6 +4032,7 @@ function mergeSharedEducational(local,remote){
       remote?.complementaryActivities,
       tombs.complementary
     ),
+    reportAiSummaries,
     tombstones:tombs
   };
 }
@@ -4075,6 +4081,7 @@ function applySharedEducational(shared){
   });
 
   state.complementaryActivities=shared.complementaryActivities||[];
+  state.family.reportAiSummaries=shared.reportAiSummaries||state.family.reportAiSummaries||{};
 
   state.tombstones={
     ...state.tombstones,
@@ -4480,13 +4487,18 @@ function renderDashboard(){
  const todayPlans=due.filter(p=>(p.nextDate||p.date)===td),latePlans=due.filter(p=>(p.nextDate||p.date)<td),futurePlans=due.filter(p=>(p.nextDate||p.date)>td).slice(0,3);
  const planHtml=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div><div class="meta">${esc(p.component||'')}</div><div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">✓ Concluir e registrar</button>${(p.nextDate||p.date)<td?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Reagendar próxima</button>`:''}</div></div>`;
  box.innerHTML=`<div class="card"><div class="toolbar" style="justify-content:space-between"><div>${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje com ${esc(child.name)}</h2><div class="meta">${fmtDate(td)}</div></div><div class="child-tabs">${state.family.children.filter(c=>!c.archivedAt).map(c=>`<button class="child ${c.id===child.id?'active':''}" onclick="selectChild('${c.id}');showPage('inicio')">${esc(c.name)}</button>`).join('')}</div></div>
- <div class="daily-actions"><button class="btn success" onclick="openTodayRecord()">+ Registrar atividade</button><button class="btn" onclick="showPage('planejamento');togglePlanForm(true)">+ Planejar</button><button class="btn" onclick="openOldRecord()">Adicionar atividade antiga</button></div></div>
+ <div class="daily-actions"><button class="btn success" onclick="openTodayRecord()">+ Registrar atividade</button><button class="btn primary" onclick="showPage('planejamento')">📅 Abrir planejamento</button><button class="btn" onclick="showPage('planejamento');togglePlanForm(true)">+ Novo planejamento</button><button class="btn" onclick="openOldRecord()">Adicionar atividade antiga</button></div></div>
  ${latePlans.length?`<div class="card"><h3>Precisa de atenção</h3><div class="meta">Atividades planejadas que ficaram para trás.</div>${latePlans.map(planHtml).join('')}</div>`:''}
  <div class="card"><h3>Para hoje</h3>${todayPlans.map(planHtml).join('')||"<div class='notice'>Nada planejado para hoje. Você pode registrar uma atividade que aconteceu sem planejamento.</div>"}</div>
- ${futurePlans.length?`<div class="card"><h3>Próximos dias</h3>${futurePlans.map(p=>`<div class="plan-card"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><b>${esc(p.title)}</b></div>`).join('')}<button class="btn" onclick="showPage('planejamento')">Ver planejamento</button></div>`:''}
+ ${futurePlans.length?`<div class="card"><h3>Próximos dias</h3>${futurePlans.map(p=>`<div class="plan-card record-clickable" onclick="openPlanFromDashboard('${p.id}')"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${p.place?`<div class="meta">📍 ${esc(p.place)}</div>`:""}<div class="entry-actions"><button class="btn success small" type="button" onclick="event.stopPropagation();startPlan('${p.id}')">+ Registrar atividade</button><button class="btn small" type="button" onclick="event.stopPropagation();openPlanFromDashboard('${p.id}')">Visualizar planejamento</button></div></div>`).join('')}<button class="btn" onclick="showPage('planejamento')">Ver todos os planejamentos</button></div>`:''}
  <div class="card"><h3>Últimas atividades</h3>${allEntries.slice(0,4).map(x=>`<div class="entry record-clickable ${x.status==='Dominado'?'done':x.status==='Precisa de revisão'?'focus':'progress'}" onclick="viewEntry('${x.id}','${child.id}')"><div class="meta">${fmtDate(x.date)}</div><div class="entry-title">${esc(x.atividade)}</div></div>`).join('')||"<div class='notice'>Nenhuma atividade registrada ainda.</div>"}</div>`;
 }
 function openTodayRecord(){recordFormOpen=true;editing=null;showPage('registro');renderRecordPage()}
+function openPlanFromDashboard(id){
+ const plan=state.plans.find(x=>x.id===id);if(!plan)return;
+ activeChildId=plan.childId;showPage('planejamento');renderPlans();
+ setTimeout(()=>{const card=document.querySelector(`[data-plan-id="${CSS.escape(id)}"]`);if(!card)return;card.scrollIntoView({behavior:"smooth",block:"center"});card.classList.add("selected");setTimeout(()=>card.classList.remove("selected"),2200)},80);
+}
 function openOldRecord(){showPage('historico');setTimeout(()=>{toggleOldRecordForm(true);$('oldRecordDate').value='';$('oldRecordActivity')?.focus()},0)}
 function toggleOldRecordForm(open){$('oldRecordForm')?.classList.toggle('hidden',!open);if(open){const c=$('oldRecordChild');if(c&&activeChildId)c.value=activeChildId}}
 function saveOldRecord(){
@@ -4936,14 +4948,15 @@ function renderRecordPage(){
       <textarea id="fActivity" rows="5" placeholder="Ex.: Visitamos a exposição sobre o corpo humano. Ela observou os órgãos, comparou suas funções e fez perguntas sobre respiração e circulação.">${esc(f.atividade)}</textarea>
       <div id="draftStatus" class="media-status">${draft?"Rascunho restaurado automaticamente.":"Rascunho salvo automaticamente neste dispositivo."}</div>
     </div>
-    <div id="recordMaterialWrap" class="full ${f.type==="complementar"?"hidden":""}">
+    <details id="recordMaterialWrap" class="full record-more-options">
+      <summary><b>Material utilizado</b><span>Opcional</span></summary><div style="margin-top:10px">
       ${editing?.planId?`<div class="notice" style="margin-bottom:10px"><b>✓ Veio do planejamento</b><br><span class="meta">Confira o material e, se aparecerem vários códigos BNCC, toque no código que melhor corresponde ao que foi feito.</span></div>`:""}
       <label class="field">Material utilizado (opcional)</label>
       <input id="recordMaterialSearch" placeholder="Busque pelo nome do livro, apostila ou material" oninput="recordMaterialSearchChanged()">
       <div id="recordMaterialResults"></div>
       <div id="recordMaterialSelected" class="${f.materialName?"":"hidden"}">${f.materialName?`<div class="notice" style="margin-top:7px"><b>📘 ${esc(f.materialName)}</b>${f.materialPublisher?` · ${esc(f.materialPublisher)}`:""}<button type="button" class="btn small" style="margin-top:6px" onclick="clearRecordMaterial()">Trocar / remover material</button></div>`:""}</div>
       <input id="fMaterialId" type="hidden" value="${esc(f.materialId||"")}"><input id="fMaterialName" type="hidden" value="${esc(f.materialName||"")}"><input id="fMaterialPublisher" type="hidden" value="${esc(f.materialPublisher||"")}">
-    </div>
+      </div></details>
     <div class="full experience-analysis-card">
       <div class="experience-analysis-head">
         <div><h3>✨ Analisar experiência</h3><div class="meta">O Diário identifica componentes e busca habilidades e competências BNCC relacionadas em uma única análise.</div></div>
@@ -4960,7 +4973,7 @@ function renderRecordPage(){
       <div id="aiBnccTestStatus" class="meta"></div>
       <div id="aiBnccTestResults" class="ai-test-results"></div>
     </div>
-    <div id="bnccAdvancedWrap" class="full ${f.type==="complementar"?"hidden":""}">
+    <div id="bnccAdvancedWrap" class="full hidden" aria-hidden="true">
      <details class="bncc-advanced">
       <summary>BNCC manual — recurso de apoio durante a transição</summary>
       <div class="bncc-advanced-body">
@@ -6270,7 +6283,7 @@ function togglePlanForm(open){
 function renderPlans(){
  let box=$("plansList");if(!box)return;let childId=$("planChild")?.value||activeChildId,td=today();
  let l=state.plans.filter(x=>!x.completedAt&&(!childId||x.childId===childId)&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
- const card=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':(p.nextDate||p.date)===td?'is-today':''}"><div class="plan-date">${fmtDate(p.nextDate||p.date)} · ${esc(state.family.children.find(c=>c.id===p.childId)?.name||'')}</div><div class="entry-title">${esc(p.title)}</div>${p.component?`<div class="skill">${esc(p.component)}</div>`:''}${p.materialName?`<div class="meta" style="margin-top:4px">📘 ${esc(p.materialName)}</div>`:""}${p.notes?`<div class="obs">${esc(p.notes)}</div>`:''}${p.calendarEventId?`<div class="meta" style="margin-top:4px">📅 No Google Calendar</div>`:p.importedCalendarEventId?`<div class="meta" style="margin-top:4px">📅 Importado do seu calendário</div>`:""}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">✓ Concluir e registrar</button>${p.recurrence!=='none'?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular / próxima</button>`:''}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`;
+ const card=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':(p.nextDate||p.date)===td?'is-today':''}" data-plan-id="${esc(p.id)}"><div class="plan-date">${fmtDate(p.nextDate||p.date)} · ${esc(state.family.children.find(c=>c.id===p.childId)?.name||'')}</div><div class="entry-title">${esc(p.title)}</div>${p.component?`<div class="skill">${esc(p.component)}</div>`:''}${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${p.materialName?`<div class="meta" style="margin-top:4px">📘 ${esc(p.materialName)}</div>`:""}${p.notes?`<div class="obs">${esc(p.notes)}</div>`:''}${p.calendarEventId?`<div class="meta" style="margin-top:4px">📅 No Google Calendar</div>`:p.importedCalendarEventId?`<div class="meta" style="margin-top:4px">📅 Importado do seu calendário</div>`:""}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">+ Registrar atividade</button>${p.recurrence!=='none'?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular / próxima</button>`:''}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`;
  const late=l.filter(p=>(p.nextDate||p.date)<td),now=l.filter(p=>(p.nextDate||p.date)===td),future=l.filter(p=>(p.nextDate||p.date)>td);
  box.innerHTML=`${late.length?`<div class="plan-section-title">Atrasadas · ${late.length}</div>${late.map(card).join('')}`:''}<div class="plan-section-title">Hoje · ${now.length}</div>${now.map(card).join('')||"<div class='notice'>Nada planejado para hoje.</div>"}${future.length?`<div class="plan-section-title">Próximos dias · ${future.length}</div>${future.map(card).join('')}`:''}`;
 }
@@ -6281,12 +6294,12 @@ async function deletePlan(id){const p=state.plans.find(x=>x.id===id);if(!p)retur
 
 
 
-const reportAiSummaryCache={};
+function familyReportAiSummaries(){state.family.reportAiSummaries??={};return state.family.reportAiSummaries}
 function selectReportChild(id){if(!id)return;activeChildId=id;const s=$("reportChild");if(s)s.value=id;renderReportPage()}
 function renderReportChildButtons(){const box=$("reportChildButtons");if(!box)return;const kids=(state.family.children||[]).filter(c=>!c.archived&&!c.legacyOrphan),selected=$("reportChild")?.value||activeChildId;box.innerHTML=kids.map(c=>`<button type="button" class="child ${c.id===selected?"active":""}" onclick="selectReportChild('${c.id}')">${esc(c.name)}</button>`).join("")}
 function reportAiKey(childId,from,to,status,type,comp,rows){return [childId,from,to,status,type,comp,rows.map(x=>`${x.id||""}:${x.updatedAt||x.createdAt||""}`).sort().join("|")].join("::")}
-function reportAiBox(key,hasRows){const cached=reportAiSummaryCache[key];return `<div class="ai-period-summary"><div class="ai-period-head"><div><h3>✨ Resumo do período</h3><div class="learning-section-intro" style="margin:0">Uma leitura breve dos registros selecionados.</div></div>${hasRows?`<button class="btn small" type="button" onclick="generateReportAiSummary()">${cached?"↻ Atualizar resumo":"✨ Gerar resumo com IA"}</button>`:""}</div><div id="reportAiSummaryText" class="ai-period-text">${cached?esc(cached).replace(/\n/g,"<br>"):(hasRows?"Clique em “Gerar resumo com IA” para criar uma síntese deste período.":"Não há registros suficientes para gerar um resumo.")}</div><div id="reportAiSummaryLoading" class="ai-period-loading hidden">Analisando os registros do período...</div><div class="ai-period-note">Resumo elaborado por IA a partir dos registros selecionados. Revise antes de compartilhar ou exportar.</div></div>`}
-async function generateReportAiSummary(){const childId=$("reportChild")?.value||activeChildId,child=state.family.children.find(c=>c.id===childId);if(!child)return;const all=state.entries[childId]||[],from=$("reportFrom")?.value||"",to=$("reportTo")?.value||"",status=$("reportStatus")?.value||"",type=$("reportType")?.value||"",comp=$("reportComponent")?.value||"",rows=all.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!status||x.status===status)&&(!type||x.type===type)&&(!comp||x.componente===comp));if(!rows.length)return alert("Não há registros neste período para resumir.");const period=reportPeriodText(from,to),key=reportAiKey(childId,from,to,status,type,comp,rows),backendChildId=localToBackendChildId(child.id);if(!backendChildId)return alert("Sincronize a criança com a família antes de gerar o resumo.");$("reportAiSummaryLoading")?.classList.remove("hidden");try{const data=await backendFetch("/ai/report-summary",{method:"POST",body:JSON.stringify({child_id:backendChildId,child_name:child.name||"",reference_stage:child.stage||"",period,activities:rows.slice(0,120).map(x=>({date:x.date||"",activity:String(x.atividade||"").slice(0,500),component:x.componente||"",status:x.status||"",bncc_code:x.codigo||"",bncc_skill:String(x.habilidade||"").slice(0,500),notes:String(x.observacoes||"").slice(0,350)}))})});const text=String(data?.summary||"").trim();if(!text)throw new Error("A IA não retornou um resumo.");reportAiSummaryCache[key]=text;renderReportPage()}catch(e){alert("Não foi possível gerar o resumo: "+(e.message||e))}finally{$("reportAiSummaryLoading")?.classList.add("hidden")}}
+function reportAiBox(key,hasRows){const saved=familyReportAiSummaries()[key],cached=typeof saved==="string"?saved:saved?.text||"";return `<div class="ai-period-summary"><div class="ai-period-head"><div><h3>✨ Resumo do período</h3><div class="learning-section-intro" style="margin:0">Uma leitura breve dos registros selecionados, guardada para toda a família.</div></div>${hasRows?`<button class="btn small" type="button" onclick="generateReportAiSummary()">${cached?"↻ Atualizar resumo":"✨ Gerar resumo com IA"}</button>`:""}</div><div id="reportAiSummaryText" class="ai-period-text">${cached?esc(cached).replace(/\n/g,"<br>"):(hasRows?"Clique em “Gerar resumo com IA” para criar uma síntese deste período.":"Não há registros suficientes para gerar um resumo.")}</div><div id="reportAiSummaryLoading" class="ai-period-loading hidden">Analisando os registros do período...</div>${saved?.updatedAt?`<div class="meta" style="margin-top:8px">Atualizado em ${esc(fmtDateTime(saved.updatedAt))}${saved.updatedBy?` por ${esc(saved.updatedBy)}`:""}.</div>`:""}<div class="ai-period-note">Resumo elaborado por IA. A família pode atualizar esta síntese quando quiser.</div></div>`}
+async function generateReportAiSummary(){const childId=$("reportChild")?.value||activeChildId,child=state.family.children.find(c=>c.id===childId);if(!child)return;const all=state.entries[childId]||[],from=$("reportFrom")?.value||"",to=$("reportTo")?.value||"",status=$("reportStatus")?.value||"",type=$("reportType")?.value||"",comp=$("reportComponent")?.value||"",rows=all.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!status||x.status===status)&&(!type||(type==="complementar"?!!x.complementaryActivityName:entrySkills(x).length>0))&&(!comp||entryComponents(x).includes(comp)));if(!rows.length)return alert("Não há registros neste período para resumir.");const period=reportPeriodText(from,to),key=reportAiKey(childId,from,to,status,type,comp,rows),backendChildId=localToBackendChildId(child.id);if(!backendChildId)return alert("Sincronize a criança com a família antes de gerar o resumo.");$("reportAiSummaryLoading")?.classList.remove("hidden");try{const data=await backendFetch("/ai/report-summary",{method:"POST",body:JSON.stringify({child_id:backendChildId,child_name:child.name||"",reference_stage:child.stage||"",period,activities:rows.slice(0,120).map(x=>({date:x.date||"",activity:String(x.atividade||"").slice(0,500),component:entryComponents(x).join(", "),status:x.status||"",bncc_code:entrySkills(x).map(s=>s.code).filter(Boolean).join(", "),bncc_skill:entrySkills(x).map(s=>s.description).filter(Boolean).join(" | ").slice(0,500),notes:String(x.observacoes||"").slice(0,350)}))})});const text=String(data?.summary||"").trim();if(!text)throw new Error("A IA não retornou um resumo.");familyReportAiSummaries()[key]={text,updatedAt:now(),updatedBy:backendProfile?.user?.name||googleUser?.name||"Família"};state.family.updatedAt=now();saveLocal();renderReportPage()}catch(e){alert("Não foi possível gerar o resumo: "+(e.message||e))}finally{$("reportAiSummaryLoading")?.classList.add("hidden")}}
 
 
 const READING_LIBRARY_KEY="diario_reading_library_v1";
@@ -6332,6 +6345,7 @@ async function renderReadingPage(){
 }
 function openBookSearch(){$("bookSearchPanel")?.classList.remove("hidden");$("bookSearchQuery")?.focus()}
 function closeBookSearch(){$("bookSearchPanel")?.classList.add("hidden")}
+function toggleManualBookForm(){const box=$("manualBookBox");if(!box)return;const opening=box.classList.contains("hidden");box.classList.toggle("hidden",!opening);if(opening){const title=$("manualBookTitle");if(title&&!title.value)title.value=String($("bookSearchQuery")?.value||"").trim();title?.focus()}}
 let bookSearchTimer=null,bookSearchSeq=0,bookVisibleCount=3;
 function scheduleBookSearch(){
  clearTimeout(bookSearchTimer);
@@ -6794,7 +6808,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "6.8";
+const APP_VERSION = "6.9";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

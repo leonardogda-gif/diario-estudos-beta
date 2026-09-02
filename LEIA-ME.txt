@@ -1,27 +1,36 @@
-DIÁRIO DE ESTUDOS — v6.8 CORRIGIDA
+DIÁRIO DE ESTUDOS — v6.9
 
-BASE CORRETA
-- Esta versão foi reconstruída a partir de index(20260902-185050).html.
-- Preserva o fluxo novo da v6.7 com /ai/analyze-experience.
-- O fluxo antigo /ai/bncc-suggest não é usado.
-- A definição duplicada de syncPrimaryRecordComponent foi consolidada.
+BASE
+- Evolução da v6.8 corrigida.
+- Preserva /ai/analyze-experience e a análise múltipla.
+- Não utiliza /ai/bncc-suggest.
 
-ANÁLISE DA EXPERIÊNCIA
-- Componentes, habilidades BNCC e competências relacionadas são analisados juntos.
-- O responsável pode selecionar várias opções de cada grupo.
-- Uma atividade complementar pode coexistir com componentes e relações BNCC.
-- Se a análise identificar experience.kind = complementary, a atividade complementar aparece para confirmação.
-- Depois da confirmação e do salvamento, uma atividade ainda inexistente é cadastrada para a família.
-- Nenhuma relação BNCC é obrigatória quando o relato não oferece evidência suficiente.
+REGISTRO
+- Material utilizado agora fica recolhido em uma lista suspensa opcional.
+- A seção visual “BNCC manual” foi retirada do fluxo do responsável.
+- A análise continua permitindo múltiplos componentes, habilidades e competências.
+- Atividade complementar continua podendo coexistir com relações BNCC.
 
-HISTÓRICO E RELATÓRIOS
-- Exibem todos os componentes, habilidades e competências selecionados.
-- A busca considera todas as relações vinculadas.
-- O filtro de componente encontra o registro por qualquer componente selecionado.
-- Os filtros BNCC e Complementar admitem que o mesmo registro pertença aos dois contextos.
-- Registros antigos com apenas componente, código e habilidade continuam compatíveis.
+RELATÓRIOS
+- O resumo gerado por IA fica gravado nos dados compartilhados da família.
+- Ao sair e voltar ao relatório, o resumo permanece disponível.
+- A família pode usar “Atualizar resumo” para gerar uma nova versão.
+- O resumo registra data, horário e responsável pela última atualização.
+- A sincronização compartilhada preserva a versão mais recente de cada resumo.
 
-ARQUIVOS DO PACOTE
+LIVROS
+- O cadastro manual está sempre disponível, mesmo quando Google Books ou o catálogo comunitário encontram resultados.
+- A busca pode preencher automaticamente o título informado no formulário manual.
+
+PÁGINA INICIAL
+- Botão “Registrar atividade” mantido em destaque.
+- Adicionado botão direto “Abrir planejamento”.
+- Adicionado botão separado “Novo planejamento”.
+- Cada cartão de “Próximos dias” agora possui “Registrar atividade”, abrindo diretamente o registro preenchido com aquele planejamento.
+- Cada cartão também pode ser aberto para visualização na página Planejamento.
+- O planejamento escolhido é localizado, centralizado e destacado ao abrir.
+
+ARQUIVOS
 - index.html
 - sw.js
 - version.json
@@ -29,6 +38,6 @@ ARQUIVOS DO PACOTE
 
 PUBLICAÇÃO
 - Substitua os quatro arquivos correspondentes no GitHub.
-- Mantenha manifest.json e a pasta icons já existentes.
-- O cache do service worker é diario-estudos-v6.8.
-- APP_VERSION e version.json estão em 6.8.
+- Mantenha manifest.json e a pasta icons existentes.
+- APP_VERSION: 6.9.
+- Cache do service worker: diario-estudos-v6.9.
