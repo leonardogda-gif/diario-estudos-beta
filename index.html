@@ -841,7 +841,7 @@ details[open]>summary:after{content:"⌃"}
 .report-book-card{display:grid;grid-template-columns:auto 1fr;gap:10px;border:1px solid #e1e6e2;border-radius:12px;padding:10px;background:#fff}
 .report-book-card img{width:48px;height:68px;object-fit:cover;border-radius:6px}
 @media(max-width:600px){.report-books-grid{grid-template-columns:1fr}}
-/* v6.3 · Mais, materiais e validações */
+/* v6.4 · Mais, materiais e validações */
 .admin-validation-notice{display:flex;gap:10px;align-items:center;border:1px solid #e2c56d;background:#fff8df;border-radius:14px;padding:11px 12px;margin-bottom:12px;cursor:pointer}
 .admin-validation-notice>span{font-size:20px}
 #page-mais .grid{align-items:stretch}
@@ -854,7 +854,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v6.3 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v6.4 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -973,15 +973,15 @@ details[open]>summary:after{content:"⌃"}
       <div id="planFormCard" class="card hidden"><h3>Novo planejamento</h3><div class="grid">
         <div><label class="field">Para quem? <span class="required-mark">*</span></label><select id="planChild"></select></div>
         <div><label class="field">Quando? <span class="required-mark">*</span></label><input id="planDate" type="date"></div>
+        <div class="full"><label class="field clean-label">O que vamos fazer? <span class="required-mark">*</span></label><input id="planTitle" placeholder="Ex.: Leitura do capítulo 3"></div>
+
+        <div class="full"><label class="field clean-label">Como vamos fazer? <span class="field-pill optional-pill">Opcional</span></label><textarea id="planNotes" rows="2" placeholder="Ex.: Ler juntos e conversar sobre os personagens; fazer os exercícios 1 a 5."></textarea></div>
+
         <div class="full">
-          <label class="field">Onde? <span class="field-pill optional-pill">Opcional</span></label>
-          <input id="planPlace" placeholder="Ex.: Museu Catavento, Parque Central, São Paulo">
+          <label class="field clean-label">Onde vamos fazer? <span class="field-pill optional-pill">Opcional</span></label>
+          <input id="planPlace" placeholder="Ex.: Museu do Ipiranga, São Paulo">
           <div id="planWeatherBox" class="notice hidden" style="margin-top:8px"></div>
         </div>
-
-        <div class="full"><label class="field">O que vamos fazer? <span class="required-mark">*</span></label><input id="planTitle" placeholder="Ex.: Leitura do capítulo 3"></div>
-
-        <div class="full"><label class="field">Como vamos fazer? (opcional)</label><textarea id="planNotes" rows="2" placeholder="Ex.: Ler juntos e conversar sobre os personagens; fazer os exercícios 1 a 5."></textarea></div>
 
         <div id="planMaterialWrap" class="full">
           <label class="field clean-label">Material utilizado <span class="field-pill optional-pill">Opcional</span></label>
@@ -5999,11 +5999,22 @@ function weatherCodeLabel(code){
  return m[Number(code)]||"condições variáveis";
 }
 async function geocodePlanPlace(place){
- const u=new URL("https://geocoding-api.open-meteo.com/v1/search");
- u.searchParams.set("name",place);u.searchParams.set("count","1");u.searchParams.set("language","pt");u.searchParams.set("format","json");
- const r=await fetch(u);if(!r.ok)throw new Error("localização indisponível");
- const x=(await r.json()).results?.[0];if(!x)return null;
- return {name:x.name||place,admin1:x.admin1||"",latitude:x.latitude,longitude:x.longitude};
+ const raw=String(place||"").trim();
+ const parts=raw.split(",").map(x=>x.trim()).filter(Boolean);
+ const attempts=[];
+ if(parts.length>1)attempts.push(parts[parts.length-1]);
+ attempts.push(raw);
+ const aliases={"sp":"São Paulo","sao paulo":"São Paulo","são paulo":"São Paulo","rj":"Rio de Janeiro","rio":"Rio de Janeiro"};
+ for(const item0 of [...new Set(attempts)]){
+  const item=aliases[item0.toLocaleLowerCase("pt-BR")]||item0;
+  const u=new URL("https://geocoding-api.open-meteo.com/v1/search");
+  u.searchParams.set("name",item);u.searchParams.set("count","10");u.searchParams.set("language","pt");u.searchParams.set("format","json");u.searchParams.set("countryCode","BR");
+  const r=await fetch(u);if(!r.ok)continue;
+  const results=(await r.json()).results||[];
+  const x=results.find(v=>v.country_code==="BR")||results[0];
+  if(x)return {name:x.name||item,admin1:x.admin1||"",latitude:x.latitude,longitude:x.longitude,sourceText:raw};
+ }
+ return null;
 }
 async function refreshPlanWeather(){
  const box=$("planWeatherBox"),date=$("planDate")?.value,place=planPlaceValue();
@@ -6013,7 +6024,7 @@ async function refreshPlanWeather(){
  box.classList.remove("hidden");box.textContent="🌦️ Verificando previsão…";
  try{
   const loc=await geocodePlanPlace(place);
-  if(!loc){box.textContent="📍 Não consegui identificar a cidade/local. Você pode salvar normalmente.";return}
+  if(!loc){box.textContent="📍 Não consegui identificar a cidade para consultar o clima. O local será salvo normalmente.";return}
   const today0=new Date();today0.setHours(0,0,0,0);
   const target=new Date(date+"T12:00:00"),days=Math.floor((target-today0)/86400000);
   if(days<0){box.textContent=`📍 ${loc.name}${loc.admin1?", "+loc.admin1:""} · data passada`;return}
@@ -6026,7 +6037,7 @@ async function refreshPlanWeather(){
   const d=await r.json(),i=d.daily?.time?.indexOf(date)??-1;
   if(i<0){box.innerHTML=`📍 <b>${esc(loc.name)}${loc.admin1?", "+esc(loc.admin1):""}</b> · 🌦️ previsão disponível mais perto da data`;return}
   const min=Math.round(d.daily.temperature_2m_min[i]),max=Math.round(d.daily.temperature_2m_max[i]),rain=d.daily.precipitation_probability_max?.[i];
-  box.innerHTML=`🌦️ <b>${min}–${max} °C · ${weatherCodeLabel(d.daily.weather_code[i])}</b>${rain!=null?` · ${rain}% chuva`:""}<br><span class="meta">📍 ${esc(loc.name)}${loc.admin1?", "+esc(loc.admin1):""}</span>`;
+  box.innerHTML=`🌦️ <b>${min}–${max} °C · ${weatherCodeLabel(d.daily.weather_code[i])}</b>${rain!=null?` · ${rain}% chuva`:""}<br><span class="meta">📍 Clima de ${esc(loc.name)}${loc.admin1?", "+esc(loc.admin1):""} · local salvo: ${esc(place)}</span>`;
   box.dataset.weather=JSON.stringify({date,place:loc.name,admin1:loc.admin1,latitude:loc.latitude,longitude:loc.longitude,min,max,rain:rain??null,code:d.daily.weather_code[i],checkedAt:new Date().toISOString()});
  }catch(e){box.textContent="🌦️ Previsão indisponível agora. Você pode salvar normalmente."}
 }
@@ -6663,8 +6674,15 @@ window.addEventListener("load",()=>setTimeout(updateInstallUi,700));
 
 let appSwRegistration = null;
 let appUpdateWorker = null;
+const APP_APPLIED_VERSION_KEY="DE_APP_APPLIED_VERSION";
+try{
+ if(localStorage.getItem(APP_APPLIED_VERSION_KEY)===APP_VERSION){
+  queueMicrotask(()=>hideAppUpdate());
+ }
+}catch(e){}
 
 function showAppUpdate(version=""){
+  try{if(version && localStorage.getItem(APP_APPLIED_VERSION_KEY)===version)return}catch(e){}
   const box=document.getElementById("appUpdateBanner");
   const txt=document.getElementById("appUpdateText");
   if(txt)txt.textContent=version
@@ -6686,6 +6704,7 @@ async function checkAppVersion(){
       showAppUpdate(data.version);
       if(appSwRegistration)appSwRegistration.update().catch(()=>{});
     }else if(data?.version===APP_VERSION){
+      try{localStorage.setItem(APP_APPLIED_VERSION_KEY,APP_VERSION)}catch(e){}
       hideAppUpdate();
     }else{
       hideAppUpdate();
@@ -6694,6 +6713,10 @@ async function checkAppVersion(){
 }
 
 async function applyAppUpdate(){
+  hideAppUpdate();
+  const txt=document.getElementById("appUpdateText")?.textContent||"";
+  const m=txt.match(/Versão\s+([^\s]+)\s+disponível/i);
+  if(m?.[1]){try{localStorage.setItem(APP_APPLIED_VERSION_KEY,m[1])}catch(e){}}
   const reg=appSwRegistration || await navigator.serviceWorker.getRegistration("./");
   if(reg){
     try{await reg.update()}catch(e){}
@@ -6753,7 +6776,7 @@ if("serviceWorker" in navigator){
   });
 }
 
-/* v6.3 — contrato do novo pipeline de experiências. */
+/* v6.4 — contrato do novo pipeline de experiências. */
 window.DE_EXPERIENCE_PIPELINE_VERSION=1;
 function buildExperienceContextV62(extra={}){
  const t=v=>String(v??"").trim();

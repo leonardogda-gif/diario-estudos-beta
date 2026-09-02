@@ -1,0 +1,16 @@
+DIÁRIO DE ESTUDOS — v6.4
+
+Publique juntos:
+- index.html
+- sw.js
+- version.json
+
+Ajustes:
+- Ordem do Planejamento: O que vamos fazer? → Como vamos fazer? → Onde vamos fazer? → Material.
+- “Opcional” padronizado visualmente em Como / Onde / Material.
+- O campo Onde aceita nomes de locais como “Museu do Ipiranga, São Paulo”.
+- Para o clima, o app usa a cidade informada após a vírgula; o nome exato do local continua salvo.
+- Busca meteorológica limitada ao Brasil para reduzir resultados errados.
+- Banner “Nova versão disponível” passa a registrar a versão aplicada e não deve reaparecer depois que essa mesma versão já foi atualizada.
+
+Worker/D1: sem alteração.
