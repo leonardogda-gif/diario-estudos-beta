@@ -841,7 +841,7 @@ details[open]>summary:after{content:"⌃"}
 .report-book-card{display:grid;grid-template-columns:auto 1fr;gap:10px;border:1px solid #e1e6e2;border-radius:12px;padding:10px;background:#fff}
 .report-book-card img{width:48px;height:68px;object-fit:cover;border-radius:6px}
 @media(max-width:600px){.report-books-grid{grid-template-columns:1fr}}
-/* v6.5 · Mais, materiais e validações */
+/* v6.6 · Mais, materiais e validações */
 .admin-validation-notice{display:flex;gap:10px;align-items:center;border:1px solid #e2c56d;background:#fff8df;border-radius:14px;padding:11px 12px;margin-bottom:12px;cursor:pointer}
 .admin-validation-notice>span{font-size:20px}
 #page-mais .grid{align-items:stretch}
@@ -854,6 +854,20 @@ details[open]>summary:after{content:"⌃"}
 .place-pin{font-size:16px;line-height:1.25}
 .place-main{font-weight:700}
 .place-secondary{font-size:12px;color:#6f6a61;margin-top:2px}
+
+.experience-analysis-card{border:1px solid #dce5df;border-radius:14px;background:#f8faf8;padding:15px}
+.experience-analysis-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.experience-analysis-head h3{margin:0 0 4px;color:#17332A}
+.component-suggestions{display:grid;gap:8px;margin-top:12px}
+.component-choice{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;border:1px solid #dde4df;border-radius:11px;background:#fff;padding:11px 12px;cursor:pointer}
+.component-choice.selected{border-color:#6c9b7e;background:#f1f7f3}
+.component-choice input{width:auto;margin:0}
+.component-choice-main{font-weight:800;color:#203a30}
+.component-choice-area{font-size:11px;color:#6c746f;margin-top:2px}
+.component-relevance{font-size:11px;color:#607068;white-space:nowrap}
+.analysis-next{margin-top:10px;padding-top:10px;border-top:1px solid #dde4df}
+.record-context-card{border:1px solid #e5ded0;border-radius:11px;background:#fbf8f1;padding:11px 12px}
+.record-context-card b{color:#35483f}
 </style>
 </head>
 <body class="auth-checking">
@@ -862,7 +876,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v6.5 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v6.6 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -4561,6 +4575,8 @@ function collectRecordDraft(){
    componente:$("fComp")?.value||"",
    codigo:$("fCode")?.value||"",
    habilidade:$("fSkill")?.value||"",
+   aiComponents:Array.isArray(recordAiComponents)?recordAiComponents:[],
+   selectedComponents:Array.isArray(recordSelectedComponents)?recordSelectedComponents:[],
    materialId:$("fMaterialId")?.value||"",
    materialName:$("fMaterialName")?.value||"",
    materialPublisher:$("fMaterialPublisher")?.value||"",
@@ -4663,6 +4679,7 @@ function startNewRecord(){
  audioData="";
  photoTakenAt="";
  photoDateSource="";
+ recordAiComponents=[];recordSelectedComponents=[];
  renderRecordPage();
  window.scrollTo({top:0,behavior:"smooth"});
 }
@@ -4731,6 +4748,87 @@ function updateRecordPreview(){
  `;
 }
 
+
+let recordAiComponents=[];
+let recordSelectedComponents=[];
+
+function currentPlanningContext(){
+ if(!editing?.planId)return null;
+ const p=state.plans.find(x=>x.id===editing.planId);
+ if(!p)return null;
+ return {title:p.title||"",notes:p.notes||"",place:p.place||"",material:p.materialName||""};
+}
+function selectedRecordComponentNames(){
+ return (recordSelectedComponents||[]).map(x=>x.component).filter(Boolean);
+}
+function syncPrimaryRecordComponent(){
+ const first=(recordSelectedComponents||[])[0]||null;
+ if($("fComp"))$("fComp").value=first?.component||"";
+ if($("fArea"))$("fArea").value=first?.area||componentArea(first?.component||"")||"";
+ saveRecordDraft(true);
+ updateRecordPreview();
+}
+function renderRecordComponentAnalysis(){
+ const box=$("experienceComponentResults");
+ if(!box)return;
+ if(!recordAiComponents.length){
+   box.innerHTML='<div class="meta">Depois da análise, os componentes sugeridos aparecerão aqui para você confirmar.</div>';
+   return;
+ }
+ const selected=new Set(selectedRecordComponentNames());
+ box.innerHTML=`<div class="component-suggestions">${recordAiComponents.map((x,i)=>`
+   <label class="component-choice ${selected.has(x.component)?"selected":""}">
+     <input type="checkbox" data-record-component="${i}" ${selected.has(x.component)?"checked":""} onchange="toggleRecordComponent(${i},this.checked)">
+     <span><div class="component-choice-main">${esc(x.component)}</div>${x.area?`<div class="component-choice-area">${esc(x.area)}</div>`:""}</span>
+     <span class="component-relevance">${Number(x.relevance)||0}% relevância</span>
+   </label>`).join("")}</div>
+   <div class="meta" style="margin-top:8px">A relevância serve apenas para ordenar a análise da IA; não representa certeza nem similaridade semântica.</div>
+   <div class="analysis-next">
+     <b>Componentes confirmados:</b> ${recordSelectedComponents.length?recordSelectedComponents.map(x=>esc(x.component)).join(" · "):'<span class="meta">nenhum ainda</span>'}
+     <div class="meta" style="margin-top:4px">Na próxima etapa, o Diário buscará habilidades e competências BNCC separadamente para os componentes confirmados.</div>
+   </div>`;
+}
+function toggleRecordComponent(index,checked){
+ const item=recordAiComponents[index];if(!item)return;
+ if(checked){
+   if(!recordSelectedComponents.some(x=>x.component===item.component))recordSelectedComponents.push({...item});
+ }else{
+   recordSelectedComponents=recordSelectedComponents.filter(x=>x.component!==item.component);
+ }
+ recordSelectedComponents.sort((a,b)=>(b.relevance||0)-(a.relevance||0));
+ syncPrimaryRecordComponent();
+ renderRecordComponentAnalysis();
+}
+async function analyzeRecordComponents(){
+ const child=currentChild(),status=$("experienceComponentStatus"),btn=$("analyzeExperienceBtn");
+ if(!child)return alert("Selecione uma criança.");
+ if(!googleAccessToken)return alert("Entre com Google para usar a análise.");
+ const backendChildId=localToBackendChildId(activeChildId);
+ if(!backendChildId)return alert("Esta criança ainda não está vinculada ao backend.");
+ const activity=String($("fActivity")?.value||"").trim();
+ if(activity.length<8)return alert("Conte um pouco mais sobre o que vocês fizeram ou aprenderam.");
+ if(btn)btn.disabled=true;
+ if(status)status.textContent="✨ Analisando a experiência…";
+ try{
+   const data=await backendFetch("/ai/components-classify",{
+     method:"POST",
+     body:JSON.stringify({child_id:backendChildId,activity,planning:currentPlanningContext()||{}})
+   });
+   recordAiComponents=Array.isArray(data.components)?data.components:[];
+   recordSelectedComponents=recordAiComponents.slice();
+   syncPrimaryRecordComponent();
+   renderRecordComponentAnalysis();
+   if(status)status.textContent=recordAiComponents.length
+     ?`Encontramos ${recordAiComponents.length} componente(s). Confirme ou desmarque o que não fizer sentido.`
+     :"A IA não encontrou um componente forte o suficiente. Você poderá registrar e ajustar manualmente depois.";
+ }catch(e){
+   console.warn("Classificação de componentes:",e);
+   if(status)status.textContent="Não foi possível analisar agora. Seu relato continua salvo no rascunho.";
+ }finally{
+   if(btn)btn.disabled=false;
+ }
+}
+
 function renderRecordPage(){
  renderChildButtons("recordChildTabs",(!editing&&recordFormOpen)?"switchRecordChild":"selectChild");
  let box=$("recordApp"),child=currentChild();if(!box)return;
@@ -4782,6 +4880,10 @@ function renderRecordPage(){
    skills.unshift({codigo:f.codigo,componente:f.componente,area:f.area,serie:f.yearRefAtRecord||"",descricao:f.habilidade});
  }
 
+ recordAiComponents=Array.isArray(draft?.aiComponents)?draft.aiComponents:(Array.isArray(editing?.aiComponents)?editing.aiComponents:[]);
+ recordSelectedComponents=Array.isArray(draft?.selectedComponents)?draft.selectedComponents:(Array.isArray(editing?.selectedComponents)?editing.selectedComponents:[]);
+ if(!recordSelectedComponents.length&&f.componente)recordSelectedComponents=[{component:f.componente,area:f.area||componentArea(f.componente),relevance:100}];
+
  box.innerHTML=`<div class="card record-form-card">
  <div class="record-title-row">
    <div><h2>${editing?.planId?"Concluir atividade planejada":editing?"Editar atividade":"Registrar"}</h2><div class="meta">${editing?.planId?"Revise os dados do planejamento, escolha a habilidade BNCC do material quando houver mais de uma e salve o registro.":"Registre o essencial primeiro. Os detalhes e a BNCC podem ser completados abaixo."}</div></div>
@@ -4798,11 +4900,12 @@ function renderRecordPage(){
       </select>
     </div>`:""}
     <div><label class="field clean-label">Data <span class="field-pill required-pill">Obrigatório</span></label><input id="fDate" type="date" value="${esc(f.date)}"></div>
-    <div><label class="field">Tipo <span class="required-mark">*</span></label><select id="fType" onchange="changeRecordType()"><option value="bncc" ${f.type!=="complementar"?"selected":""}>Habilidade BNCC</option><option value="complementar" ${f.type==="complementar"?"selected":""}>Atividade complementar</option></select></div>
-    <div id="compBlock" class="full ${f.type==="complementar"?"":"hidden"}"><label class="field">Atividade complementar <span class="required-mark">*</span></label><select id="fComplementary"><option value="">Selecione...</option>${state.complementaryActivities.map(x=>`<option value="${x.id}" ${x.id===f.complementaryId?"selected":""}>${esc(x.name)}${x.category?" — "+esc(x.category):""}</option>`).join("")}</select></div>
+    <input id="fType" type="hidden" value="bncc">
+    <select id="fComplementary" class="hidden" aria-hidden="true"><option value=""></option></select>
+    ${editing?.planId?`<div class="full record-context-card"><b>📅 Planejamento relacionado</b><div style="margin-top:4px">${esc(state.plans.find(x=>x.id===editing.planId)?.title||"Atividade planejada")}</div>${state.plans.find(x=>x.id===editing.planId)?.place?`<div class="meta" style="margin-top:3px">📍 ${esc(state.plans.find(x=>x.id===editing.planId)?.place||"")}</div>`:""}<div class="meta" style="margin-top:5px">Use como contexto. O registro abaixo deve contar o que realmente aconteceu.</div></div>`:""}
     <div class="full">
-      <label class="field clean-label clean-label-lg">O que vocês fizeram hoje? <span class="field-pill required-pill">Obrigatório</span></label><div class="field-help">Conte brevemente o que foi feito, explorado ou aprendido.</div>
-      <textarea id="fActivity" rows="4" placeholder="Descreva a atividade realizada...">${esc(f.atividade)}</textarea>
+      <label class="field clean-label clean-label-lg">O que vocês fizeram ou aprenderam? <span class="field-pill required-pill">Obrigatório</span></label><div class="field-help">Conte o que realmente aconteceu. Este relato terá mais peso do que o planejamento na análise pedagógica.</div>
+      <textarea id="fActivity" rows="5" placeholder="Ex.: Visitamos a exposição sobre o corpo humano. Ela observou os órgãos, comparou suas funções e fez perguntas sobre respiração e circulação.">${esc(f.atividade)}</textarea>
       <div id="draftStatus" class="media-status">${draft?"Rascunho restaurado automaticamente.":"Rascunho salvo automaticamente neste dispositivo."}</div>
     </div>
     <div id="recordMaterialWrap" class="full ${f.type==="complementar"?"hidden":""}">
@@ -4813,21 +4916,25 @@ function renderRecordPage(){
       <div id="recordMaterialSelected" class="${f.materialName?"":"hidden"}">${f.materialName?`<div class="notice" style="margin-top:7px"><b>📘 ${esc(f.materialName)}</b>${f.materialPublisher?` · ${esc(f.materialPublisher)}`:""}<button type="button" class="btn small" style="margin-top:6px" onclick="clearRecordMaterial()">Trocar / remover material</button></div>`:""}</div>
       <input id="fMaterialId" type="hidden" value="${esc(f.materialId||"")}"><input id="fMaterialName" type="hidden" value="${esc(f.materialName||"")}"><input id="fMaterialPublisher" type="hidden" value="${esc(f.materialPublisher||"")}">
     </div>
-    <div id="aiBnccMain" class="full ai-main-card ${f.type==="complementar"?"hidden":""}">
-      <div class="ai-help-title">✨ Sugerir habilidades BNCC <span class="field-pill optional-pill">Opcional</span></div>
-      <div class="ai-component-wrap">
-        <label class="field">Componente</label>
-        <select id="fComp" onchange="componentChanged()">${groupedComponentOptions(f.componente)}</select>
-        <select id="fArea" class="hidden" aria-hidden="true"><option value=""></option>${Object.keys(AREAS).map(x=>`<option value="${esc(x)}" ${x===f.area?"selected":""}>${esc(x)}</option>`).join("")}</select>
+    <div class="full experience-analysis-card">
+      <div class="experience-analysis-head">
+        <div><h3>✨ Analisar experiência</h3><div class="meta">Primeiro o Diário identifica os componentes relacionados ao que realmente aconteceu.</div></div>
+        <button id="analyzeExperienceBtn" type="button" class="btn primary" onclick="analyzeRecordComponents()">✨ Analisar experiência</button>
       </div>
-      <div class="ai-explain">Se souber o componente, selecione-o para deixar a busca mais específica. Se não souber, deixe em branco — a IA procura semanticamente no ano de referência e também nos anos próximos.</div>
+      <div id="experienceComponentStatus" class="meta" style="margin-top:8px">Nenhuma análise feita ainda.</div>
+      <div id="experienceComponentResults" style="margin-top:8px"></div>
+    </div>
+
+    <div id="aiBnccMain" class="full ai-main-card hidden">
+      <select id="fComp" class="hidden" aria-hidden="true">${groupedComponentOptions(f.componente)}</select>
+      <select id="fArea" class="hidden" aria-hidden="true"><option value=""></option>${Object.keys(AREAS).map(x=>`<option value="${esc(x)}" ${x===f.area?"selected":""}>${esc(x)}</option>`).join("")}</select>
       <button id="aiBnccTestBtn" type="button" class="btn ai-primary-btn" onclick="testAiBnccSuggestion()">✨ Sugerir habilidade BNCC</button>
-      <div id="aiBnccTestStatus" class="meta" style="margin-top:7px">A atividade é suficiente. O componente é opcional.</div>
+      <div id="aiBnccTestStatus" class="meta"></div>
       <div id="aiBnccTestResults" class="ai-test-results"></div>
     </div>
     <div id="bnccAdvancedWrap" class="full ${f.type==="complementar"?"hidden":""}">
      <details class="bncc-advanced">
-      <summary>Escolher habilidade manualmente (opções avançadas)</summary>
+      <summary>BNCC manual — recurso de apoio durante a transição</summary>
       <div class="bncc-advanced-body">
        <div id="bnccSearch">
         <label class="field">Buscar habilidade ou código</label>
@@ -4888,6 +4995,7 @@ function renderRecordPage(){
    if(el){el.addEventListener("input",updateRecordPreview);el.addEventListener("change",updateRecordPreview);}
  });
  updateRecordPreview();
+ renderRecordComponentAnalysis();
  if(f.materialId&&f.materialName){
    renderRecordMaterialSelection({id:f.materialId,name:f.materialName,publisher:f.materialPublisher||""});
  }
@@ -5632,10 +5740,10 @@ function saveEntry(){
  try{
  let type=$("fType").value,compId=$("fComplementary")?.value||"",comp=state.complementaryActivities.find(x=>x.id===compId),missing=[];
  let e={id:editing?.id||uid(),childId:activeChildId,createdAt:editing?.createdAt||now(),updatedAt:now(),createdByUserId:editing?.createdByUserId||backendProfile?.user?.id||"",createdByEmail:editing?.createdByEmail||backendProfile?.user?.email||googleUser?.email||"",createdByName:editing?.createdByName||backendProfile?.user?.name||googleUser?.name||"",date:$("fDate").value,activityDateSource:(photoTakenAt&&isoDateFromTimestamp(photoTakenAt)===$("fDate").value)?(photoDateSource==="exif"?"photo_exif":"photo_file"):(editing?.activityDateSource||"manual"),photoTakenAt:photoTakenAt||editing?.photoTakenAt||"",photoDateSource:photoDateSource||editing?.photoDateSource||"",type,yearRefAtRecord:currentChild()?.stage||"",complementaryId:type==="complementar"?compId:"",
- area:type==="bncc"?$("fArea").value:"Atividades Complementares",componente:type==="bncc"?$("fComp").value:(comp?.category||"Atividade Complementar"),codigo:type==="bncc"?$("fCode").value:"",
- habilidade:type==="bncc"?$("fSkill").value:(comp?.name||""),materialId:type==="bncc"?($("fMaterialId")?.value||""):"",materialName:type==="bncc"?($("fMaterialName")?.value||""):"",materialPublisher:type==="bncc"?($("fMaterialPublisher")?.value||""):"",atividade:$("fActivity").value.trim(),observacoes:$("fObs").value.trim(),status:$("fStatus").value,
+ area:$("fArea")?.value||recordSelectedComponents[0]?.area||"",componente:$("fComp")?.value||recordSelectedComponents[0]?.component||"",codigo:$("fCode")?.value||"",
+ habilidade:$("fSkill")?.value||"",aiComponents:Array.isArray(recordAiComponents)?recordAiComponents:[],selectedComponents:Array.isArray(recordSelectedComponents)?recordSelectedComponents:[],materialId:$("fMaterialId")?.value||"",materialName:type==="bncc"?($("fMaterialName")?.value||""):"",materialPublisher:type==="bncc"?($("fMaterialPublisher")?.value||""):"",atividade:$("fActivity").value.trim(),observacoes:$("fObs").value.trim(),status:$("fStatus").value,
  foto:photoData||editing?.foto||"",fotoDriveId:editing?.fotoDriveId||"",fotoVisibleDriveId:editing?.fotoVisibleDriveId||"",audio:editing?.audio||"",audioDriveId:editing?.audioDriveId||""};
- if(!e.date)missing.push("Data");if(type==="complementar"&&!e.habilidade)missing.push("Atividade complementar");if(!e.atividade)missing.push("Atividade realizada");if(!e.status)missing.push("Avaliação");
+ if(!e.date)missing.push("Data");if(!e.atividade)missing.push("Atividade realizada");if(!e.status)missing.push("Avaliação");
  if(missing.length)return alert("Preencha antes de registrar:\n\n• "+missing.join("\n• "));
  let savedChildId=activeChildId;
  let planIdToComplete=editing?.planId||"";
@@ -6832,7 +6940,7 @@ if("serviceWorker" in navigator){
   });
 }
 
-/* v6.5 — contrato do novo pipeline de experiências. */
+/* v6.6 — contrato do novo pipeline de experiências. */
 window.DE_EXPERIENCE_PIPELINE_VERSION=1;
 function buildExperienceContextV62(extra={}){
  const t=v=>String(v??"").trim();

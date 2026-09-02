@@ -1,0 +1,28 @@
+DIÁRIO DE ESTUDOS — v6.6
+
+PUBLICAR FRONTEND:
+- index.html
+- sw.js
+- version.json
+
+PUBLICAR WORKER:
+- worker-v0.21.txt
+
+SEM MIGRAÇÃO D1.
+
+REGISTRO — primeira etapa do novo fluxo:
+1. Remove da frente do usuário a escolha “BNCC x complementar”.
+2. Remove componente como pergunta obrigatória antes do relato.
+3. Pergunta central: “O que vocês fizeram ou aprenderam?”.
+4. Quando vem de Planejamento, mostra o planejamento apenas como contexto.
+5. Novo botão “Analisar experiência”.
+6. IA #1 sugere de 1 a 3 componentes curriculares.
+7. Responsável pode marcar/desmarcar os componentes.
+8. A relevância exibida é apenas ordenação da análise; não é certeza nem similaridade semântica.
+9. O relato real tem prioridade sobre o planejamento no prompt do Worker.
+
+IMPORTANTE:
+- Esta v6.6 implementa IA #1 (componentes).
+- A próxima etapa será IA #2: buscar e permitir confirmar várias habilidades + várias competências para todos os componentes selecionados.
+- Para manter compatibilidade com Histórico/Relatórios atuais, o primeiro componente confirmado também espelha o campo antigo “componente”.
+- O registro já guarda selectedComponents/aiComponents no objeto da atividade para preparar a evolução seguinte.
