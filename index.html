@@ -841,7 +841,7 @@ details[open]>summary:after{content:"⌃"}
 .report-book-card{display:grid;grid-template-columns:auto 1fr;gap:10px;border:1px solid #e1e6e2;border-radius:12px;padding:10px;background:#fff}
 .report-book-card img{width:48px;height:68px;object-fit:cover;border-radius:6px}
 @media(max-width:600px){.report-books-grid{grid-template-columns:1fr}}
-/* v6.2 · Mais, materiais e validações */
+/* v6.3 · Mais, materiais e validações */
 .admin-validation-notice{display:flex;gap:10px;align-items:center;border:1px solid #e2c56d;background:#fff8df;border-radius:14px;padding:11px 12px;margin-bottom:12px;cursor:pointer}
 .admin-validation-notice>span{font-size:20px}
 #page-mais .grid{align-items:stretch}
@@ -854,7 +854,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v6.2 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v6.3 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -973,8 +973,15 @@ details[open]>summary:after{content:"⌃"}
       <div id="planFormCard" class="card hidden"><h3>Novo planejamento</h3><div class="grid">
         <div><label class="field">Para quem? <span class="required-mark">*</span></label><select id="planChild"></select></div>
         <div><label class="field">Quando? <span class="required-mark">*</span></label><input id="planDate" type="date"></div>
+        <div class="full">
+          <label class="field">Onde? <span class="field-pill optional-pill">Opcional</span></label>
+          <input id="planPlace" placeholder="Ex.: Museu Catavento, Parque Central, São Paulo">
+          <div id="planWeatherBox" class="notice hidden" style="margin-top:8px"></div>
+        </div>
 
         <div class="full"><label class="field">O que vamos fazer? <span class="required-mark">*</span></label><input id="planTitle" placeholder="Ex.: Leitura do capítulo 3"></div>
+
+        <div class="full"><label class="field">Como vamos fazer? (opcional)</label><textarea id="planNotes" rows="2" placeholder="Ex.: Ler juntos e conversar sobre os personagens; fazer os exercícios 1 a 5."></textarea></div>
 
         <div id="planMaterialWrap" class="full">
           <label class="field clean-label">Material utilizado <span class="field-pill optional-pill">Opcional</span></label>
@@ -985,7 +992,6 @@ details[open]>summary:after{content:"⌃"}
           <input id="planMaterialId" type="hidden"><input id="planMaterialName" type="hidden"><input id="planMaterialPublisher" type="hidden">
         </div>
 
-        <div class="full"><label class="field">Como vamos fazer? (opcional)</label><textarea id="planNotes" rows="2" placeholder="Ex.: Ler juntos e conversar sobre os personagens; fazer os exercícios 1 a 5."></textarea></div>
 
         <div id="planCalendarWrap" class="full calendar-plan-box">
           <label style="display:flex;gap:9px;align-items:flex-start;cursor:pointer">
@@ -5925,7 +5931,7 @@ function closeCalendarImport(){$("calendarImportCard")?.classList.add("hidden")}
 function useCalendarEvent(i){
  const ev=(window.diaryCalendarImportItems||[])[i];if(!ev)return;
  pendingImportedCalendarEvent={calendarId:ev._calendarId||"primary",calendarName:ev._calendarName||"",eventId:ev.id||"",htmlLink:ev.htmlLink||"",summary:ev.summary||"",date:calendarEventDate(ev),location:ev.location||""};
- togglePlanForm(true);if($("planTitle"))$("planTitle").value=ev.summary||"";if($("planDate")&&calendarEventDate(ev))$("planDate").value=calendarEventDate(ev);
+ togglePlanForm(true);if($("planTitle"))$("planTitle").value=ev.summary||"";if($("planPlace"))$("planPlace").value=ev.location||"";if($("planDate")&&calendarEventDate(ev))$("planDate").value=calendarEventDate(ev);
  const desc=cleanCalendarDescription(ev.description||"");if($("planNotes"))$("planNotes").value=[desc,ev.location?`Local: ${ev.location}`:""].filter(Boolean).join("\n");
  const cb=$("planAddToCalendar");if(cb){cb.checked=false;cb.disabled=true}
  const info=$("planCalendarImportedInfo");if(info){info.classList.remove("hidden");info.textContent="📅 Este planejamento veio do seu calendário. O Diário não alterará o compromisso original."}
@@ -5986,16 +5992,58 @@ function createInlineComplementary(){
  if($("inlineCompName"))$("inlineCompName").value="";if($("inlineCompCategory"))$("inlineCompCategory").value="";if($("inlineCompDescription"))$("inlineCompDescription").value="";
  toggleInlineComplementary(false);
 }
+
+function planPlaceValue(){return ($("planPlace")?.value||"").trim()}
+function weatherCodeLabel(code){
+ const m={0:"céu limpo",1:"predominantemente limpo",2:"parcialmente nublado",3:"nublado",45:"neblina",48:"neblina",51:"garoa leve",53:"garoa",55:"garoa forte",61:"chuva leve",63:"chuva",65:"chuva forte",71:"neve leve",73:"neve",75:"neve forte",80:"pancadas leves",81:"pancadas de chuva",82:"pancadas fortes",95:"trovoadas",96:"trovoadas",99:"trovoadas fortes"};
+ return m[Number(code)]||"condições variáveis";
+}
+async function geocodePlanPlace(place){
+ const u=new URL("https://geocoding-api.open-meteo.com/v1/search");
+ u.searchParams.set("name",place);u.searchParams.set("count","1");u.searchParams.set("language","pt");u.searchParams.set("format","json");
+ const r=await fetch(u);if(!r.ok)throw new Error("localização indisponível");
+ const x=(await r.json()).results?.[0];if(!x)return null;
+ return {name:x.name||place,admin1:x.admin1||"",latitude:x.latitude,longitude:x.longitude};
+}
+async function refreshPlanWeather(){
+ const box=$("planWeatherBox"),date=$("planDate")?.value,place=planPlaceValue();
+ if(!box)return;
+ delete box.dataset.weather;
+ if(!date||!place){box.classList.add("hidden");box.innerHTML="";return}
+ box.classList.remove("hidden");box.textContent="🌦️ Verificando previsão…";
+ try{
+  const loc=await geocodePlanPlace(place);
+  if(!loc){box.textContent="📍 Não consegui identificar a cidade/local. Você pode salvar normalmente.";return}
+  const today0=new Date();today0.setHours(0,0,0,0);
+  const target=new Date(date+"T12:00:00"),days=Math.floor((target-today0)/86400000);
+  if(days<0){box.textContent=`📍 ${loc.name}${loc.admin1?", "+loc.admin1:""} · data passada`;return}
+  if(days>15){box.innerHTML=`📍 <b>${esc(loc.name)}${loc.admin1?", "+esc(loc.admin1):""}</b> · 🌦️ previsão disponível mais perto da data`;return}
+  const u=new URL("https://api.open-meteo.com/v1/forecast");
+  u.searchParams.set("latitude",loc.latitude);u.searchParams.set("longitude",loc.longitude);
+  u.searchParams.set("daily","weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max");
+  u.searchParams.set("timezone","auto");u.searchParams.set("forecast_days","16");
+  const r=await fetch(u);if(!r.ok)throw new Error("previsão indisponível");
+  const d=await r.json(),i=d.daily?.time?.indexOf(date)??-1;
+  if(i<0){box.innerHTML=`📍 <b>${esc(loc.name)}${loc.admin1?", "+esc(loc.admin1):""}</b> · 🌦️ previsão disponível mais perto da data`;return}
+  const min=Math.round(d.daily.temperature_2m_min[i]),max=Math.round(d.daily.temperature_2m_max[i]),rain=d.daily.precipitation_probability_max?.[i];
+  box.innerHTML=`🌦️ <b>${min}–${max} °C · ${weatherCodeLabel(d.daily.weather_code[i])}</b>${rain!=null?` · ${rain}% chuva`:""}<br><span class="meta">📍 ${esc(loc.name)}${loc.admin1?", "+esc(loc.admin1):""}</span>`;
+  box.dataset.weather=JSON.stringify({date,place:loc.name,admin1:loc.admin1,latitude:loc.latitude,longitude:loc.longitude,min,max,rain:rain??null,code:d.daily.weather_code[i],checkedAt:new Date().toISOString()});
+ }catch(e){box.textContent="🌦️ Previsão indisponível agora. Você pode salvar normalmente."}
+}
+let planWeatherTimer;
+function schedulePlanWeather(){clearTimeout(planWeatherTimer);planWeatherTimer=setTimeout(refreshPlanWeather,650)}
+
 async function addPlan(){
  let childId=$("planChild").value,title=$("planTitle").value.trim();
  if(!childId||!title)return alert("Escolha a criança e informe a atividade.");
  const recurrence=$("planRecurrence")?.value||"none",weekdays=recurrence==="weekdays"?selectedPlanWeekdays():[];
  if(recurrence==="weekdays"&&!weekdays.length)return alert("Escolha pelo menos um dia da semana.");
  const start=$("planDate").value||today(),imported=pendingImportedCalendarEvent?{...pendingImportedCalendarEvent}:null;
- const plan={id:uid(),childId,date:start,nextDate:start,type:"planned",complementaryId:"",component:"",title,notes:$("planNotes").value.trim(),materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",materialBnccCode:"",materialBnccDescription:"",materialBnccComponent:"",materialBnccArea:"",materialBnccSkills:[],recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],createdAt:now(),updatedAt:now(),completedAt:"",importedCalendarId:imported?.calendarId||"",importedCalendarEventId:imported?.eventId||"",importedCalendarHtmlLink:imported?.htmlLink||""};
+ const weather=(()=>{try{return JSON.parse($("planWeatherBox")?.dataset.weather||"null")}catch{return null}})();
+ const plan={id:uid(),childId,date:start,nextDate:start,type:"planned",complementaryId:"",component:"",title,notes:$("planNotes").value.trim(),place:planPlaceValue(),weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",materialBnccCode:"",materialBnccDescription:"",materialBnccComponent:"",materialBnccArea:"",materialBnccSkills:[],recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],createdAt:now(),updatedAt:now(),completedAt:"",importedCalendarId:imported?.calendarId||"",importedCalendarEventId:imported?.eventId||"",importedCalendarHtmlLink:imported?.htmlLink||""};
  state.plans.push(plan);
  const shouldAddCalendar=!!$("planAddToCalendar")?.checked&&!imported;
- $("planTitle").value="";$("planNotes").value="";clearPlanMaterial();resetPlanCalendarOrigin();saveLocal();renderPlans();renderDashboard();
+ $("planTitle").value="";$("planNotes").value="";if($("planPlace"))$("planPlace").value="";if($("planWeatherBox")){$("planWeatherBox").classList.add("hidden");$("planWeatherBox").innerHTML="";delete $("planWeatherBox").dataset.weather}clearPlanMaterial();resetPlanCalendarOrigin();saveLocal();renderPlans();renderDashboard();
  if(shouldAddCalendar){try{await createCalendarEventForPlan(plan);saveLocal();renderPlans()}catch(e){alert("O planejamento foi salvo no Diário, mas não foi possível adicioná-lo ao Google Calendar: "+(e.message||e))}}
 }
 function togglePlanForm(open){
@@ -6705,7 +6753,7 @@ if("serviceWorker" in navigator){
   });
 }
 
-/* v6.2 — contrato do novo pipeline de experiências. */
+/* v6.3 — contrato do novo pipeline de experiências. */
 window.DE_EXPERIENCE_PIPELINE_VERSION=1;
 function buildExperienceContextV62(extra={}){
  const t=v=>String(v??"").trim();
@@ -6735,6 +6783,12 @@ function normalizeComponentSuggestionsV62(items){
  }).sort((a,b)=>b.relevance-a.relevance).slice(0,3);
 }
 
+
+document.addEventListener("DOMContentLoaded",()=>{
+ $("planDate")?.addEventListener("change",schedulePlanWeather);
+ $("planPlace")?.addEventListener("input",schedulePlanWeather);
+ $("planPlace")?.addEventListener("change",refreshPlanWeather);
+});
 </script>
 
 
