@@ -1,9 +1,0 @@
-DIÁRIO DE ESTUDOS — v6.3
-Publique juntos: index.html, sw.js e version.json.
-
-- Adicionado “Onde?” opcional no Planejamento.
-- Material movido para depois de “Como vamos fazer?”.
-- Data + local tentam mostrar previsão automaticamente.
-- Datas além do horizonte meteorológico mostram “previsão disponível mais perto da data”.
-- Local do Calendar é reaproveitado quando existir.
-- Nenhuma mudança no Worker ou D1.
