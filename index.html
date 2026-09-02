@@ -841,7 +841,7 @@ details[open]>summary:after{content:"⌃"}
 .report-book-card{display:grid;grid-template-columns:auto 1fr;gap:10px;border:1px solid #e1e6e2;border-radius:12px;padding:10px;background:#fff}
 .report-book-card img{width:48px;height:68px;object-fit:cover;border-radius:6px}
 @media(max-width:600px){.report-books-grid{grid-template-columns:1fr}}
-/* v6.6 · Mais, materiais e validações */
+/* v6.7 · Mais, materiais e validações */
 .admin-validation-notice{display:flex;gap:10px;align-items:center;border:1px solid #e2c56d;background:#fff8df;border-radius:14px;padding:11px 12px;margin-bottom:12px;cursor:pointer}
 .admin-validation-notice>span{font-size:20px}
 #page-mais .grid{align-items:stretch}
@@ -876,7 +876,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v6.6 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v6.7 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -4577,6 +4577,10 @@ function collectRecordDraft(){
    habilidade:$("fSkill")?.value||"",
    aiComponents:Array.isArray(recordAiComponents)?recordAiComponents:[],
    selectedComponents:Array.isArray(recordSelectedComponents)?recordSelectedComponents:[],
+   aiSkills:Array.isArray(recordAiSkills)?recordAiSkills:[],
+   selectedSkills:Array.isArray(recordSelectedSkills)?recordSelectedSkills:[],
+   aiCompetencies:Array.isArray(recordAiCompetencies)?recordAiCompetencies:[],
+   selectedCompetencies:Array.isArray(recordSelectedCompetencies)?recordSelectedCompetencies:[],
    materialId:$("fMaterialId")?.value||"",
    materialName:$("fMaterialName")?.value||"",
    materialPublisher:$("fMaterialPublisher")?.value||"",
@@ -4679,7 +4683,7 @@ function startNewRecord(){
  audioData="";
  photoTakenAt="";
  photoDateSource="";
- recordAiComponents=[];recordSelectedComponents=[];
+ recordAiComponents=[];recordSelectedComponents=[];recordAiSkills=[];recordSelectedSkills=[];recordAiCompetencies=[];recordSelectedCompetencies=[];
  renderRecordPage();
  window.scrollTo({top:0,behavior:"smooth"});
 }
@@ -4751,6 +4755,10 @@ function updateRecordPreview(){
 
 let recordAiComponents=[];
 let recordSelectedComponents=[];
+let recordAiSkills=[];
+let recordSelectedSkills=[];
+let recordAiCompetencies=[];
+let recordSelectedCompetencies=[];
 
 function currentPlanningContext(){
  if(!editing?.planId)return null;
@@ -4768,67 +4776,80 @@ function syncPrimaryRecordComponent(){
  saveRecordDraft(true);
  updateRecordPreview();
 }
+
+function semanticLabel(x){
+ const n=Number(x?.semantic_similarity);
+ return Number.isFinite(n)?`${Math.max(0,Math.min(100,n*100)).toFixed(1).replace(".",",")}% similaridade semântica`:"";
+}
 function renderRecordComponentAnalysis(){
- const box=$("experienceComponentResults");
- if(!box)return;
- if(!recordAiComponents.length){
-   box.innerHTML='<div class="meta">Depois da análise, os componentes sugeridos aparecerão aqui para você confirmar.</div>';
-   return;
+ const box=$("experienceComponentResults");if(!box)return;
+ if(!recordAiComponents.length&&!recordAiSkills.length&&!recordAiCompetencies.length){
+  box.innerHTML='<div class="meta">Depois da análise, componentes, habilidades e competências aparecerão aqui juntos.</div>';return;
  }
- const selected=new Set(selectedRecordComponentNames());
- box.innerHTML=`<div class="component-suggestions">${recordAiComponents.map((x,i)=>`
-   <label class="component-choice ${selected.has(x.component)?"selected":""}">
-     <input type="checkbox" data-record-component="${i}" ${selected.has(x.component)?"checked":""} onchange="toggleRecordComponent(${i},this.checked)">
-     <span><div class="component-choice-main">${esc(x.component)}</div>${x.area?`<div class="component-choice-area">${esc(x.area)}</div>`:""}</span>
-     <span class="component-relevance">${Number(x.relevance)||0}% relevância</span>
-   </label>`).join("")}</div>
-   <div class="meta" style="margin-top:8px">A relevância serve apenas para ordenar a análise da IA; não representa certeza nem similaridade semântica.</div>
-   <div class="analysis-next">
-     <b>Componentes confirmados:</b> ${recordSelectedComponents.length?recordSelectedComponents.map(x=>esc(x.component)).join(" · "):'<span class="meta">nenhum ainda</span>'}
-     <div class="meta" style="margin-top:4px">Na próxima etapa, o Diário buscará habilidades e competências BNCC separadamente para os componentes confirmados.</div>
-   </div>`;
+ const selectedComps=new Set(recordSelectedComponents.map(x=>x.component));
+ const selectedSkills=new Set(recordSelectedSkills.map(x=>x.code));
+ const selectedCompetencies=new Set(recordSelectedCompetencies.map(x=>x.code));
+ const comps=recordAiComponents.map((x,i)=>`<label class="component-choice ${selectedComps.has(x.component)?"selected":""}"><input type="checkbox" ${selectedComps.has(x.component)?"checked":""} onchange="toggleRecordComponent(${i},this.checked)"><span><div class="component-choice-main">${esc(x.component)}</div><div class="component-choice-area">${esc(x.area||"")}</div></span><span class="component-relevance">${Number(x.relevance)||0}% relevância</span></label>`).join("");
+ const skills=recordAiSkills.map((x,i)=>`<label class="component-choice ${selectedSkills.has(x.code)?"selected":""}"><input type="checkbox" ${selectedSkills.has(x.code)?"checked":""} onchange="toggleRecordSkill(${i},this.checked)"><span><div class="component-choice-main">${esc(x.code)} · ${esc(x.curricular_component||"")}</div><div class="component-choice-area">${esc(x.description||"")}</div></span><span class="component-relevance">${semanticLabel(x)}</span></label>`).join("");
+ const competencies=recordAiCompetencies.map((x,i)=>`<label class="component-choice ${selectedCompetencies.has(x.code)?"selected":""}"><input type="checkbox" ${selectedCompetencies.has(x.code)?"checked":""} onchange="toggleRecordCompetency(${i},this.checked)"><span><div class="component-choice-main">${esc(x.code)}</div><div class="component-choice-area">${esc(x.description||"")}</div></span><span class="component-relevance">${semanticLabel(x)}</span></label>`).join("");
+ box.innerHTML=`<div style="font-weight:900;margin:10px 0 6px">Componentes</div><div class="component-suggestions">${comps||'<div class="meta">Nenhum componente sugerido.</div>'}</div>
+ <div style="font-weight:900;margin:16px 0 6px">Habilidades BNCC</div><div class="component-suggestions">${skills||'<div class="meta">Nenhuma habilidade suficientemente relacionada.</div>'}</div>
+ <div style="font-weight:900;margin:16px 0 6px">Competências relacionadas</div><div class="component-suggestions">${competencies||'<div class="meta">Nenhuma competência suficientemente relacionada.</div>'}</div>
+ <div class="meta" style="margin-top:10px">Relevância ordena a classificação de componentes. Similaridade semântica mede proximidade textual; nenhuma delas representa certeza.</div>`;
 }
 function toggleRecordComponent(index,checked){
  const item=recordAiComponents[index];if(!item)return;
- if(checked){
-   if(!recordSelectedComponents.some(x=>x.component===item.component))recordSelectedComponents.push({...item});
- }else{
-   recordSelectedComponents=recordSelectedComponents.filter(x=>x.component!==item.component);
+ if(checked){if(!recordSelectedComponents.some(x=>x.component===item.component))recordSelectedComponents.push({...item})}
+ else{
+  recordSelectedComponents=recordSelectedComponents.filter(x=>x.component!==item.component);
+  recordSelectedSkills=recordSelectedSkills.filter(x=>x.curricular_component!==item.component);
  }
- recordSelectedComponents.sort((a,b)=>(b.relevance||0)-(a.relevance||0));
- syncPrimaryRecordComponent();
- renderRecordComponentAnalysis();
+ syncPrimaryRecordComponent();renderRecordComponentAnalysis();
+}
+function toggleRecordSkill(index,checked){
+ const item=recordAiSkills[index];if(!item)return;
+ if(checked){if(!recordSelectedSkills.some(x=>x.code===item.code))recordSelectedSkills.push({...item})}
+ else recordSelectedSkills=recordSelectedSkills.filter(x=>x.code!==item.code);
+ syncPrimaryRecordComponent();renderRecordComponentAnalysis();saveRecordDraft(true);
+}
+function toggleRecordCompetency(index,checked){
+ const item=recordAiCompetencies[index];if(!item)return;
+ if(checked){if(!recordSelectedCompetencies.some(x=>x.code===item.code))recordSelectedCompetencies.push({...item})}
+ else recordSelectedCompetencies=recordSelectedCompetencies.filter(x=>x.code!==item.code);
+ renderRecordComponentAnalysis();saveRecordDraft(true);
+}
+function syncPrimaryRecordComponent(){
+ const first=recordSelectedComponents[0]||null,skill=recordSelectedSkills[0]||null;
+ if($("fComp"))$("fComp").value=first?.component||skill?.curricular_component||"";
+ if($("fArea"))$("fArea").value=first?.area||skill?.knowledge_area||componentArea(first?.component||"")||"";
+ if($("fCode"))$("fCode").value=skill?.code||"";
+ if($("fSkill")){$("fSkill").innerHTML=skill?`<option data-code="${esc(skill.code)}" value="${esc(skill.description||"")}" selected>${esc(skill.code)} — ${esc(skill.description||"")}</option>`:'<option value=""></option>'}
+ saveRecordDraft(true);updateRecordPreview();
 }
 async function analyzeRecordComponents(){
  const child=currentChild(),status=$("experienceComponentStatus"),btn=$("analyzeExperienceBtn");
  if(!child)return alert("Selecione uma criança.");
  if(!googleAccessToken)return alert("Entre com Google para usar a análise.");
- const backendChildId=localToBackendChildId(activeChildId);
+ const backendChildId=localToBackendChildId(activeChildId),activity=String($("fActivity")?.value||"").trim();
  if(!backendChildId)return alert("Esta criança ainda não está vinculada ao backend.");
- const activity=String($("fActivity")?.value||"").trim();
  if(activity.length<8)return alert("Conte um pouco mais sobre o que vocês fizeram ou aprenderam.");
- if(btn)btn.disabled=true;
- if(status)status.textContent="✨ Analisando a experiência…";
+ if(btn){btn.disabled=true;btn.innerHTML='<span class="ai-spinner"></span> Analisando';}
+ if(status)status.textContent="✨ Entendendo a experiência e buscando relações com a BNCC…";
  try{
-   const data=await backendFetch("/ai/components-classify",{
-     method:"POST",
-     body:JSON.stringify({child_id:backendChildId,activity,planning:currentPlanningContext()||{}})
-   });
-   recordAiComponents=Array.isArray(data.components)?data.components:[];
-   recordSelectedComponents=recordAiComponents.slice();
-   syncPrimaryRecordComponent();
-   renderRecordComponentAnalysis();
-   if(status)status.textContent=recordAiComponents.length
-     ?`Encontramos ${recordAiComponents.length} componente(s). Confirme ou desmarque o que não fizer sentido.`
-     :"A IA não encontrou um componente forte o suficiente. Você poderá registrar e ajustar manualmente depois.";
+  const data=await backendFetch("/ai/analyze-experience",{method:"POST",body:JSON.stringify({child_id:backendChildId,activity,planning:currentPlanningContext()||{}})});
+  recordAiComponents=Array.isArray(data.components)?data.components:[];
+  recordSelectedComponents=recordAiComponents.slice();
+  recordAiSkills=Array.isArray(data.skills)?data.skills:[];
+  recordSelectedSkills=recordAiSkills.slice();
+  recordAiCompetencies=Array.isArray(data.competencies)?data.competencies:[];
+  recordSelectedCompetencies=recordAiCompetencies.slice();
+  syncPrimaryRecordComponent();renderRecordComponentAnalysis();
+  if(status)status.textContent=`Análise concluída · ${recordAiComponents.length} componente(s) · ${recordAiSkills.length} habilidade(s) · ${recordAiCompetencies.length} competência(s). Revise antes de registrar.`;
  }catch(e){
-   console.warn("Classificação de componentes:",e);
-   if(status)status.textContent="Não foi possível analisar agora. Seu relato continua salvo no rascunho.";
- }finally{
-   if(btn)btn.disabled=false;
- }
+  console.warn("Análise completa:",e);
+  if(status)status.textContent="Não conseguimos concluir a análise agora. Seu relato continua salvo.";
+ }finally{if(btn){btn.disabled=false;btn.textContent="↻ Analisar novamente"}}
 }
-
 function renderRecordPage(){
  renderChildButtons("recordChildTabs",(!editing&&recordFormOpen)?"switchRecordChild":"selectChild");
  let box=$("recordApp"),child=currentChild();if(!box)return;
@@ -4883,6 +4904,10 @@ function renderRecordPage(){
  recordAiComponents=Array.isArray(draft?.aiComponents)?draft.aiComponents:(Array.isArray(editing?.aiComponents)?editing.aiComponents:[]);
  recordSelectedComponents=Array.isArray(draft?.selectedComponents)?draft.selectedComponents:(Array.isArray(editing?.selectedComponents)?editing.selectedComponents:[]);
  if(!recordSelectedComponents.length&&f.componente)recordSelectedComponents=[{component:f.componente,area:f.area||componentArea(f.componente),relevance:100}];
+ recordAiSkills=Array.isArray(draft?.aiSkills)?draft.aiSkills:(Array.isArray(editing?.aiSkills)?editing.aiSkills:[]);
+ recordSelectedSkills=Array.isArray(draft?.selectedSkills)?draft.selectedSkills:(Array.isArray(editing?.selectedSkills)?editing.selectedSkills:[]);
+ recordAiCompetencies=Array.isArray(draft?.aiCompetencies)?draft.aiCompetencies:(Array.isArray(editing?.aiCompetencies)?editing.aiCompetencies:[]);
+ recordSelectedCompetencies=Array.isArray(draft?.selectedCompetencies)?draft.selectedCompetencies:(Array.isArray(editing?.selectedCompetencies)?editing.selectedCompetencies:[]);
 
  box.innerHTML=`<div class="card record-form-card">
  <div class="record-title-row">
@@ -4918,10 +4943,10 @@ function renderRecordPage(){
     </div>
     <div class="full experience-analysis-card">
       <div class="experience-analysis-head">
-        <div><h3>✨ Analisar experiência</h3><div class="meta">Primeiro o Diário identifica os componentes relacionados ao que realmente aconteceu.</div></div>
+        <div><h3>✨ Analisar experiência</h3><div class="meta">O Diário identifica componentes e busca habilidades e competências BNCC relacionadas em uma única análise.</div></div>
         <button id="analyzeExperienceBtn" type="button" class="btn primary" onclick="analyzeRecordComponents()">✨ Analisar experiência</button>
       </div>
-      <div id="experienceComponentStatus" class="meta" style="margin-top:8px">Nenhuma análise feita ainda.</div>
+      <div id="experienceComponentStatus" class="meta" style="margin-top:8px">Conte a experiência e toque em analisar. Você receberá tudo junto para revisar.</div>
       <div id="experienceComponentResults" style="margin-top:8px"></div>
     </div>
 
@@ -5741,7 +5766,7 @@ function saveEntry(){
  let type=$("fType").value,compId=$("fComplementary")?.value||"",comp=state.complementaryActivities.find(x=>x.id===compId),missing=[];
  let e={id:editing?.id||uid(),childId:activeChildId,createdAt:editing?.createdAt||now(),updatedAt:now(),createdByUserId:editing?.createdByUserId||backendProfile?.user?.id||"",createdByEmail:editing?.createdByEmail||backendProfile?.user?.email||googleUser?.email||"",createdByName:editing?.createdByName||backendProfile?.user?.name||googleUser?.name||"",date:$("fDate").value,activityDateSource:(photoTakenAt&&isoDateFromTimestamp(photoTakenAt)===$("fDate").value)?(photoDateSource==="exif"?"photo_exif":"photo_file"):(editing?.activityDateSource||"manual"),photoTakenAt:photoTakenAt||editing?.photoTakenAt||"",photoDateSource:photoDateSource||editing?.photoDateSource||"",type,yearRefAtRecord:currentChild()?.stage||"",complementaryId:type==="complementar"?compId:"",
  area:$("fArea")?.value||recordSelectedComponents[0]?.area||"",componente:$("fComp")?.value||recordSelectedComponents[0]?.component||"",codigo:$("fCode")?.value||"",
- habilidade:$("fSkill")?.value||"",aiComponents:Array.isArray(recordAiComponents)?recordAiComponents:[],selectedComponents:Array.isArray(recordSelectedComponents)?recordSelectedComponents:[],materialId:$("fMaterialId")?.value||"",materialName:type==="bncc"?($("fMaterialName")?.value||""):"",materialPublisher:type==="bncc"?($("fMaterialPublisher")?.value||""):"",atividade:$("fActivity").value.trim(),observacoes:$("fObs").value.trim(),status:$("fStatus").value,
+ habilidade:$("fSkill")?.value||"",aiComponents:Array.isArray(recordAiComponents)?recordAiComponents:[],selectedComponents:Array.isArray(recordSelectedComponents)?recordSelectedComponents:[],aiSkills:Array.isArray(recordAiSkills)?recordAiSkills:[],selectedSkills:Array.isArray(recordSelectedSkills)?recordSelectedSkills:[],aiCompetencies:Array.isArray(recordAiCompetencies)?recordAiCompetencies:[],selectedCompetencies:Array.isArray(recordSelectedCompetencies)?recordSelectedCompetencies:[],materialId:$("fMaterialId")?.value||"",materialName:type==="bncc"?($("fMaterialName")?.value||""):"",materialPublisher:type==="bncc"?($("fMaterialPublisher")?.value||""):"",atividade:$("fActivity").value.trim(),observacoes:$("fObs").value.trim(),status:$("fStatus").value,
  foto:photoData||editing?.foto||"",fotoDriveId:editing?.fotoDriveId||"",fotoVisibleDriveId:editing?.fotoVisibleDriveId||"",audio:editing?.audio||"",audioDriveId:editing?.audioDriveId||""};
  if(!e.date)missing.push("Data");if(!e.atividade)missing.push("Atividade realizada");if(!e.status)missing.push("Avaliação");
  if(missing.length)return alert("Preencha antes de registrar:\n\n• "+missing.join("\n• "));
@@ -6940,7 +6965,7 @@ if("serviceWorker" in navigator){
   });
 }
 
-/* v6.6 — contrato do novo pipeline de experiências. */
+/* v6.7 — contrato do novo pipeline de experiências. */
 window.DE_EXPERIENCE_PIPELINE_VERSION=1;
 function buildExperienceContextV62(extra={}){
  const t=v=>String(v??"").trim();
