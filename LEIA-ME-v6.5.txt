@@ -1,0 +1,28 @@
+DIÁRIO DE ESTUDOS — v6.5
+
+FRONTEND — publicar juntos:
+- index.html
+- sw.js
+- version.json
+
+WORKER:
+- substituir pelo worker-v0.20.txt e publicar.
+
+CLOUDFLARE:
+1. No Worker, crie um Secret chamado GOOGLE_PLACES_API_KEY.
+2. Use uma chave do Google Cloud com Places API (New) habilitada.
+3. Não coloque a chave dentro do index.html.
+
+GOOGLE CLOUD:
+- Ative Places API (New) no mesmo projeto.
+- O Google Maps Platform exige faturamento habilitado para usar Places API.
+- Restrinja a chave de API à Places API (New).
+
+COMPORTAMENTO:
+- Após 3 caracteres, “Onde vamos fazer?” oferece sugestões reais do Google Places.
+- A escolha é opcional: texto livre continua permitido.
+- Ao escolher uma sugestão, o Worker busca somente nome, endereço e coordenadas.
+- As coordenadas do Google Places são usadas diretamente pelo Open-Meteo.
+- O nome/endereço do local e Place ID ficam anexados ao planejamento.
+- Há fallback para o geocoding do Open-Meteo quando nenhuma sugestão é escolhida.
+- Nenhuma migração D1 nesta etapa.
