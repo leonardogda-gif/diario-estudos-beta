@@ -1,26 +1,34 @@
-DIÁRIO DE ESTUDOS — v6.1
+DIÁRIO DE ESTUDOS — v6.8 CORRIGIDA
 
-MATERIAIS
-- Cadastro rápido reativado no Registro.
-- Continua disponível no Planejamento.
-- Família usa imediatamente.
-- Pending: aguarda catálogo.
-- Rejected: não aparece para outras famílias, mas continua utilizável pela família que cadastrou.
+BASE CORRETA
+- Esta versão foi reconstruída a partir de index(20260902-185050).html.
+- Preserva o fluxo novo da v6.7 com /ai/analyze-experience.
+- O fluxo antigo /ai/bncc-suggest não é usado.
+- A definição duplicada de syncPrimaryRecordComponent foi consolidada.
 
-MAIS
-- Removido botão Manutenção.
-- Entenda a BNCC ficou só com conteúdo introdutório.
-- Nova página: Como encontramos habilidades.
-- Nova página: Como tratamos seus dados.
-- Privacidade inclui IA, Drive, Calendar, livros/leitura, materiais e banco do Diário.
+ANÁLISE DA EXPERIÊNCIA
+- Componentes, habilidades BNCC e competências relacionadas são analisados juntos.
+- O responsável pode selecionar várias opções de cada grupo.
+- Uma atividade complementar pode coexistir com componentes e relações BNCC.
+- Se a análise identificar experience.kind = complementary, a atividade complementar aparece para confirmação.
+- Depois da confirmação e do salvamento, uma atividade ainda inexistente é cadastrada para a família.
+- Nenhuma relação BNCC é obrigatória quando o relato não oferece evidência suficiente.
 
-ADMIN
-- Aviso dentro de Mais quando existem validações pendentes.
-- Alertas do navegador opcionais.
-- Verificação a cada 10 minutos enquanto o app estiver aberto.
-- Livros + materiais entram na contagem.
-- Usuários normais não veem o aviso.
+HISTÓRICO E RELATÓRIOS
+- Exibem todos os componentes, habilidades e competências selecionados.
+- A busca considera todas as relações vinculadas.
+- O filtro de componente encontra o registro por qualquer componente selecionado.
+- Os filtros BNCC e Complementar admitem que o mesmo registro pertença aos dois contextos.
+- Registros antigos com apenas componente, código e habilidade continuam compatíveis.
 
-BACKEND
-- Worker v0.19-beta.
-- Sem migração D1.
+ARQUIVOS DO PACOTE
+- index.html
+- sw.js
+- version.json
+- LEIA-ME.txt
+
+PUBLICAÇÃO
+- Substitua os quatro arquivos correspondentes no GitHub.
+- Mantenha manifest.json e a pasta icons já existentes.
+- O cache do service worker é diario-estudos-v6.8.
+- APP_VERSION e version.json estão em 6.8.

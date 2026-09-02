@@ -4336,7 +4336,7 @@ function populateCommonSelects(){
    $("materialAgeRange").innerHTML='<option value="">Não informar</option>'+STAGES.filter(x=>x!=="Sem ano de referência").map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("");
    if(oldAge&&STAGES.includes(oldAge))$("materialAgeRange").value=oldAge;
  }
- let comps=[...new Set(Object.values(state.entries).flat().map(x=>x.componente).filter(Boolean))].sort();
+ let comps=[...new Set(Object.values(state.entries).flat().flatMap(x=>entryComponents(x)).filter(Boolean))].sort();
  if($("reportComponent"))$("reportComponent").innerHTML='<option value="">Todos</option>'+comps.map(x=>`<option>${esc(x)}</option>`).join("");
 }
 function renderChildButtons(targetId,onClickName="selectChild"){
@@ -4581,6 +4581,8 @@ function collectRecordDraft(){
    selectedSkills:Array.isArray(recordSelectedSkills)?recordSelectedSkills:[],
    aiCompetencies:Array.isArray(recordAiCompetencies)?recordAiCompetencies:[],
    selectedCompetencies:Array.isArray(recordSelectedCompetencies)?recordSelectedCompetencies:[],
+   aiExperience:recordAiExperience||null,
+   complementarySelected:!!recordComplementarySelected,
    materialId:$("fMaterialId")?.value||"",
    materialName:$("fMaterialName")?.value||"",
    materialPublisher:$("fMaterialPublisher")?.value||"",
@@ -4759,6 +4761,8 @@ let recordAiSkills=[];
 let recordSelectedSkills=[];
 let recordAiCompetencies=[];
 let recordSelectedCompetencies=[];
+let recordAiExperience=null;
+let recordComplementarySelected=false;
 
 function currentPlanningContext(){
  if(!editing?.planId)return null;
@@ -4769,21 +4773,13 @@ function currentPlanningContext(){
 function selectedRecordComponentNames(){
  return (recordSelectedComponents||[]).map(x=>x.component).filter(Boolean);
 }
-function syncPrimaryRecordComponent(){
- const first=(recordSelectedComponents||[])[0]||null;
- if($("fComp"))$("fComp").value=first?.component||"";
- if($("fArea"))$("fArea").value=first?.area||componentArea(first?.component||"")||"";
- saveRecordDraft(true);
- updateRecordPreview();
-}
-
 function semanticLabel(x){
  const n=Number(x?.semantic_similarity);
  return Number.isFinite(n)?`${Math.max(0,Math.min(100,n*100)).toFixed(1).replace(".",",")}% similaridade semântica`:"";
 }
 function renderRecordComponentAnalysis(){
  const box=$("experienceComponentResults");if(!box)return;
- if(!recordAiComponents.length&&!recordAiSkills.length&&!recordAiCompetencies.length){
+ if(!recordAiExperience&&!recordAiComponents.length&&!recordAiSkills.length&&!recordAiCompetencies.length){
   box.innerHTML='<div class="meta">Depois da análise, componentes, habilidades e competências aparecerão aqui juntos.</div>';return;
  }
  const selectedComps=new Set(recordSelectedComponents.map(x=>x.component));
@@ -4792,11 +4788,14 @@ function renderRecordComponentAnalysis(){
  const comps=recordAiComponents.map((x,i)=>`<label class="component-choice ${selectedComps.has(x.component)?"selected":""}"><input type="checkbox" ${selectedComps.has(x.component)?"checked":""} onchange="toggleRecordComponent(${i},this.checked)"><span><div class="component-choice-main">${esc(x.component)}</div><div class="component-choice-area">${esc(x.area||"")}</div></span><span class="component-relevance">${Number(x.relevance)||0}% relevância</span></label>`).join("");
  const skills=recordAiSkills.map((x,i)=>`<label class="component-choice ${selectedSkills.has(x.code)?"selected":""}"><input type="checkbox" ${selectedSkills.has(x.code)?"checked":""} onchange="toggleRecordSkill(${i},this.checked)"><span><div class="component-choice-main">${esc(x.code)} · ${esc(x.curricular_component||"")}</div><div class="component-choice-area">${esc(x.description||"")}</div></span><span class="component-relevance">${semanticLabel(x)}</span></label>`).join("");
  const competencies=recordAiCompetencies.map((x,i)=>`<label class="component-choice ${selectedCompetencies.has(x.code)?"selected":""}"><input type="checkbox" ${selectedCompetencies.has(x.code)?"checked":""} onchange="toggleRecordCompetency(${i},this.checked)"><span><div class="component-choice-main">${esc(x.code)}</div><div class="component-choice-area">${esc(x.description||"")}</div></span><span class="component-relevance">${semanticLabel(x)}</span></label>`).join("");
- box.innerHTML=`<div style="font-weight:900;margin:10px 0 6px">Componentes</div><div class="component-suggestions">${comps||'<div class="meta">Nenhum componente sugerido.</div>'}</div>
+ const complementaryName=String(recordAiExperience?.complementary_activity||"").trim();
+ const experience=recordAiExperience?.kind==="complementary"&&complementaryName?`<div style="font-weight:900;margin:10px 0 6px">Experiência</div><div class="component-suggestions"><label class="component-choice ${recordComplementarySelected?"selected":""}"><input type="checkbox" ${recordComplementarySelected?"checked":""} onchange="toggleRecordComplementary(this.checked)"><span><div class="component-choice-main">Atividade complementar — ${esc(complementaryName)}</div><div class="component-choice-area">Pode coexistir com todas as relações curriculares abaixo.</div></span></label></div>`:"";
+ box.innerHTML=`${experience}<div style="font-weight:900;margin:10px 0 6px">Componentes</div><div class="component-suggestions">${comps||'<div class="meta">Nenhum componente sugerido.</div>'}</div>
  <div style="font-weight:900;margin:16px 0 6px">Habilidades BNCC</div><div class="component-suggestions">${skills||'<div class="meta">Nenhuma habilidade suficientemente relacionada.</div>'}</div>
  <div style="font-weight:900;margin:16px 0 6px">Competências relacionadas</div><div class="component-suggestions">${competencies||'<div class="meta">Nenhuma competência suficientemente relacionada.</div>'}</div>
  <div class="meta" style="margin-top:10px">Relevância ordena a classificação de componentes. Similaridade semântica mede proximidade textual; nenhuma delas representa certeza.</div>`;
 }
+function toggleRecordComplementary(checked){recordComplementarySelected=!!checked;renderRecordComponentAnalysis();saveRecordDraft(true)}
 function toggleRecordComponent(index,checked){
  const item=recordAiComponents[index];if(!item)return;
  if(checked){if(!recordSelectedComponents.some(x=>x.component===item.component))recordSelectedComponents.push({...item})}
@@ -4837,6 +4836,8 @@ async function analyzeRecordComponents(){
  if(status)status.textContent="✨ Entendendo a experiência e buscando relações com a BNCC…";
  try{
   const data=await backendFetch("/ai/analyze-experience",{method:"POST",body:JSON.stringify({child_id:backendChildId,activity,planning:currentPlanningContext()||{}})});
+  recordAiExperience=data?.experience||null;
+  recordComplementarySelected=recordAiExperience?.kind==="complementary"&&!!String(recordAiExperience?.complementary_activity||"").trim();
   recordAiComponents=Array.isArray(data.components)?data.components:[];
   recordSelectedComponents=recordAiComponents.slice();
   recordAiSkills=Array.isArray(data.skills)?data.skills:[];
@@ -4908,6 +4909,8 @@ function renderRecordPage(){
  recordSelectedSkills=Array.isArray(draft?.selectedSkills)?draft.selectedSkills:(Array.isArray(editing?.selectedSkills)?editing.selectedSkills:[]);
  recordAiCompetencies=Array.isArray(draft?.aiCompetencies)?draft.aiCompetencies:(Array.isArray(editing?.aiCompetencies)?editing.aiCompetencies:[]);
  recordSelectedCompetencies=Array.isArray(draft?.selectedCompetencies)?draft.selectedCompetencies:(Array.isArray(editing?.selectedCompetencies)?editing.selectedCompetencies:[]);
+ recordAiExperience=draft?.aiExperience||editing?.aiExperience||null;
+ recordComplementarySelected=draft?.complementarySelected??editing?.complementarySelected??!!editing?.complementaryActivityName;
 
  box.innerHTML=`<div class="card record-form-card">
  <div class="record-title-row">
@@ -5196,12 +5199,12 @@ async function testAiBnccSuggestion(){
  if(btn){btn.disabled=true;btn.innerHTML='<span class="ai-spinner"></span> Analisando';}
 
  try{
-   const data=await backendFetch("/ai/bncc-suggest",{
+   const data=await backendFetch("/ai/analyze-experience",{
      method:"POST",
      body:JSON.stringify({child_id:backendChildId,activity,component,area})
    });
 
-   latestAiBnccSuggestions=Array.isArray(data?.suggestions)?data.suggestions:[];
+   latestAiBnccSuggestions=Array.isArray(data?.skills)?data.skills:[];
    latestAiBnccCompetencies=Array.isArray(data?.competencies)?data.competencies:[];
    const usage=data?.usage||{};
    const semanticPct=s=>{
@@ -5759,14 +5762,23 @@ async function readPhoto(ev){
  };
  fr.readAsDataURL(f);
 }
+function entryComponents(x){const a=Array.isArray(x?.selectedComponents)?x.selectedComponents.map(c=>c?.component):[];if(x?.componente)a.unshift(x.componente);return [...new Set(a.filter(Boolean))]}
+function entrySkills(x){if(Array.isArray(x?.selectedSkills)&&x.selectedSkills.length)return x.selectedSkills;return x?.codigo||x?.habilidade?[{code:x.codigo||"",curricular_component:x.componente||"",description:x.habilidade||""}]:[]}
+function entryCompetencies(x){return Array.isArray(x?.selectedCompetencies)?x.selectedCompetencies:[]}
+function entryRelationsHtml(x){
+ const comps=entryComponents(x),skills=entrySkills(x),competencies=entryCompetencies(x),activity=x?.complementaryActivityName||"";
+ return `<div class="record-relations">${activity?`<div><b>Atividade complementar:</b> ${esc(activity)}</div>`:""}${comps.length?`<div><b>Componentes relacionados:</b> ${comps.map(esc).join(" · ")}</div>`:""}${skills.length?`<div><b>Habilidades BNCC:</b>${skills.map(s=>`<div class="skill"><b>${esc(s.code||"")}</b>${s.curricular_component?` · ${esc(s.curricular_component)}`:""}${s.description?` — ${esc(s.description)}`:""}</div>`).join("")}</div>`:""}${competencies.length?`<div><b>Competências relacionadas:</b>${competencies.map(c=>`<div class="skill"><b>${esc(c.code||"")}</b>${c.description?` — ${esc(c.description)}`:""}</div>`).join("")}</div>`:""}</div>`;
+}
 function saveEntry(){
  if(saveEntryLocked)return;
  saveEntryLocked=true;
  try{
- let type=$("fType").value,compId=$("fComplementary")?.value||"",comp=state.complementaryActivities.find(x=>x.id===compId),missing=[];
+ let complementaryName=recordComplementarySelected?String(recordAiExperience?.complementary_activity||"").trim():"",comp=state.complementaryActivities.find(x=>x.name.toLowerCase()===complementaryName.toLowerCase()),compId=comp?.id||"",missing=[];
+ if(complementaryName&&!comp){comp={id:uid(),name:complementaryName,category:"",description:"Criada após confirmação da análise da experiência",createdAt:now(),updatedAt:now()};state.complementaryActivities.push(comp);compId=comp.id}
+ let type=complementaryName?"complementar":"bncc";
  let e={id:editing?.id||uid(),childId:activeChildId,createdAt:editing?.createdAt||now(),updatedAt:now(),createdByUserId:editing?.createdByUserId||backendProfile?.user?.id||"",createdByEmail:editing?.createdByEmail||backendProfile?.user?.email||googleUser?.email||"",createdByName:editing?.createdByName||backendProfile?.user?.name||googleUser?.name||"",date:$("fDate").value,activityDateSource:(photoTakenAt&&isoDateFromTimestamp(photoTakenAt)===$("fDate").value)?(photoDateSource==="exif"?"photo_exif":"photo_file"):(editing?.activityDateSource||"manual"),photoTakenAt:photoTakenAt||editing?.photoTakenAt||"",photoDateSource:photoDateSource||editing?.photoDateSource||"",type,yearRefAtRecord:currentChild()?.stage||"",complementaryId:type==="complementar"?compId:"",
  area:$("fArea")?.value||recordSelectedComponents[0]?.area||"",componente:$("fComp")?.value||recordSelectedComponents[0]?.component||"",codigo:$("fCode")?.value||"",
- habilidade:$("fSkill")?.value||"",aiComponents:Array.isArray(recordAiComponents)?recordAiComponents:[],selectedComponents:Array.isArray(recordSelectedComponents)?recordSelectedComponents:[],aiSkills:Array.isArray(recordAiSkills)?recordAiSkills:[],selectedSkills:Array.isArray(recordSelectedSkills)?recordSelectedSkills:[],aiCompetencies:Array.isArray(recordAiCompetencies)?recordAiCompetencies:[],selectedCompetencies:Array.isArray(recordSelectedCompetencies)?recordSelectedCompetencies:[],materialId:$("fMaterialId")?.value||"",materialName:type==="bncc"?($("fMaterialName")?.value||""):"",materialPublisher:type==="bncc"?($("fMaterialPublisher")?.value||""):"",atividade:$("fActivity").value.trim(),observacoes:$("fObs").value.trim(),status:$("fStatus").value,
+ habilidade:$("fSkill")?.value||"",aiExperience:recordAiExperience||null,complementarySelected:!!recordComplementarySelected,complementaryActivityName:complementaryName,aiComponents:Array.isArray(recordAiComponents)?recordAiComponents:[],selectedComponents:Array.isArray(recordSelectedComponents)?recordSelectedComponents:[],aiSkills:Array.isArray(recordAiSkills)?recordAiSkills:[],selectedSkills:Array.isArray(recordSelectedSkills)?recordSelectedSkills:[],aiCompetencies:Array.isArray(recordAiCompetencies)?recordAiCompetencies:[],selectedCompetencies:Array.isArray(recordSelectedCompetencies)?recordSelectedCompetencies:[],materialId:$("fMaterialId")?.value||"",materialName:$("fMaterialName")?.value||"",materialPublisher:$("fMaterialPublisher")?.value||"",atividade:$("fActivity").value.trim(),observacoes:$("fObs").value.trim(),status:$("fStatus").value,
  foto:photoData||editing?.foto||"",fotoDriveId:editing?.fotoDriveId||"",fotoVisibleDriveId:editing?.fotoVisibleDriveId||"",audio:editing?.audio||"",audioDriveId:editing?.audioDriveId||""};
  if(!e.date)missing.push("Data");if(!e.atividade)missing.push("Atividade realizada");if(!e.status)missing.push("Avaliação");
  if(missing.length)return alert("Preencha antes de registrar:\n\n• "+missing.join("\n• "));
@@ -5792,13 +5804,13 @@ function saveEntry(){
 }
 function renderRecordList(){
  let box=$("recordList");if(!box)return;
- let q=($("recordSearch")?.value||"").toLowerCase(),l=(state.entries[activeChildId]||[]).filter(x=>(x.atividade+" "+x.habilidade+" "+x.codigo+" "+x.observacoes).toLowerCase().includes(q));
+ let q=($("recordSearch")?.value||"").toLowerCase(),l=(state.entries[activeChildId]||[]).filter(x=>[x.atividade,x.habilidade,x.codigo,x.observacoes,x.complementaryActivityName,...entryComponents(x),...entrySkills(x).flatMap(s=>[s.code,s.curricular_component,s.description]),...entryCompetencies(x).flatMap(c=>[c.code,c.description])].filter(Boolean).join(" ").toLowerCase().includes(q));
  box.innerHTML=l.map(x=>{
    const dateSource=x.activityDateSource==="photo_exif"?"foto (EXIF)":x.activityDateSource==="photo_file"?"arquivo da foto":"informada pelo responsável";
    const changed=x.updatedAt&&x.createdAt&&Math.abs(ts(x.updatedAt)-ts(x.createdAt))>1000;
    return `<div class="entry ${x.status==="Dominado"?"done":x.status==="Precisa de revisão"?"focus":"progress"}">
-    <div class="meta">${fmtDate(x.date)} · ${esc(x.componente)} ${x.codigo?"· "+esc(x.codigo):""}</div>
-    <div class="entry-title">${esc(x.atividade)}</div>${x.materialName?`<div class="meta">📘 ${esc(x.materialName)}</div>`:""}${x.habilidade?`<div class="skill">${esc(x.habilidade)}</div>`:""}${x.observacoes?`<div class="obs">${esc(x.observacoes)}</div>`:""}
+    <div class="meta">${fmtDate(x.date)}</div>
+    <div class="entry-title">${esc(x.atividade)}</div>${entryRelationsHtml(x)}${x.materialName?`<div class="meta">📘 ${esc(x.materialName)}</div>`:""}${x.observacoes?`<div class="obs">${esc(x.observacoes)}</div>`:""}
     <span class="badge">${esc(x.status)}</span>${x.foto?`<br><img class="photo" src="${x.foto}">`:""}${x.audio?`<div class="audio-box"><audio controls src="${x.audio}"></audio></div>`:""}
     <details class="tech-details" style="margin-top:8px"><summary class="meta">Datas do registro</summary><div class="meta" style="margin-top:5px">Atividade: ${esc(fmtDate(x.date))} · origem: ${esc(dateSource)}<br>Registrado em: ${esc(fmtDateTime(x.createdAt))}${changed?`<br>Alterado em: ${esc(fmtDateTime(x.updatedAt))}`:""}${x.photoTakenAt?`<br>Foto: ${esc(fmtDateTime(x.photoTakenAt))} · ${esc(photoSourceLabel(x.photoDateSource))}`:""}</div></details>
     <div class="entry-actions"><button class="btn small dark" onclick="viewEntry('${x.id}','${activeChildId}')">Visualizar</button><button class="btn small" onclick="editEntry('${x.id}')">Editar</button><button class="btn irreversible small" onclick="deleteEntry('${x.id}')">Excluir</button></div>
@@ -5829,7 +5841,7 @@ function viewEntry(id,childId=""){
  const card=$("recordViewCard"),overlay=$("recordViewOverlay");if(!card||!overlay)return;
  card.innerHTML=`
  <div class="record-view-head"><div><div class="meta">${esc(child?.name||"Criança")} · ${esc(fmtDate(x.date))}</div><h2>${esc(x.atividade||"Registro")}</h2><span class="badge">${esc(x.status||"Sem avaliação")}</span></div><button class="record-view-close" onclick="closeRecordView()">×</button></div>
- <div class="record-view-section"><div class="meta">${esc(x.componente||"")}${x.codigo?" · "+esc(x.codigo):""}</div>${x.materialName?`<div class="meta" style="margin-top:6px">📘 Material: <b>${esc(x.materialName)}</b>${x.materialPublisher?` · ${esc(x.materialPublisher)}`:""}</div>`:""}${x.habilidade?`<div class="skill" style="margin-top:7px">${esc(x.habilidade)}</div>`:""}${x.observacoes?`<div class="obs" style="margin-top:10px"><b>Observações</b><br>${esc(x.observacoes)}</div>`:""}</div>
+ <div class="record-view-section">${entryRelationsHtml(x)}${x.materialName?`<div class="meta" style="margin-top:6px">📘 Material: <b>${esc(x.materialName)}</b>${x.materialPublisher?` · ${esc(x.materialPublisher)}`:""}</div>`:""}${x.observacoes?`<div class="obs" style="margin-top:10px"><b>Observações</b><br>${esc(x.observacoes)}</div>`:""}</div>
  ${x.foto?`<div class="record-view-section"><b>Foto</b><div style="margin-top:8px"><img class="record-view-photo" src="${x.foto}" alt="Foto do registro"></div></div>`:""}
  ${x.audio?`<div class="record-view-section"><b>Áudio</b><div class="audio-box"><audio controls src="${x.audio}"></audio></div></div>`:""}
  <div class="record-view-section"><b>Datas do registro</b><div class="meta" style="margin-top:6px">Atividade: ${esc(fmtDate(x.date))} · origem: ${esc(dateSource)}<br>Registrado em: ${esc(fmtDateTime(x.createdAt))}${changed?`<br>Alterado em: ${esc(fmtDateTime(x.updatedAt))}`:""}${x.photoTakenAt?`<br>Foto: ${esc(fmtDateTime(x.photoTakenAt))} · ${esc(photoSourceLabel(x.photoDateSource))}`:""}</div></div>
@@ -6514,7 +6526,7 @@ function renderCompletedBooksReportSection(books){
 function renderReportPage(){
  let childId=$("reportChild")?.value||activeChildId;if(!childId)return;
  let all=state.entries[childId]||[],from=$("reportFrom")?.value||"",to=$("reportTo")?.value||"",status=$("reportStatus")?.value||"",type=$("reportType")?.value||"",comp=$("reportComponent")?.value||"",reading=$("reportReading")?.value||"";
- let f=all.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!status||x.status===status)&&(!type||x.type===type)&&(!comp||x.componente===comp));
+ let f=all.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!status||x.status===status)&&(!type||(type==="complementar"?!!x.complementaryActivityName:entrySkills(x).length>0))&&(!comp||entryComponents(x).includes(comp)));
  if(reading==="reading_records")f=f.filter(isReadingReportEntry);
  const completedBooks=completedReportBooks(childId,from,to);
 
@@ -6557,26 +6569,26 @@ function renderReportPage(){
 
  // Componentes trabalhados
  const componentCounts={};
- f.forEach(x=>{const c=String(x.type==="complementar"?(x.componente||"Atividade complementar"):(x.componente||"Sem componente")).trim();componentCounts[c]=(componentCounts[c]||0)+1});
+ f.forEach(x=>(entryComponents(x).length?entryComponents(x):["Sem componente"]).forEach(c=>componentCounts[c]=(componentCounts[c]||0)+1));
  const componentHtml=Object.entries(componentCounts).sort((a,b)=>a[0].localeCompare(b[0],"pt-BR")).map(([name,n])=>`<span class="report-component-pill">${esc(name)} · <b>${n}</b></span>`).join("");
 
  // Resumo BNCC: quantidade de habilidades distintas por componente
  const bnccGroups={};
- f.filter(x=>x.codigo).forEach(x=>{
-   const name=x.componente||"Sem componente";
+ f.forEach(x=>entrySkills(x).forEach(skill=>{
+   const name=skill.curricular_component||"Sem componente";
    bnccGroups[name]??={codes:new Set(),entries:0};
-   bnccGroups[name].codes.add(x.codigo);
+   bnccGroups[name].codes.add(skill.code);
    bnccGroups[name].entries++;
- });
+ }));
  const bnccHtml=Object.entries(bnccGroups).sort((a,b)=>a[0].localeCompare(b[0],"pt-BR")).map(([name,data])=>`<div class="report-bncc-group"><b>${esc(name)}</b><div class="meta">${data.codes.size} habilidade(s) BNCC distinta(s) · ${data.entries} registro(s)</div></div>`).join("");
 
- let yearMap={};f.filter(x=>x.codigo).forEach(x=>{let y=anoBnccDoCodigo(x.codigo);yearMap[y]=(yearMap[y]||0)+1});
+ let yearMap={};f.forEach(x=>entrySkills(x).forEach(skill=>{let y=skill.school_year||anoBnccDoCodigo(skill.code);yearMap[y]=(yearMap[y]||0)+1}));
  let yearHtml=Object.entries(yearMap).sort().map(([y,n])=>`<div class="path-box"><b>${n}</b><span>${esc(y)}</span></div>`).join("");
  let pathHeader=`<div class="card" style="box-shadow:none;border:1px solid #E8E1D2"><h3>Percurso por ano BNCC</h3><div class="meta">Ano de referência atual: <b>${esc(stage)}</b>. As habilidades mostram o percurso real trabalhado, independentemente do ano de referência.</div>${yearHtml?`<div class="path-grid" style="margin-top:10px">${yearHtml}</div>`:"<div class='notice' style='margin-top:8px'>Nenhuma habilidade BNCC nos filtros atuais.</div>"}</div>`;
 
  const overview=`${componentHtml?`<h3 class="report-section-title">Componentes trabalhados</h3><div class="report-component-grid">${componentHtml}</div>`:""}${bnccHtml?`<h3 class="report-section-title">Resumo BNCC por componente</h3><div class="report-bncc-summary">${bnccHtml}</div>`:""}`;
 
- const activities=f.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=>`<div class="entry ${x.status==="Dominado"?"done":x.status==="Precisa de revisão"?"focus":"progress"}"><div class="meta">${fmtDate(x.date)} · ${esc(x.type==="complementar"?"Complementar":x.componente)} ${x.codigo?"· "+esc(x.codigo)+" · "+esc(anoBnccDoCodigo(x.codigo)):""}</div>${x.yearRefAtRecord?`<div class="meta">Ano de referência no registro: ${esc(x.yearRefAtRecord)}</div>`:""}<div class="entry-title">${esc(x.atividade)}</div>${x.materialName?`<div class="meta">📘 Material: ${esc(x.materialName)}</div>`:""}${x.habilidade?`<div class="skill">${esc(x.habilidade)}</div>`:""}${x.observacoes?`<div class="obs">${esc(x.observacoes)}</div>`:""}${x.status?`<span class="badge">${esc(x.status)}</span>`:""}${x.foto?`<br><img class="report-photo" src="${x.foto}">`:""}${x.audio?`<div class="audio-box no-print"><audio controls src="${x.audio}"></audio></div><div class="meta">Áudio anexado</div>`:""}</div>`).join("");
+ const activities=f.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=>`<div class="entry ${x.status==="Dominado"?"done":x.status==="Precisa de revisão"?"focus":"progress"}"><div class="meta">${fmtDate(x.date)}</div>${x.yearRefAtRecord?`<div class="meta">Ano de referência no registro: ${esc(x.yearRefAtRecord)}</div>`:""}<div class="entry-title">${esc(x.atividade)}</div>${entryRelationsHtml(x)}${x.materialName?`<div class="meta">📘 Material: ${esc(x.materialName)}</div>`:""}${x.observacoes?`<div class="obs">${esc(x.observacoes)}</div>`:""}${x.status?`<span class="badge">${esc(x.status)}</span>`:""}${x.foto?`<br><img class="report-photo" src="${x.foto}">`:""}${x.audio?`<div class="audio-box no-print"><audio controls src="${x.audio}"></audio></div><div class="meta">Áudio anexado</div>`:""}</div>`).join("");
 
  renderReportChildButtons();
  const filterLabel=$("reportFilterLabel");if(filterLabel)filterLabel.textContent=reading==="completed_books"?"Livros concluídos":reading==="reading_records"?"Registros de leitura":((from||to)?period:"Todos os registros");
@@ -6640,9 +6652,9 @@ function renderHistoryBrowser(){
   rows=rows.filter(x=>{
     if(start && String(x.date||"")<start)return false;
     if(status && x.status!==status)return false;
-    if(type && x.type!==type)return false;
+    if(type && !(type==="complementar"?!!x.complementaryActivityName:entrySkills(x).length>0))return false;
     if(q){
-      const hay=[x.atividade,x.componente,x.codigo,x.habilidade,x.observacoes,x.materialName]
+      const hay=[x.atividade,x.componente,x.codigo,x.habilidade,x.observacoes,x.materialName,x.complementaryActivityName,...entryComponents(x),...entrySkills(x).flatMap(s=>[s.code,s.curricular_component,s.description]),...entryCompetencies(x).flatMap(c=>[c.code,c.description])]
         .filter(Boolean).join(" ").toLowerCase();
       if(!hay.includes(q))return false;
     }
@@ -6653,8 +6665,8 @@ function renderHistoryBrowser(){
 
   list.innerHTML=rows.map(x=>`
     <div class="entry record-clickable" onclick="viewEntry('${x.id}','${childId}')" style="margin-bottom:10px">
-      <div class="meta">${esc(fmtDate(x.date))}${x.componente?" · "+esc(x.componente):""}${x.codigo?" · "+esc(x.codigo):""}</div>
-      <div class="entry-title">${esc(x.atividade||"Registro")}</div>
+      <div class="meta">${esc(fmtDate(x.date))}</div>
+      <div class="entry-title">${esc(x.atividade||"Registro")}</div>${entryRelationsHtml(x)}
       ${x.materialName?`<div class="meta">📘 ${esc(x.materialName)}</div>`:""}
       <div class="toolbar" style="margin-top:8px;justify-content:space-between">
         <span class="badge">${esc(x.status||"Sem avaliação")}</span>
@@ -6782,7 +6794,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "6.1";
+const APP_VERSION = "6.8";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
