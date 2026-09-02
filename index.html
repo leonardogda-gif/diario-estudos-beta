@@ -833,6 +833,11 @@ details[open]>summary:after{content:"⌃"}
 .calendar-event-card .event-title{font-weight:800}
 .calendar-event-card .event-location{font-size:12px;color:var(--v522-muted);margin-top:3px}
 .calendar-integration-card{padding:12px}
+.calendar-source-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin:10px 0}
+.calendar-source-option{display:flex;align-items:center;gap:8px;border:1px solid var(--v522-border);border-radius:12px;padding:9px 10px;background:#fff;cursor:pointer}
+.calendar-source-option input{width:auto;margin:0}
+.calendar-event-card.is-added{background:var(--v522-soft)}
+.calendar-event-card.is-changed{border-color:#d69b32;background:#fff9ed}
 
 
 /* v6.0 · leitura e relatório */
@@ -876,7 +881,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v7.2 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v7.3 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -985,10 +990,11 @@ details[open]>summary:after{content:"⌃"}
       </div>
       <div id="calendarImportCard" class="card hidden">
         <div class="toolbar" style="justify-content:space-between">
-          <div><h3 style="margin-bottom:3px">📅 Eventos do calendário</h3><div class="meta">Mostramos eventos dos últimos 7 dias e dos próximos 90 dias, em todos os calendários visíveis. Só entra no Diário o que você escolher.</div></div>
+          <div><h3 style="margin-bottom:3px">📅 Eventos do calendário</h3><div class="meta">Escolha primeiro quais agendas deseja consultar. Só entra no Diário o evento que você importar.</div></div>
           <button class="btn small" type="button" onclick="closeCalendarImport()">Fechar</button>
         </div>
-        <div id="calendarImportStatus" class="meta" style="margin:10px 0">Carregando eventos…</div>
+        <div id="calendarSourcePicker"></div>
+        <div id="calendarImportStatus" class="meta" style="margin:10px 0">Carregando agendas…</div>
         <div id="calendarImportList"></div>
       </div>
 
@@ -1735,7 +1741,7 @@ function showPage(name){
  document.querySelectorAll(".nav-tab").forEach(x=>x.classList.toggle("active",x.dataset.page===name));
  if(name==="inicio")renderDashboard();
  if(name==="registro")renderRecordPage();
- if(name==="planejamento"){renderPlans();refreshCalendarIntegrationUI();} if(name==="mais"){refreshCalendarIntegrationUI();checkAdminPendingValidations(false);} if(name==="configuracoes"){checkAdminPendingValidations(false);updateAdminValidationNotificationStatus();}
+ if(name==="planejamento"){renderPlans();refreshCalendarIntegrationUI();checkImportedCalendarChanges();} if(name==="mais"){refreshCalendarIntegrationUI();checkAdminPendingValidations(false);} if(name==="configuracoes"){checkAdminPendingValidations(false);updateAdminValidationNotificationStatus();}
  if(name==="relatorios")renderReportPage();
  if(name==="historico"){renderHistoryBrowser();renderHistoryBatchRows();refreshHistoryActivityOptions();}
  if(name==="leituras"){renderReadingPage();}
@@ -5968,113 +5974,49 @@ function isGoogleInsufficientScopeError(e){
    || s.includes("403");
 }
 
+const CALENDAR_SOURCE_PREF_KEY="DE_V73_CALENDAR_SOURCES";
+function calendarEventFingerprint(ev){return JSON.stringify({updated:ev?.updated||"",summary:ev?.summary||"",location:ev?.location||"",description:cleanCalendarDescription(ev?.description||""),start:ev?.start||{},end:ev?.end||{}})}
+function importedPlanForEvent(ev){return state.plans.find(p=>p.importedCalendarId===(ev._calendarId||"")&&p.importedCalendarEventId===(ev.id||""))||null}
+function calendarSourcePreferences(){try{return JSON.parse(localStorage.getItem(CALENDAR_SOURCE_PREF_KEY)||"[]")||[]}catch(e){return []}}
+function selectedCalendarSources(){return [...document.querySelectorAll('[name="calendarSource"]:checked')].map(x=>x.value)}
+function renderCalendarSources(calendars){
+ const picker=$("calendarSourcePicker");if(!picker)return;
+ const prior=calendarSourcePreferences(),hasPrior=prior.length>0;
+ picker.innerHTML=`<div class="meta"><b>Agendas de origem</b></div><div class="calendar-source-list">${calendars.map(c=>{const name=c.summaryOverride||c.summary||(c.primary?"Principal":"Calendário"),checked=hasPrior?prior.includes(c.id):!!c.primary;return `<label class="calendar-source-option"><input name="calendarSource" type="checkbox" value="${esc(c.id)}" ${checked?"checked":""}><span>${esc(name)}</span></label>`}).join("")}</div><button class="btn small primary" type="button" onclick="loadSelectedCalendarEvents()">Buscar eventos selecionados</button>`;
+}
+async function loadCalendarSources(){
+ const calendars=[];let pageToken="";
+ do{const u=new URL("https://www.googleapis.com/calendar/v3/users/me/calendarList");u.searchParams.set("maxResults","250");if(pageToken)u.searchParams.set("pageToken",pageToken);const data=await calendarApiFetch(u.toString());calendars.push(...(data.items||[]).filter(c=>c.id&&!c.deleted));pageToken=data.nextPageToken||""}while(pageToken);
+ if(!calendars.some(c=>c.primary))calendars.unshift({id:"primary",summary:"Principal",primary:true});
+ return calendars.filter(c=>c.id!==diaryCalendarId&&!/^di[aá]rio de estudos$/i.test(String(c.summaryOverride||c.summary||"").trim()));
+}
 async function openCalendarImport(){
- const card=$("calendarImportCard"),status=$("calendarImportStatus"),box=$("calendarImportList");
- card?.classList.remove("hidden");if(status)status.textContent="Carregando eventos…";if(box)box.innerHTML="";
- if(!googleAccessToken){
-  if(status)status.innerHTML='Entre com Google para consultar seus eventos. <button class="btn small" type="button" onclick="googleLogin()">Entrar com Google</button>';
-  return;
- }
- try{
-  const start=new Date();start.setHours(0,0,0,0);start.setDate(start.getDate()-7);
-  const end=new Date();end.setHours(23,59,59,999);end.setDate(end.getDate()+90);
-
-  const calendars=[];
-  let pageToken="";
-  do{
-   const cu=new URL("https://www.googleapis.com/calendar/v3/users/me/calendarList");
-   cu.searchParams.set("maxResults","250");
-   if(pageToken)cu.searchParams.set("pageToken",pageToken);
-   const cd=await calendarApiFetch(cu.toString());
-   calendars.push(...(cd.items||[]).filter(c=>c.id&&!c.deleted));
-   pageToken=cd.nextPageToken||"";
-  }while(pageToken);
-
-  if(!calendars.some(c=>c.primary))calendars.unshift({id:"primary",summary:"Principal",primary:true});
-
-  const batches=[];
-  const calendarErrors=[];
-  for(const cal of calendars){
-   try{
-    const u=new URL(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(cal.id)}/events`);
-    u.searchParams.set("timeMin",start.toISOString());
-    u.searchParams.set("timeMax",end.toISOString());
-    u.searchParams.set("singleEvents","true");
-    u.searchParams.set("orderBy","startTime");
-    u.searchParams.set("maxResults","100");
-    const data=await calendarApiFetch(u.toString());
-    batches.push((data.items||[]).filter(ev=>ev.status!=="cancelled"&&(ev.summary||"").trim()).map(ev=>({
-      ...ev,
-      _calendarId:cal.id,
-      _calendarName:cal.summaryOverride||cal.summary||(cal.primary?"Principal":"Calendário")
-    })));
-   }catch(e){
-    calendarErrors.push({calendar:cal.summaryOverride||cal.summary||cal.id,error:String(e?.message||e)});
-    console.warn("Falha ao ler calendário:",cal.summary||cal.id,e);
-   }
-  }
-
-  const scopeFailure=calendarErrors.find(x=>/insufficient|scope|authentication scopes|403/i.test(x.error));
-  if(scopeFailure){
-   if(status)status.innerHTML=`O Google permitiu ao Diário acessar o calendário criado pelo app, mas <b>a leitura dos seus calendários pessoais ainda não foi autorizada</b>. <button class="btn small primary" type="button" onclick="reauthorizeGoogleCalendar()">Autorizar leitura do Calendar</button>`;
-  }
-
-  const seen=new Set(),items=[];
-  batches.flat().forEach(ev=>{
-   const key=`${ev._calendarId}|${ev.id}`;
-   if(!seen.has(key)){seen.add(key);items.push(ev)}
-  });
-  items.sort((a,b)=>String(a.start?.dateTime||a.start?.date||"").localeCompare(String(b.start?.dateTime||b.start?.date||"")));
-
-  if(!items.length){
-   if(!scopeFailure && status)status.textContent="Nenhum evento encontrado entre os últimos 7 dias e os próximos 90 dias.";
-   if(calendarErrors.length && box){
-    box.innerHTML=`<div class="notice"><b>Diagnóstico do Calendar</b><br>${calendarErrors.map(x=>`${esc(x.calendar)}: ${esc(x.error)}`).join("<br>")}</div>`;
-   }
-   return;
-  }
-
-  window.diaryCalendarImportItems=items;
-  if(status && !scopeFailure)status.textContent=`${items.length} evento${items.length===1?"":"s"} encontrado${items.length===1?"":"s"}. Escolha o que deseja usar no Diário.`;
-  if(box)box.innerHTML=items.map((ev,i)=>{
-   const date=calendarEventDate(ev),time=calendarEventTimeLabel(ev);
-   const isDiaryCalendar=/^di[aá]rio de estudos$/i.test(String(ev._calendarName||"").trim());
-   if(isDiaryCalendar){
-    return `<div class="calendar-event-card diary-calendar-event" style="display:flex;align-items:center;gap:10px;padding:9px 11px;border-left:4px solid var(--primary,#6f94bc);background:rgba(111,148,188,.08)">
-      <button class="btn small primary" type="button" onclick="useCalendarEvent(${i})" aria-label="Usar ${esc(ev.summary||"Evento")} no Diário" title="Usar no Diário" style="width:30px;height:30px;padding:0;border-radius:50%;font-size:20px;line-height:1">+</button>
-      <div style="min-width:0;flex:1">
-       <div class="event-title" style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(ev.summary||"Evento")}</div>
-       <div class="event-time" style="font-size:12px">${date?fmtDate(date):""}${time?" · "+esc(time):""} <span style="font-weight:700">· Diário de Estudos</span></div>
-      </div>
-     </div>`;
-   }
-   return `<div class="calendar-event-card">
-    <div class="event-time">${date?fmtDate(date):""}${time?" · "+esc(time):""}</div>
-    <div class="event-title">${esc(ev.summary||"Evento")}</div>
-    <div class="event-location">📅 ${esc(ev._calendarName||"Calendário")}</div>
-    ${ev.location?`<div class="event-location">📍 ${esc(ev.location)}</div>`:""}
-    <div class="toolbar" style="margin-top:8px"><button class="btn small primary" type="button" onclick="useCalendarEvent(${i})">Usar no Diário</button></div>
-   </div>`;
-  }).join("") + (calendarErrors.length?`<details class="tech-details" style="margin-top:10px"><summary>Diagnóstico de calendários não lidos (${calendarErrors.length})</summary><div class="notice">${calendarErrors.map(x=>`<b>${esc(x.calendar)}</b>: ${esc(x.error)}`).join("<br>")}</div></details>`:"");
- }catch(e){
-  if(status){
-   const msg=String(e?.message||e);
-   if(/insufficient|scope|authentication scopes|403/i.test(msg)){
-    status.innerHTML=`Falta autorização para ler seus eventos pessoais. <button class="btn small primary" type="button" onclick="reauthorizeGoogleCalendar()">Autorizar leitura do Calendar</button>`;
-   }else{
-    status.textContent=msg||"Não foi possível carregar os eventos.";
-   }
-  }
- }
+ const card=$("calendarImportCard"),status=$("calendarImportStatus"),box=$("calendarImportList"),picker=$("calendarSourcePicker");
+ card?.classList.remove("hidden");if(status)status.textContent="Carregando agendas…";if(box)box.innerHTML="";if(picker)picker.innerHTML="";
+ if(!googleAccessToken){if(status)status.innerHTML='Entre com Google para consultar seus eventos. <button class="btn small" type="button" onclick="googleLogin()">Entrar com Google</button>';return}
+ try{const calendars=await loadCalendarSources();window.diaryCalendarSources=calendars;renderCalendarSources(calendars);if(status)status.textContent=calendars.length?"Selecione as agendas que deseja consultar.":"Nenhuma agenda de origem disponível."}
+ catch(e){const msg=String(e?.message||e);if(status)status.innerHTML=/insufficient|scope|authentication scopes|403/i.test(msg)?`Falta autorização para ler seus eventos pessoais. <button class="btn small primary" type="button" onclick="reauthorizeGoogleCalendar()">Autorizar leitura do Calendar</button>`:esc(msg)}
+}
+async function loadSelectedCalendarEvents(){
+ const status=$("calendarImportStatus"),box=$("calendarImportList"),selected=selectedCalendarSources();
+ if(!selected.length){if(status)status.textContent="Selecione pelo menos uma agenda.";return}
+ localStorage.setItem(CALENDAR_SOURCE_PREF_KEY,JSON.stringify(selected));if(status)status.textContent="Carregando eventos…";if(box)box.innerHTML="";
+ const start=new Date();start.setHours(0,0,0,0);start.setDate(start.getDate()-7);const end=new Date();end.setHours(23,59,59,999);end.setDate(end.getDate()+90);
+ const calendars=(window.diaryCalendarSources||[]).filter(c=>selected.includes(c.id)),items=[],calendarErrors=[];
+ for(const cal of calendars){try{const u=new URL(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(cal.id)}/events`);u.searchParams.set("timeMin",start.toISOString());u.searchParams.set("timeMax",end.toISOString());u.searchParams.set("singleEvents","true");u.searchParams.set("orderBy","startTime");u.searchParams.set("maxResults","100");const data=await calendarApiFetch(u.toString());(data.items||[]).filter(ev=>ev.status!=="cancelled"&&(ev.summary||"").trim()).forEach(ev=>items.push({...ev,_calendarId:cal.id,_calendarName:cal.summaryOverride||cal.summary||(cal.primary?"Principal":"Calendário")}))}catch(e){calendarErrors.push({calendar:cal.summaryOverride||cal.summary||cal.id,error:String(e?.message||e)})}}
+ items.sort((a,b)=>String(a.start?.dateTime||a.start?.date||"").localeCompare(String(b.start?.dateTime||b.start?.date||"")));window.diaryCalendarImportItems=items;
+ if(status)status.textContent=items.length?`${items.length} evento${items.length===1?"":"s"} encontrado${items.length===1?"":"s"}. Escolha o que deseja usar no Diário.`:"Nenhum evento encontrado nas agendas selecionadas.";
+ if(box)box.innerHTML=items.map((ev,i)=>{const date=calendarEventDate(ev),time=calendarEventTimeLabel(ev),plan=importedPlanForEvent(ev),changed=!!plan&&!!plan.importedCalendarFingerprint&&plan.importedCalendarFingerprint!==calendarEventFingerprint(ev);return `<div class="calendar-event-card ${plan?"is-added":""} ${changed?"is-changed":""}"><div class="event-time">${date?fmtDate(date):""}${time?" · "+esc(time):""}</div><div class="event-title">${esc(ev.summary||"Evento")}</div><div class="event-location">📅 ${esc(ev._calendarName||"Calendário")}</div>${ev.location?`<div class="event-location">📍 ${esc(ev.location)}</div>`:""}${changed?`<div class="meta" style="margin-top:7px"><b>⚠ Evento original atualizado</b></div>`:""}<div class="toolbar" style="margin-top:8px">${changed?`<button class="btn small primary" type="button" onclick="updateImportedCalendarCopy('${esc(plan.id)}',${i})">Atualizar cópia</button>`:plan?`<button class="btn small" type="button" disabled>✓ Já adicionado</button>`:`<button class="btn small primary" type="button" onclick="useCalendarEvent(${i})">Usar no Diário</button>`}</div></div>`}).join("")+(calendarErrors.length?`<details class="tech-details" style="margin-top:10px"><summary>Agendas não lidas (${calendarErrors.length})</summary><div class="notice">${calendarErrors.map(x=>`<b>${esc(x.calendar)}</b>: ${esc(x.error)}`).join("<br>")}</div></details>`:"")
 }
 function closeCalendarImport(){$("calendarImportCard")?.classList.add("hidden")}
 function useCalendarEvent(i){
  const ev=(window.diaryCalendarImportItems||[])[i];if(!ev)return;
- pendingImportedCalendarEvent={calendarId:ev._calendarId||"primary",calendarName:ev._calendarName||"",eventId:ev.id||"",htmlLink:ev.htmlLink||"",summary:ev.summary||"",date:calendarEventDate(ev),location:ev.location||""};
+ if(importedPlanForEvent(ev))return;
+ pendingImportedCalendarEvent={calendarId:ev._calendarId||"primary",calendarName:ev._calendarName||"",eventId:ev.id||"",htmlLink:ev.htmlLink||"",summary:ev.summary||"",date:calendarEventDate(ev),location:ev.location||"",description:cleanCalendarDescription(ev.description||""),start:ev.start||{},end:ev.end||{},updated:ev.updated||"",fingerprint:calendarEventFingerprint(ev)};
  togglePlanForm(true);if($("planTitle"))$("planTitle").value=ev.summary||"";if($("planPlace"))$("planPlace").value=ev.location||"";clearPlanPlaceSelection();if($("planDate")&&calendarEventDate(ev))$("planDate").value=calendarEventDate(ev);
  const desc=cleanCalendarDescription(ev.description||"");if($("planNotes"))$("planNotes").value=[desc,ev.location?`Local: ${ev.location}`:""].filter(Boolean).join("\n");
  const cb=$("planAddToCalendar");if(cb){cb.checked=false;cb.disabled=true}
- const info=$("planCalendarImportedInfo");if(info){info.classList.remove("hidden");info.textContent="📅 Este planejamento veio do seu calendário. O Diário não alterará o compromisso original."}
+ const info=$("planCalendarImportedInfo");if(info){info.classList.remove("hidden");info.textContent="📅 Ao salvar, o Diário criará uma cópia na agenda Diário de Estudos. O compromisso original nunca será alterado."}
  closeCalendarImport()
 }
 function resetPlanCalendarOrigin(){
@@ -6095,6 +6037,25 @@ async function createCalendarEventForPlan(plan){
  const body={summary:plan.title,description,start:{date:startDate},end:{date:endDate},extendedProperties:{private:{diarioPlanId:plan.id}}},recurrence=googleCalendarRecurrence(plan);if(recurrence.length)body.recurrence=recurrence;
  const event=await calendarApiFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(cal.id)}/events`,{method:"POST",body:JSON.stringify(body)});
  plan.calendarId=cal.id;plan.calendarEventId=event.id||"";plan.calendarHtmlLink=event.htmlLink||"";plan.calendarSyncedAt=now();return event
+}
+function importedCalendarCopyBody(plan,source){
+ const child=state.family.children.find(c=>c.id===plan.childId),description=[source?.description||cleanCalendarDescription(plan.notes||""),child?.name?`Criança: ${child.name}`:"","Cópia importada pelo Diário de Estudos."].filter(Boolean).join("\n");
+ return {summary:source?.summary||plan.title,location:source?.location||plan.place||"",description,start:source?.start||{date:plan.date||plan.nextDate},end:source?.end||{date:(()=>{const d=new Date((plan.date||plan.nextDate)+"T00:00:00");d.setDate(d.getDate()+1);return iso(d)})()},extendedProperties:{private:{diarioPlanId:plan.id,sourceCalendarId:plan.importedCalendarId||"",sourceEventId:plan.importedCalendarEventId||""}}}
+}
+async function createImportedCalendarCopy(plan,source){
+ const cal=await ensureDiaryCalendar(true),event=await calendarApiFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(cal.id)}/events`,{method:"POST",body:JSON.stringify(importedCalendarCopyBody(plan,source))});
+ plan.calendarId=cal.id;plan.calendarEventId=event.id||"";plan.calendarHtmlLink=event.htmlLink||"";plan.calendarSyncedAt=now();return event
+}
+async function fetchOriginalCalendarEvent(plan){return calendarApiFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(plan.importedCalendarId)}/events/${encodeURIComponent(plan.importedCalendarEventId)}`)}
+async function updateImportedCalendarCopy(planId,itemIndex){
+ const plan=state.plans.find(p=>p.id===planId);if(!plan)return;let source=Number.isInteger(itemIndex)?(window.diaryCalendarImportItems||[])[itemIndex]:null;
+ try{if(!source)source=await fetchOriginalCalendarEvent(plan);const desc=cleanCalendarDescription(source.description||"");plan.title=source.summary||plan.title;plan.date=calendarEventDate(source)||plan.date;plan.nextDate=plan.date;plan.place=source.location||"";if(desc)plan.notes=desc;plan.importedCalendarFingerprint=calendarEventFingerprint(source);plan.importedCalendarUpdated=source.updated||"";plan.importedCalendarChanged=false;plan.updatedAt=now();if(plan.calendarId&&plan.calendarEventId)await calendarApiFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(plan.calendarId)}/events/${encodeURIComponent(plan.calendarEventId)}`,{method:"PUT",body:JSON.stringify(importedCalendarCopyBody(plan,source))});else await createImportedCalendarCopy(plan,source);saveLocal();renderPlans();renderDashboard();if($("calendarImportCard")&&!$("calendarImportCard").classList.contains("hidden"))await loadSelectedCalendarEvents()}
+ catch(e){alert("Não foi possível atualizar a cópia: "+(e.message||e))}
+}
+let checkingImportedCalendarChanges=false;
+async function checkImportedCalendarChanges(){
+ if(checkingImportedCalendarChanges||!googleAccessToken)return;const plans=state.plans.filter(p=>p.importedCalendarId&&p.importedCalendarEventId);if(!plans.length)return;checkingImportedCalendarChanges=true;let changedState=false;
+ try{for(const plan of plans){try{const source=await fetchOriginalCalendarEvent(plan),changed=!!plan.importedCalendarFingerprint&&plan.importedCalendarFingerprint!==calendarEventFingerprint(source);if(plan.importedCalendarChanged!==changed){plan.importedCalendarChanged=changed;changedState=true}}catch(e){console.warn("Não foi possível conferir evento original:",e)}}if(changedState){saveLocal();renderPlans()}}finally{checkingImportedCalendarChanges=false}
 }
 async function deleteCalendarEventForPlan(plan){
  if(!plan?.calendarId||!plan?.calendarEventId)return;
@@ -6237,11 +6198,12 @@ async function addPlan(){
  const start=$("planDate").value||today(),imported=pendingImportedCalendarEvent?{...pendingImportedCalendarEvent}:null;
  const weather=(()=>{try{return JSON.parse($("planWeatherBox")?.dataset.weather||"null")}catch{return null}})();
  const placeDetails=selectedPlanPlace?{...selectedPlanPlace}:null;
- const plan={id:uid(),childId,date:start,nextDate:start,type:"planned",complementaryId:"",component:"",title,notes:$("planNotes").value.trim(),place:planPlaceValue(),placeDetails,weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",materialBnccCode:"",materialBnccDescription:"",materialBnccComponent:"",materialBnccArea:"",materialBnccSkills:[],recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],createdAt:now(),updatedAt:now(),completedAt:"",importedCalendarId:imported?.calendarId||"",importedCalendarEventId:imported?.eventId||"",importedCalendarHtmlLink:imported?.htmlLink||""};
+ const plan={id:uid(),childId,date:start,nextDate:start,type:"planned",complementaryId:"",component:"",title,notes:$("planNotes").value.trim(),place:planPlaceValue(),placeDetails,weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",materialBnccCode:"",materialBnccDescription:"",materialBnccComponent:"",materialBnccArea:"",materialBnccSkills:[],recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],createdAt:now(),updatedAt:now(),completedAt:"",importedCalendarId:imported?.calendarId||"",importedCalendarName:imported?.calendarName||"",importedCalendarEventId:imported?.eventId||"",importedCalendarHtmlLink:imported?.htmlLink||"",importedCalendarUpdated:imported?.updated||"",importedCalendarFingerprint:imported?.fingerprint||"",importedCalendarChanged:false};
  state.plans.push(plan);
  const shouldAddCalendar=!!$("planAddToCalendar")?.checked&&!imported;
  $("planTitle").value="";$("planNotes").value="";if($("planPlace"))$("planPlace").value="";clearPlanPlaceSelection();hidePlanPlaceResults();planPlaceSessionToken="";if($("planWeatherBox")){$("planWeatherBox").classList.add("hidden");$("planWeatherBox").innerHTML="";delete $("planWeatherBox").dataset.weather}clearPlanMaterial();resetPlanCalendarOrigin();saveLocal();renderPlans();renderDashboard();
  if(shouldAddCalendar){try{await createCalendarEventForPlan(plan);saveLocal();renderPlans()}catch(e){alert("O planejamento foi salvo no Diário, mas não foi possível adicioná-lo ao Google Calendar: "+(e.message||e))}}
+ if(imported){try{await createImportedCalendarCopy(plan,imported);saveLocal();renderPlans()}catch(e){alert("O planejamento foi salvo, mas a cópia não pôde ser criada na agenda Diário de Estudos: "+(e.message||e))}}
 }
 function togglePlanForm(open){
  $('planFormCard')?.classList.toggle('hidden',!open);
@@ -6255,7 +6217,7 @@ function togglePlanForm(open){
 function renderPlans(){
  let box=$("plansList");if(!box)return;let childId=$("planChild")?.value||activeChildId,td=today();
  let l=state.plans.filter(x=>!x.completedAt&&(!childId||x.childId===childId)&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
- const card=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':(p.nextDate||p.date)===td?'is-today':''}" data-plan-id="${esc(p.id)}"><div class="plan-date">${fmtDate(p.nextDate||p.date)} · ${esc(state.family.children.find(c=>c.id===p.childId)?.name||'')}</div><div class="entry-title">${esc(p.title)}</div>${p.component?`<div class="skill">${esc(p.component)}</div>`:''}${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${p.materialName?`<div class="meta" style="margin-top:4px">📘 ${esc(p.materialName)}</div>`:""}${p.notes?`<div class="obs">${esc(p.notes)}</div>`:''}${p.calendarEventId?`<div class="meta" style="margin-top:4px">📅 No Google Calendar</div>`:p.importedCalendarEventId?`<div class="meta" style="margin-top:4px">📅 Importado do seu calendário</div>`:""}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">+ Registrar atividade</button>${p.recurrence!=='none'?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular / próxima</button>`:''}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`;
+ const card=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':(p.nextDate||p.date)===td?'is-today':''}" data-plan-id="${esc(p.id)}"><div class="plan-date">${fmtDate(p.nextDate||p.date)} · ${esc(state.family.children.find(c=>c.id===p.childId)?.name||'')}</div><div class="entry-title">${esc(p.title)}</div>${p.component?`<div class="skill">${esc(p.component)}</div>`:''}${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${p.materialName?`<div class="meta" style="margin-top:4px">📘 ${esc(p.materialName)}</div>`:""}${p.notes?`<div class="obs">${esc(p.notes)}</div>`:''}${p.calendarEventId?`<div class="meta" style="margin-top:4px">📅 No Google Calendar${p.importedCalendarEventId?" · cópia de "+esc(p.importedCalendarName||"agenda pessoal"):""}</div>`:p.importedCalendarEventId?`<div class="meta" style="margin-top:4px">📅 Importado do seu calendário · cópia pendente</div>`:""}${p.importedCalendarChanged?`<div class="notice" style="margin-top:8px"><b>⚠ Evento original atualizado</b><br><button class="btn small primary" style="margin-top:7px" type="button" onclick="updateImportedCalendarCopy('${p.id}')">Atualizar cópia</button></div>`:""}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">+ Registrar atividade</button>${p.recurrence!=='none'?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular / próxima</button>`:''}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`;
  const late=l.filter(p=>(p.nextDate||p.date)<td),now=l.filter(p=>(p.nextDate||p.date)===td),future=l.filter(p=>(p.nextDate||p.date)>td);
  box.innerHTML=`${late.length?`<div class="plan-section-title">Atrasadas · ${late.length}</div>${late.map(card).join('')}`:''}<div class="plan-section-title">Hoje · ${now.length}</div>${now.map(card).join('')||"<div class='notice'>Nada planejado para hoje.</div>"}${future.length?`<div class="plan-section-title">Próximos dias · ${future.length}</div>${future.map(card).join('')}`:''}`;
 }
@@ -6781,7 +6743,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "7.2";
+const APP_VERSION = "7.3";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

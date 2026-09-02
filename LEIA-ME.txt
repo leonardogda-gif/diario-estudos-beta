@@ -1,4 +1,4 @@
-DIÁRIO DE ESTUDOS — v7.2
+DIÁRIO DE ESTUDOS — v7.3
 
 BASE
 - Evolução da v6.8 corrigida.
@@ -33,6 +33,17 @@ LIVROS
 - O cadastro manual está sempre disponível, mesmo quando Google Books ou o catálogo comunitário encontram resultados.
 - A busca pode preencher automaticamente o título informado no formulário manual.
 
+CALENDÁRIO
+- Antes da busca, a família escolhe quais agendas de origem deseja consultar.
+- A preferência das agendas selecionadas fica salva neste dispositivo.
+- Todos os eventos usam o mesmo formato visual na lista.
+- Eventos já importados aparecem com “✓ Já adicionado”.
+- Ao importar, o Diário cria uma cópia na agenda própria “Diário de Estudos” e guarda o ID do evento original.
+- O evento original é somente lido e nunca é alterado pelo Diário.
+- Ao abrir o Planejamento, o Diário verifica se título, data, horário, local ou descrição do original mudaram.
+- Quando houver mudança, aparece “Evento original atualizado” e a família decide se deseja atualizar a cópia.
+- Ao excluir o planejamento, somente a cópia da agenda “Diário de Estudos” é removida; o original permanece intacto e pode ser importado novamente.
+
 PÁGINA INICIAL
 - Botão “Registrar atividade” mantido em destaque.
 - Adicionado botão direto “Abrir planejamento”.
@@ -50,5 +61,5 @@ ARQUIVOS
 PUBLICAÇÃO
 - Substitua os quatro arquivos correspondentes no GitHub.
 - Mantenha manifest.json e a pasta icons existentes.
-- APP_VERSION: 7.2.
-- Cache do service worker: diario-estudos-v7.2.
+- APP_VERSION: 7.3.
+- Cache do service worker: diario-estudos-v7.3.
