@@ -881,7 +881,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v7.3 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v7.4 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -1497,6 +1497,19 @@ details[open]>summary:after{content:"⌃"}
               <button class="btn small" type="button" onclick="enableAdminValidationNotifications()">Ativar alertas</button>
             </div>
           </div>
+          <details class="tech-details" ontoggle="if(this.open){resetAdminCatalogBookForm();}"><summary>📖 Adicionar livro ao catálogo</summary><div class="drive-folder-card" style="margin-top:8px">
+            <div class="meta">O livro será publicado no catálogo compartilhado sem vínculo com família ou criança.</div>
+            <div class="grid" style="margin-top:10px">
+              <div class="full"><label class="field">Buscar no Google Books (opcional)</label><div style="display:flex;gap:8px"><input id="adminCatalogGoogleQuery" placeholder="Título, autor ou ISBN"><button class="btn small" type="button" onclick="searchAdminCatalogGoogleBooks()">Buscar</button></div><div id="adminCatalogGoogleResults"></div></div>
+              <div class="full"><label class="field">Título</label><input id="adminCatalogBookTitle"></div>
+              <div><label class="field">Autor(es)</label><input id="adminCatalogBookAuthors" placeholder="Separe por vírgulas"></div>
+              <div><label class="field">Editora</label><input id="adminCatalogBookPublisher"></div>
+              <div><label class="field">ISBN-13</label><input id="adminCatalogBookIsbn13"></div>
+              <div><label class="field">ISBN-10</label><input id="adminCatalogBookIsbn10"></div>
+              <div class="full"><label class="field">URL da capa</label><input id="adminCatalogBookCover"></div>
+            </div>
+            <button class="btn success" style="margin-top:10px" type="button" onclick="addAdminCatalogBook()">Adicionar ao catálogo</button>
+          </div></details>
           <details class="tech-details" ontoggle="if(this.open){loadPendingCommunityBooks();}"><summary>📚 Livros aguardando validação</summary><div class="drive-folder-card" style="margin-top:8px"><div id="pendingCommunityBooksBox" class="meta">Carregando...</div></div></details>
           <details class="tech-details" ontoggle="if(this.open){loadPendingMaterials();loadBnccEmbeddingStatus();}"><summary>Materiais pendentes de validação</summary><div class="drive-folder-card" style="margin-top:8px"><div id="pendingMaterialsBox" class="meta">Carregando...</div><div id="bnccEmbeddingAdmin" style="margin-top:14px;border-top:1px solid #E8E1D2;padding-top:12px"><b>Busca semântica BNCC</b><div id="bnccEmbeddingStatus" class="meta" style="margin:6px 0">Verificando índice...</div><button type="button" class="btn dark small" id="bnccEmbeddingBuildBtn" onclick="buildBnccEmbeddings()">Preparar embeddings da BNCC</button></div></div></details>
 </div></section>
@@ -4799,7 +4812,8 @@ function renderRecordComponentAnalysis(){
  const competencies=recordAiCompetencies.map((x,i)=>`<label class="component-choice ${selectedCompetencies.has(x.code)?"selected":""}"><input type="checkbox" ${selectedCompetencies.has(x.code)?"checked":""} onchange="toggleRecordCompetency(${i},this.checked)"><span><div class="component-choice-main">${esc(x.code)}</div><div class="component-choice-area">${esc(x.description||"")}</div></span><span class="component-relevance">${semanticLabel(x)}</span></label>`).join("");
  const complementaryName=String(recordAiExperience?.complementary_activity||"").trim();
  const experience=recordAiExperience?.kind==="complementary"&&complementaryName?`<div style="font-weight:900;margin:10px 0 6px">Experiência</div><div class="component-suggestions"><label class="component-choice ${recordComplementarySelected?"selected":""}"><input type="checkbox" ${recordComplementarySelected?"checked":""} onchange="toggleRecordComplementary(this.checked)"><span><div class="component-choice-main">Atividade complementar — ${esc(complementaryName)}</div><div class="component-choice-area">Pode coexistir com todas as relações curriculares abaixo.</div></span></label></div>`:"";
- box.innerHTML=`${experience}<div style="font-weight:900;margin:10px 0 6px">Componentes</div><div class="component-suggestions">${comps||'<div class="meta">Nenhum componente sugerido.</div>'}</div>
+ const evidenceNote=recordAiExperience?.reason?`<div class="notice" style="margin-top:9px">${recordAiExperience?.evidence_level==="insufficient_for_curriculum"?"<b>Sem evidência curricular suficiente.</b><br>":""}${esc(recordAiExperience.reason)}</div>`:"";
+ box.innerHTML=`${experience}${evidenceNote}<div style="font-weight:900;margin:10px 0 6px">Componentes</div><div class="component-suggestions">${comps||'<div class="meta">Nenhum componente sugerido.</div>'}</div>
  <div style="font-weight:900;margin:16px 0 6px">Habilidades BNCC</div><div class="component-suggestions">${skills||'<div class="meta">Nenhuma habilidade suficientemente relacionada.</div>'}</div>
  <div style="font-weight:900;margin:16px 0 6px">Competências relacionadas</div><div class="component-suggestions">${competencies||'<div class="meta">Nenhuma competência suficientemente relacionada.</div>'}</div>
  <div class="meta" style="margin-top:10px">Relevância ordena a classificação de componentes. Similaridade semântica mede proximidade textual; nenhuma delas representa certeza.</div>`;
@@ -5651,7 +5665,7 @@ async function loadPendingCommunityBooks(){
     ${b.thumbnail?`<img class="book-cover" src="${esc(b.thumbnail)}" alt="">`:`<div class="book-cover-placeholder">📖</div>`}
     <div><div style="font-size:13px"><b>${esc(b.title)}</b></div><div class="meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.publisher?" · "+esc(b.publisher):""}</div>${b.isbn13?`<div class="meta">ISBN: ${esc(b.isbn13)}</div>`:""}<div class="meta">Solicitado por: ${esc(b.family_name||"Família")}</div></div>
    </div>
-   <div class="toolbar" style="margin-top:7px"><button class="btn small" onclick="editPendingCommunityBook(${i})">Editar</button><button class="btn success small" onclick="reviewCommunityBook('${b.id}','approve')">Aprovar</button><button class="btn small" onclick="mergeCommunityBookPrompt('${b.id}')">Mesclar</button><button class="btn danger small" onclick="reviewCommunityBook('${b.id}','reject')">Rejeitar</button></div>
+   <div class="toolbar" style="margin-top:7px"><button class="btn small" onclick="editPendingCommunityBook(${i})">Editar</button><button class="btn success small" onclick="reviewCommunityBook('${b.id}','approve')">Aprovar</button><button class="btn small" onclick="mergeOrLinkCommunityBookPrompt('${b.id}')">Mesclar ou vincular</button><button class="btn danger small" onclick="reviewCommunityBook('${b.id}','reject')">Rejeitar</button></div>
    <div id="pendingCommunityBookEdit${i}" class="hidden" style="margin-top:8px"></div>
   </div>`).join("")
  }catch(e){box.innerHTML=`<div class="notice">${esc(String(e.message||"Você não tem permissão para ver esta lista."))}</div>`}
@@ -5669,15 +5683,31 @@ async function savePendingCommunityBook(i,approve){
  }catch(e){alert("Não foi possível salvar: "+(e.message||e))}
 }
 async function reviewCommunityBook(id,action){try{await backendFetch(`/community-books/${encodeURIComponent(id)}/${action}`,{method:"POST"});loadPendingCommunityBooks()}catch(e){alert("Não foi possível revisar: "+(e.message||e))}}
-async function mergeCommunityBookPrompt(id){
- const q=prompt("Digite parte do título, autor ou ISBN do livro correto para mesclar:");if(!q)return;
+async function mergeOrLinkCommunityBookPrompt(id){
+ const q=prompt("Digite parte do título, autor ou ISBN do livro correto:");if(!q)return;
  try{
-  const data=await backendFetch("/community-books/admin-search?q="+encodeURIComponent(q)),list=data?.items||[];
-  if(!list.length)return alert("Nenhum livro aprovado encontrado.");
-  const options=list.slice(0,8).map((b,i)=>`${i+1}. ${b.title}${(b.authors||[]).length?" — "+b.authors.join(", "):""}`).join("\n");
-  const choice=Number(prompt("Escolha o livro canônico:\n\n"+options));if(!choice||!list[choice-1])return;
-  await backendFetch(`/community-books/${encodeURIComponent(id)}/merge`,{method:"POST",body:JSON.stringify({target_book_id:list[choice-1].community_book_id})});loadPendingCommunityBooks()
- }catch(e){alert("Não foi possível mesclar: "+(e.message||e))}
+  const [communityResult,googleResult]=await Promise.allSettled([backendFetch("/community-books/admin-search?q="+encodeURIComponent(q)),backendFetch("/books/search?q="+encodeURIComponent(q))]),communityData=communityResult.status==="fulfilled"?communityResult.value:{},googleData=googleResult.status==="fulfilled"?googleResult.value:{};
+  const list=[...(communityData?.items||[]).map(x=>({...x,target_type:"community"})),...(googleData?.items||[]).map(x=>({...x,target_type:"google_books"}))].slice(0,12);
+  if(!list.length)return alert("Nenhum livro correspondente foi encontrado.");
+  const options=list.map((b,i)=>`${i+1}. ${b.target_type==="google_books"?"Google Books":"Catálogo"} · ${b.title}${(b.authors||[]).length?" — "+b.authors.join(", "):""}`).join("\n");
+  const choice=Number(prompt("Escolha o cadastro principal:\n\n"+options));if(!choice||!list[choice-1])return;
+  const target=list[choice-1],body=target.target_type==="google_books"?{target_type:"google_books",google_volume_id:target.google_volume_id}:{target_type:"community",target_book_id:target.community_book_id};
+  await backendFetch(`/community-books/${encodeURIComponent(id)}/merge`,{method:"POST",body:JSON.stringify(body)});loadPendingCommunityBooks();alert(target.target_type==="google_books"?"Livro vinculado ao Google Books. Os históricos das famílias foram preservados.":"Cadastros mesclados. Os históricos das famílias foram preservados.")
+ }catch(e){alert("Não foi possível mesclar ou vincular: "+(e.message||e))}
+}
+
+let adminCatalogGoogleBooks=[];
+function resetAdminCatalogBookForm(){adminCatalogGoogleBooks=[];if($("adminCatalogGoogleResults"))$("adminCatalogGoogleResults").innerHTML=""}
+async function searchAdminCatalogGoogleBooks(){
+ const q=String($("adminCatalogGoogleQuery")?.value||"").trim(),box=$("adminCatalogGoogleResults");if(q.length<2)return alert("Informe pelo menos 2 caracteres.");if(box)box.innerHTML='<div class="meta" style="margin-top:7px">Buscando…</div>';
+ try{const data=await backendFetch("/books/search?q="+encodeURIComponent(q));adminCatalogGoogleBooks=data?.items||[];if(box)box.innerHTML=adminCatalogGoogleBooks.map((b,i)=>`<div class="duplicate-card" style="margin-top:7px"><b>${esc(b.title||"Sem título")}</b><div class="meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.publisher?" · "+esc(b.publisher):""}</div><button class="btn small" style="margin-top:6px" type="button" onclick="fillAdminCatalogGoogleBook(${i})">Usar estes dados</button></div>`).join("")||'<div class="meta" style="margin-top:7px">Nenhum resultado.</div>'}catch(e){if(box)box.innerHTML=`<div class="meta" style="margin-top:7px">${esc(e.message||"Não foi possível buscar.")}</div>`}
+}
+function fillAdminCatalogGoogleBook(i){const b=adminCatalogGoogleBooks[i];if(!b)return;$("adminCatalogBookTitle").value=b.title||"";$("adminCatalogBookAuthors").value=(b.authors||[]).join(", ");$("adminCatalogBookPublisher").value=b.publisher||"";$("adminCatalogBookIsbn13").value=b.isbn13||"";$("adminCatalogBookIsbn10").value=b.isbn10||"";$("adminCatalogBookCover").value=b.thumbnail||"";$("adminCatalogBookTitle").dataset.googleVolumeId=b.google_volume_id||"";$("adminCatalogBookTitle").dataset.googleResultIndex=String(i)}
+async function addAdminCatalogBook(){
+ const title=String($("adminCatalogBookTitle")?.value||"").trim();if(!title)return alert("Informe o título.");
+ const selected=adminCatalogGoogleBooks[Number($("adminCatalogBookTitle")?.dataset.googleResultIndex)]||{},body={title,authors:String($("adminCatalogBookAuthors")?.value||"").split(",").map(x=>x.trim()).filter(Boolean),publisher:$("adminCatalogBookPublisher")?.value.trim()||"",isbn13:$("adminCatalogBookIsbn13")?.value.trim()||"",isbn10:$("adminCatalogBookIsbn10")?.value.trim()||"",thumbnail:$("adminCatalogBookCover")?.value.trim()||"",google_volume_id:$("adminCatalogBookTitle")?.dataset.googleVolumeId||"",published_date:selected.published_date||"",description:selected.description||"",page_count:selected.page_count||null,categories:selected.categories||[],language:selected.language||""};
+ try{await backendFetch("/community-books/admin",{method:"POST",body:JSON.stringify(body)});["adminCatalogBookTitle","adminCatalogBookAuthors","adminCatalogBookPublisher","adminCatalogBookIsbn13","adminCatalogBookIsbn10","adminCatalogBookCover","adminCatalogGoogleQuery"].forEach(id=>{if($(id))$(id).value=""});delete $("adminCatalogBookTitle").dataset.googleVolumeId;delete $("adminCatalogBookTitle").dataset.googleResultIndex;resetAdminCatalogBookForm();alert("Livro adicionado ao catálogo compartilhado.")}
+ catch(e){alert("Não foi possível adicionar ao catálogo: "+(e.message||e))}
 }
 
 let pendingMaterialsCache=[];
@@ -6743,7 +6773,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "7.3";
+const APP_VERSION = "7.4";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

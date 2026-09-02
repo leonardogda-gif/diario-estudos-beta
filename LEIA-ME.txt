@@ -1,4 +1,4 @@
-DIÁRIO DE ESTUDOS — v7.3
+DIÁRIO DE ESTUDOS — v7.4
 
 BASE
 - Evolução da v6.8 corrigida.
@@ -32,6 +32,20 @@ LIVROS
 - Resultados são desduplicados por ID, ISBN ou título e autor.
 - O cadastro manual está sempre disponível, mesmo quando Google Books ou o catálogo comunitário encontram resultados.
 - A busca pode preencher automaticamente o título informado no formulário manual.
+- Na validação administrativa, “Mesclar ou vincular” pesquisa simultaneamente o catálogo aprovado e o Google Books.
+- Ao mesclar com outro livro do catálogo, todos os vínculos familiares passam para o cadastro principal.
+- Ao vincular ao Google Books, os livros das famílias passam a usar o volume correspondente e recebem seus dados bibliográficos.
+- Datas, status e momentos de leitura são preservados porque o identificador do livro de cada família não é alterado.
+- O administrador global pode adicionar um livro diretamente ao catálogo compartilhado, sem vinculá-lo a uma família ou criança.
+- O cadastro administrativo pode ser preenchido manualmente ou a partir de um resultado do Google Books.
+
+ANÁLISE DA EXPERIÊNCIA
+- A primeira etapa da IA agora identifica se a experiência é curricular, complementar ou indeterminada antes de procurar componentes.
+- Passeios, esportes, visitas, lazer e atividades culturais podem ser complementares sem qualquer código BNCC.
+- Local, objeto ou nome da atividade não são considerados evidência curricular por si só.
+- Componentes, habilidades e competências só são pesquisados quando o relato descreve aprendizagem concreta suficiente.
+- “Fomos à praia”, sem outros detalhes, pode retornar “Passeio à praia” como atividade complementar e nenhuma relação curricular.
+- O resultado informa quando não há evidência curricular suficiente, sem forçar BNCC.
 
 CALENDÁRIO
 - Antes da busca, a família escolhe quais agendas de origem deseja consultar.
@@ -57,9 +71,13 @@ ARQUIVOS
 - sw.js
 - version.json
 - LEIA-ME.txt
+- worker.js
 
 PUBLICAÇÃO
-- Substitua os quatro arquivos correspondentes no GitHub.
+- Publique primeiro o conteúdo de worker.js no Cloudflare Worker.
+- Depois, substitua index.html, sw.js, version.json e LEIA-ME.txt no GitHub.
 - Mantenha manifest.json e a pasta icons existentes.
-- APP_VERSION: 7.3.
-- Cache do service worker: diario-estudos-v7.3.
+- Esta versão não exige comando de migração no D1.
+- APP_VERSION: 7.4.
+- Cache do service worker: diario-estudos-v7.4.
+- Worker API: 0.20-beta.
