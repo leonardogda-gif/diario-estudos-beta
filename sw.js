@@ -1,4 +1,4 @@
-const CACHE_NAME="diario-estudos-v6.1";
+const CACHE_NAME="diario-estudos-v6.2";
 const STATIC_ASSETS=["./manifest.json"];
 self.addEventListener("install",event=>{
   event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(STATIC_ASSETS)).catch(()=>{}));
@@ -17,12 +17,10 @@ self.addEventListener("fetch",event=>{
   const req=event.request;
   if(req.method!=="GET")return;
   const url=new URL(req.url);
-
   if(url.origin===self.location.origin && url.pathname.endsWith("/version.json")){
     event.respondWith(fetch(req,{cache:"no-store"}));
     return;
   }
-
   if(req.mode==="navigate"){
     event.respondWith(
       fetch(req,{cache:"no-store"})
@@ -35,12 +33,8 @@ self.addEventListener("fetch",event=>{
     );
     return;
   }
-
   if(url.origin===self.location.origin){
-    if(url.pathname.includes("/videos/")){
-      event.respondWith(fetch(req));
-      return;
-    }
+    if(url.pathname.includes("/videos/")){event.respondWith(fetch(req));return;}
     event.respondWith(
       caches.match(req).then(cached=>cached||fetch(req).then(response=>{
         if(response&&response.ok){

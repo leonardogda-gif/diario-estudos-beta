@@ -995,17 +995,6 @@ details[open]>summary:after{content:"⌃"}
           <div id="planCalendarImportedInfo" class="meta hidden" style="margin-top:7px"></div>
         </div>
 
-        <div class="full plan-details-later">
-          <div class="meta" style="margin-bottom:7px">Organização da atividade</div>
-          <div class="grid">
-            <div><label class="field clean-label">Tipo <span class="field-pill required-pill">Obrigatório</span></label><select id="planType" onchange="togglePlanTypeFields()"><option value="bncc">BNCC</option><option value="complementar">Complementar</option></select></div>
-            <div id="planComponentWrap"><label class="field">Componente (opcional)</label><input id="planComponent"></div>
-            <div id="planComplementaryWrap" class="full hidden"><label class="field clean-label">Atividade complementar <span class="field-pill required-pill">Obrigatório</span></label><div class="toolbar"><select id="planComplementary" onchange="planComplementaryChanged()" style="flex:1"><option value="">Selecione...</option></select><button type="button" class="btn" onclick="toggleInlineComplementary(true)">+ Criar nova</button></div>
-              <div id="inlineComplementaryForm" class="notice hidden" style="margin-top:8px"><div class="grid"><div><label class="field">Nome <span class="required-mark">*</span></label><input id="inlineCompName" placeholder="Ex.: Judô"></div><div><label class="field">Categoria (opcional)</label><input id="inlineCompCategory" placeholder="Ex.: Esporte"></div><div class="full"><label class="field">Descrição (opcional)</label><input id="inlineCompDescription"></div></div><div class="toolbar" style="margin-top:8px"><button type="button" class="btn success" onclick="createInlineComplementary()">Criar e usar</button><button type="button" class="btn" onclick="toggleInlineComplementary(false)">Cancelar</button></div></div>
-            </div>
-          </div>
-        </div>
-
         <div class="full recurrence-box"><label class="field">Repetir?</label>
           <select id="planRecurrence" onchange="togglePlanRecurrenceOptions()"><option value="none">Não repetir</option><option value="daily">Todos os dias</option><option value="weekly">Semanal</option><option value="weekdays">Dias específicos da semana</option><option value="monthly">Mensal</option></select>
           <div id="planWeekdaysBox" class="hidden" style="margin-top:8px"><div class="weekdays"><label><input type="checkbox" value="1">Seg</label><label><input type="checkbox" value="2">Ter</label><label><input type="checkbox" value="3">Qua</label><label><input type="checkbox" value="4">Qui</label><label><input type="checkbox" value="5">Sex</label><label><input type="checkbox" value="6">Sáb</label><label><input type="checkbox" value="0">Dom</label></div></div>
@@ -5956,7 +5945,7 @@ function googleCalendarRecurrence(plan){
 async function createCalendarEventForPlan(plan){
  const cal=await ensureDiaryCalendar(true),startDate=plan.date||plan.nextDate,end=new Date(startDate+"T00:00:00");end.setDate(end.getDate()+1);
  const endDate=[end.getFullYear(),String(end.getMonth()+1).padStart(2,"0"),String(end.getDate()).padStart(2,"0")].join("-"),child=state.family.children.find(c=>c.id===plan.childId);
- const description=[child?.name?`Criança: ${child.name}`:"",plan.component?`Componente: ${plan.component}`:"",plan.materialName?`Material: ${plan.materialName}`:"",plan.notes||"","Criado pelo Diário de Estudos."].filter(Boolean).join("\n");
+ const description=[child?.name?`Criança: ${child.name}`:"",plan.materialName?`Material: ${plan.materialName}`:"",plan.notes||"","Criado pelo Diário de Estudos."].filter(Boolean).join("\n");
  const body={summary:plan.title,description,start:{date:startDate},end:{date:endDate},extendedProperties:{private:{diarioPlanId:plan.id}}},recurrence=googleCalendarRecurrence(plan);if(recurrence.length)body.recurrence=recurrence;
  const event=await calendarApiFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(cal.id)}/events`,{method:"POST",body:JSON.stringify(body)});
  plan.calendarId=cal.id;plan.calendarEventId=event.id||"";plan.calendarHtmlLink=event.htmlLink||"";plan.calendarSyncedAt=now();return event
@@ -5998,17 +5987,15 @@ function createInlineComplementary(){
  toggleInlineComplementary(false);
 }
 async function addPlan(){
- let childId=$("planChild").value,title=$("planTitle").value.trim(),type=$("planType").value;
+ let childId=$("planChild").value,title=$("planTitle").value.trim();
  if(!childId||!title)return alert("Escolha a criança e informe a atividade.");
- const compAct=type==="complementar"?state.complementaryActivities.find(x=>x.id===$("planComplementary")?.value):null;
- if(type==="complementar"&&!compAct)return alert("Selecione ou crie a atividade complementar.");
  const recurrence=$("planRecurrence")?.value||"none",weekdays=recurrence==="weekdays"?selectedPlanWeekdays():[];
  if(recurrence==="weekdays"&&!weekdays.length)return alert("Escolha pelo menos um dia da semana.");
  const start=$("planDate").value||today(),imported=pendingImportedCalendarEvent?{...pendingImportedCalendarEvent}:null;
- const plan={id:uid(),childId,date:start,nextDate:start,type,complementaryId:compAct?.id||"",component:type==="complementar"?(compAct?.category||"Atividade Complementar"):$("planComponent").value.trim(),title,notes:$("planNotes").value.trim(),materialId:type==="bncc"?($("planMaterialId")?.value||""):"",materialName:type==="bncc"?($("planMaterialName")?.value||""):"",materialPublisher:type==="bncc"?($("planMaterialPublisher")?.value||""):"",materialBnccCode:"",materialBnccDescription:"",materialBnccComponent:"",materialBnccArea:"",materialBnccSkills:[],recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],createdAt:now(),updatedAt:now(),completedAt:"",importedCalendarId:imported?.calendarId||"",importedCalendarEventId:imported?.eventId||"",importedCalendarHtmlLink:imported?.htmlLink||""};
+ const plan={id:uid(),childId,date:start,nextDate:start,type:"planned",complementaryId:"",component:"",title,notes:$("planNotes").value.trim(),materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",materialBnccCode:"",materialBnccDescription:"",materialBnccComponent:"",materialBnccArea:"",materialBnccSkills:[],recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],createdAt:now(),updatedAt:now(),completedAt:"",importedCalendarId:imported?.calendarId||"",importedCalendarEventId:imported?.eventId||"",importedCalendarHtmlLink:imported?.htmlLink||""};
  state.plans.push(plan);
  const shouldAddCalendar=!!$("planAddToCalendar")?.checked&&!imported;
- $("planTitle").value="";$("planNotes").value="";if($("planComplementary"))$("planComplementary").value="";clearPlanMaterial();resetPlanCalendarOrigin();saveLocal();renderPlans();renderDashboard();
+ $("planTitle").value="";$("planNotes").value="";clearPlanMaterial();resetPlanCalendarOrigin();saveLocal();renderPlans();renderDashboard();
  if(shouldAddCalendar){try{await createCalendarEventForPlan(plan);saveLocal();renderPlans()}catch(e){alert("O planejamento foi salvo no Diário, mas não foi possível adicioná-lo ao Google Calendar: "+(e.message||e))}}
 }
 function togglePlanForm(open){
@@ -6016,7 +6003,6 @@ function togglePlanForm(open){
  if(open){
   if($('planDate')&&!$('planDate').value)$('planDate').value=today();
   if($('planChild')&&activeChildId)$('planChild').value=activeChildId;
-  refreshPlanComplementaryOptions();togglePlanTypeFields();
   if(!pendingImportedCalendarEvent){const cb=$("planAddToCalendar");if(cb)cb.disabled=false;$("planCalendarImportedInfo")?.classList.add("hidden")}
   $('planTitle')?.focus()
  }else resetPlanCalendarOrigin()
