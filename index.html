@@ -881,7 +881,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v7.4 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v7.5 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -986,7 +986,7 @@ details[open]>summary:after{content:"⌃"}
 <div class="meta" style="margin-top:4px">Registre o que vocês pretendem fazer. Componente e BNCC serão definidos depois, a partir do que realmente aconteceu.</div>
 </div>
       <div class="card">
-        <div class="toolbar" style="justify-content:space-between"><div><h2 style="margin-bottom:3px">Planejar</h2><div class="meta">Veja primeiro o que precisa de atenção. Crie um novo planejamento só quando precisar.</div></div><div class="toolbar"><button class="btn" type="button" onclick="openCalendarImport()">📅 Importar do calendário</button><button class="btn success" onclick="togglePlanForm(true)">+ Planejar atividade</button></div></div>
+        <div class="toolbar" style="justify-content:space-between"><div><h2 style="margin-bottom:3px">Planejar</h2><div class="meta">Veja primeiro o que precisa de atenção. Crie um novo planejamento só quando precisar.</div></div><div class="toolbar"><button class="btn" type="button" onclick="openCalendarImport()">📅 Importar do calendário</button><button class="btn success" onclick="openNewPlanForm()">+ Planejar atividade</button></div></div>
       </div>
       <div id="calendarImportCard" class="card hidden">
         <div class="toolbar" style="justify-content:space-between">
@@ -998,7 +998,7 @@ details[open]>summary:after{content:"⌃"}
         <div id="calendarImportList"></div>
       </div>
 
-      <div id="planFormCard" class="card hidden"><h3>Novo planejamento</h3><div class="grid">
+      <div id="planFormCard" class="card hidden"><h3 id="planFormTitle">Novo planejamento</h3><div class="grid">
         <div><label class="field">Para quem? <span class="required-mark">*</span></label><select id="planChild"></select></div>
         <div><label class="field">Quando? <span class="required-mark">*</span></label><input id="planDate" type="date"></div>
         <div class="full"><label class="field clean-label">O que vamos fazer? <span class="required-mark">*</span></label><input id="planTitle" placeholder="Ex.: Leitura do capítulo 3"></div>
@@ -1036,7 +1036,7 @@ details[open]>summary:after{content:"⌃"}
           <div id="planWeekdaysBox" class="hidden" style="margin-top:8px"><div class="weekdays"><label><input type="checkbox" value="1">Seg</label><label><input type="checkbox" value="2">Ter</label><label><input type="checkbox" value="3">Qua</label><label><input type="checkbox" value="4">Qui</label><label><input type="checkbox" value="5">Sex</label><label><input type="checkbox" value="6">Sáb</label><label><input type="checkbox" value="0">Dom</label></div></div>
           <div style="margin-top:8px"><label class="field">Repetir até (opcional)</label><input id="planEndDate" type="date"></div>
         </div>
-      </div><div class="toolbar" style="margin-top:10px"><button class="btn success" onclick="addPlan()">Salvar planejamento</button><button class="btn" onclick="togglePlanForm(false)">Cancelar</button></div></div>
+      </div><div class="toolbar" style="margin-top:10px"><button id="planSaveBtn" class="btn success" onclick="addPlan()">Salvar planejamento</button><button class="btn" onclick="cancelPlanEdit()">Cancelar</button></div></div>
       <div class="card"><div id="plansList"></div></div>
     </section>
 
@@ -4493,13 +4493,14 @@ function renderDashboard(){
  const td=today();
  const due=state.plans.filter(x=>x.childId===child.id&&!x.completedAt&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
  const todayPlans=due.filter(p=>(p.nextDate||p.date)===td),latePlans=due.filter(p=>(p.nextDate||p.date)<td),futurePlans=due.filter(p=>(p.nextDate||p.date)>td).slice(0,3);
- const planHtml=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div><div class="meta">${esc(p.component||'')}</div><div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">✓ Concluir e registrar</button>${(p.nextDate||p.date)<td?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Reagendar próxima</button>`:''}</div></div>`;
+ const planHtml=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div><div class="meta">${esc(p.component||'')}</div>${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">✓ Concluir e registrar</button><button class="btn small" onclick="showPage('planejamento');editPlan('${p.id}')">Editar</button>${(p.nextDate||p.date)<td?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Reagendar próxima</button>`:''}</div></div>`;
  box.innerHTML=`<div class="card"><div class="toolbar" style="justify-content:space-between"><div>${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje com ${esc(child.name)}</h2><div class="meta">${fmtDate(td)}</div></div><div class="child-tabs">${state.family.children.filter(c=>!c.archivedAt).map(c=>`<button class="child ${c.id===child.id?'active':''}" onclick="selectChild('${c.id}');showPage('inicio')">${esc(c.name)}</button>`).join('')}</div></div>
- <div class="daily-actions"><button class="btn success" onclick="openTodayRecord()">+ Registrar atividade</button><button class="btn primary" onclick="showPage('planejamento')">📅 Abrir planejamento</button><button class="btn" onclick="showPage('planejamento');togglePlanForm(true)">+ Novo planejamento</button><button class="btn" onclick="openOldRecord()">Adicionar atividade antiga</button></div></div>
+ <div class="daily-actions"><button class="btn success" onclick="openTodayRecord()">+ Registrar atividade</button><button class="btn primary" onclick="showPage('planejamento')">📅 Abrir planejamento</button><button class="btn" onclick="showPage('planejamento');openNewPlanForm()">+ Novo planejamento</button><button class="btn" onclick="openOldRecord()">Adicionar atividade antiga</button></div></div>
  ${latePlans.length?`<div class="card"><h3>Precisa de atenção</h3><div class="meta">Atividades planejadas que ficaram para trás.</div>${latePlans.map(planHtml).join('')}</div>`:''}
  <div class="card"><h3>Para hoje</h3>${todayPlans.map(planHtml).join('')||"<div class='notice'>Nada planejado para hoje. Você pode registrar uma atividade que aconteceu sem planejamento.</div>"}</div>
- ${futurePlans.length?`<div class="card"><h3>Próximos dias</h3>${futurePlans.map(p=>`<div class="plan-card record-clickable" onclick="openPlanFromDashboard('${p.id}')"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${p.place?`<div class="meta">📍 ${esc(p.place)}</div>`:""}<div class="entry-actions"><button class="btn success small" type="button" onclick="event.stopPropagation();startPlan('${p.id}')">+ Registrar atividade</button><button class="btn small" type="button" onclick="event.stopPropagation();openPlanFromDashboard('${p.id}')">Visualizar planejamento</button></div></div>`).join('')}<button class="btn" onclick="showPage('planejamento')">Ver todos os planejamentos</button></div>`:''}
+ ${futurePlans.length?`<div class="card"><h3>Próximos dias</h3>${futurePlans.map(p=>`<div class="plan-card record-clickable" onclick="openPlanFromDashboard('${p.id}')"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${p.place?`<div class="meta">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="entry-actions"><button class="btn success small" type="button" onclick="event.stopPropagation();startPlan('${p.id}')">+ Registrar atividade</button><button class="btn small" type="button" onclick="event.stopPropagation();openPlanFromDashboard('${p.id}')">Visualizar planejamento</button></div></div>`).join('')}<button class="btn" onclick="showPage('planejamento')">Ver todos os planejamentos</button></div>`:''}
  <div class="card"><h3>Últimas atividades</h3>${allEntries.slice(0,4).map(x=>`<div class="entry record-clickable ${x.status==='Dominado'?'done':x.status==='Precisa de revisão'?'focus':'progress'}" onclick="viewEntry('${x.id}','${child.id}')"><div class="meta">${fmtDate(x.date)}</div><div class="entry-title">${esc(x.atividade)}</div></div>`).join('')||"<div class='notice'>Nenhuma atividade registrada ainda.</div>"}</div>`;
+ queueSavedPlanningWeatherRefresh();
 }
 function openTodayRecord(){recordFormOpen=true;editing=null;showPage('registro');renderRecordPage()}
 function openPlanFromDashboard(id){
@@ -6068,6 +6069,18 @@ async function createCalendarEventForPlan(plan){
  const event=await calendarApiFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(cal.id)}/events`,{method:"POST",body:JSON.stringify(body)});
  plan.calendarId=cal.id;plan.calendarEventId=event.id||"";plan.calendarHtmlLink=event.htmlLink||"";plan.calendarSyncedAt=now();return event
 }
+async function updateCalendarEventForEditedPlan(plan){
+ if(!plan?.calendarId||!plan?.calendarEventId)return null;
+ let body;
+ if(plan.importedCalendarEventId)body=importedCalendarCopyBody(plan,null);
+ else{
+  const startDate=plan.nextDate||plan.date,end=new Date(startDate+"T00:00:00");end.setDate(end.getDate()+1);
+  const endDate=iso(end),child=state.family.children.find(c=>c.id===plan.childId),description=[child?.name?`Criança: ${child.name}`:"",plan.materialName?`Material: ${plan.materialName}`:"",plan.notes||"","Atualizado pelo Diário de Estudos."].filter(Boolean).join("\n");
+  body={summary:plan.title,location:plan.place||"",description,start:{date:startDate},end:{date:endDate},extendedProperties:{private:{diarioPlanId:plan.id}}};const recurrence=googleCalendarRecurrence(plan);if(recurrence.length)body.recurrence=recurrence;
+ }
+ const event=await calendarApiFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(plan.calendarId)}/events/${encodeURIComponent(plan.calendarEventId)}`,{method:"PUT",body:JSON.stringify(body)});
+ plan.calendarHtmlLink=event?.htmlLink||plan.calendarHtmlLink||"";plan.calendarSyncedAt=now();return event;
+}
 function importedCalendarCopyBody(plan,source){
  const child=state.family.children.find(c=>c.id===plan.childId),description=[source?.description||cleanCalendarDescription(plan.notes||""),child?.name?`Criança: ${child.name}`:"","Cópia importada pelo Diário de Estudos."].filter(Boolean).join("\n");
  return {summary:source?.summary||plan.title,location:source?.location||plan.place||"",description,start:source?.start||{date:plan.date||plan.nextDate},end:source?.end||{date:(()=>{const d=new Date((plan.date||plan.nextDate)+"T00:00:00");d.setDate(d.getDate()+1);return iso(d)})()},extendedProperties:{private:{diarioPlanId:plan.id,sourceCalendarId:plan.importedCalendarId||"",sourceEventId:plan.importedCalendarEventId||""}}}
@@ -6220,19 +6233,85 @@ async function refreshPlanWeather(){
 let planWeatherTimer;
 function schedulePlanWeather(){clearTimeout(planWeatherTimer);planWeatherTimer=setTimeout(refreshPlanWeather,650)}
 
+let editingPlanId="",refreshingSavedPlanWeather=false,planningWeatherRefreshQueued=false;
+function planWeatherHtml(plan){
+ const w=plan?.weather,target=plan?.nextDate||plan?.date;
+ if(!w||w.date!==target||w.min==null||w.max==null)return "";
+ return `<div class="notice" style="margin-top:7px">🌦️ <b>${esc(w.min)}–${esc(w.max)} °C · ${esc(weatherCodeLabel(w.code))}</b>${w.rain!=null?` · ${esc(w.rain)}% chuva`:""}<br><span class="meta">Previsão para ${esc(w.place||plan.place||"o local")}${w.checkedAt?` · atualizada ${new Date(w.checkedAt).toLocaleDateString("pt-BR")}`:""}</span></div>`;
+}
+async function weatherForSavedPlan(plan){
+ const date=plan.nextDate||plan.date,place=String(plan.place||"").trim();
+ if(!date||!place)return null;
+ const today0=new Date();today0.setHours(0,0,0,0);const target=new Date(date+"T12:00:00"),days=Math.floor((target-today0)/86400000);
+ if(days<0||days>15)return null;
+ let loc=null;
+ if(plan.placeDetails?.latitude!=null&&plan.placeDetails?.longitude!=null)loc={name:plan.placeDetails.name||place,latitude:plan.placeDetails.latitude,longitude:plan.placeDetails.longitude,source:"google_places"};
+ else if(plan.weather?.latitude!=null&&plan.weather?.longitude!=null)loc={name:plan.weather.place||place,latitude:plan.weather.latitude,longitude:plan.weather.longitude,source:plan.weather.source||"saved"};
+ else loc=await geocodePlanPlace(place);
+ if(!loc)return null;
+ const u=new URL("https://api.open-meteo.com/v1/forecast");
+ u.searchParams.set("latitude",loc.latitude);u.searchParams.set("longitude",loc.longitude);u.searchParams.set("daily","weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max");u.searchParams.set("timezone","auto");u.searchParams.set("forecast_days","16");
+ const r=await fetch(u);if(!r.ok)throw new Error("previsão indisponível");const d=await r.json(),i=d.daily?.time?.indexOf(date)??-1;if(i<0)return null;
+ return {date,place:loc.name,latitude:loc.latitude,longitude:loc.longitude,min:Math.round(d.daily.temperature_2m_min[i]),max:Math.round(d.daily.temperature_2m_max[i]),rain:d.daily.precipitation_probability_max?.[i]??null,code:d.daily.weather_code[i],source:loc.source||"open_meteo_geocoding",checkedAt:new Date().toISOString()};
+}
+function savedPlanWeatherNeedsRefresh(plan){
+ const date=plan.nextDate||plan.date;if(!date||!plan.place||date<today())return false;
+ const limit=new Date();limit.setHours(0,0,0,0);limit.setDate(limit.getDate()+15);if(date>iso(limit))return false;
+ return !plan.weather?.checkedAt||plan.weather.date!==date||iso(new Date(plan.weather.checkedAt))!==today();
+}
+async function refreshSavedPlanningWeather(){
+ if(refreshingSavedPlanWeather||!navigator.onLine)return;
+ const plans=state.plans.filter(p=>!p.completedAt&&savedPlanWeatherNeedsRefresh(p));if(!plans.length)return;
+ refreshingSavedPlanWeather=true;let changed=false;
+ try{
+  for(const plan of plans){try{const weather=await weatherForSavedPlan(plan);if(weather){plan.weather=weather;plan.updatedAt=now();changed=true}}catch(e){console.warn("Clima do planejamento:",e)}}
+  if(changed){saveLocal();renderPlans();renderDashboard()}
+ }finally{refreshingSavedPlanWeather=false}
+}
+function queueSavedPlanningWeatherRefresh(){
+ if(planningWeatherRefreshQueued)return;planningWeatherRefreshQueued=true;
+ setTimeout(()=>{planningWeatherRefreshQueued=false;refreshSavedPlanningWeather()},800);
+}
+
+function clearPlanForm(){
+ editingPlanId="";["planTitle","planNotes","planPlace","planMaterialSearch","planEndDate"].forEach(id=>{if($(id))$(id).value=""});
+ if($("planDate"))$("planDate").value=today();if($("planRecurrence"))$("planRecurrence").value="none";
+ document.querySelectorAll("#planWeekdaysBox input[type=checkbox]").forEach(x=>x.checked=false);togglePlanRecurrenceOptions();
+ clearPlanPlaceSelection();hidePlanPlaceResults();planPlaceSessionToken="";clearPlanMaterial();resetPlanCalendarOrigin();
+ if($("planWeatherBox")){$("planWeatherBox").classList.add("hidden");$("planWeatherBox").innerHTML="";delete $("planWeatherBox").dataset.weather}
+ if($("planFormTitle"))$("planFormTitle").textContent="Novo planejamento";if($("planSaveBtn"))$("planSaveBtn").textContent="Salvar planejamento";
+}
+function openNewPlanForm(){clearPlanForm();togglePlanForm(true)}
+function cancelPlanEdit(){clearPlanForm();togglePlanForm(false)}
+async function editPlan(id){
+ const p=state.plans.find(x=>x.id===id);if(!p)return;resetPlanCalendarOrigin();editingPlanId=id;activeChildId=p.childId;
+ togglePlanForm(true);if($("planFormTitle"))$("planFormTitle").textContent="Editar planejamento";if($("planSaveBtn"))$("planSaveBtn").textContent="Salvar alterações";
+ $("planChild").value=p.childId;$("planDate").value=p.nextDate||p.date||today();$("planTitle").value=p.title||"";$("planNotes").value=p.notes||"";$("planPlace").value=p.place||"";
+ selectedPlanPlace=p.placeDetails?{...p.placeDetails}:(p.weather?.latitude!=null?{name:p.weather.place||p.place,address:p.place||"",latitude:p.weather.latitude,longitude:p.weather.longitude}:null);if($("planPlaceId"))$("planPlaceId").value=selectedPlanPlace?.place_id||"";
+ if(p.materialId||p.materialName){$("planMaterialId").value=p.materialId||"";$("planMaterialName").value=p.materialName||"";$("planMaterialPublisher").value=p.materialPublisher||"";renderPlanMaterialSelection({id:p.materialId,name:p.materialName,publisher:p.materialPublisher})}else clearPlanMaterial();
+ $("planRecurrence").value=p.recurrence||"none";$("planEndDate").value=p.endDate||"";document.querySelectorAll("#planWeekdaysBox input[type=checkbox]").forEach(x=>x.checked=(p.weekdays||[]).map(Number).includes(Number(x.value)));togglePlanRecurrenceOptions();
+ if($("planAddToCalendar")){ $("planAddToCalendar").checked=!!p.calendarEventId;$("planAddToCalendar").disabled=!!p.calendarEventId||!!p.importedCalendarEventId }
+ if(p.importedCalendarEventId){const info=$("planCalendarImportedInfo");if(info){info.classList.remove("hidden");info.textContent="📅 Você está editando somente a cópia do Diário. O evento original não será alterado."}}
+ if(p.weather){const box=$("planWeatherBox");box.classList.remove("hidden");box.innerHTML=planWeatherHtml({...p,nextDate:$("planDate").value});box.dataset.weather=JSON.stringify(p.weather)}
+ await refreshPlanWeather();setTimeout(()=>$("planFormCard")?.scrollIntoView({behavior:"smooth",block:"start"}),50);
+}
+
 async function addPlan(){
  let childId=$("planChild").value,title=$("planTitle").value.trim();
  if(!childId||!title)return alert("Escolha a criança e informe a atividade.");
  const recurrence=$("planRecurrence")?.value||"none",weekdays=recurrence==="weekdays"?selectedPlanWeekdays():[];
  if(recurrence==="weekdays"&&!weekdays.length)return alert("Escolha pelo menos um dia da semana.");
  const start=$("planDate").value||today(),imported=pendingImportedCalendarEvent?{...pendingImportedCalendarEvent}:null;
- const weather=(()=>{try{return JSON.parse($("planWeatherBox")?.dataset.weather||"null")}catch{return null}})();
+ let weather=(()=>{try{return JSON.parse($("planWeatherBox")?.dataset.weather||"null")}catch{return null}})();
  const placeDetails=selectedPlanPlace?{...selectedPlanPlace}:null;
- const plan={id:uid(),childId,date:start,nextDate:start,type:"planned",complementaryId:"",component:"",title,notes:$("planNotes").value.trim(),place:planPlaceValue(),placeDetails,weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",materialBnccCode:"",materialBnccDescription:"",materialBnccComponent:"",materialBnccArea:"",materialBnccSkills:[],recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],createdAt:now(),updatedAt:now(),completedAt:"",importedCalendarId:imported?.calendarId||"",importedCalendarName:imported?.calendarName||"",importedCalendarEventId:imported?.eventId||"",importedCalendarHtmlLink:imported?.htmlLink||"",importedCalendarUpdated:imported?.updated||"",importedCalendarFingerprint:imported?.fingerprint||"",importedCalendarChanged:false};
- state.plans.push(plan);
+ const existing=editingPlanId?state.plans.find(x=>x.id===editingPlanId):null;
+ if(!weather&&existing&&(existing.nextDate||existing.date)===start&&existing.place===planPlaceValue())weather=existing.weather||null;
+ const plan=existing?{...existing,childId,title,notes:$("planNotes").value.trim(),place:planPlaceValue(),placeDetails,weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",recurrence,weekdays,endDate:$("planEndDate")?.value||"",nextDate:start,date:(existing.occurrences||[]).length?existing.date:start,updatedAt:now()}:{id:uid(),childId,date:start,nextDate:start,type:"planned",complementaryId:"",component:"",title,notes:$("planNotes").value.trim(),place:planPlaceValue(),placeDetails,weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",materialBnccCode:"",materialBnccDescription:"",materialBnccComponent:"",materialBnccArea:"",materialBnccSkills:[],recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],createdAt:now(),updatedAt:now(),completedAt:"",importedCalendarId:imported?.calendarId||"",importedCalendarName:imported?.calendarName||"",importedCalendarEventId:imported?.eventId||"",importedCalendarHtmlLink:imported?.htmlLink||"",importedCalendarUpdated:imported?.updated||"",importedCalendarFingerprint:imported?.fingerprint||"",importedCalendarChanged:false};
+ if(!existing)state.plans.push(plan);else Object.assign(existing,plan);
  const shouldAddCalendar=!!$("planAddToCalendar")?.checked&&!imported;
- $("planTitle").value="";$("planNotes").value="";if($("planPlace"))$("planPlace").value="";clearPlanPlaceSelection();hidePlanPlaceResults();planPlaceSessionToken="";if($("planWeatherBox")){$("planWeatherBox").classList.add("hidden");$("planWeatherBox").innerHTML="";delete $("planWeatherBox").dataset.weather}clearPlanMaterial();resetPlanCalendarOrigin();saveLocal();renderPlans();renderDashboard();
- if(shouldAddCalendar){try{await createCalendarEventForPlan(plan);saveLocal();renderPlans()}catch(e){alert("O planejamento foi salvo no Diário, mas não foi possível adicioná-lo ao Google Calendar: "+(e.message||e))}}
+ clearPlanForm();togglePlanForm(false);saveLocal();renderPlans();renderDashboard();
+ if(existing&&plan.calendarEventId){try{await updateCalendarEventForEditedPlan(plan);saveLocal();renderPlans()}catch(e){alert("As alterações foram salvas no Diário, mas não foi possível atualizar a cópia no Google Calendar: "+(e.message||e))}}
+ else if(shouldAddCalendar){try{await createCalendarEventForPlan(plan);saveLocal();renderPlans()}catch(e){alert("O planejamento foi salvo no Diário, mas não foi possível adicioná-lo ao Google Calendar: "+(e.message||e))}}
  if(imported){try{await createImportedCalendarCopy(plan,imported);saveLocal();renderPlans()}catch(e){alert("O planejamento foi salvo, mas a cópia não pôde ser criada na agenda Diário de Estudos: "+(e.message||e))}}
 }
 function togglePlanForm(open){
@@ -6242,14 +6321,15 @@ function togglePlanForm(open){
   if($('planChild')&&activeChildId)$('planChild').value=activeChildId;
   if(!pendingImportedCalendarEvent){const cb=$("planAddToCalendar");if(cb)cb.disabled=false;$("planCalendarImportedInfo")?.classList.add("hidden")}
   $('planTitle')?.focus()
- }else resetPlanCalendarOrigin()
+ }else if(!editingPlanId)resetPlanCalendarOrigin()
 }
 function renderPlans(){
  let box=$("plansList");if(!box)return;let childId=$("planChild")?.value||activeChildId,td=today();
  let l=state.plans.filter(x=>!x.completedAt&&(!childId||x.childId===childId)&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
- const card=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':(p.nextDate||p.date)===td?'is-today':''}" data-plan-id="${esc(p.id)}"><div class="plan-date">${fmtDate(p.nextDate||p.date)} · ${esc(state.family.children.find(c=>c.id===p.childId)?.name||'')}</div><div class="entry-title">${esc(p.title)}</div>${p.component?`<div class="skill">${esc(p.component)}</div>`:''}${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${p.materialName?`<div class="meta" style="margin-top:4px">📘 ${esc(p.materialName)}</div>`:""}${p.notes?`<div class="obs">${esc(p.notes)}</div>`:''}${p.calendarEventId?`<div class="meta" style="margin-top:4px">📅 No Google Calendar${p.importedCalendarEventId?" · cópia de "+esc(p.importedCalendarName||"agenda pessoal"):""}</div>`:p.importedCalendarEventId?`<div class="meta" style="margin-top:4px">📅 Importado do seu calendário · cópia pendente</div>`:""}${p.importedCalendarChanged?`<div class="notice" style="margin-top:8px"><b>⚠ Evento original atualizado</b><br><button class="btn small primary" style="margin-top:7px" type="button" onclick="updateImportedCalendarCopy('${p.id}')">Atualizar cópia</button></div>`:""}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">+ Registrar atividade</button>${p.recurrence!=='none'?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular / próxima</button>`:''}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`;
+ const card=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':(p.nextDate||p.date)===td?'is-today':''}" data-plan-id="${esc(p.id)}"><div class="plan-date">${fmtDate(p.nextDate||p.date)} · ${esc(state.family.children.find(c=>c.id===p.childId)?.name||'')}</div><div class="entry-title">${esc(p.title)}</div>${p.component?`<div class="skill">${esc(p.component)}</div>`:''}${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}${p.materialName?`<div class="meta" style="margin-top:4px">📘 ${esc(p.materialName)}</div>`:""}${p.notes?`<div class="obs">${esc(p.notes)}</div>`:''}${p.calendarEventId?`<div class="meta" style="margin-top:4px">📅 No Google Calendar${p.importedCalendarEventId?" · cópia de "+esc(p.importedCalendarName||"agenda pessoal"):""}</div>`:p.importedCalendarEventId?`<div class="meta" style="margin-top:4px">📅 Importado do seu calendário · cópia pendente</div>`:""}${p.importedCalendarChanged?`<div class="notice" style="margin-top:8px"><b>⚠ Evento original atualizado</b><br><button class="btn small primary" style="margin-top:7px" type="button" onclick="updateImportedCalendarCopy('${p.id}')">Atualizar cópia</button></div>`:""}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">+ Registrar atividade</button><button class="btn small" onclick="editPlan('${p.id}')">Editar</button>${p.recurrence!=='none'?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular / próxima</button>`:''}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`;
  const late=l.filter(p=>(p.nextDate||p.date)<td),now=l.filter(p=>(p.nextDate||p.date)===td),future=l.filter(p=>(p.nextDate||p.date)>td);
  box.innerHTML=`${late.length?`<div class="plan-section-title">Atrasadas · ${late.length}</div>${late.map(card).join('')}`:''}<div class="plan-section-title">Hoje · ${now.length}</div>${now.map(card).join('')||"<div class='notice'>Nada planejado para hoje.</div>"}${future.length?`<div class="plan-section-title">Próximos dias · ${future.length}</div>${future.map(card).join('')}`:''}`;
+ queueSavedPlanningWeatherRefresh();
 }
 function startPlan(id){let p=state.plans.find(x=>x.id===id);if(!p)return;activeChildId=p.childId;recordFormOpen=true;editing={id:uid(),isNewFromPlan:true,childId:p.childId,date:p.nextDate||p.date,type:p.type,complementaryId:p.complementaryId||"",area:"",componente:p.component||"",codigo:"",habilidade:"",materialId:p.materialId||"",materialName:p.materialName||"",materialPublisher:p.materialPublisher||"",materialBnccSkills:[],atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,planOccurrenceDate:p.nextDate||p.date};showPage("registro");renderRecordPage()}
 function completePlanOccurrence(planId,occurrenceDate){const p=state.plans.find(x=>x.id===planId);if(!p)return;p.occurrences??=[];p.occurrences.push({date:occurrenceDate,status:"completed",updatedAt:now()});if(p.recurrence==="none"){p.completedAt=now();p.nextDate=""}else{p.nextDate=nextPlanDate(p,occurrenceDate);if(!p.nextDate)p.completedAt=now()}p.updatedAt=now()}
@@ -6745,6 +6825,8 @@ function init(){
  initGoogleAuth();
  updateAuthUI();
  syncRememberCheckbox();
+ queueSavedPlanningWeatherRefresh();
+ setInterval(()=>{if(document.visibilityState==="visible")queueSavedPlanningWeatherRefresh()},60*60*1000);
 
  setBackendStatus("aguardando login");
  if(rememberGoogleEnabled()){
@@ -6763,6 +6845,7 @@ window.addEventListener("online",()=>{if(tokenValid()){setCloudStatus("busy","In
 window.addEventListener("pagehide",()=>{try{saveRecordDraft(true)}catch(e){}});
 document.addEventListener("visibilitychange",()=>{
  if(document.visibilityState==="hidden"){try{saveRecordDraft(true)}catch(e){}}
+ else queueSavedPlanningWeatherRefresh();
 });
 
 document.addEventListener("click",e=>{
@@ -6773,7 +6856,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "7.4";
+const APP_VERSION = "7.5";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

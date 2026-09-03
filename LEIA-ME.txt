@@ -1,4 +1,4 @@
-DIÁRIO DE ESTUDOS — v7.4
+DIÁRIO DE ESTUDOS — v7.5
 
 BASE
 - Evolução da v6.8 corrigida.
@@ -66,18 +66,28 @@ PÁGINA INICIAL
 - Cada cartão também pode ser aberto para visualização na página Planejamento.
 - O planejamento escolhido é localizado, centralizado e destacado ao abrir.
 
+PLANEJAMENTO E CLIMA — v7.5
+- Cada planejamento ativo agora possui a opção “Editar”.
+- A família pode alterar criança, próxima data, título, descrição, local, material e recorrência.
+- Quando houver uma cópia no calendário “Diário de Estudos”, a cópia é atualizada; o evento original importado nunca é alterado.
+- A previsão do tempo salva aparece nos cartões da página Planejamento e da página inicial.
+- O app renova previsões uma vez por dia quando estiver aberto ou na próxima abertura.
+- Planejamentos mais distantes passam a receber previsão quando entrarem na janela dos próximos 15 dias.
+- O clima fica salvo junto do planejamento e acompanha a sincronização da família.
+- A consulta usa Open-Meteo e não exige alteração do Worker ou do D1.
+
 ARQUIVOS
 - index.html
 - sw.js
 - version.json
 - LEIA-ME.txt
-- worker.js
+- O worker.js permanece na versão 0.20-beta já publicada e não faz parte deste pacote.
 
 PUBLICAÇÃO
-- Publique primeiro o conteúdo de worker.js no Cloudflare Worker.
-- Depois, substitua index.html, sw.js, version.json e LEIA-ME.txt no GitHub.
+- Nesta atualização, não é necessário substituir o Worker.
+- Substitua index.html, sw.js, version.json e LEIA-ME.txt no GitHub.
 - Mantenha manifest.json e a pasta icons existentes.
 - Esta versão não exige comando de migração no D1.
-- APP_VERSION: 7.4.
-- Cache do service worker: diario-estudos-v7.4.
+- APP_VERSION: 7.5.
+- Cache do service worker: diario-estudos-v7.5.
 - Worker API: 0.20-beta.
