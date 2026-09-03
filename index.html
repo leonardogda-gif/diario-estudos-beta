@@ -881,7 +881,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v7.5 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v7.6 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -999,7 +999,7 @@ details[open]>summary:after{content:"⌃"}
       </div>
 
       <div id="planFormCard" class="card hidden"><h3 id="planFormTitle">Novo planejamento</h3><div class="grid">
-        <div><label class="field">Para quem? <span class="required-mark">*</span></label><select id="planChild"></select></div>
+        <div class="full"><label class="field">Para quem? <span class="required-mark">*</span></label><div class="field-help">Selecione uma ou várias crianças. O planejamento será escrito uma única vez.</div><div id="planChildrenPicker" class="child-tabs" style="margin-top:7px"></div><select id="planChild" class="hidden" aria-hidden="true" tabindex="-1"></select></div>
         <div><label class="field">Quando? <span class="required-mark">*</span></label><input id="planDate" type="date"></div>
         <div class="full"><label class="field clean-label">O que vamos fazer? <span class="required-mark">*</span></label><input id="planTitle" placeholder="Ex.: Leitura do capítulo 3"></div>
 
@@ -1037,7 +1037,7 @@ details[open]>summary:after{content:"⌃"}
           <div style="margin-top:8px"><label class="field">Repetir até (opcional)</label><input id="planEndDate" type="date"></div>
         </div>
       </div><div class="toolbar" style="margin-top:10px"><button id="planSaveBtn" class="btn success" onclick="addPlan()">Salvar planejamento</button><button class="btn" onclick="cancelPlanEdit()">Cancelar</button></div></div>
-      <div class="card"><div id="plansList"></div></div>
+      <div class="card"><div class="toolbar" style="justify-content:space-between;align-items:flex-end"><div><h3 style="margin-bottom:3px">Agenda da família</h3><div class="meta">Veja tudo junto ou filtre por criança.</div></div></div><div id="planViewChildren" class="child-tabs" style="margin:12px 0"></div><div id="plansList"></div></div>
     </section>
 
     
@@ -1775,7 +1775,7 @@ function normalizeState(){
  state.family.reportInfo=state.family.reportInfo||{responsibleName:"",responsibleRelation:"",city:"",state:"",modality:"",institution:""};
  state.family.reportAiSummaries=state.family.reportAiSummaries||{};
  state.family.children=(state.family.children||[]).map(c=>({...c,stage:c.stage||"Sem ano de referência",stageHistory:c.stageHistory||[{stage:c.stage||"Sem ano de referência",startDate:"",endDate:""}],reportInfo:c.reportInfo||{fullName:"",schoolYear:"",notes:""}}));
- state.plans=state.plans||[];state.customBncc=Array.isArray(state.customBncc)?state.customBncc:[];state.tombstones={entries:[],children:[],complementary:[],plans:[],...(state.tombstones||{})};
+ state.plans=(state.plans||[]).map(p=>({...p,childIds:[...new Set((Array.isArray(p.childIds)&&p.childIds.length?p.childIds:[p.childId]).filter(Boolean))],participantProgress:p.participantProgress||{}}));state.customBncc=Array.isArray(state.customBncc)?state.customBncc:[];state.tombstones={entries:[],children:[],complementary:[],plans:[],...(state.tombstones||{})};
 }
 function loadLocal(){
  try{
@@ -3015,7 +3015,7 @@ async function mergeDuplicateChildren(keepId,removeId){
  const keepBackend=mapBefore[keepId]||"";
  const removeBackend=mapBefore[removeId]||"";
  const entryCount=(state.entries[removeId]||[]).length;
- const planCount=(state.plans||[]).filter(p=>p.childId===removeId).length;
+ const planCount=(state.plans||[]).filter(p=>planIncludesChild(p,removeId)).length;
 
  const msg=`Mesclar "${rem.name}" em "${keep.name}"?\n\nSerão transferidos ${entryCount} registro(s) e ${planCount} planejamento(s).\n\nO cadastro duplicado "${rem.name}" será EXCLUÍDO DEFINITIVAMENTE após a transferência e não poderá ser restaurado.`;
  if(!confirm(msg))return;
@@ -3239,7 +3239,7 @@ function mergeLocalChildData(keepId, removeId){
   delete state.entries[removeId];
 
   // Preserva planejamentos.
-  state.plans.forEach(p=>{if(p.childId===removeId)p.childId=keepId});
+  state.plans.forEach(p=>{const ids=planChildIds(p).map(id=>id===removeId?keepId:id);p.childIds=[...new Set(ids)];p.childId=p.childIds[0]||keepId;if(p.participantProgress)Object.values(p.participantProgress).forEach(progress=>{if(progress?.[removeId]){progress[keepId]=progress[keepId]||progress[removeId];delete progress[removeId]}})});
 
   // Mantém o histórico de ano mais completo.
   keep.stageHistory??=[];
@@ -3268,7 +3268,7 @@ function backupAndRemoveLegacyLocalChildren(){
     reason:"V4.4 - cadastros locais removidos da área ativa porque não existem no D1",
     children:JSON.parse(JSON.stringify(legacy)),
     entries:{},
-    plans:JSON.parse(JSON.stringify(state.plans.filter(p=>ids.has(p.childId))))
+    plans:JSON.parse(JSON.stringify(state.plans.filter(p=>planChildIds(p).some(id=>ids.has(id)))))
   };
 
   legacy.forEach(c=>{
@@ -3285,7 +3285,7 @@ function backupAndRemoveLegacyLocalChildren(){
 
   state.family.children=state.family.children.filter(c=>!ids.has(c.id));
   ids.forEach(id=>delete state.entries[id]);
-  state.plans=state.plans.filter(p=>!ids.has(p.childId));
+  state.plans=state.plans.flatMap(p=>{const remaining=planChildIds(p).filter(id=>!ids.has(id));if(!remaining.length)return [];return [{...p,childIds:remaining,childId:remaining[0]}]});
 
   const map=getBackendChildMap();
   Object.keys(map).forEach(id=>{if(ids.has(id))delete map[id]});
@@ -3956,9 +3956,9 @@ function recoverLegacyBackupsIntoCanonicalChildren(){
         migratedAny=true;
       }
 
-      for(const p of (backup.plans||[]).filter(x=>x.childId===legacyChild.id)){
+      for(const p of (backup.plans||[]).filter(x=>planChildIds(x).includes(legacyChild.id))){
         if(state.plans.some(x=>x.id===p.id))continue;
-        state.plans.push({...p,childId:target.id,updatedAt:p.updatedAt||p.createdAt||now()});
+        const childIds=planChildIds(p).map(id=>id===legacyChild.id?target.id:id);state.plans.push({...p,childId:childIds[0]||target.id,childIds:[...new Set(childIds)],updatedAt:p.updatedAt||p.createdAt||now()});
         recoveredPlans++;
         migratedAny=true;
       }
@@ -4001,9 +4001,9 @@ function sharedEducationalPayload(){
   });
 
   const plans=(state.plans||[]).flatMap(p=>{
-    const backendChildId=localToBackendChildId(p.childId);
-    if(!backendChildId)return [];
-    return [{...JSON.parse(JSON.stringify(p)),childId:backendChildId}];
+    const backendChildIds=planChildIds(p).map(localToBackendChildId).filter(Boolean);
+    if(!backendChildIds.length)return [];
+    const copy=JSON.parse(JSON.stringify(p));copy.childIds=backendChildIds;copy.childId=backendChildIds[0];copy.participantProgress={};Object.entries(p.participantProgress||{}).forEach(([date,progress])=>{copy.participantProgress[date]={};Object.entries(progress||{}).forEach(([localId,value])=>{const backendId=localToBackendChildId(localId);if(backendId)copy.participantProgress[date][backendId]=value})});return [copy];
   });
 
   return {
@@ -4083,9 +4083,9 @@ function applySharedEducational(shared){
   state.entries=entries;
 
   state.plans=(shared.plans||[]).flatMap(p=>{
-    const localChildId=backendToLocalChildId(p.childId);
-    if(!localChildId)return [];
-    return [{...p,childId:localChildId}];
+    const backendIds=Array.isArray(p.childIds)&&p.childIds.length?p.childIds:[p.childId],localChildIds=[...new Set(backendIds.map(backendToLocalChildId).filter(Boolean))];
+    if(!localChildIds.length)return [];
+    const participantProgress={};Object.entries(p.participantProgress||{}).forEach(([date,progress])=>{participantProgress[date]={};Object.entries(progress||{}).forEach(([backendId,value])=>{const localId=backendToLocalChildId(backendId);if(localId)participantProgress[date][localId]=value})});return [{...p,childId:localChildIds[0],childIds:localChildIds,participantProgress}];
   });
 
   state.complementaryActivities=shared.complementaryActivities||[];
@@ -4345,6 +4345,7 @@ function populateCommonSelects(){
    : [];
  const opts=availableChildren.map(c=>`<option value="${c.id}">${esc(c.name)} — ${esc(c.stage)}</option>`).join("");
  ["planChild","reportChild","historyChild","historyPhotoChild","oldRecordChild","reportInfoChild"].forEach(id=>{let e=$(id);if(e){let old=e.value;e.innerHTML=opts;if(old&&availableChildren.some(c=>c.id===old))e.value=old;else if(activeChildId&&availableChildren.some(c=>c.id===activeChildId))e.value=activeChildId}});
+ if(!editingPlanId)renderPlanChildrenPicker(activeChildId?[activeChildId]:[]);
  $("childStage").innerHTML=STAGES.map(x=>`<option>${esc(x)}</option>`).join("");
  if($("materialAgeRange")){
    const oldAge=$("materialAgeRange").value;
@@ -4481,7 +4482,7 @@ function deleteChild(id){
  if(!confirm("Excluir esta criança e seus registros?"))return;
  state.family.children=state.family.children.filter(x=>x.id!==id);addTomb("children",id);
  (state.entries[id]||[]).forEach(x=>addTomb("entries",x.id));delete state.entries[id];
- state.plans.filter(x=>x.childId===id).forEach(x=>addTomb("plans",x.id));state.plans=state.plans.filter(x=>x.childId!==id);
+ state.plans=state.plans.flatMap(p=>{if(!planIncludesChild(p,id))return [p];const remaining=planChildIds(p).filter(x=>x!==id);if(!remaining.length){addTomb("plans",p.id);return []}if(p.participantProgress)Object.values(p.participantProgress).forEach(progress=>{if(progress)delete progress[id]});return [{...p,childIds:remaining,childId:remaining[0],updatedAt:now()}]});
  activeChildId=state.family.children[0]?.id||null;state.family.updatedAt=now();saveLocal();renderAll()
 }
 
@@ -4491,9 +4492,9 @@ function renderDashboard(){
  activeChildId=child.id;
  const allEntries=(state.entries[child.id]||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
  const td=today();
- const due=state.plans.filter(x=>x.childId===child.id&&!x.completedAt&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
+ const due=state.plans.filter(x=>planPendingForChild(x,child.id)&&!x.completedAt&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
  const todayPlans=due.filter(p=>(p.nextDate||p.date)===td),latePlans=due.filter(p=>(p.nextDate||p.date)<td),futurePlans=due.filter(p=>(p.nextDate||p.date)>td).slice(0,3);
- const planHtml=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div><div class="meta">${esc(p.component||'')}</div>${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">✓ Concluir e registrar</button><button class="btn small" onclick="showPage('planejamento');editPlan('${p.id}')">Editar</button>${(p.nextDate||p.date)<td?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Reagendar próxima</button>`:''}</div></div>`;
+ const planHtml=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div class="meta">👨‍👩‍👧‍👦 Planejamento compartilhado: ${esc(planChildNames(p).join(", "))}</div>`:""}<div class="meta">${esc(p.component||'')}</div>${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}','${child.id}')">✓ Concluir e registrar</button><button class="btn small" onclick="showPage('planejamento');editPlan('${p.id}')">Editar</button>${(p.nextDate||p.date)<td?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Reagendar próxima</button>`:''}</div></div>`;
  box.innerHTML=`<div class="card"><div class="toolbar" style="justify-content:space-between"><div>${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje com ${esc(child.name)}</h2><div class="meta">${fmtDate(td)}</div></div><div class="child-tabs">${state.family.children.filter(c=>!c.archivedAt).map(c=>`<button class="child ${c.id===child.id?'active':''}" onclick="selectChild('${c.id}');showPage('inicio')">${esc(c.name)}</button>`).join('')}</div></div>
  <div class="daily-actions"><button class="btn success" onclick="openTodayRecord()">+ Registrar atividade</button><button class="btn primary" onclick="showPage('planejamento')">📅 Abrir planejamento</button><button class="btn" onclick="showPage('planejamento');openNewPlanForm()">+ Novo planejamento</button><button class="btn" onclick="openOldRecord()">Adicionar atividade antiga</button></div></div>
  ${latePlans.length?`<div class="card"><h3>Precisa de atenção</h3><div class="meta">Atividades planejadas que ficaram para trás.</div>${latePlans.map(planHtml).join('')}</div>`:''}
@@ -4505,7 +4506,7 @@ function renderDashboard(){
 function openTodayRecord(){recordFormOpen=true;editing=null;showPage('registro');renderRecordPage()}
 function openPlanFromDashboard(id){
  const plan=state.plans.find(x=>x.id===id);if(!plan)return;
- activeChildId=plan.childId;showPage('planejamento');renderPlans();
+ if(!planIncludesChild(plan,activeChildId))activeChildId=planChildIds(plan)[0]||plan.childId;showPage('planejamento');renderPlans();
  setTimeout(()=>{const card=document.querySelector(`[data-plan-id="${CSS.escape(id)}"]`);if(!card)return;card.scrollIntoView({behavior:"smooth",block:"center"});card.classList.add("selected");setTimeout(()=>card.classList.remove("selected"),2200)},80);
 }
 function openOldRecord(){showPage('historico');setTimeout(()=>{toggleOldRecordForm(true);$('oldRecordDate').value='';$('oldRecordActivity')?.focus()},0)}
@@ -5814,7 +5815,7 @@ function saveEntry(){
  let l=state.entries[activeChildId]||[];
  const isExistingEntry=!!(editing&&l.some(x=>x.id===editing.id));
  state.entries[activeChildId]=isExistingEntry?l.map(x=>x.id===editing.id?e:x):[e,...l];
- if(planIdToComplete)completePlanOccurrence(planIdToComplete,planOccurrenceDate);
+ if(planIdToComplete)completePlanOccurrence(planIdToComplete,planOccurrenceDate,savedChildId);
  editing=null;recordFormOpen=false;photoData="";photosData=[];audioData="";photoTakenAt="";photoDateSource="";
  clearRecordDraft(savedChildId);
  saveLocal();
@@ -5906,6 +5907,20 @@ async function deleteEntry(id){
 }
 
 
+function planChildIds(plan){return [...new Set((Array.isArray(plan?.childIds)&&plan.childIds.length?plan.childIds:[plan?.childId]).filter(Boolean))]}
+function planIncludesChild(plan,childId){return planChildIds(plan).includes(childId)}
+function planChildNames(plan){return planChildIds(plan).map(id=>state.family.children.find(c=>c.id===id)?.name).filter(Boolean)}
+function selectedPlanChildIds(){return [...document.querySelectorAll('#planChildrenPicker input[name="planChildChoice"]:checked')].map(x=>x.value)}
+function renderPlanChildrenPicker(selected=[]){
+ const box=$("planChildrenPicker");if(!box)return;const kids=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan),chosen=new Set(selected.filter(Boolean));
+ if(!chosen.size&&activeChildId)chosen.add(activeChildId);
+ box.innerHTML=`<label class="child ${chosen.size===kids.length&&kids.length?"active":""}" style="cursor:pointer"><input type="checkbox" id="planAllChildren" style="width:auto" ${chosen.size===kids.length&&kids.length?"checked":""} onchange="toggleAllPlanChildren(this.checked)"> Todas</label>`+kids.map(c=>`<label class="child ${chosen.has(c.id)?"active":""}" style="cursor:pointer"><input type="checkbox" name="planChildChoice" value="${esc(c.id)}" style="width:auto" ${chosen.has(c.id)?"checked":""} onchange="planChildrenChanged()"> ${esc(c.name)}</label>`).join("");
+}
+function toggleAllPlanChildren(checked){document.querySelectorAll('#planChildrenPicker input[name="planChildChoice"]').forEach(x=>x.checked=checked);planChildrenChanged()}
+function planChildrenChanged(){const chosen=selectedPlanChildIds(),all=[...document.querySelectorAll('#planChildrenPicker input[name="planChildChoice"]')];if($("planAllChildren"))$("planAllChildren").checked=!!all.length&&chosen.length===all.length;all.forEach(x=>x.closest("label")?.classList.toggle("active",x.checked));$("planAllChildren")?.closest("label")?.classList.toggle("active",!!all.length&&chosen.length===all.length);if($("planChild")&&chosen[0])$("planChild").value=chosen[0]}
+function planOccurrenceProgress(plan,date=plan?.nextDate||plan?.date){return plan?.participantProgress?.[date]||{}}
+function planPendingChildren(plan,date=plan?.nextDate||plan?.date){const progress=planOccurrenceProgress(plan,date);return planChildIds(plan).filter(id=>progress[id]?.status!=="completed"&&progress[id]?.status!=="skipped")}
+function planPendingForChild(plan,childId){return planIncludesChild(plan,childId)&&planPendingChildren(plan).includes(childId)}
 function togglePlanRecurrenceOptions(){const mode=$("planRecurrence")?.value||"none";$("planWeekdaysBox")?.classList.toggle("hidden",mode!=="weekdays")}
 function selectedPlanWeekdays(){return [...document.querySelectorAll("#planWeekdaysBox input[type=checkbox]:checked")].map(x=>parseInt(x.value,10))}
 function nextPlanDate(plan,fromDate){
@@ -6063,8 +6078,8 @@ function googleCalendarRecurrence(plan){
 }
 async function createCalendarEventForPlan(plan){
  const cal=await ensureDiaryCalendar(true),startDate=plan.date||plan.nextDate,end=new Date(startDate+"T00:00:00");end.setDate(end.getDate()+1);
- const endDate=[end.getFullYear(),String(end.getMonth()+1).padStart(2,"0"),String(end.getDate()).padStart(2,"0")].join("-"),child=state.family.children.find(c=>c.id===plan.childId);
- const description=[child?.name?`Criança: ${child.name}`:"",plan.materialName?`Material: ${plan.materialName}`:"",plan.notes||"","Criado pelo Diário de Estudos."].filter(Boolean).join("\n");
+ const endDate=[end.getFullYear(),String(end.getMonth()+1).padStart(2,"0"),String(end.getDate()).padStart(2,"0")].join("-"),children=planChildNames(plan);
+ const description=[children.length?`Crianças: ${children.join(", ")}`:"",plan.materialName?`Material: ${plan.materialName}`:"",plan.notes||"","Criado pelo Diário de Estudos."].filter(Boolean).join("\n");
  const body={summary:plan.title,description,start:{date:startDate},end:{date:endDate},extendedProperties:{private:{diarioPlanId:plan.id}}},recurrence=googleCalendarRecurrence(plan);if(recurrence.length)body.recurrence=recurrence;
  const event=await calendarApiFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(cal.id)}/events`,{method:"POST",body:JSON.stringify(body)});
  plan.calendarId=cal.id;plan.calendarEventId=event.id||"";plan.calendarHtmlLink=event.htmlLink||"";plan.calendarSyncedAt=now();return event
@@ -6075,14 +6090,14 @@ async function updateCalendarEventForEditedPlan(plan){
  if(plan.importedCalendarEventId)body=importedCalendarCopyBody(plan,null);
  else{
   const startDate=plan.nextDate||plan.date,end=new Date(startDate+"T00:00:00");end.setDate(end.getDate()+1);
-  const endDate=iso(end),child=state.family.children.find(c=>c.id===plan.childId),description=[child?.name?`Criança: ${child.name}`:"",plan.materialName?`Material: ${plan.materialName}`:"",plan.notes||"","Atualizado pelo Diário de Estudos."].filter(Boolean).join("\n");
+  const endDate=iso(end),children=planChildNames(plan),description=[children.length?`Crianças: ${children.join(", ")}`:"",plan.materialName?`Material: ${plan.materialName}`:"",plan.notes||"","Atualizado pelo Diário de Estudos."].filter(Boolean).join("\n");
   body={summary:plan.title,location:plan.place||"",description,start:{date:startDate},end:{date:endDate},extendedProperties:{private:{diarioPlanId:plan.id}}};const recurrence=googleCalendarRecurrence(plan);if(recurrence.length)body.recurrence=recurrence;
  }
  const event=await calendarApiFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(plan.calendarId)}/events/${encodeURIComponent(plan.calendarEventId)}`,{method:"PUT",body:JSON.stringify(body)});
  plan.calendarHtmlLink=event?.htmlLink||plan.calendarHtmlLink||"";plan.calendarSyncedAt=now();return event;
 }
 function importedCalendarCopyBody(plan,source){
- const child=state.family.children.find(c=>c.id===plan.childId),description=[source?.description||cleanCalendarDescription(plan.notes||""),child?.name?`Criança: ${child.name}`:"","Cópia importada pelo Diário de Estudos."].filter(Boolean).join("\n");
+ const children=planChildNames(plan),description=[source?.description||cleanCalendarDescription(plan.notes||""),children.length?`Crianças: ${children.join(", ")}`:"","Cópia importada pelo Diário de Estudos."].filter(Boolean).join("\n");
  return {summary:source?.summary||plan.title,location:source?.location||plan.place||"",description,start:source?.start||{date:plan.date||plan.nextDate},end:source?.end||{date:(()=>{const d=new Date((plan.date||plan.nextDate)+"T00:00:00");d.setDate(d.getDate()+1);return iso(d)})()},extendedProperties:{private:{diarioPlanId:plan.id,sourceCalendarId:plan.importedCalendarId||"",sourceEventId:plan.importedCalendarEventId||""}}}
 }
 async function createImportedCalendarCopy(plan,source){
@@ -6280,13 +6295,14 @@ function clearPlanForm(){
  clearPlanPlaceSelection();hidePlanPlaceResults();planPlaceSessionToken="";clearPlanMaterial();resetPlanCalendarOrigin();
  if($("planWeatherBox")){$("planWeatherBox").classList.add("hidden");$("planWeatherBox").innerHTML="";delete $("planWeatherBox").dataset.weather}
  if($("planFormTitle"))$("planFormTitle").textContent="Novo planejamento";if($("planSaveBtn"))$("planSaveBtn").textContent="Salvar planejamento";
+ renderPlanChildrenPicker(activeChildId?[activeChildId]:[]);
 }
 function openNewPlanForm(){clearPlanForm();togglePlanForm(true)}
 function cancelPlanEdit(){clearPlanForm();togglePlanForm(false)}
 async function editPlan(id){
- const p=state.plans.find(x=>x.id===id);if(!p)return;resetPlanCalendarOrigin();editingPlanId=id;activeChildId=p.childId;
+ const p=state.plans.find(x=>x.id===id);if(!p)return;resetPlanCalendarOrigin();editingPlanId=id;activeChildId=planChildIds(p)[0]||p.childId;
  togglePlanForm(true);if($("planFormTitle"))$("planFormTitle").textContent="Editar planejamento";if($("planSaveBtn"))$("planSaveBtn").textContent="Salvar alterações";
- $("planChild").value=p.childId;$("planDate").value=p.nextDate||p.date||today();$("planTitle").value=p.title||"";$("planNotes").value=p.notes||"";$("planPlace").value=p.place||"";
+ $("planChild").value=activeChildId;renderPlanChildrenPicker(planChildIds(p));$("planDate").value=p.nextDate||p.date||today();$("planTitle").value=p.title||"";$("planNotes").value=p.notes||"";$("planPlace").value=p.place||"";
  selectedPlanPlace=p.placeDetails?{...p.placeDetails}:(p.weather?.latitude!=null?{name:p.weather.place||p.place,address:p.place||"",latitude:p.weather.latitude,longitude:p.weather.longitude}:null);if($("planPlaceId"))$("planPlaceId").value=selectedPlanPlace?.place_id||"";
  if(p.materialId||p.materialName){$("planMaterialId").value=p.materialId||"";$("planMaterialName").value=p.materialName||"";$("planMaterialPublisher").value=p.materialPublisher||"";renderPlanMaterialSelection({id:p.materialId,name:p.materialName,publisher:p.materialPublisher})}else clearPlanMaterial();
  $("planRecurrence").value=p.recurrence||"none";$("planEndDate").value=p.endDate||"";document.querySelectorAll("#planWeekdaysBox input[type=checkbox]").forEach(x=>x.checked=(p.weekdays||[]).map(Number).includes(Number(x.value)));togglePlanRecurrenceOptions();
@@ -6297,8 +6313,8 @@ async function editPlan(id){
 }
 
 async function addPlan(){
- let childId=$("planChild").value,title=$("planTitle").value.trim();
- if(!childId||!title)return alert("Escolha a criança e informe a atividade.");
+ const childIds=selectedPlanChildIds();let childId=childIds[0]||"",title=$("planTitle").value.trim();
+ if(!childIds.length||!title)return alert("Escolha pelo menos uma criança e informe a atividade.");
  const recurrence=$("planRecurrence")?.value||"none",weekdays=recurrence==="weekdays"?selectedPlanWeekdays():[];
  if(recurrence==="weekdays"&&!weekdays.length)return alert("Escolha pelo menos um dia da semana.");
  const start=$("planDate").value||today(),imported=pendingImportedCalendarEvent?{...pendingImportedCalendarEvent}:null;
@@ -6306,7 +6322,7 @@ async function addPlan(){
  const placeDetails=selectedPlanPlace?{...selectedPlanPlace}:null;
  const existing=editingPlanId?state.plans.find(x=>x.id===editingPlanId):null;
  if(!weather&&existing&&(existing.nextDate||existing.date)===start&&existing.place===planPlaceValue())weather=existing.weather||null;
- const plan=existing?{...existing,childId,title,notes:$("planNotes").value.trim(),place:planPlaceValue(),placeDetails,weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",recurrence,weekdays,endDate:$("planEndDate")?.value||"",nextDate:start,date:(existing.occurrences||[]).length?existing.date:start,updatedAt:now()}:{id:uid(),childId,date:start,nextDate:start,type:"planned",complementaryId:"",component:"",title,notes:$("planNotes").value.trim(),place:planPlaceValue(),placeDetails,weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",materialBnccCode:"",materialBnccDescription:"",materialBnccComponent:"",materialBnccArea:"",materialBnccSkills:[],recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],createdAt:now(),updatedAt:now(),completedAt:"",importedCalendarId:imported?.calendarId||"",importedCalendarName:imported?.calendarName||"",importedCalendarEventId:imported?.eventId||"",importedCalendarHtmlLink:imported?.htmlLink||"",importedCalendarUpdated:imported?.updated||"",importedCalendarFingerprint:imported?.fingerprint||"",importedCalendarChanged:false};
+ const plan=existing?{...existing,childId,childIds,title,notes:$("planNotes").value.trim(),place:planPlaceValue(),placeDetails,weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",recurrence,weekdays,endDate:$("planEndDate")?.value||"",nextDate:start,date:(existing.occurrences||[]).length?existing.date:start,updatedAt:now()}:{id:uid(),childId,childIds,date:start,nextDate:start,type:"planned",complementaryId:"",component:"",title,notes:$("planNotes").value.trim(),place:planPlaceValue(),placeDetails,weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",materialBnccCode:"",materialBnccDescription:"",materialBnccComponent:"",materialBnccArea:"",materialBnccSkills:[],recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],participantProgress:{},createdAt:now(),updatedAt:now(),completedAt:"",importedCalendarId:imported?.calendarId||"",importedCalendarName:imported?.calendarName||"",importedCalendarEventId:imported?.eventId||"",importedCalendarHtmlLink:imported?.htmlLink||"",importedCalendarUpdated:imported?.updated||"",importedCalendarFingerprint:imported?.fingerprint||"",importedCalendarChanged:false};
  if(!existing)state.plans.push(plan);else Object.assign(existing,plan);
  const shouldAddCalendar=!!$("planAddToCalendar")?.checked&&!imported;
  clearPlanForm();togglePlanForm(false);saveLocal();renderPlans();renderDashboard();
@@ -6323,16 +6339,30 @@ function togglePlanForm(open){
   $('planTitle')?.focus()
  }else if(!editingPlanId)resetPlanCalendarOrigin()
 }
+const PLAN_VIEW_FILTER_KEY="DE_V76_PLAN_VIEW_FILTER";
+let planViewChildFilter=localStorage.getItem(PLAN_VIEW_FILTER_KEY)||"all";
+function setPlanViewChildFilter(value){planViewChildFilter=value||"all";localStorage.setItem(PLAN_VIEW_FILTER_KEY,planViewChildFilter);renderPlans()}
+function renderPlanViewChildren(){
+ const box=$("planViewChildren");if(!box)return;const kids=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan);
+ if(planViewChildFilter!=="all"&&!kids.some(c=>c.id===planViewChildFilter))planViewChildFilter="all";
+ box.innerHTML=`<button type="button" class="child ${planViewChildFilter==="all"?"active":""}" onclick="setPlanViewChildFilter('all')">Todas</button>`+kids.map(c=>`<button type="button" class="child ${planViewChildFilter===c.id?"active":""}" onclick="setPlanViewChildFilter('${c.id}')">${esc(c.name)}</button>`).join("");
+}
 function renderPlans(){
- let box=$("plansList");if(!box)return;let childId=$("planChild")?.value||activeChildId,td=today();
- let l=state.plans.filter(x=>!x.completedAt&&(!childId||x.childId===childId)&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
- const card=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':(p.nextDate||p.date)===td?'is-today':''}" data-plan-id="${esc(p.id)}"><div class="plan-date">${fmtDate(p.nextDate||p.date)} · ${esc(state.family.children.find(c=>c.id===p.childId)?.name||'')}</div><div class="entry-title">${esc(p.title)}</div>${p.component?`<div class="skill">${esc(p.component)}</div>`:''}${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}${p.materialName?`<div class="meta" style="margin-top:4px">📘 ${esc(p.materialName)}</div>`:""}${p.notes?`<div class="obs">${esc(p.notes)}</div>`:''}${p.calendarEventId?`<div class="meta" style="margin-top:4px">📅 No Google Calendar${p.importedCalendarEventId?" · cópia de "+esc(p.importedCalendarName||"agenda pessoal"):""}</div>`:p.importedCalendarEventId?`<div class="meta" style="margin-top:4px">📅 Importado do seu calendário · cópia pendente</div>`:""}${p.importedCalendarChanged?`<div class="notice" style="margin-top:8px"><b>⚠ Evento original atualizado</b><br><button class="btn small primary" style="margin-top:7px" type="button" onclick="updateImportedCalendarCopy('${p.id}')">Atualizar cópia</button></div>`:""}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">+ Registrar atividade</button><button class="btn small" onclick="editPlan('${p.id}')">Editar</button>${p.recurrence!=='none'?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular / próxima</button>`:''}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`;
+ let box=$("plansList");if(!box)return;renderPlanViewChildren();let childId=planViewChildFilter==="all"?"":planViewChildFilter,td=today();
+ let l=state.plans.filter(x=>!x.completedAt&&(!childId||planIncludesChild(x,childId))&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
+ const card=p=>{const names=planChildNames(p),progress=planOccurrenceProgress(p),status=planChildIds(p).map(id=>{const name=state.family.children.find(c=>c.id===id)?.name||"Criança",done=progress[id]?.status==="completed";return `<span class="reading-status" style="margin-right:5px">${done?"✓":"○"} ${esc(name)}</span>`}).join("");return `<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':(p.nextDate||p.date)===td?'is-today':''}" data-plan-id="${esc(p.id)}"><div class="plan-date">${fmtDate(p.nextDate||p.date)} · ${esc(names.join(", "))}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div style="margin-top:5px">${status}</div>`:""}${p.component?`<div class="skill">${esc(p.component)}</div>`:''}${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}${p.materialName?`<div class="meta" style="margin-top:4px">📘 ${esc(p.materialName)}</div>`:""}${p.notes?`<div class="obs">${esc(p.notes)}</div>`:''}${p.calendarEventId?`<div class="meta" style="margin-top:4px">📅 No Google Calendar${p.importedCalendarEventId?" · cópia de "+esc(p.importedCalendarName||"agenda pessoal"):""}</div>`:p.importedCalendarEventId?`<div class="meta" style="margin-top:4px">📅 Importado do seu calendário · cópia pendente</div>`:""}${p.importedCalendarChanged?`<div class="notice" style="margin-top:8px"><b>⚠ Evento original atualizado</b><br><button class="btn small primary" style="margin-top:7px" type="button" onclick="updateImportedCalendarCopy('${p.id}')">Atualizar cópia</button></div>`:""}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">+ Registrar atividade</button><button class="btn small" onclick="editPlan('${p.id}')">Editar</button>${p.recurrence!=='none'?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular / próxima</button>`:''}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`};
  const late=l.filter(p=>(p.nextDate||p.date)<td),now=l.filter(p=>(p.nextDate||p.date)===td),future=l.filter(p=>(p.nextDate||p.date)>td);
  box.innerHTML=`${late.length?`<div class="plan-section-title">Atrasadas · ${late.length}</div>${late.map(card).join('')}`:''}<div class="plan-section-title">Hoje · ${now.length}</div>${now.map(card).join('')||"<div class='notice'>Nada planejado para hoje.</div>"}${future.length?`<div class="plan-section-title">Próximos dias · ${future.length}</div>${future.map(card).join('')}`:''}`;
  queueSavedPlanningWeatherRefresh();
 }
-function startPlan(id){let p=state.plans.find(x=>x.id===id);if(!p)return;activeChildId=p.childId;recordFormOpen=true;editing={id:uid(),isNewFromPlan:true,childId:p.childId,date:p.nextDate||p.date,type:p.type,complementaryId:p.complementaryId||"",area:"",componente:p.component||"",codigo:"",habilidade:"",materialId:p.materialId||"",materialName:p.materialName||"",materialPublisher:p.materialPublisher||"",materialBnccSkills:[],atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,planOccurrenceDate:p.nextDate||p.date};showPage("registro");renderRecordPage()}
-function completePlanOccurrence(planId,occurrenceDate){const p=state.plans.find(x=>x.id===planId);if(!p)return;p.occurrences??=[];p.occurrences.push({date:occurrenceDate,status:"completed",updatedAt:now()});if(p.recurrence==="none"){p.completedAt=now();p.nextDate=""}else{p.nextDate=nextPlanDate(p,occurrenceDate);if(!p.nextDate)p.completedAt=now()}p.updatedAt=now()}
+function closePlanParticipantChooser(){$("planParticipantChooser")?.remove()}
+function openPlanParticipantChooser(plan){
+ closePlanParticipantChooser();const pending=planPendingChildren(plan);if(!pending.length)return alert("Este planejamento já foi registrado para todas as crianças.");
+ const overlay=document.createElement("div");overlay.id="planParticipantChooser";overlay.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px";
+ overlay.innerHTML=`<div class="card" style="width:min(440px,100%);margin:0"><h3>Registrar para quem?</h3><div class="meta" style="margin-bottom:12px">${esc(plan.title)}</div><div class="toolbar">${pending.map(id=>`<button class="btn success" type="button" onclick="closePlanParticipantChooser();startPlan('${plan.id}','${id}')">${esc(state.family.children.find(c=>c.id===id)?.name||"Criança")}</button>`).join("")}</div><button class="btn" type="button" style="margin-top:12px" onclick="closePlanParticipantChooser()">Cancelar</button></div>`;overlay.addEventListener("click",e=>{if(e.target===overlay)closePlanParticipantChooser()});document.body.appendChild(overlay);
+}
+function startPlan(id,childId=""){let p=state.plans.find(x=>x.id===id);if(!p)return;const pending=planPendingChildren(p);if(!childId){if(pending.length===1)childId=pending[0];else if(planViewChildFilter!=="all"&&pending.includes(planViewChildFilter))childId=planViewChildFilter;else return openPlanParticipantChooser(p)}if(!pending.includes(childId))return alert("Esta atividade já foi registrada para esta criança.");activeChildId=childId;recordFormOpen=true;editing={id:uid(),isNewFromPlan:true,childId,date:p.nextDate||p.date,type:p.type,complementaryId:p.complementaryId||"",area:"",componente:p.component||"",codigo:"",habilidade:"",materialId:p.materialId||"",materialName:p.materialName||"",materialPublisher:p.materialPublisher||"",materialBnccSkills:[],atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,planOccurrenceDate:p.nextDate||p.date};showPage("registro");renderRecordPage()}
+function completePlanOccurrence(planId,occurrenceDate,childId){const p=state.plans.find(x=>x.id===planId);if(!p)return;childId=childId||p.childId;p.participantProgress??={};p.participantProgress[occurrenceDate]??={};p.participantProgress[occurrenceDate][childId]={status:"completed",updatedAt:now()};const allDone=planChildIds(p).every(id=>["completed","skipped"].includes(p.participantProgress[occurrenceDate]?.[id]?.status));if(allDone){p.occurrences??=[];p.occurrences=p.occurrences.filter(x=>x.date!==occurrenceDate);p.occurrences.push({date:occurrenceDate,status:"completed",updatedAt:now()});if(p.recurrence==="none"){p.completedAt=now();p.nextDate=""}else{p.nextDate=nextPlanDate(p,occurrenceDate);if(!p.nextDate)p.completedAt=now()}}p.updatedAt=now()}
 function skipPlanOccurrence(id){const p=state.plans.find(x=>x.id===id);if(!p)return;const current=p.nextDate||p.date;if(!confirm(`Pular a ocorrência de ${fmtDate(current)}?`))return;p.occurrences??=[];p.occurrences.push({date:current,status:"skipped",updatedAt:now()});p.nextDate=nextPlanDate(p,current);if(!p.nextDate)p.completedAt=now();p.updatedAt=now();saveLocal();renderPlans();renderDashboard()}
 async function deletePlan(id){const p=state.plans.find(x=>x.id===id);if(!p)return;if(!confirm("Excluir este planejamento?"))return;state.plans=state.plans.filter(x=>x.id!==id);addTomb("plans",id);saveLocal();renderPlans();renderDashboard();if(p.calendarEventId)await deleteCalendarEventForPlan(p)}
 
@@ -6376,7 +6406,7 @@ function renderReadingCards(books){
    <div><div class="book-title">${esc(b.title)}</div><div class="book-meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.publisher?" · "+esc(b.publisher):""}</div>
    <div style="margin-top:6px"><span class="reading-status">${esc(b.status||"Lendo")}</span>${b.catalog_status==="pending"?` <span class="reading-status">Aguardando validação</span>`:""}</div>
    <div class="book-reading-dates">${b.started_at?`<span>Início: <b>${fmtDate(b.started_at)}</b></span>`:""}${b.finished_at?`<span>Conclusão: <b>${fmtDate(b.finished_at)}</b></span>`:""}</div>
-   <div class="reading-actions"><button class="btn small primary" type="button" onclick="startReadingMoment('${b.id}')">+ Registrar momento de leitura</button><button class="btn small" type="button" onclick="setBookStartDate('${b.id}')">Data de início</button><button class="btn small" type="button" onclick="toggleBookFinished('${b.id}')">${b.status==="Concluído"?"Reabrir leitura":"Concluir livro"}</button></div>
+   <div class="reading-actions"><button class="btn small primary" type="button" onclick="startReadingMoment('${b.id}')">+ Registrar momento de leitura</button><button class="btn small" type="button" onclick="editFamilyBookReading('${b.id}')">Editar leitura</button><button class="btn small" type="button" onclick="toggleBookFinished('${b.id}')">${b.status==="Concluído"?"Reabrir leitura":"Concluir livro"}</button><button class="btn danger small" type="button" onclick="deleteFamilyBookReading('${b.id}')">Excluir</button></div>
    </div>
   </div>`).join("")}</div>`:`<div class="notice" style="margin:14px 0">Nenhum livro cadastrado para esta criança ainda.</div>`
 }
@@ -6473,6 +6503,20 @@ async function toggleBookFinished(id){
   try{await backendFetch(`/family-books/${encodeURIComponent(id)}`,{method:"PATCH",body:JSON.stringify({status:nextStatus,finished_at:finished})});await renderReadingPage();return}catch(e){return alert("Não foi possível atualizar: "+(e.message||e))}
  }
  const books=getReadingLibrary(),local=books.find(x=>x.id===id);if(!local)return;local.status=nextStatus;local.finished_at=finished;local.finishedAt=finished;saveReadingLibrary(books);renderReadingPage()
+}
+async function editFamilyBookReading(id){
+ const b=(window.currentReadingBooks||[]).find(x=>x.id===id)||getReadingLibrary().find(x=>x.id===id);if(!b)return;
+ const started=prompt("Data de início da leitura (AAAA-MM-DD):",b.started_at||today());if(started===null)return;if(started&&!/^\d{4}-\d{2}-\d{2}$/.test(started))return alert("Use o formato AAAA-MM-DD.");
+ const completed=confirm("Este livro está concluído?\n\nOK = Concluído\nCancelar = Lendo"),status=completed?"Concluído":"Lendo";let finished="";
+ if(completed){finished=prompt("Data de conclusão (AAAA-MM-DD):",b.finished_at||today());if(finished===null)return;if(finished&&!/^\d{4}-\d{2}-\d{2}$/.test(finished))return alert("Use o formato AAAA-MM-DD.")}
+ if(b.backend){try{await backendFetch(`/family-books/${encodeURIComponent(id)}`,{method:"PATCH",body:JSON.stringify({started_at:started,status,finished_at:finished})});await renderReadingPage();return}catch(e){return alert("Não foi possível editar a leitura: "+(e.message||e))}}
+ const books=getReadingLibrary(),local=books.find(x=>x.id===id);if(!local)return;local.started_at=started;local.status=status;local.finished_at=finished;local.finishedAt=finished;saveReadingLibrary(books);renderReadingPage();
+}
+async function deleteFamilyBookReading(id){
+ const b=(window.currentReadingBooks||[]).find(x=>x.id===id)||getReadingLibrary().find(x=>x.id===id);if(!b)return;
+ if(!confirm(`Excluir “${b.title||"este livro"}” das leituras desta criança?\n\nO livro continuará no catálogo e os momentos de leitura já registrados no Diário serão preservados.`))return;
+ if(b.backend){try{await backendFetch(`/family-books/${encodeURIComponent(id)}`,{method:"DELETE"});await renderReadingPage();return}catch(e){return alert("Não foi possível excluir a leitura: "+(e.message||e))}}
+ saveReadingLibrary(getReadingLibrary().filter(x=>x.id!==id));renderReadingPage();
 }
 function startReadingMoment(id){
  const b=(window.currentReadingBooks||[]).find(x=>x.id===id)||getReadingLibrary().find(x=>x.id===id);if(!b)return;
@@ -6856,7 +6900,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "7.5";
+const APP_VERSION = "7.6";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

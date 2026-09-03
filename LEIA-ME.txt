@@ -1,4 +1,4 @@
-DIÁRIO DE ESTUDOS — v7.5
+DIÁRIO DE ESTUDOS — v7.6
 
 BASE
 - Evolução da v6.8 corrigida.
@@ -76,18 +76,40 @@ PLANEJAMENTO E CLIMA — v7.5
 - O clima fica salvo junto do planejamento e acompanha a sincronização da família.
 - A consulta usa Open-Meteo e não exige alteração do Worker ou do D1.
 
+PLANEJAMENTO COMPARTILHADO — v7.6
+- A aba Planejar agora abre na visão “Todas”, funcionando como agenda geral da família.
+- Filtros rápidos permitem alternar entre “Todas” e cada criança.
+- A preferência do filtro fica salva no dispositivo para a mãe organizar a tela como preferir.
+- Planejamentos compartilhados aparecem uma única vez na visão geral, com os nomes e a situação de cada criança.
+- Um planejamento pode ser vinculado a uma, várias ou todas as crianças da família.
+- Título, data, local, material, recorrência e clima são cadastrados apenas uma vez.
+- Planejamentos antigos com apenas uma criança continuam compatíveis.
+- Cada criança mantém sua própria situação de conclusão no planejamento compartilhado.
+- Ao registrar, o Diário usa a criança ativa ou pede que o responsável escolha para quem deseja registrar.
+- Registrar para uma criança não encerra o planejamento das demais.
+- O planejamento só é concluído quando todas as crianças vinculadas tiverem seu registro.
+- A sincronização converte corretamente os identificadores das várias crianças entre dispositivos.
+- A descrição da cópia no Google Calendar mostra todas as crianças participantes.
+
+LIVROS DE LEITURA — v7.6
+- Adicionado botão “Editar leitura” para alterar início, situação e data de conclusão.
+- Adicionado botão “Excluir” com confirmação.
+- A exclusão remove somente o vínculo do livro com aquela criança.
+- O livro permanece no catálogo e nas bibliotecas das demais crianças e famílias.
+- Momentos de leitura já registrados no histórico são preservados.
+
 ARQUIVOS
 - index.html
 - sw.js
 - version.json
 - LEIA-ME.txt
-- O worker.js permanece na versão 0.20-beta já publicada e não faz parte deste pacote.
+- worker.js atualizado para a versão 0.21-beta.
 
 PUBLICAÇÃO
-- Nesta atualização, não é necessário substituir o Worker.
-- Substitua index.html, sw.js, version.json e LEIA-ME.txt no GitHub.
+- Publique primeiro o conteúdo de worker.js no Cloudflare Worker.
+- Depois, substitua index.html, sw.js, version.json e LEIA-ME.txt no GitHub.
 - Mantenha manifest.json e a pasta icons existentes.
 - Esta versão não exige comando de migração no D1.
-- APP_VERSION: 7.5.
-- Cache do service worker: diario-estudos-v7.5.
-- Worker API: 0.20-beta.
+- APP_VERSION: 7.6.
+- Cache do service worker: diario-estudos-v7.6.
+- Worker API: 0.21-beta.
