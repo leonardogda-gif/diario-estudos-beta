@@ -1,4 +1,4 @@
-DIÁRIO DE ESTUDOS — v7.9
+DIÁRIO DE ESTUDOS — v8.0
 
 BASE
 - Evolução da v6.8 corrigida.
@@ -129,6 +129,20 @@ INFORMAÇÃO E TRANSPARÊNCIA — v7.9
 - A página informa quais dados são usados na análise de uma experiência e no resumo de um relatório.
 - O fluxo de cópia dos eventos do Calendar e a preservação do evento original também foram documentados.
 
+INÍCIO E HISTÓRICO — v8.0
+- O bloco inicial agora usa uma lista suspensa para escolher a criança.
+- O título foi simplificado de “Hoje com [nome]” para “Hoje”.
+- Os botões separados com os nomes das crianças foram removidos.
+- “Adicionar atividade antiga” foi retirado da página inicial; o recurso continua disponível dentro do Histórico.
+- O bloco “Últimas atividades” foi removido da página inicial.
+- Os registros do Histórico agora aparecem resumidos com data, título e avaliação.
+- Componentes, habilidades, competências, material, observações e fotos aparecem ao tocar para abrir o registro.
+
+MENSAGENS DA ANÁLISE — v8.0
+- A falha genérica da análise foi substituída por mensagens orientadas à causa.
+- O app diferencia falta de internet, sessão expirada, excesso temporário de solicitações, dados incompletos, demora e instabilidade do serviço de IA.
+- Em todos os casos, a mensagem confirma que o relato permanece salvo e orienta como tentar novamente.
+
 LIVROS DE LEITURA — v7.6
 - Adicionado botão “Editar leitura” para alterar início, situação e data de conclusão.
 - Adicionado botão “Excluir” com confirmação.
@@ -148,6 +162,6 @@ PUBLICAÇÃO
 - Substitua index.html, sw.js, version.json e LEIA-ME.txt no GitHub.
 - Mantenha manifest.json e a pasta icons existentes.
 - Esta versão não exige comando de migração no D1.
-- APP_VERSION: 7.9.
-- Cache do service worker: diario-estudos-v7.9.
+- APP_VERSION: 8.0.
+- Cache do service worker: diario-estudos-v8.0.
 - Worker API: 0.21-beta.
