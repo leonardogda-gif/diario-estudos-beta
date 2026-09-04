@@ -1,4 +1,4 @@
-DIÁRIO DE ESTUDOS — v7.6
+DIÁRIO DE ESTUDOS — v7.7
 
 BASE
 - Evolução da v6.8 corrigida.
@@ -91,6 +91,18 @@ PLANEJAMENTO COMPARTILHADO — v7.6
 - A sincronização converte corretamente os identificadores das várias crianças entre dispositivos.
 - A descrição da cópia no Google Calendar mostra todas as crianças participantes.
 
+REGISTRO COLETIVO — v7.7
+- Em um planejamento com várias crianças pendentes, “Registrar atividade” oferece “Registrar para todas”.
+- O relato da experiência, a data, as observações, o material e as fotos são preenchidos uma única vez.
+- O fluxo abre uma etapa sequencial para cada criança participante.
+- A avaliação, os componentes, as habilidades e as competências BNCC permanecem individuais.
+- As relações pedagógicas da criança anterior não são copiadas automaticamente para a próxima.
+- Cada etapa salva um registro independente no histórico da respectiva criança.
+- O planejamento registra a conclusão individual e só é encerrado quando todas as crianças terminarem.
+- As fotos comuns são enviadas uma única vez ao Drive e reaproveitadas pelos registros do mesmo grupo.
+- Excluir o registro de uma criança não apaga uma foto que ainda esteja vinculada ao registro de outra.
+- A análise com IA, quando usada, é executada separadamente para cada criança, respeitando sua etapa escolar.
+
 LIVROS DE LEITURA — v7.6
 - Adicionado botão “Editar leitura” para alterar início, situação e data de conclusão.
 - Adicionado botão “Excluir” com confirmação.
@@ -110,6 +122,6 @@ PUBLICAÇÃO
 - Depois, substitua index.html, sw.js, version.json e LEIA-ME.txt no GitHub.
 - Mantenha manifest.json e a pasta icons existentes.
 - Esta versão não exige comando de migração no D1.
-- APP_VERSION: 7.6.
-- Cache do service worker: diario-estudos-v7.6.
+- APP_VERSION: 7.7.
+- Cache do service worker: diario-estudos-v7.7.
 - Worker API: 0.21-beta.
