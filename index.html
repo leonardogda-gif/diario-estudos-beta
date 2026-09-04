@@ -881,7 +881,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v7.7 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v7.8 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -1762,12 +1762,43 @@ function showPage(name){
  if(name==="configuracoes")renderSettingsChildren();
 }
 
+const MEDIA_DB_NAME="diario-estudos-media";
+const MEDIA_DB_VERSION=1;
+const MEDIA_STORE="media";
+let mediaDbPromise=null;
+let storageWarningShown=false;
+function openMediaDb(){
+ if(mediaDbPromise)return mediaDbPromise;
+ mediaDbPromise=new Promise((resolve,reject)=>{
+  const req=indexedDB.open(MEDIA_DB_NAME,MEDIA_DB_VERSION);
+  req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(MEDIA_STORE))db.createObjectStore(MEDIA_STORE,{keyPath:"id"})};
+  req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||new Error("IndexedDB indisponível"));
+ });
+ return mediaDbPromise;
+}
+async function mediaPut(id,data,mime="image/jpeg"){if(!id||!data)return;const db=await openMediaDb();return await new Promise((resolve,reject)=>{const tx=db.transaction(MEDIA_STORE,"readwrite");tx.objectStore(MEDIA_STORE).put({id,data,mime,updatedAt:now()});tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)})}
+async function mediaGet(id){if(!id)return null;const db=await openMediaDb();return await new Promise((resolve,reject)=>{const req=db.transaction(MEDIA_STORE,"readonly").objectStore(MEDIA_STORE).get(id);req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error)})}
+async function mediaDelete(id){if(!id)return;const db=await openMediaDb();return await new Promise((resolve,reject)=>{const tx=db.transaction(MEDIA_STORE,"readwrite");tx.objectStore(MEDIA_STORE).delete(id);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)})}
+async function clearMediaDb(){try{const db=await openMediaDb();db.close()}catch(e){}mediaDbPromise=null;return await new Promise(resolve=>{const req=indexedDB.deleteDatabase(MEDIA_DB_NAME);req.onsuccess=req.onerror=req.onblocked=()=>resolve()})}
+function mediaMeta(photo){if(!photo)return photo;const copy={...photo};if(copy.mediaId||copy.visibleDriveId||copy.driveId){delete copy.data;delete copy._previewData}return copy}
+function stateForLocalStorage(){
+ const copy={...state,entries:{}};
+ Object.entries(state.entries||{}).forEach(([childId,list])=>{copy.entries[childId]=(list||[]).map(entry=>{const e={...entry,photos:entryPhotos(entry).map(mediaMeta),foto:""};return e})});
+ return copy;
+}
 function saveLocal(mark=true){
- localStorage.setItem("DE_V2_STATE",JSON.stringify(state));
- if(mark){
-  localStorage.setItem("DE_V2_LOCAL_UPDATED",now());
+ let saved=false;
+ try{localStorage.setItem("DE_V2_STATE",JSON.stringify(stateForLocalStorage()));saved=true}
+ catch(error){
+  console.error("Falha ao salvar os dados locais:",error);
+  try{const compact=stateForLocalStorage();if(Array.isArray(compact.bncc))compact.bncc=null;localStorage.setItem("DE_V2_STATE",JSON.stringify(compact));saved=true}catch(secondError){console.error("Falha no salvamento compacto:",secondError)}
+  if(!storageWarningShown){storageWarningShown=true;setTimeout(()=>alert(saved?"O Diário liberou espaço local e preservou os dados de texto. As fotos continuam na fila segura de envio.":"O armazenamento deste dispositivo está cheio. Mantenha o aplicativo aberto e conectado; não foi possível confirmar o salvamento local desta alteração."),0)}
+ }
+ if(mark&&saved){
+  try{localStorage.setItem("DE_V2_LOCAL_UPDATED",now())}catch(e){}
   if(googleAccessToken){setCloudStatus("pending","Alterações pendentes");scheduleSync();}
  }
+ return saved;
 }
 function normalizeState(){
  state.family=state.family||{name:"",social:"",updatedAt:"",responsibles:[],children:[]};
@@ -1801,6 +1832,38 @@ function loadLocal(){
  }
  normalizeState();
  activeChildId=state.family.children.find(c=>!c.archived&&!c.legacyOrphan)?.id||null;
+}
+
+async function migrateLocalPhotosToIndexedDb(){
+ let migrated=0,changed=false;
+ for(const entry of Object.values(state.entries||{}).flat()){
+  const photos=entryPhotos(entry);
+  for(const photo of photos){
+   if(photo?.data?.startsWith("data:")){
+    const mediaId=photo.mediaId||`photo_${uid()}`;
+    await mediaPut(mediaId,photo.data,(photo.data.match(/^data:([^;]+)/)||[])[1]||"image/jpeg");
+    photo.mediaId=mediaId;
+    photo._previewData=photo.data;delete photo.data;migrated++;changed=true;
+   }
+  }
+  if(photos.length){entry.photos=photos;entry.foto=""}
+ }
+ if(changed)saveLocal(false);
+ return migrated;
+}
+async function migrateRecordDraftPhotosToIndexedDb(){
+ let migrated=0;
+ for(let i=0;i<localStorage.length;i++){
+  const key=localStorage.key(i);if(!key?.startsWith(RECORD_DRAFT_PREFIX))continue;
+  try{
+   const draft=JSON.parse(localStorage.getItem(key)||"null");if(!draft)continue;
+   let photos=Array.isArray(draft.photos)?draft.photos:[];
+   if(!photos.length&&draft.photoData?.startsWith("data:"))photos=[{data:draft.photoData,takenAt:draft.photoTakenAt||"",dateSource:draft.photoDateSource||""}];
+   for(const photo of photos){if(photo?.data?.startsWith("data:")){const mediaId=photo.mediaId||`photo_${uid()}`;await mediaPut(mediaId,photo.data,(photo.data.match(/^data:([^;]+)/)||[])[1]||"image/jpeg");photo.mediaId=mediaId;delete photo.data;delete photo._previewData;migrated++}}
+   draft.photoData="";draft.photos=photos.map(mediaMeta);localStorage.setItem(key,JSON.stringify(draft));
+  }catch(e){console.warn("Rascunho antigo não pôde ser migrado",key,e)}
+ }
+ return migrated;
 }
 
 
@@ -2035,7 +2098,7 @@ async function createCleanBackendFamily(){
   await refreshBackendProfile();await loadBackendFamilyData();await syncFamilyFromBackend(false);renderAll();alert("Família criada. Esta conta é o Administrador. Agora cadastre as crianças.");
  }catch(e){alert("Não foi possível criar a família: "+e.message)}
 }
-function resetLocalBetaData(){
+async function resetLocalBetaData(){
  if(!confirm("Apagar deste navegador as crianças, registros e planejamentos antigos do beta?\n\nA família do backend e o Drive não serão apagados."))return;
  state.family={name:"",social:"",updatedAt:now(),responsibles:[],children:[]};state.entries={};state.plans=[];state.complementaryActivities=[];state.tombstones={children:[],entries:[],plans:[]};activeChildId=null;setBackendChildMap({});
  try{
@@ -2046,6 +2109,7 @@ function resetLocalBetaData(){
    }
    remove.forEach(k=>localStorage.removeItem(k));
  }catch(e){}
+ await clearMediaDb();
  saveLocal(false);renderAll(true);alert("Dados locais antigos removidos deste dispositivo.");
 }
 async function editBackendFamilyName(){
@@ -3802,7 +3866,8 @@ async function uploadVisiblePhoto(entry){
   const first=entryPhotos(entry)[0];return await uploadVisiblePhotoItem(entry,first,0);
 }
 async function uploadVisiblePhotoItem(entry,photo,index){
-  if(!photo?.data?.startsWith("data:")) return "";
+  const photoDataUrl=await mediaPhotoData(photo);
+  if(!photoDataUrl?.startsWith("data:")) return "";
   const parentId=await ensureFolderPathForEntry(entry);
   const cleanDate=String(entry.date||today()).replace(/-/g,"");
   const child=state.family.children.find(c=>c.id===entry.childId);
@@ -3810,7 +3875,7 @@ async function uploadVisiblePhotoItem(entry,photo,index){
   const activityPart=safeDriveFolderName(entry.atividade||"atividade").slice(0,45);
   const filename=`${cleanDate}_${childPart}_${activityPart}_${entry.id}_${index+1}.jpg`;
   const meta=await createVisibleFile(filename,"image/jpeg",parentId);
-  const blob=await (await fetch(photo.data)).blob();
+  const blob=await (await fetch(photoDataUrl)).blob();
   await apiFetch(`https://www.googleapis.com/upload/drive/v3/files/${meta.id}?uploadType=media`,{
     method:"PATCH",
     headers:{"Content-Type":"image/jpeg"},
@@ -3838,24 +3903,15 @@ async function openVisiblePhotosFolder(){
 async function organizeExistingPhotos(){
   if(!tokenValid()) return alert("Entre com Google antes de organizar as fotos.");
   const all=Object.values(state.entries||{}).flat();
-  const pending=all.filter(e=>e.foto?.startsWith("data:")&&!e.fotoVisibleDriveId);
-  if(!pending.length){
+  const pendingCount=all.reduce((total,e)=>total+entryPhotos(e).filter(p=>!(p.visibleDriveId||p.driveId)&&(p.mediaId||photoDisplayData(p))).length,0);
+  if(!pendingCount){
     updateVisibleDriveStatus("Todas as fotos disponíveis já foram enviadas.");
     return alert("Não há fotos pendentes para enviar.");
   }
-  if(!confirm(`Enviar ${pending.length} foto(s) pendente(s) para a pasta Fotos oficial?`)) return;
-  updateVisibleDriveStatus(`Enviando ${pending.length} foto(s)...`);
-  let done=0;
-  for(const e of pending){
-    try{
-      e.fotoVisibleDriveId=await uploadVisiblePhoto(e);
-      e.updatedAt=now();
-      done++;
-      updateVisibleDriveStatus(`Enviando fotos... ${done}/${pending.length}`);
-    }catch(err){
-      console.error("Falha ao organizar foto",e.id,err);
-    }
-  }
+  if(!confirm(`Enviar ${pendingCount} foto(s) pendente(s) para a pasta Fotos oficial?`)) return;
+  updateVisibleDriveStatus(`Enviando ${pendingCount} foto(s)...`);
+  await ensureMediaRefs();
+  const remaining=all.reduce((total,e)=>total+entryPhotos(e).filter(p=>!(p.visibleDriveId||p.driveId)&&(p.mediaId||photoDisplayData(p))).length,0),done=pendingCount-remaining;
   saveLocal();
   scheduleSync();
   updateVisibleDriveStatus(`${done} foto(s) enviada(s) para a pasta Fotos.`);
@@ -3874,7 +3930,7 @@ async function ensureMediaRefs(){
  for(const list of Object.values(state.entries)){
   for(const e of list){
    // Fotos: cópia visível diretamente na pasta Fotos oficial da família.
-   const photos=entryPhotos(e);for(let i=0;i<photos.length;i++){const p=photos[i];if(p.data?.startsWith("data:")&&!p.visibleDriveId){const shared=collectivePhotoDriveId(e,i);if(shared){p.visibleDriveId=shared;e.updatedAt=now()}else{try{p.visibleDriveId=await uploadVisiblePhotoItem(e,p,i);e.updatedAt=now()}catch(err){console.error("Falha ao enviar foto para pasta visível:",err)}}}}e.photos=photos;e.foto=photos[0]?.data||"";e.fotoVisibleDriveId=photos[0]?.visibleDriveId||"";
+   const photos=entryPhotos(e);for(let i=0;i<photos.length;i++){const p=photos[i];if(!p.visibleDriveId&&(p.mediaId||photoDisplayData(p)?.startsWith("data:"))){const shared=collectivePhotoDriveId(e,i);if(shared){p.visibleDriveId=shared;e.updatedAt=now()}else{try{p.visibleDriveId=await uploadVisiblePhotoItem(e,p,i);e.updatedAt=now()}catch(err){console.error("Falha ao enviar foto para pasta visível:",err)}}}}e.photos=photos;e.foto="";e.fotoVisibleDriveId=photos[0]?.visibleDriveId||"";
 
    // Áudios continuam privados no appDataFolder.
    if(e.audio?.startsWith("data:")&&!e.audioDriveId){
@@ -3884,12 +3940,14 @@ async function ensureMediaRefs(){
    }
   }
  }
+ await cleanupUploadedLocalMedia();
 }
 function collectivePhotoDriveId(entry,index){
  if(!entry?.collectiveGroupId)return "";
+ const target=entryPhotos(entry)[index];
  for(const other of Object.values(state.entries||{}).flat()){
   if(other.id===entry.id||other.collectiveGroupId!==entry.collectiveGroupId)continue;
-  const photo=entryPhotos(other)[index];
+  const otherPhotos=entryPhotos(other),photo=target?.mediaId?otherPhotos.find(p=>p.mediaId===target.mediaId):otherPhotos[index];
   if(photo?.visibleDriveId)return photo.visibleDriveId;
  }
  return "";
@@ -3898,13 +3956,20 @@ async function hydrateMedia(){
  let changed=false;
  for(const list of Object.values(state.entries)){
   for(const e of list){
-   const photos=entryPhotos(e);for(const p of photos){if(!p.data&&(p.visibleDriveId||p.driveId)){try{p.data=await downloadAsDataUrl(p.visibleDriveId||p.driveId);changed=true}catch(err){console.warn("Não foi possível baixar foto",e.id,err)}}}e.photos=photos;e.foto=photos[0]?.data||e.foto||"";
+   const photos=entryPhotos(e);for(const p of photos){if(!photoDisplayData(p)){try{const local=await mediaGet(p.mediaId);if(local?.data){p._previewData=local.data;changed=true}else if(p.visibleDriveId||p.driveId){p._previewData=await downloadAsDataUrl(p.visibleDriveId||p.driveId);changed=true}}catch(err){console.warn("Não foi possível carregar foto",e.id,err)}}}e.photos=photos;e.foto="";
    if(!e.audio&&e.audioDriveId){
      try{e.audio=await downloadAsDataUrl(e.audioDriveId);changed=true}catch(err){}
    }
   }
  }
- if(changed){saveLocal(false);renderAll()}
+ if(changed)renderAll()
+}
+function photoDisplayData(photo){return photo?.data||photo?._previewData||""}
+async function mediaPhotoData(photo){const visible=photoDisplayData(photo);if(visible)return visible;try{return (await mediaGet(photo?.mediaId))?.data||""}catch(e){return ""}}
+async function cleanupUploadedLocalMedia(){
+ const photos=Object.values(state.entries||{}).flat().flatMap(entry=>entryPhotos(entry));
+ const ids=[...new Set(photos.map(p=>p.mediaId).filter(Boolean))];
+ for(const id of ids){const refs=photos.filter(p=>p.mediaId===id);if(refs.length&&refs.every(p=>p.visibleDriveId||p.driveId)){try{await mediaDelete(id);refs.forEach(p=>{delete p.data;delete p._previewData})}catch(e){console.warn("Não foi possível liberar mídia local",id,e)}}}
 }
 async function downloadAsDataUrl(id){
  let r=await apiFetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`),b=await r.blob();
@@ -4003,7 +4068,7 @@ function sharedEducationalPayload(){
       const copy=JSON.parse(JSON.stringify(e));
       copy.childId=backendChildId;
       if(copy.fotoVisibleDriveId||copy.fotoDriveId)copy.foto="";
-      if(Array.isArray(copy.photos))copy.photos=copy.photos.map(p=>(p.visibleDriveId||p.driveId)?{...p,data:""}:p);
+      if(Array.isArray(copy.photos))copy.photos=copy.photos.map(mediaMeta);
       if(copy.audioDriveId)copy.audio="";
       entries.push(copy);
     });
@@ -4242,7 +4307,7 @@ async function syncSharedFamilyDrive(opt={}){
 
 function remotePayload(){
  let copy=JSON.parse(JSON.stringify(state));
- Object.values(copy.entries).flat().forEach(e=>{if(e.fotoVisibleDriveId||e.fotoDriveId)e.foto="";if(Array.isArray(e.photos))e.photos=e.photos.map(p=>(p.visibleDriveId||p.driveId)?{...p,data:""}:p);if(e.audioDriveId)e.audio=""});
+ Object.values(copy.entries).flat().forEach(e=>{e.foto="";if(Array.isArray(e.photos))e.photos=e.photos.map(mediaMeta);if(e.audioDriveId)e.audio=""});
  copy.updatedAt=now();return copy
 }
 async function uploadState(payload){
@@ -4621,8 +4686,8 @@ function collectRecordDraft(){
    atividade:$("fActivity")?.value||"",
    observacoes:$("fObs")?.value||"",
    status:$("fStatus")?.value||"",
-   photoData:photoData||editing?.foto||"",
-   photos:Array.isArray(photosData)?photosData:[],
+   photoData:"",
+   photos:Array.isArray(photosData)?photosData.map(mediaMeta):[],
    photoTakenAt:photoTakenAt||editing?.photoTakenAt||"",
    photoDateSource:photoDateSource||editing?.photoDateSource||""
  };
@@ -4710,6 +4775,7 @@ function switchRecordChild(id){
 }
 
 function startNewRecord(){
+ releaseUnreferencedFormMedia();
  clearRecordDraft(activeChildId);
  collectiveRegistration=null;
  editing=null;
@@ -5068,8 +5134,14 @@ function renderRecordPage(){
    renderRecordMaterialSelection({id:f.materialId,name:f.materialName,publisher:f.materialPublisher||""});
  }
  renderRecordPhotos();if(photoData&&photoTakenAt)renderPhotoDateHint();
+ hydrateRecordFormPhotos();
  if(search.length>=2)refreshGlobalSearch();
  renderRecordList();
+}
+async function hydrateRecordFormPhotos(){
+ let changed=false;
+ for(const photo of photosData){if(!photoDisplayData(photo)){try{const local=await mediaGet(photo.mediaId);if(local?.data){photo._previewData=local.data;changed=true}else if(photo.visibleDriveId||photo.driveId){photo._previewData=await downloadAsDataUrl(photo.visibleDriveId||photo.driveId);changed=true}}catch(e){}}}
+ if(changed){photoData=photoDisplayData(photosData[0]);renderRecordPhotos();renderPhotoDateHint()}
 }
 function changeRecordType(){
  let comp=$("fType").value==="complementar";
@@ -5793,10 +5865,11 @@ async function reviewMaterial(id,action){
 }
 
 function entryPhotos(entry){if(Array.isArray(entry?.photos)&&entry.photos.length)return entry.photos;return entry?.foto?[{data:entry.foto,takenAt:entry.photoTakenAt||"",dateSource:entry.photoDateSource||"",visibleDriveId:entry.fotoVisibleDriveId||"",driveId:entry.fotoDriveId||""}]:[]}
-function renderRecordPhotos(){const wrap=$("photoPreviewWrap");if(!wrap)return;wrap.innerHTML=photosData.map((p,i)=>`<div style="display:inline-block;position:relative;margin:5px"><img class="photo" style="width:150px;height:110px;object-fit:cover" src="${p.data||""}"><button type="button" class="btn danger small" style="position:absolute;right:4px;top:4px" onclick="removeRecordPhoto(${i})">×</button></div>`).join("")+(photosData.length?`<div class="meta">${photosData.length} foto(s) selecionada(s)</div>`:"")}
-function removeRecordPhoto(index){photosData.splice(index,1);photoData=photosData[0]?.data||"";photoTakenAt=photosData[0]?.takenAt||"";photoDateSource=photosData[0]?.dateSource||"";renderRecordPhotos();saveRecordDraft(true)}
-async function compressRecordPhoto(file){const meta=await readPhotoTimestamp(file);const src=await new Promise((ok,fail)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=fail;r.readAsDataURL(file)});return await new Promise((ok,fail)=>{const img=new Image();img.onload=()=>{const max=1200,s=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext("2d").drawImage(img,0,0,c.width,c.height);ok({data:c.toDataURL("image/jpeg",.72),takenAt:meta.at||"",dateSource:meta.source||"",visibleDriveId:"",driveId:""})};img.onerror=fail;img.src=src})}
-async function readPhoto(ev){saveRecordDraft(true);const files=[...(ev.target.files||[])];if(!files.length)return;for(const file of files){try{photosData.push(await compressRecordPhoto(file))}catch(e){console.warn("Foto ignorada",e)}}photoData=photosData[0]?.data||"";photoTakenAt=photosData[0]?.takenAt||"";photoDateSource=photosData[0]?.dateSource||"";renderRecordPhotos();renderPhotoDateHint();saveRecordDraft(true);ev.target.value=""}
+async function releaseUnreferencedFormMedia(){for(const mediaId of [...new Set((photosData||[]).map(p=>p.mediaId).filter(Boolean))]){const used=Object.values(state.entries||{}).flat().some(e=>entryPhotos(e).some(p=>p.mediaId===mediaId));if(!used){try{await mediaDelete(mediaId)}catch(e){}}}}
+function renderRecordPhotos(){const wrap=$("photoPreviewWrap");if(!wrap)return;wrap.innerHTML=photosData.map((p,i)=>`<div style="display:inline-block;position:relative;margin:5px"><img class="photo" style="width:150px;height:110px;object-fit:cover" src="${photoDisplayData(p)}"><button type="button" class="btn danger small" style="position:absolute;right:4px;top:4px" onclick="removeRecordPhoto(${i})">×</button></div>`).join("")+(photosData.length?`<div class="meta">${photosData.length} foto(s) selecionada(s)</div>`:"")}
+async function removeRecordPhoto(index){const removed=photosData.splice(index,1)[0];if(removed?.mediaId&&!Object.values(state.entries||{}).flat().some(e=>entryPhotos(e).some(p=>p.mediaId===removed.mediaId))){try{await mediaDelete(removed.mediaId)}catch(e){}}photoData=photoDisplayData(photosData[0]);photoTakenAt=photosData[0]?.takenAt||"";photoDateSource=photosData[0]?.dateSource||"";renderRecordPhotos();saveRecordDraft(true)}
+async function compressRecordPhoto(file){const meta=await readPhotoTimestamp(file);const src=await new Promise((ok,fail)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=fail;r.readAsDataURL(file)});return await new Promise((ok,fail)=>{const img=new Image();img.onload=async()=>{try{const max=1200,s=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext("2d").drawImage(img,0,0,c.width,c.height);const data=c.toDataURL("image/jpeg",.72),mediaId=`photo_${uid()}`;await mediaPut(mediaId,data,"image/jpeg");ok({mediaId,_previewData:data,takenAt:meta.at||"",dateSource:meta.source||"",visibleDriveId:"",driveId:""})}catch(e){fail(e)}};img.onerror=fail;img.src=src})}
+async function readPhoto(ev){saveRecordDraft(true);const files=[...(ev.target.files||[])];if(!files.length)return;let failed=0;for(const file of files){try{photosData.push(await compressRecordPhoto(file))}catch(e){failed++;console.warn("Foto ignorada",e)}}photoData=photoDisplayData(photosData[0]);photoTakenAt=photosData[0]?.takenAt||"";photoDateSource=photosData[0]?.dateSource||"";renderRecordPhotos();renderPhotoDateHint();saveRecordDraft(true);ev.target.value="";if(failed)alert(`${failed} foto(s) não puderam ser guardadas neste dispositivo. O restante do registro continua preservado.`)}
 function entryComponents(x){const a=Array.isArray(x?.selectedComponents)?x.selectedComponents.map(c=>c?.component):[];if(x?.componente)a.unshift(x.componente);return [...new Set(a.filter(Boolean))]}
 function entrySkills(x){if(Array.isArray(x?.selectedSkills)&&x.selectedSkills.length)return x.selectedSkills;return x?.codigo||x?.habilidade?[{code:x.codigo||"",curricular_component:x.componente||"",description:x.habilidade||""}]:[]}
 function entryCompetencies(x){return Array.isArray(x?.selectedCompetencies)?x.selectedCompetencies:[]}
@@ -5814,7 +5887,7 @@ function saveEntry(){
  let e={id:editing?.id||uid(),childId:activeChildId,collectiveGroupId:editing?.collectiveGroupId||"",createdAt:editing?.createdAt||now(),updatedAt:now(),createdByUserId:editing?.createdByUserId||backendProfile?.user?.id||"",createdByEmail:editing?.createdByEmail||backendProfile?.user?.email||googleUser?.email||"",createdByName:editing?.createdByName||backendProfile?.user?.name||googleUser?.name||"",date:$("fDate").value,activityDateSource:(photoTakenAt&&isoDateFromTimestamp(photoTakenAt)===$("fDate").value)?(photoDateSource==="exif"?"photo_exif":"photo_file"):(editing?.activityDateSource||"manual"),photoTakenAt:photoTakenAt||editing?.photoTakenAt||"",photoDateSource:photoDateSource||editing?.photoDateSource||"",type,yearRefAtRecord:currentChild()?.stage||"",complementaryId:type==="complementar"?compId:"",
  area:$("fArea")?.value||recordSelectedComponents[0]?.area||"",componente:$("fComp")?.value||recordSelectedComponents[0]?.component||"",codigo:$("fCode")?.value||"",
  habilidade:$("fSkill")?.value||"",aiExperience:recordAiExperience||null,complementarySelected:!!recordComplementarySelected,complementaryActivityName:complementaryName,aiComponents:Array.isArray(recordAiComponents)?recordAiComponents:[],selectedComponents:Array.isArray(recordSelectedComponents)?recordSelectedComponents:[],aiSkills:Array.isArray(recordAiSkills)?recordAiSkills:[],selectedSkills:Array.isArray(recordSelectedSkills)?recordSelectedSkills:[],aiCompetencies:Array.isArray(recordAiCompetencies)?recordAiCompetencies:[],selectedCompetencies:Array.isArray(recordSelectedCompetencies)?recordSelectedCompetencies:[],materialId:$("fMaterialId")?.value||"",materialName:$("fMaterialName")?.value||"",materialPublisher:$("fMaterialPublisher")?.value||"",atividade:$("fActivity").value.trim(),observacoes:$("fObs").value.trim(),status:$("fStatus").value,
- photos:photosData.map(p=>({...p})),foto:photosData[0]?.data||photoData||editing?.foto||"",fotoDriveId:photosData[0]?.driveId||editing?.fotoDriveId||"",fotoVisibleDriveId:photosData[0]?.visibleDriveId||editing?.fotoVisibleDriveId||"",audio:editing?.audio||"",audioDriveId:editing?.audioDriveId||""};
+ photos:photosData.map(p=>({...p})),foto:"",fotoDriveId:photosData[0]?.driveId||editing?.fotoDriveId||"",fotoVisibleDriveId:photosData[0]?.visibleDriveId||editing?.fotoVisibleDriveId||"",audio:editing?.audio||"",audioDriveId:editing?.audioDriveId||""};
  if(!e.date)missing.push("Data");if(!e.atividade)missing.push("Atividade realizada");if(!e.status)missing.push("Avaliação");
  if(missing.length)return alert("Preencha antes de registrar:\n\n• "+missing.join("\n• "));
  let savedChildId=activeChildId;
@@ -5835,7 +5908,7 @@ function saveEntry(){
    clearRecordDraft(savedChildId);clearRecordDraft(nextChildId);
    activeChildId=nextChildId;
    editing={id:uid(),isNewFromPlan:true,childId:nextChildId,date:e.date,activityDateSource:e.activityDateSource,photoTakenAt:e.photoTakenAt||"",photoDateSource:e.photoDateSource||"",type:e.type,complementaryId:"",area:"",componente:"",codigo:"",habilidade:"",materialId:e.materialId||"",materialName:e.materialName||"",materialPublisher:e.materialPublisher||"",materialBnccSkills:[],atividade:e.atividade,observacoes:e.observacoes,status:"",photos:e.photos.map(p=>({...p,visibleDriveId:"",driveId:""})),foto:e.foto||"",audio:e.audio||"",audioDriveId:e.audioDriveId||"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:planIdToComplete,planOccurrenceDate,collectiveGroupId:collective.groupId,collectivePosition:nextIndex+1,collectiveTotal:collective.total};
-   photosData=e.photos.map(p=>({...p,visibleDriveId:"",driveId:""}));photoData=photosData[0]?.data||"";audioData=e.audio||"";photoTakenAt=e.photoTakenAt||"";photoDateSource=e.photoDateSource||"";
+   photosData=e.photos.map(p=>({...p,visibleDriveId:"",driveId:""}));photoData=photoDisplayData(photosData[0]);audioData=e.audio||"";photoTakenAt=e.photoTakenAt||"";photoDateSource=e.photoDateSource||"";
    recordAiComponents=[];recordSelectedComponents=[];recordAiSkills=[];recordSelectedSkills=[];recordAiCompetencies=[];recordSelectedCompetencies=[];recordAiExperience=null;recordComplementarySelected=false;
    saveLocal();renderAll(true);showPage("registro");renderRecordPage();window.scrollTo({top:0,behavior:"smooth"});
    return;
@@ -5859,7 +5932,7 @@ function renderRecordList(){
    return `<div class="entry ${x.status==="Dominado"?"done":x.status==="Precisa de revisão"?"focus":"progress"}">
     <div class="meta">${fmtDate(x.date)}</div>
     <div class="entry-title">${esc(x.atividade)}</div>${entryRelationsHtml(x)}${x.materialName?`<div class="meta">📘 ${esc(x.materialName)}</div>`:""}${x.observacoes?`<div class="obs">${esc(x.observacoes)}</div>`:""}
-    <span class="badge">${esc(x.status)}</span>${entryPhotos(x).length?`<div>${entryPhotos(x).map(p=>`<img class="photo" style="width:160px;height:120px;object-fit:cover;margin:5px" src="${p.data||""}">`).join("")}</div>`:""}${x.audio?`<div class="audio-box"><audio controls src="${x.audio}"></audio></div>`:""}
+    <span class="badge">${esc(x.status)}</span>${entryPhotos(x).length?`<div>${entryPhotos(x).map(p=>`<img class="photo" style="width:160px;height:120px;object-fit:cover;margin:5px" src="${photoDisplayData(p)}">`).join("")}</div>`:""}${x.audio?`<div class="audio-box"><audio controls src="${x.audio}"></audio></div>`:""}
     <details class="tech-details" style="margin-top:8px"><summary class="meta">Datas do registro</summary><div class="meta" style="margin-top:5px">Atividade: ${esc(fmtDate(x.date))} · origem: ${esc(dateSource)}<br>Registrado em: ${esc(fmtDateTime(x.createdAt))}${changed?`<br>Alterado em: ${esc(fmtDateTime(x.updatedAt))}`:""}${x.photoTakenAt?`<br>Foto: ${esc(fmtDateTime(x.photoTakenAt))} · ${esc(photoSourceLabel(x.photoDateSource))}`:""}</div></details>
     <div class="entry-actions"><button class="btn small dark" onclick="viewEntry('${x.id}','${activeChildId}')">Visualizar</button><button class="btn small" onclick="editEntry('${x.id}')">Editar</button><button class="btn irreversible small" onclick="deleteEntry('${x.id}')">Excluir</button></div>
    </div>`;
@@ -5890,7 +5963,7 @@ function viewEntry(id,childId=""){
  card.innerHTML=`
  <div class="record-view-head"><div><div class="meta">${esc(child?.name||"Criança")} · ${esc(fmtDate(x.date))}</div><h2>${esc(x.atividade||"Registro")}</h2><span class="badge">${esc(x.status||"Sem avaliação")}</span></div><button class="record-view-close" onclick="closeRecordView()">×</button></div>
  <div class="record-view-section">${entryRelationsHtml(x)}${x.materialName?`<div class="meta" style="margin-top:6px">📘 Material: <b>${esc(x.materialName)}</b>${x.materialPublisher?` · ${esc(x.materialPublisher)}`:""}</div>`:""}${x.observacoes?`<div class="obs" style="margin-top:10px"><b>Observações</b><br>${esc(x.observacoes)}</div>`:""}</div>
- ${entryPhotos(x).length?`<div class="record-view-section"><b>Fotos (${entryPhotos(x).length})</b><div style="margin-top:8px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">${entryPhotos(x).map(p=>`<img class="record-view-photo" src="${p.data||""}" alt="Foto do registro">`).join("")}</div></div>`:""}
+ ${entryPhotos(x).length?`<div class="record-view-section"><b>Fotos (${entryPhotos(x).length})</b><div style="margin-top:8px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">${entryPhotos(x).map(p=>`<img class="record-view-photo" src="${photoDisplayData(p)}" alt="Foto do registro">`).join("")}</div></div>`:""}
  ${x.audio?`<div class="record-view-section"><b>Áudio</b><div class="audio-box"><audio controls src="${x.audio}"></audio></div></div>`:""}
  <div class="record-view-section"><b>Datas do registro</b><div class="meta" style="margin-top:6px">Atividade: ${esc(fmtDate(x.date))} · origem: ${esc(dateSource)}<br>Registrado em: ${esc(fmtDateTime(x.createdAt))}${changed?`<br>Alterado em: ${esc(fmtDateTime(x.updatedAt))}`:""}${x.photoTakenAt?`<br>Foto: ${esc(fmtDateTime(x.photoTakenAt))} · ${esc(photoSourceLabel(x.photoDateSource))}`:""}</div></div>
  <div class="toolbar" style="margin-top:16px"><button class="btn" onclick="closeRecordView();showPage('registro');activeChildId='${found.childId}';editEntry('${x.id}')">Editar</button><button class="btn" onclick="closeRecordView()">Fechar</button></div>`;
@@ -5901,11 +5974,11 @@ function editEntry(id){
  clearRecordDraft(activeChildId);
  editing=(state.entries[activeChildId]||[]).find(x=>x.id===id);
  recordFormOpen=true;
- photosData=entryPhotos(editing).map(p=>({...p}));photoData=photosData[0]?.data||"";audioData=editing?.audio||"";photoTakenAt=photosData[0]?.takenAt||editing?.photoTakenAt||"";photoDateSource=photosData[0]?.dateSource||editing?.photoDateSource||"";
+ photosData=entryPhotos(editing).map(p=>({...p}));photoData=photoDisplayData(photosData[0]);audioData=editing?.audio||"";photoTakenAt=photosData[0]?.takenAt||editing?.photoTakenAt||"";photoDateSource=photosData[0]?.dateSource||editing?.photoDateSource||"";
  renderRecordPage();
  window.scrollTo({top:0,behavior:"smooth"})
 }
-function cancelEdit(){clearRecordDraft(activeChildId);collectiveRegistration=null;editing=null;recordFormOpen=false;photoData="";photosData=[];audioData="";photoTakenAt="";photoDateSource="";renderRecordPage()}
+async function cancelEdit(){clearRecordDraft(activeChildId);await releaseUnreferencedFormMedia();collectiveRegistration=null;editing=null;recordFormOpen=false;photoData="";photosData=[];audioData="";photoTakenAt="";photoDateSource="";renderRecordPage()}
 function driveMediaUsedByOtherEntry(id,entryId){
  if(!id)return false;
  return Object.values(state.entries||{}).flat().some(other=>other.id!==entryId&&[other?.fotoVisibleDriveId,other?.fotoDriveId,other?.audioDriveId,...entryPhotos(other).flatMap(p=>[p.visibleDriveId,p.driveId])].filter(Boolean).includes(id));
@@ -5917,12 +5990,14 @@ async function deleteDriveMediaBestEffort(entry){
   try{await apiFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(id)}`,{method:"DELETE"})}catch(e){console.warn("Não foi possível excluir mídia órfã",id,e)}
  }
 }
+async function deleteUnreferencedLocalMedia(entry){for(const mediaId of [...new Set(entryPhotos(entry).map(p=>p.mediaId).filter(Boolean))]){const used=Object.values(state.entries||{}).flat().some(other=>entryPhotos(other).some(p=>p.mediaId===mediaId));if(!used){try{await mediaDelete(mediaId)}catch(e){}}}}
 async function deleteEntry(id){
  const entry=(state.entries[activeChildId]||[]).find(x=>x.id===id);if(!entry)return;
  if(!confirm(`Excluir este registro da família?\n\n${entry.atividade||"Registro"}\n\nEle será removido para todos os responsáveis.`))return;
  if(!confirm("Confirma a exclusão definitiva? Esta ação não poderá ser desfeita pelo aplicativo."))return;
  const backendChildId=localToBackendChildId(activeChildId);
  state.entries[activeChildId]=(state.entries[activeChildId]||[]).filter(x=>x.id!==id);
+ await deleteUnreferencedLocalMedia(entry);
  addTomb("entries",id,{childId:backendChildId||"",deletedBy:backendProfile?.user?.email||""});
  saveLocal(false);renderAll(true);
  setCloudStatus("pending","Exclusão aguardando sincronização");
@@ -6613,7 +6688,7 @@ function learningReportMoments(rows){
  if(!moments.length)return `<div class="learning-empty">Nenhuma foto registrada neste período.</div>`;
  return `<div class="learning-moments">${moments.map(x=>`
   <div class="learning-moment">
-   <img src="${entryPhotos(x)[0]?.data||""}" alt="Registro da atividade">
+   <img src="${photoDisplayData(entryPhotos(x)[0])}" alt="Registro da atividade">
    <div class="learning-moment-title">${esc(x.atividade||"Atividade")}</div>
    <div class="learning-moment-meta">${esc(fmtDate(x.date))}${x.componente?" · "+esc(x.componente):""}${x.codigo?" · "+esc(x.codigo):""}</div>
   </div>`).join("")}</div>`;
@@ -6725,7 +6800,7 @@ function renderReportPage(){
 
  const overview=`${componentHtml?`<h3 class="report-section-title">Componentes trabalhados</h3><div class="report-component-grid">${componentHtml}</div>`:""}${bnccHtml?`<h3 class="report-section-title">Resumo BNCC por componente</h3><div class="report-bncc-summary">${bnccHtml}</div>`:""}`;
 
- const activities=f.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=>`<div class="entry ${x.status==="Dominado"?"done":x.status==="Precisa de revisão"?"focus":"progress"}"><div class="meta">${fmtDate(x.date)}</div>${x.yearRefAtRecord?`<div class="meta">Ano de referência no registro: ${esc(x.yearRefAtRecord)}</div>`:""}<div class="entry-title">${esc(x.atividade)}</div>${entryRelationsHtml(x)}${x.materialName?`<div class="meta">📘 Material: ${esc(x.materialName)}</div>`:""}${x.observacoes?`<div class="obs">${esc(x.observacoes)}</div>`:""}${x.status?`<span class="badge">${esc(x.status)}</span>`:""}${entryPhotos(x).length?`<div>${entryPhotos(x).map(p=>`<img class="report-photo" src="${p.data||""}">`).join("")}</div>`:""}${x.audio?`<div class="audio-box no-print"><audio controls src="${x.audio}"></audio></div><div class="meta">Áudio anexado</div>`:""}</div>`).join("");
+ const activities=f.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=>`<div class="entry ${x.status==="Dominado"?"done":x.status==="Precisa de revisão"?"focus":"progress"}"><div class="meta">${fmtDate(x.date)}</div>${x.yearRefAtRecord?`<div class="meta">Ano de referência no registro: ${esc(x.yearRefAtRecord)}</div>`:""}<div class="entry-title">${esc(x.atividade)}</div>${entryRelationsHtml(x)}${x.materialName?`<div class="meta">📘 Material: ${esc(x.materialName)}</div>`:""}${x.observacoes?`<div class="obs">${esc(x.observacoes)}</div>`:""}${x.status?`<span class="badge">${esc(x.status)}</span>`:""}${entryPhotos(x).length?`<div>${entryPhotos(x).map(p=>`<img class="report-photo" src="${photoDisplayData(p)}">`).join("")}</div>`:""}${x.audio?`<div class="audio-box no-print"><audio controls src="${x.audio}"></audio></div><div class="meta">Áudio anexado</div>`:""}</div>`).join("");
 
  renderReportChildButtons();
  const filterLabel=$("reportFilterLabel");if(filterLabel)filterLabel.textContent=reading==="completed_books"?"Livros concluídos":reading==="reading_records"?"Registros de leitura":((from||to)?period:"Todos os registros");
@@ -6829,10 +6904,10 @@ function prepareHistoricalPhotos(ev){
 }
 function renderHistoricalPhotoQueue(){const box=$("historicalPhotosPreview");if(!box)return;historicalPhotoQueue.sort((a,b)=>a.date.localeCompare(b.date));box.innerHTML=historicalPhotoQueue.map((p,i)=>`<div class="photo-import-card"><img src="${p.data}"><label class="field">Data sugerida</label><input type="date" value="${p.date}" onchange="historicalPhotoQueue[${i}].date=this.value"><div class="meta">${esc(p.name)}</div></div>`).join("");$("historicalPhotosActions")?.classList.toggle("hidden",!historicalPhotoQueue.length)}
 function clearHistoricalPhotoImport(){historicalPhotoQueue=[];if($("historicalPhotosPreview"))$("historicalPhotosPreview").innerHTML="";$("historicalPhotosActions")?.classList.add("hidden")}
-function createHistoricalPhotoRecords(){
+async function createHistoricalPhotoRecords(){
  const childId=$("historyPhotoChild")?.value||"",status=$("historyPhotoStatus")?.value||"",activity=($("historyPhotoActivity")?.value||"").trim()||"Registro fotográfico de atividade";
  if(!childId)return alert("Escolha a criança.");if(!status)return alert("Escolha uma avaliação padrão.");if(!historicalPhotoQueue.length)return alert("Selecione fotos.");
- const created=historicalPhotoQueue.map(p=>({id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",date:p.date||today(),type:"bncc",area:"",componente:"",codigo:"",habilidade:"",atividade:activity,observacoes:"Importado a partir de foto antiga. BNCC não classificada.",status,foto:p.data,fotoDriveId:"",fotoVisibleDriveId:"",audio:"",audioDriveId:"",yearRefAtRecord:state.family.children.find(c=>c.id===childId)?.stage||""}));
+ const created=[];for(const p of historicalPhotoQueue){const mediaId=`photo_${uid()}`;await mediaPut(mediaId,p.data,"image/jpeg");created.push({id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",date:p.date||today(),type:"bncc",area:"",componente:"",codigo:"",habilidade:"",atividade:activity,observacoes:"Importado a partir de foto antiga. BNCC não classificada.",status,photos:[{mediaId,_previewData:p.data,takenAt:"",dateSource:"file",visibleDriveId:"",driveId:""}],foto:"",fotoDriveId:"",fotoVisibleDriveId:"",audio:"",audioDriveId:"",yearRefAtRecord:state.family.children.find(c=>c.id===childId)?.stage||""})}
  state.entries[childId]=[...created,...(state.entries[childId]||[])];clearHistoricalPhotoImport();saveLocal();renderAll();alert(`${created.length} registro(s) histórico(s) criados. Você pode classificar a BNCC depois.`)
 }
 
@@ -6891,9 +6966,10 @@ function makeBackup(){shareBackup()}
 function restoreBackup(ev){let f=ev.target.files[0];if(!f)return;let fr=new FileReader();fr.onload=()=>{try{let b=JSON.parse(fr.result),s=b.state||b;if(!s.family||!s.entries)throw new Error();if(!confirm("Restaurar este backup e substituir os dados locais?"))return;state={...state,...s};activeChildId=state.family.children[0]?.id||null;saveLocal();renderAll();alert("Backup restaurado.")}catch(e){alert("Backup inválido.")}};fr.readAsText(f)}
 
 function bindSettings(){}
-function init(){
+async function init(){
  initDynamicHeaderOffset();
  loadLocal();
+ try{await migrateLocalPhotosToIndexedDb();await migrateRecordDraftPhotosToIndexedDb()}catch(e){console.warn("Migração de mídia pendente:",e)}
  loadBnccApiCache();
  if(!navigator.onLine)restoreBackendProfileForOffline();
  $("planDate").value=today();
@@ -6902,6 +6978,7 @@ function init(){
  renderHistoryBatchRows();
  initGoogleAuth();
  updateAuthUI();
+ setTimeout(()=>hydrateMedia().catch(e=>console.warn("Pré-visualização de mídia pendente:",e)),0);
  syncRememberCheckbox();
  queueSavedPlanningWeatherRefresh();
  setInterval(()=>{if(document.visibilityState==="visible")queueSavedPlanningWeatherRefresh()},60*60*1000);
@@ -6934,7 +7011,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "7.7";
+const APP_VERSION = "7.8";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

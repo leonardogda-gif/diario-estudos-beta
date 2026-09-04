@@ -1,4 +1,4 @@
-DIÁRIO DE ESTUDOS — v7.7
+DIÁRIO DE ESTUDOS — v7.8
 
 BASE
 - Evolução da v6.8 corrigida.
@@ -103,6 +103,20 @@ REGISTRO COLETIVO — v7.7
 - Excluir o registro de uma criança não apaga uma foto que ainda esteja vinculada ao registro de outra.
 - A análise com IA, quando usada, é executada separadamente para cada criança, respeitando sua etapa escolar.
 
+ARMAZENAMENTO SEGURO DE FOTOS — v7.8
+- Fotos pendentes deixam de ocupar o localStorage limitado do navegador.
+- As mídias são guardadas no IndexedDB até a confirmação do envio ao Drive.
+- O estado DE_V2_STATE e os rascunhos mantêm somente referências leves às fotos.
+- Fotos existentes em base64 são migradas automaticamente na primeira abertura desta versão.
+- A migração copia a foto para o novo armazenamento antes de retirar o conteúdo pesado do estado antigo.
+- Depois que o Drive confirma o envio, a cópia pesada local é removida automaticamente.
+- Fotos ainda pendentes permanecem disponíveis offline no mesmo dispositivo.
+- O registro coletivo reutiliza o mesmo identificador de mídia para todas as crianças participantes.
+- A importação de fotos históricas também utiliza o armazenamento seguro.
+- Ao excluir o último registro que utiliza uma foto pendente, a mídia local correspondente é removida.
+- O salvamento principal trata falta de espaço e tenta uma versão compacta antes de apresentar o aviso.
+- Se uma foto não puder ser armazenada, o app informa o problema sem descartar silenciosamente o restante do registro.
+
 LIVROS DE LEITURA — v7.6
 - Adicionado botão “Editar leitura” para alterar início, situação e data de conclusão.
 - Adicionado botão “Excluir” com confirmação.
@@ -118,10 +132,10 @@ ARQUIVOS
 - worker.js atualizado para a versão 0.21-beta.
 
 PUBLICAÇÃO
-- Publique primeiro o conteúdo de worker.js no Cloudflare Worker.
-- Depois, substitua index.html, sw.js, version.json e LEIA-ME.txt no GitHub.
+- O Worker permanece na versão 0.21-beta; não é necessário republicá-lo se ele já foi aplicado na v7.6/v7.7.
+- Substitua index.html, sw.js, version.json e LEIA-ME.txt no GitHub.
 - Mantenha manifest.json e a pasta icons existentes.
 - Esta versão não exige comando de migração no D1.
-- APP_VERSION: 7.7.
-- Cache do service worker: diario-estudos-v7.7.
+- APP_VERSION: 7.8.
+- Cache do service worker: diario-estudos-v7.8.
 - Worker API: 0.21-beta.
