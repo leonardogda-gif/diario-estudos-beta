@@ -422,6 +422,13 @@ main,.app-main{letter-spacing:0}
 }
 .required-pill{background:var(--clean-green-soft);color:#275b42}
 .optional-pill{background:var(--clean-blue-soft);color:#526976}
+.quick-mode-toggle{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0 4px;padding:6px;background:#F4F0E6;border-radius:10px}
+.mode-pill{background:transparent;border:none;padding:7px 12px;border-radius:8px;font-size:13px;font-weight:600;color:#7A7566;cursor:pointer}
+.mode-pill.active{background:#17332A;color:#FFFFFF}
+.mode-hint{margin-left:auto}
+.voice-btn{margin-top:8px;background:#17332A;color:#F4F0E6;border:none}
+.voice-btn.recording{background:#94473C;animation:voicePulse 1.2s infinite}
+@keyframes voicePulse{0%,100%{opacity:1}50%{opacity:.7}}
 .record-form-card{padding:22px}
 .record-title-row{
   padding-bottom:18px;
@@ -881,7 +888,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v8.1 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v8.2 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -4989,6 +4996,31 @@ function recordAnalysisErrorMessage(error){
  if(error instanceof TypeError||message.includes("fetch")||message.includes("network"))return "Não conseguimos conectar ao serviço de análise. Seu relato continua salvo; confira a conexão e tente novamente.";
  return "Não foi possível concluir a análise agora. Seu relato continua salvo; aguarde alguns instantes e tente novamente.";
 }
+function recordQuickMode(){return localStorage.getItem("DE_RECORD_QUICK_MODE")==="1"}
+function toggleRecordQuickMode(on){
+ localStorage.setItem("DE_RECORD_QUICK_MODE",on?"1":"0");
+ renderRecordPage();
+}
+function speechRecognitionSupported(){return !!(window.SpeechRecognition||window.webkitSpeechRecognition)}
+let activeSpeechRecognition=null;
+function toggleVoiceInput(fieldId){
+ const btn=$("voiceBtn_"+fieldId),field=$(fieldId);
+ if(!field)return;
+ if(activeSpeechRecognition){activeSpeechRecognition.stop();return}
+ const Rec=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!Rec){alert("Seu navegador não tem suporte a reconhecimento de voz. Digite normalmente.");return}
+ const rec=new Rec();
+ rec.lang="pt-BR";rec.interimResults=false;rec.maxAlternatives=1;
+ activeSpeechRecognition=rec;
+ if(btn){btn.classList.add("recording");btn.textContent="🔴 Ouvindo... toque para parar";}
+ rec.onresult=(ev)=>{
+  const text=Array.from(ev.results).map(r=>r[0].transcript).join(" ").trim();
+  if(text){field.value=(field.value.trim()?field.value.trim()+" ":"")+text;saveRecordDraft(true);updateRecordPreview();}
+ };
+ rec.onerror=(ev)=>{if(ev.error!=="aborted")alert("Não foi possível reconhecer a fala: "+ev.error);};
+ rec.onend=()=>{activeSpeechRecognition=null;if(btn){btn.classList.remove("recording");btn.textContent="🎤 Falar";}};
+ try{rec.start()}catch(e){activeSpeechRecognition=null;if(btn){btn.classList.remove("recording");btn.textContent="🎤 Falar";}}
+}
 function renderRecordPage(){
  renderChildButtons("recordChildTabs",(!editing&&recordFormOpen)?"switchRecordChild":"selectChild");
  let box=$("recordApp"),child=currentChild();if(!box)return;
@@ -5007,6 +5039,7 @@ function renderRecordPage(){
    return;
  }
 
+ const quick=!editing&&recordQuickMode();
  const draft=draftForCurrentForm();
  let base=editing||{date:today(),type:"bncc",complementaryId:"",area:"",componente:"",codigo:"",habilidade:"",materialId:"",materialName:"",materialPublisher:"",materialBnccSkills:[],atividade:"",observacoes:"",status:"",foto:"",audio:""};
  let f=draft?{
@@ -5057,6 +5090,11 @@ function renderRecordPage(){
    <div><h2>${editing?.collectiveGroupId?`Registro coletivo · ${Number(editing.collectivePosition)||1} de ${Number(editing.collectiveTotal)||1}`:editing?.planId?"Concluir atividade planejada":editing?"Editar atividade":"Registrar"}</h2><div class="meta">${editing?.collectiveGroupId?"O relato, material e fotos são reaproveitados. Revise a avaliação e a BNCC desta criança.":editing?.planId?"Revise os dados do planejamento, escolha a habilidade BNCC do material quando houver mais de uma e salve o registro.":"Registre o essencial primeiro. Os detalhes e a BNCC podem ser completados abaixo."}</div></div>
    <div class="meta">${esc(child.name)} · ${esc(child.stage||"")}</div>
  </div>
+ ${!editing?`<div class="quick-mode-toggle">
+   <button type="button" class="mode-pill ${quick?"":"active"}" onclick="toggleRecordQuickMode(false)">📝 Completo</button>
+   <button type="button" class="mode-pill ${quick?"active":""}" onclick="toggleRecordQuickMode(true)">⚡ Rápido</button>
+   <span class="meta mode-hint">${quick?"Só o essencial — dá pra completar depois.":"Todos os campos disponíveis."}</span>
+ </div>`:""}
  <div class="record-shell">
   <div class="record-main">
    <div class="record-grid">
@@ -5075,9 +5113,10 @@ function renderRecordPage(){
     <div class="full">
       <label class="field clean-label clean-label-lg">O que vocês fizeram ou aprenderam? <span class="field-pill required-pill">Obrigatório</span></label><div class="field-help">Conte o que realmente aconteceu. Este relato terá mais peso do que o planejamento na análise pedagógica.</div>
       <textarea id="fActivity" rows="5" placeholder="Ex.: Visitamos a exposição sobre o corpo humano. Ela observou os órgãos, comparou suas funções e fez perguntas sobre respiração e circulação.">${esc(f.atividade)}</textarea>
+      ${speechRecognitionSupported()?`<button type="button" id="voiceBtn_fActivity" class="btn voice-btn" onclick="toggleVoiceInput('fActivity')">🎤 Falar</button>`:""}
       <div id="draftStatus" class="media-status">${draft?"Rascunho restaurado automaticamente.":"Rascunho salvo automaticamente neste dispositivo."}</div>
     </div>
-    <details id="recordMaterialWrap" class="full record-more-options">
+    <details id="recordMaterialWrap" class="full record-more-options ${quick?"hidden":""}">
       <summary><b>Material utilizado</b><span>Opcional</span></summary><div style="margin-top:10px">
       ${editing?.planId?`<div class="notice" style="margin-bottom:10px"><b>✓ Veio do planejamento</b><br><span class="meta">Confira o material e, se aparecerem vários códigos BNCC, toque no código que melhor corresponde ao que foi feito.</span></div>`:""}
       <label class="field">Material utilizado (opcional)</label>
@@ -5086,7 +5125,7 @@ function renderRecordPage(){
       <div id="recordMaterialSelected" class="${f.materialName?"":"hidden"}">${f.materialName?`<div class="notice" style="margin-top:7px"><b>📘 ${esc(f.materialName)}</b>${f.materialPublisher?` · ${esc(f.materialPublisher)}`:""}<button type="button" class="btn small" style="margin-top:6px" onclick="clearRecordMaterial()">Trocar / remover material</button></div>`:""}</div>
       <input id="fMaterialId" type="hidden" value="${esc(f.materialId||"")}"><input id="fMaterialName" type="hidden" value="${esc(f.materialName||"")}"><input id="fMaterialPublisher" type="hidden" value="${esc(f.materialPublisher||"")}">
       </div></details>
-    <div class="full experience-analysis-card">
+    <div class="full experience-analysis-card ${quick?"hidden":""}">
       <div class="experience-analysis-head">
         <div><h3>✨ Analisar experiência</h3><div class="meta">O Diário identifica componentes e busca habilidades e competências BNCC relacionadas em uma única análise.</div></div>
         <button id="analyzeExperienceBtn" type="button" class="btn primary" onclick="analyzeRecordComponents()">✨ Analisar experiência</button>
@@ -5126,8 +5165,8 @@ function renderRecordPage(){
       </div>
      </details>
     </div>
-    <div class="full"><details class="record-more-options"><summary><b>Mais opções</b><span>Observações</span></summary><div style="margin-top:10px"><label class="field clean-label">Observações <span class="field-pill optional-pill">Opcional</span></label><textarea id="fObs" rows="2">${esc(f.observacoes)}</textarea></div></details></div>
-    <div><label class="field clean-label">Avaliação <span class="field-pill required-pill">Obrigatório</span></label><select id="fStatus"><option value="">Selecione...</option><option ${f.status==="Dominado"?"selected":""}>Dominado</option><option ${f.status==="Em progresso"?"selected":""}>Em progresso</option><option ${f.status==="Precisa de revisão"?"selected":""}>Precisa de revisão</option></select></div>
+    <div class="full ${quick?"hidden":""}"><details class="record-more-options"><summary><b>Mais opções</b><span>Observações</span></summary><div style="margin-top:10px"><label class="field clean-label">Observações <span class="field-pill optional-pill">Opcional</span></label><textarea id="fObs" rows="2">${esc(f.observacoes)}</textarea></div></details></div>
+    <div class="${quick?"hidden":""}"><label class="field clean-label">Avaliação <span class="field-pill required-pill">Obrigatório</span></label><select id="fStatus"><option value="">Selecione...</option><option ${f.status==="Dominado"?"selected":""}>Dominado</option><option ${f.status==="Em progresso"?"selected":""}>Em progresso</option><option ${f.status==="Precisa de revisão"?"selected":""}>Precisa de revisão</option></select></div>
     <div><label class="field clean-label">Foto <span class="field-pill optional-pill">Opcional</span></label><div class="media-actions">
       <label class="btn" onclick="saveRecordDraft(true)">Tirar foto<input type="file" accept="image/*" capture="environment" style="display:none" onchange="readPhoto(event)"></label>
       <label class="btn" onclick="saveRecordDraft(true)">Escolher fotos<input type="file" accept="image/*" multiple style="display:none" onchange="readPhoto(event)"></label>
@@ -5135,11 +5174,13 @@ function renderRecordPage(){
     <div class="full"><div id="photoPreviewWrap"></div></div>
    </div>
    <div class="record-actions">
+     ${quick?`<button class="btn primary" onclick="saveEntry()">✓ Salvar</button>`:`
      ${editing?.collectiveGroupId?"":`<button class="btn" onclick="startNewRecord()">Limpar</button>`}
      <button class="btn" onclick="saveRecordDraft(true)">Salvar rascunho</button>
      <button class="btn primary" onclick="saveEntry()">${editing?.collectiveGroupId&&Number(editing.collectivePosition)<Number(editing.collectiveTotal)?"Salvar e continuar":editing?.collectiveGroupId?"Salvar e concluir":editing?"Salvar alterações":"Salvar atividade"}</button>
-     ${editing?`<button class="btn" onclick="cancelEdit()">Cancelar</button>`:""}
+     ${editing?`<button class="btn" onclick="cancelEdit()">Cancelar</button>`:""}`}
    </div>
+   ${quick?`<div class="meta" style="margin-top:6px">Isso já é suficiente. Avaliação, material e BNCC podem ser completados depois — por você ou por qualquer responsável.</div>`:""}
   </div>
   <aside class="record-side">
     <div class="record-side-card">
@@ -5926,7 +5967,7 @@ function saveEntry(){
  area:$("fArea")?.value||recordSelectedComponents[0]?.area||"",componente:$("fComp")?.value||recordSelectedComponents[0]?.component||"",codigo:$("fCode")?.value||"",
  habilidade:$("fSkill")?.value||"",aiExperience:recordAiExperience||null,complementarySelected:!!recordComplementarySelected,complementaryActivityName:complementaryName,aiComponents:Array.isArray(recordAiComponents)?recordAiComponents:[],selectedComponents:Array.isArray(recordSelectedComponents)?recordSelectedComponents:[],aiSkills:Array.isArray(recordAiSkills)?recordAiSkills:[],selectedSkills:Array.isArray(recordSelectedSkills)?recordSelectedSkills:[],aiCompetencies:Array.isArray(recordAiCompetencies)?recordAiCompetencies:[],selectedCompetencies:Array.isArray(recordSelectedCompetencies)?recordSelectedCompetencies:[],materialId:$("fMaterialId")?.value||"",materialName:$("fMaterialName")?.value||"",materialPublisher:$("fMaterialPublisher")?.value||"",atividade:$("fActivity").value.trim(),observacoes:$("fObs").value.trim(),status:$("fStatus").value,
  photos:photosData.map(p=>({...p})),foto:"",fotoDriveId:photosData[0]?.driveId||editing?.fotoDriveId||"",fotoVisibleDriveId:photosData[0]?.visibleDriveId||editing?.fotoVisibleDriveId||"",audio:editing?.audio||"",audioDriveId:editing?.audioDriveId||""};
- if(!e.date)missing.push("Data");if(!e.atividade)missing.push("Atividade realizada");if(!e.status)missing.push("Avaliação");
+ if(!e.date)missing.push("Data");if(!e.atividade)missing.push("Atividade realizada");if(!e.status&&!(!editing&&recordQuickMode()))missing.push("Avaliação");
  if(missing.length)return alert("Preencha antes de registrar:\n\n• "+missing.join("\n• "));
  let savedChildId=activeChildId;
  let planIdToComplete=editing?.planId||"";
@@ -7055,7 +7096,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "8.1";
+const APP_VERSION = "8.2";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
