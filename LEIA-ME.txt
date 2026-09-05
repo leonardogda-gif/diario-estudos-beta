@@ -1,17 +1,18 @@
-DIÁRIO DE ESTUDOS — v8.3 (ajustes finos no Modo Rápido da v8.2)
+DIÁRIO DE ESTUDOS — v8.4
 
-TRÊS AJUSTES, TODOS SÓ VISUAIS/TEXTO — NENHUMA LÓGICA NOVA
-1. Removido o texto explicativo abaixo do seletor de "Criança" ("Percebeu
-   que começou o registro para a criança errada?..."). O seletor continua
-   funcionando igual, só sem o parágrafo.
-2. O interruptor Completo/Rápido virou um switch deslizante único (bolinha
-   que desliza), em vez de dois botões lado a lado. Mais discreto.
-3. Texto abaixo do título "Registrar" encurtado: "Conte o que foi feito.
-   O resto pode esperar." (era um parágrafo de duas linhas).
+1. Removido o bloco grande de botões de criança (verde/claro) da tela
+   "Registrar" quando o formulário de novo registro está aberto — ele
+   duplicava o menu "Criança" que já existe dentro do próprio formulário.
+   Continua aparecendo normalmente na lista de atividades e ao editar um
+   registro (onde não há esse menu redundante).
 
-NENHUMA MUDANÇA NO WORKER NEM NO BANCO. worker.js incluído sem alteração.
+2. Adicionado um botão "ⓘ" ao lado de "Modo rápido", que mostra uma
+   explicação curta (o que o modo faz e como usar) só quando tocado —
+   não ocupa espaço permanente na tela.
+
+NENHUMA MUDANÇA NO WORKER. worker.js incluído sem alteração.
 
 VALIDAÇÕES REALIZADAS
 - JavaScript inline do index.html: sintaxe OK.
-- CSS antigo do toggle (.mode-pill) removido sem deixar órfão.
-- Texto antigo removido confirmado (não sobrou referência a ele).
+- Confirmado que o container do bloco de criança (recordChildTabsCard)
+  existe e é escondido/mostrado corretamente conforme o estado da tela.

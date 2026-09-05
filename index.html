@@ -428,6 +428,7 @@ main,.app-main{letter-spacing:0}
 .switch.on{background:#17332A}
 .switch-knob{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#FFFFFF;transition:left .15s ease;box-shadow:0 1px 2px rgba(0,0,0,.25)}
 .switch.on .switch-knob{left:20px}
+.info-btn{background:none;border:none;color:#9C917E;font-size:15px;padding:0 4px;cursor:pointer;line-height:1}
 .voice-btn{margin-top:8px;background:#17332A;color:#F4F0E6;border:none}
 .voice-btn.recording{background:#94473C;animation:voicePulse 1.2s infinite}
 @keyframes voicePulse{0%,100%{opacity:1}50%{opacity:.7}}
@@ -890,7 +891,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v8.3 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v8.4 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -985,7 +986,7 @@ details[open]>summary:after{content:"⌃"}
 <b>Conte o que realmente aconteceu</b>
 <div class="meta" style="margin-top:4px">O Diário usará seu relato e o contexto do planejamento para sugerir componentes, habilidades e competências. Você confirma tudo antes de registrar.</div>
 </div>
-      <div class="card"><div id="recordChildTabs" class="child-tabs"></div></div>
+      <div class="card" id="recordChildTabsCard"><div id="recordChildTabs" class="child-tabs"></div></div>
       <div id="recordApp"></div>
     </section>
 
@@ -5025,6 +5026,7 @@ function toggleVoiceInput(fieldId){
 }
 function renderRecordPage(){
  renderChildButtons("recordChildTabs",(!editing&&recordFormOpen)?"switchRecordChild":"selectChild");
+ $("recordChildTabsCard")?.classList.toggle("hidden",!editing&&recordFormOpen);
  let box=$("recordApp"),child=currentChild();if(!box)return;
  if(!child){box.innerHTML="<div class='card notice'>Cadastre uma criança em Configurações.</div>";return}
 
@@ -5095,6 +5097,7 @@ function renderRecordPage(){
  ${!editing?`<div class="quick-mode-toggle">
    <span class="mode-label">Modo rápido</span>
    <button type="button" class="switch ${quick?"on":""}" onclick="toggleRecordQuickMode(${quick?"false":"true"})" aria-pressed="${quick}"><span class="switch-knob"></span></button>
+   <button type="button" class="info-btn" onclick="alert('Modo rápido\\n\\nMostra só o essencial — atividade, data e foto — pra você não perder o momento.\\n\\nAvaliação, material e BNCC ficam pendentes e podem ser completados depois, por você ou por outro responsável, editando o registro. Nada se perde, só fica pra depois.')" aria-label="O que é o Modo rápido">ⓘ</button>
  </div>`:""}
  <div class="record-shell">
   <div class="record-main">
@@ -7096,7 +7099,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "8.3";
+const APP_VERSION = "8.4";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
