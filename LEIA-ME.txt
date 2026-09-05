@@ -1,40 +1,17 @@
-DIÁRIO DE ESTUDOS — v8.2 (Modo Rápido no registro)
+DIÁRIO DE ESTUDOS — v8.3 (ajustes finos no Modo Rápido da v8.2)
 
-NOVIDADE
-Novo interruptor "📝 Completo / ⚡ Rápido" no topo do formulário de registro
-(some ao editar um registro já existente — edição sempre abre completa).
+TRÊS AJUSTES, TODOS SÓ VISUAIS/TEXTO — NENHUMA LÓGICA NOVA
+1. Removido o texto explicativo abaixo do seletor de "Criança" ("Percebeu
+   que começou o registro para a criança errada?..."). O seletor continua
+   funcionando igual, só sem o parágrafo.
+2. O interruptor Completo/Rápido virou um switch deslizante único (bolinha
+   que desliza), em vez de dois botões lado a lado. Mais discreto.
+3. Texto abaixo do título "Registrar" encurtado: "Conte o que foi feito.
+   O resto pode esperar." (era um parágrafo de duas linhas).
 
-O app lembra a última escolha no dispositivo (localStorage), então não
-precisa escolher toda vez — só trocar nos dias em que quiser o outro modo.
-
-MODO RÁPIDO esconde: Material utilizado, "Analisar experiência", Avaliação,
-"Mais opções" (Observações). Mantém visíveis: seletor de criança (se novo),
-Data, Atividade (com botão de voz), Foto, e um único botão "✓ Salvar".
-
-Avaliação deixa de ser obrigatória quando o registro é criado em modo
-rápido — fica em branco até alguém completar depois (editando o registro,
-que sempre abre no modo completo).
-
-BOTÃO DE VOZ ("🎤 Falar")
-Novo botão abaixo do campo "O que vocês fizeram ou aprenderam?", visível em
-ambos os modos (não só no rápido). Usa a Web Speech API nativa do
-navegador — sem custo, sem chave de API, sem chamada ao Worker. O texto
-falado é acrescentado ao que já estiver escrito no campo.
-Aparece somente se o navegador tiver suporte (a maioria dos Android/Chrome
-tem; se não tiver, o botão simplesmente não aparece, sem quebrar nada).
-
-NENHUMA MUDANÇA NO WORKER NEM NO BANCO
-worker.js incluído sem alteração, só para manter o pacote completo — esta
-versão é 100% frontend.
+NENHUMA MUDANÇA NO WORKER NEM NO BANCO. worker.js incluído sem alteração.
 
 VALIDAÇÕES REALIZADAS
 - JavaScript inline do index.html: sintaxe OK.
-- Nenhuma função chamada no HTML sem definição correspondente.
-- Nenhum id duplicado novo.
-- Tags <div>, <button>, <details>, <script> balanceadas.
-
-NÃO TESTADO
-- Reconhecimento de voz em uso real (só validei que o código chama a API
-  corretamente e trata a ausência de suporte) — vale testar no celular da
-  sua esposa especificamente, já que qualidade de reconhecimento de voz em
-  português varia por aparelho/navegador.
+- CSS antigo do toggle (.mode-pill) removido sem deixar órfão.
+- Texto antigo removido confirmado (não sobrou referência a ele).
