@@ -1,4 +1,16 @@
-DIÁRIO DE ESTUDOS — v8.0
+DIÁRIO DE ESTUDOS — v8.1
+
+RESUMO DE IA — v8.1
+- O resumo passa a usar uma identificação estável por criança, período e filtros.
+- Resumos criados em versões anteriores são recuperados sempre que houver correspondência segura com a criança e seus registros.
+- Novos registros ou alterações não fazem o resumo desaparecer.
+- Quando o conteúdo do período mudou, o Diário avisa que o resumo pode ser atualizado.
+
+ADMINISTRAÇÃO DO DIÁRIO — v8.1
+- As ferramentas do administrador geral foram retiradas de Configurações.
+- A opção “Administração do Diário” aparece em Mais somente após o Worker confirmar que a conta é administradora geral.
+- Os endpoints administrativos continuam protegidos pelo Worker; esconder a opção no HTML não é usado como mecanismo de segurança.
+- Não é necessário atualizar o Worker para estas mudanças. O worker.js incluído no pacote permanece como referência da versão 0.21-beta.
 
 BASE
 - Evolução da v6.8 corrigida.
@@ -162,6 +174,6 @@ PUBLICAÇÃO
 - Substitua index.html, sw.js, version.json e LEIA-ME.txt no GitHub.
 - Mantenha manifest.json e a pasta icons existentes.
 - Esta versão não exige comando de migração no D1.
-- APP_VERSION: 8.0.
-- Cache do service worker: diario-estudos-v8.0.
+- APP_VERSION: 8.1.
+- Cache do service worker: diario-estudos-v8.1.
 - Worker API: 0.21-beta.

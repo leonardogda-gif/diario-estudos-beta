@@ -881,7 +881,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v8.0 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v8.1 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -1209,7 +1209,7 @@ details[open]>summary:after{content:"⌃"}
 
     <section id="page-mais" class="page">
       <div class="card"><h2>Mais</h2><div class="meta" style="margin-bottom:12px">Opções que você não precisa usar todos os dias.</div>
-        <div id="adminValidationNotice" class="admin-validation-notice hidden" onclick="showPage('configuracoes')">
+        <div id="adminValidationNotice" class="admin-validation-notice hidden" onclick="showPage('administracao')">
           <span>🔔</span><div><b id="adminValidationNoticeTitle">Itens aguardando validação</b><div id="adminValidationNoticeText" class="meta"></div></div>
         </div>
         <div class="grid">
@@ -1219,6 +1219,7 @@ details[open]>summary:after{content:"⌃"}
           <button class="btn" onclick="showPage('ajuda')">Ajuda e instalação</button>
           <button class="btn" onclick="showPage('relatorios')">Relatórios</button>
           <button class="btn" onclick="showPage('configuracoes')">Configurações</button>
+          <button id="globalAdminMenuBtn" class="btn hidden" onclick="showPage('administracao')">Administração do Diário</button>
         </div>
       </div>
     </section>
@@ -1510,6 +1511,12 @@ details[open]>summary:after{content:"⌃"}
 
 <details class="tech-details"><summary>Diagnóstico técnico do beta</summary><div class="drive-folder-card" style="margin-top:8px"><div id="backendDetails" class="meta">Aguardando backend.</div><div id="backendFamilyInfo" class="meta" style="margin-top:6px"></div><div id="backendFamilyChooser" class="hidden"></div><div class="toolbar" style="margin-top:8px"><button class="btn small" onclick="testBackendConnection()">Testar backend</button><button id="syncFamilyBtn" class="btn small hidden" onclick="syncFamilyFromBackend(true)">Atualizar família</button><button id="linkFamilyBtn" class="btn small hidden" onclick="linkCurrentFamilyToBackend()">Vincular família local</button></div><hr style="margin:12px 0"><div class="meta">OAuth: Drive por arquivo/pasta (`drive.file`) + dados privados do app (`drive.appdata`) + Calendar com leitura de eventos para importação e escrita restrita ao calendário criado pelo Diário.</div><hr style="margin:10px 0"><div class="meta">Ferramentas temporárias do beta</div><button class="btn danger small" style="margin-top:8px" onclick="resetLocalBetaData()">Apagar dados locais deste dispositivo</button></div></details>
 
+</div></section>
+
+<section id="page-administracao" class="page">
+<div class="card"><h2>Administração do Diário</h2>
+<div class="notice" style="margin-bottom:12px">Área exclusiva do administrador geral para gerenciar o catálogo compartilhado e os recursos técnicos do Diário de Estudos.</div>
+
 <div id="adminValidationAlertControls" class="drive-folder-card" style="margin-bottom:10px">
             <div class="toolbar" style="justify-content:space-between">
               <div><b>🔔 Alertas de validação</b><div id="adminValidationAlertStatus" class="meta">O Diário pode avisar quando houver novos livros ou materiais aguardando revisão.</div></div>
@@ -1769,11 +1776,12 @@ function currentChild(){
 function ageFromBirth(b){if(!b)return"";let x=new Date(b+"T00:00:00"),n=new Date(),a=n.getFullYear()-x.getFullYear();if(n.getMonth()<x.getMonth()||(n.getMonth()===x.getMonth()&&n.getDate()<x.getDate()))a--;return a>=0?a:""}
 
 function showPage(name){
+ if(name==="administracao"&&!isGlobalDiaryAdmin){alert("Esta área está disponível somente para o administrador geral do Diário de Estudos.");name="mais"}
  document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id==="page-"+name));
  document.querySelectorAll(".nav-tab").forEach(x=>x.classList.toggle("active",x.dataset.page===name));
  if(name==="inicio")renderDashboard();
  if(name==="registro")renderRecordPage();
- if(name==="planejamento"){renderPlans();refreshCalendarIntegrationUI();checkImportedCalendarChanges();} if(name==="mais"){refreshCalendarIntegrationUI();checkAdminPendingValidations(false);} if(name==="configuracoes"){checkAdminPendingValidations(false);updateAdminValidationNotificationStatus();}
+ if(name==="planejamento"){renderPlans();refreshCalendarIntegrationUI();checkImportedCalendarChanges();} if(name==="mais"){refreshCalendarIntegrationUI();checkAdminPendingValidations(false);} if(name==="administracao"){updateAdminValidationNotificationStatus();loadPendingCommunityBooks();loadPendingMaterials();}
  if(name==="relatorios")renderReportPage();
  if(name==="historico"){renderHistoryBrowser();renderHistoryBatchRows();refreshHistoryActivityOptions();}
  if(name==="leituras"){renderReadingPage();}
@@ -5731,6 +5739,7 @@ async function buildBnccEmbeddings(){
  }
 }
 
+let isGlobalDiaryAdmin=false;
 let adminValidationLastCount=Number(localStorage.getItem("DE_ADMIN_PENDING_COUNT")||"0");
 let adminValidationTimer=null;
 async function enableAdminValidationNotifications(){
@@ -5753,16 +5762,17 @@ async function showAdminPendingSystemNotification(total,books,materials){
  }catch(e){console.warn("Notificação de validação:",e)}
 }
 async function checkAdminPendingValidations(forceNotify=false){
- if(!googleAccessToken)return;
+ if(!googleAccessToken){isGlobalDiaryAdmin=false;$("globalAdminMenuBtn")?.classList.add("hidden");return}
  try{
   const [bookData,matData]=await Promise.all([backendFetch("/community-books/pending"),backendFetch("/materials/pending")]);
   const books=(bookData?.books||[]).length,materials=(matData?.materials||[]).length,total=books+materials;
   const notice=$("adminValidationNotice"),text=$("adminValidationNoticeText"),title=$("adminValidationNoticeTitle");
+  isGlobalDiaryAdmin=true;$("globalAdminMenuBtn")?.classList.remove("hidden");
   if(notice){notice.classList.toggle("hidden",total===0);if(title)title.textContent=total===1?"1 item aguardando validação":`${total} itens aguardando validação`;if(text)text.textContent=[books?`${books} livro${books===1?"":"s"}`:"",materials?`${materials} material${materials===1?"":"is"}`:""].filter(Boolean).join(" · ")}
   if((forceNotify&&total>0)||(total>adminValidationLastCount))await showAdminPendingSystemNotification(total,books,materials);
   adminValidationLastCount=total;localStorage.setItem("DE_ADMIN_PENDING_COUNT",String(total));updateAdminValidationNotificationStatus();
   return {books,materials,total,isGlobalAdmin:true};
- }catch(e){$("adminValidationNotice")?.classList.add("hidden");return {books:0,materials:0,total:0,isGlobalAdmin:false}}
+ }catch(e){isGlobalDiaryAdmin=false;$("globalAdminMenuBtn")?.classList.add("hidden");$("adminValidationNotice")?.classList.add("hidden");if(document.querySelector("#page-administracao.active"))showPage("mais");return {books:0,materials:0,total:0,isGlobalAdmin:false}}
 }
 function startAdminPendingValidationWatch(){
  clearInterval(adminValidationTimer);checkAdminPendingValidations(false);adminValidationTimer=setInterval(()=>checkAdminPendingValidations(false),10*60*1000);
@@ -6508,10 +6518,17 @@ async function deletePlan(id){const p=state.plans.find(x=>x.id===id);if(!p)retur
 function familyReportAiSummaries(){state.family.reportAiSummaries??={};return state.family.reportAiSummaries}
 function selectReportChild(id){if(!id)return;activeChildId=id;const s=$("reportChild");if(s)s.value=id;renderReportPage()}
 function renderReportChildButtons(){const box=$("reportChildButtons");if(!box)return;const kids=(state.family.children||[]).filter(c=>!c.archived&&!c.legacyOrphan),selected=$("reportChild")?.value||activeChildId;box.innerHTML=kids.map(c=>`<button type="button" class="child ${c.id===selected?"active":""}" onclick="selectReportChild('${c.id}')">${esc(c.name)}</button>`).join("")}
-function reportAiKey(childId,from,to,status,type,comp,rows){const stableChildId=localToBackendChildId(childId)||childId;return [stableChildId,from,to,status,type,comp,rows.map(x=>`${x.id||""}:${x.updatedAt||x.createdAt||""}`).sort().join("|")].join("::")}
-function findFamilyReportAiSummary(key){const all=familyReportAiSummaries();if(all[key])return all[key];const suffix=key.slice(key.indexOf("::"));return Object.entries(all).filter(([candidate])=>candidate.slice(candidate.indexOf("::"))===suffix).map(([,value])=>value).sort((a,b)=>ts(b?.updatedAt)-ts(a?.updatedAt))[0]||null}
-function reportAiBox(key,hasRows){const saved=findFamilyReportAiSummary(key),cached=typeof saved==="string"?saved:saved?.text||"";return `<div class="ai-period-summary"><div class="ai-period-head"><div><h3>✨ Resumo do período</h3><div class="learning-section-intro" style="margin:0">Uma leitura breve dos registros selecionados, guardada para toda a família.</div></div>${hasRows?`<button class="btn small" type="button" onclick="generateReportAiSummary()">${cached?"↻ Atualizar resumo":"✨ Gerar resumo com IA"}</button>`:""}</div><div id="reportAiSummaryText" class="ai-period-text">${cached?esc(cached).replace(/\n/g,"<br>"):(hasRows?"Clique em “Gerar resumo com IA” para criar uma síntese deste período.":"Não há registros suficientes para gerar um resumo.")}</div><div id="reportAiSummaryLoading" class="ai-period-loading hidden">Analisando os registros do período...</div>${saved?.updatedAt?`<div class="meta" style="margin-top:8px">Atualizado em ${esc(fmtDateTime(saved.updatedAt))}${saved.updatedBy?` por ${esc(saved.updatedBy)}`:""}.</div>`:""}<div class="ai-period-note">Resumo elaborado por IA. A família pode atualizar esta síntese quando quiser.</div></div>`}
-async function generateReportAiSummary(){const childId=$("reportChild")?.value||activeChildId,child=state.family.children.find(c=>c.id===childId);if(!child)return;const all=state.entries[childId]||[],from=$("reportFrom")?.value||"",to=$("reportTo")?.value||"",status=$("reportStatus")?.value||"",type=$("reportType")?.value||"",comp=$("reportComponent")?.value||"",rows=all.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!status||x.status===status)&&(!type||(type==="complementar"?!!x.complementaryActivityName:entrySkills(x).length>0))&&(!comp||entryComponents(x).includes(comp)));if(!rows.length)return alert("Não há registros neste período para resumir.");const period=reportPeriodText(from,to),key=reportAiKey(childId,from,to,status,type,comp,rows),backendChildId=localToBackendChildId(child.id);if(!backendChildId)return alert("Sincronize a criança com a família antes de gerar o resumo.");$("reportAiSummaryLoading")?.classList.remove("hidden");try{const data=await backendFetch("/ai/report-summary",{method:"POST",body:JSON.stringify({child_id:backendChildId,child_name:child.name||"",reference_stage:child.stage||"",period,activities:rows.slice(0,120).map(x=>({date:x.date||"",activity:String(x.atividade||"").slice(0,500),component:entryComponents(x).join(", "),status:x.status||"",bncc_code:entrySkills(x).map(s=>s.code).filter(Boolean).join(", "),bncc_skill:entrySkills(x).map(s=>s.description).filter(Boolean).join(" | ").slice(0,500),notes:String(x.observacoes||"").slice(0,350)}))})});const text=String(data?.summary||"").trim();if(!text)throw new Error("A IA não retornou um resumo.");familyReportAiSummaries()[key]={text,updatedAt:now(),updatedBy:backendProfile?.user?.name||googleUser?.name||"Família"};state.family.updatedAt=now();saveLocal();renderReportPage()}catch(e){alert("Não foi possível gerar o resumo: "+(e.message||e))}finally{$("reportAiSummaryLoading")?.classList.add("hidden")}}
+function reportRowsFingerprint(rows){return rows.map(x=>`${x.id||""}:${x.updatedAt||x.createdAt||""}`).sort().join("|")}
+function reportAiKey(childId,from,to,status,type,comp){const stableChildId=localToBackendChildId(childId)||childId;return ["v2",stableChildId,from,to,status,type,comp].join("::")}
+function findFamilyReportAiSummary(childId,from,to,status,type,comp,rows){
+ const all=familyReportAiSummaries(),stableKey=reportAiKey(childId,from,to,status,type,comp),direct=all[stableKey];
+ if(direct)return {saved:direct,key:stableKey};
+ const stableChildId=localToBackendChildId(childId)||childId,currentIds=new Set(rows.map(x=>String(x.id||"")).filter(Boolean)),filters=[from,to,status,type,comp];
+ const candidates=Object.entries(all).map(([key,saved])=>{const p=key.split("::");if(p[0]==="v2"||p.length<7||!filters.every((v,i)=>String(p[i+1]||"")===String(v||"")))return null;const ids=String(p.slice(6).join("::")||"").split("|").map(x=>x.split(":")[0]).filter(Boolean),overlap=ids.filter(id=>currentIds.has(id)).length,childMatch=p[0]===stableChildId||p[0]===childId;return {saved,key,overlap,childMatch}}).filter(Boolean).filter(x=>x.childMatch||x.overlap>0).sort((a,b)=>(Number(b.childMatch)-Number(a.childMatch))||(b.overlap-a.overlap)||(ts(b.saved?.updatedAt)-ts(a.saved?.updatedAt)));
+ return candidates[0]||{saved:null,key:stableKey};
+}
+function reportAiBox(childId,from,to,status,type,comp,rows){const found=findFamilyReportAiSummary(childId,from,to,status,type,comp,rows),saved=found.saved,cached=typeof saved==="string"?saved:saved?.text||"",currentFingerprint=reportRowsFingerprint(rows),savedFingerprint=saved?.fingerprint||(found.key?.startsWith("v2::")?"":found.key?.split("::").slice(6).join("::")),stale=!!cached&&!!savedFingerprint&&savedFingerprint!==currentFingerprint,hasRows=rows.length>0;return `<div class="ai-period-summary"><div class="ai-period-head"><div><h3>✨ Resumo do período</h3><div class="learning-section-intro" style="margin:0">Uma leitura breve dos registros selecionados, guardada para toda a família.</div></div>${hasRows?`<button class="btn small" type="button" onclick="generateReportAiSummary()">${cached?"↻ Atualizar resumo":"✨ Gerar resumo com IA"}</button>`:""}</div><div id="reportAiSummaryText" class="ai-period-text">${cached?esc(cached).replace(/\n/g,"<br>"):(hasRows?"Clique em “Gerar resumo com IA” para criar uma síntese deste período.":"Não há registros suficientes para gerar um resumo.")}</div><div id="reportAiSummaryLoading" class="ai-period-loading hidden">Analisando os registros do período...</div>${stale?`<div class="notice" style="margin-top:10px">Existem registros novos ou alterados desde este resumo. Você pode atualizá-lo quando quiser.</div>`:""}${saved?.updatedAt?`<div class="meta" style="margin-top:8px">Atualizado em ${esc(fmtDateTime(saved.updatedAt))}${saved.updatedBy?` por ${esc(saved.updatedBy)}`:""}.</div>`:""}<div class="ai-period-note">Resumo elaborado por IA. A família pode atualizar esta síntese quando quiser.</div></div>`}
+async function generateReportAiSummary(){const childId=$("reportChild")?.value||activeChildId,child=state.family.children.find(c=>c.id===childId);if(!child)return;const all=state.entries[childId]||[],from=$("reportFrom")?.value||"",to=$("reportTo")?.value||"",status=$("reportStatus")?.value||"",type=$("reportType")?.value||"",comp=$("reportComponent")?.value||"",rows=all.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!status||x.status===status)&&(!type||(type==="complementar"?!!x.complementaryActivityName:entrySkills(x).length>0))&&(!comp||entryComponents(x).includes(comp)));if(!rows.length)return alert("Não há registros neste período para resumir.");const period=reportPeriodText(from,to),key=reportAiKey(childId,from,to,status,type,comp),backendChildId=localToBackendChildId(child.id);if(!backendChildId)return alert("Sincronize a criança com a família antes de gerar o resumo.");$("reportAiSummaryLoading")?.classList.remove("hidden");try{const data=await backendFetch("/ai/report-summary",{method:"POST",body:JSON.stringify({child_id:backendChildId,child_name:child.name||"",reference_stage:child.stage||"",period,activities:rows.slice(0,120).map(x=>({date:x.date||"",activity:String(x.atividade||"").slice(0,500),component:entryComponents(x).join(", "),status:x.status||"",bncc_code:entrySkills(x).map(s=>s.code).filter(Boolean).join(", "),bncc_skill:entrySkills(x).map(s=>s.description).filter(Boolean).join(" | ").slice(0,500),notes:String(x.observacoes||"").slice(0,350)}))})});const text=String(data?.summary||"").trim();if(!text)throw new Error("A IA não retornou um resumo.");familyReportAiSummaries()[key]={text,fingerprint:reportRowsFingerprint(rows),recordCount:rows.length,updatedAt:now(),updatedBy:backendProfile?.user?.name||googleUser?.name||"Família"};state.family.updatedAt=now();saveLocal();renderReportPage()}catch(e){alert("Não foi possível gerar o resumo: "+(e.message||e))}finally{$("reportAiSummaryLoading")?.classList.add("hidden")}}
 
 
 const READING_LIBRARY_KEY="diario_reading_library_v1";
@@ -6832,7 +6849,7 @@ function renderReportPage(){
 
  renderReportChildButtons();
  const filterLabel=$("reportFilterLabel");if(filterLabel)filterLabel.textContent=reading==="completed_books"?"Livros concluídos":reading==="reading_records"?"Registros de leitura":((from||to)?period:"Todos os registros");
- const aiSummary=reportAiBox(reportAiKey(childId,from,to,status,type,comp,f),f.length>0);
+ const aiSummary=reportAiBox(childId,from,to,status,type,comp,f);
  const learningOverview=reading==="completed_books"?"":learningReportOverview(f,child,period);
  const learningMoments=reading==="completed_books"?"":learningReportMoments(f);
  const learningBncc=reading==="completed_books"?"":learningReportBncc(f);
@@ -7038,7 +7055,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "8.0";
+const APP_VERSION = "8.1";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
