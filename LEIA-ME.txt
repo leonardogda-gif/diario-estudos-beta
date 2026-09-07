@@ -1,4 +1,13 @@
-DIÁRIO DE ESTUDOS — v8.6
+DIÁRIO DE ESTUDOS — v8.7
+
+ROBUSTEZ DA ANÁLISE DE EXPERIÊNCIA — v8.7
+- Mantidos até 20 candidatos de habilidades por componente, sem reduzir a abrangência da busca BNCC.
+- O tempo máximo de cada chamada de classificação e seleção BNCC passou de 9 para 20 segundos.
+- O embedding do relato agora também possui limite controlado de 20 segundos; se falhar, o Worker mantém o fallback textual já existente.
+- As mensagens agora distinguem falha na classificação inicial, na busca semântica e na seleção final das habilidades BNCC.
+- Tentativas que expirarem são registradas no controle de consumo como timeout, vinculadas à mesma ação da família e sem inventar tokens que o provedor não informou.
+- O botão continua bloqueado enquanto a solicitação está em andamento.
+- Nenhuma alteração no D1 é necessária para atualizar da v8.6 para a v8.7.
 
 CORREÇÃO DA MEDIÇÃO DE CUSTOS — v8.6
 - O Gemini 3.5 Flash-Lite e o Gemini Embedding 2 aparecem separadamente no painel administrativo.
@@ -21,16 +30,16 @@ CONTROLE DE CONSUMO DE IA
 - O administrador geral pode consultar o consumo por período e por família em Mais > Administração do Diário.
 - Nenhum limite ou bloqueio foi ativado nesta versão; a finalidade é medir o beta antes de definir as franquias de produção.
 
-ORDEM OBRIGATÓRIA DE PUBLICAÇÃO
-1. Execute no D1 o SQL adequado indicado acima.
-2. Publique o worker.js 0.23-beta.
-3. Publique index.html, sw.js e version.json da v8.6.
+ORDEM DE PUBLICAÇÃO DA v8.7
+1. Publique o worker.js 0.24-beta.
+2. Publique index.html, sw.js e version.json da v8.7.
+3. Não execute novo SQL se o controle de consumo da v8.6 já estiver instalado.
 
 ARQUIVOS DESTA VERSÃO
-- index.html — aplicativo v8.6.
-- sw.js — cache diario-estudos-v8.6.
+- index.html — aplicativo v8.7.
+- sw.js — cache diario-estudos-v8.7.
 - version.json — identificador público da versão.
-- worker.js — API 0.23-beta com custos separados por modelo e natureza.
+- worker.js — API 0.24-beta com análise mais tolerante a respostas lentas.
 - d1-ai-usage-v8_6.sql — criação completa da tabela para instalação nova.
 - d1-ai-usage-v8_5-para-v8_6.sql — correção para quem já aplicou o SQL anterior.
 

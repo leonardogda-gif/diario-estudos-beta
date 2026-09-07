@@ -891,7 +891,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v8.6 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v8.7 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -5003,6 +5003,9 @@ function recordAnalysisErrorMessage(error){
  if(status===401||status===403||message.includes("sessão")||message.includes("login"))return "Sua sessão precisa ser renovada. Seu relato continua salvo; reconecte a conta Google e tente novamente.";
  if(status===429||message.includes("429")||message.includes("muitas solicitações"))return "O serviço de IA recebeu muitas solicitações no momento. Seu relato continua salvo; aguarde um pouco e tente novamente.";
  if(status===400)return `Não foi possível analisar: ${error?.message||"confira os dados da criança e o relato"}. Seu relato continua salvo.`;
+ if(message.includes("classificação da experiência"))return "A classificação inicial da experiência demorou mais que o esperado. Seu relato continua salvo; isso pode ser uma instabilidade temporária da IA. Aguarde um pouco e tente novamente.";
+ if(message.includes("seleção de habilidades bncc"))return "A experiência foi compreendida, mas a seleção das habilidades BNCC demorou mais que o esperado. Seu relato continua salvo; aguarde um pouco e tente novamente.";
+ if(message.includes("embedding"))return "A busca semântica demorou mais que o esperado e não pôde ser concluída agora. Seu relato continua salvo; aguarde um pouco e tente novamente.";
  if(message.includes("abort")||message.includes("tempo")||message.includes("demor"))return "A análise demorou mais que o esperado. Seu relato continua salvo; aguarde alguns instantes e toque em Analisar novamente.";
  if(status>=500||message.includes("gemini")||message.includes("ia"))return "O serviço de IA pode estar temporariamente instável. Seu relato continua salvo; aguarde alguns instantes e tente novamente.";
  if(error instanceof TypeError||message.includes("fetch")||message.includes("network"))return "Não conseguimos conectar ao serviço de análise. Seu relato continua salvo; confira a conexão e tente novamente.";
@@ -7127,7 +7130,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "8.6";
+const APP_VERSION = "8.7";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
