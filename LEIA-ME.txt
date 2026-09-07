@@ -1,4 +1,38 @@
-DIÁRIO DE ESTUDOS — v8.4
+DIÁRIO DE ESTUDOS — v8.6
+
+CORREÇÃO DA MEDIÇÃO DE CUSTOS — v8.6
+- O Gemini 3.5 Flash-Lite e o Gemini Embedding 2 aparecem separadamente no painel administrativo.
+- O custo de entrada, o custo de saída/raciocínio e o custo total são armazenados em campos separados.
+- O Embedding 2 usa somente custo de entrada: projeção padrão de US$ 0,20 por 1 milhão de tokens de texto.
+- O Flash-Lite usa projeção padrão de US$ 0,30 por 1 milhão de tokens de entrada e US$ 2,50 por 1 milhão de tokens de saída/raciocínio.
+- Os valores são projeções do plano pago padrão; enquanto a conta estiver no plano gratuito, o custo cobrado pode continuar zerado.
+- Quando o endpoint de embedding não informar tokens, o Worker estima pelo tamanho do texto e marca claramente “tokens estimados pelo tamanho do texto”.
+- As tarifas podem ser sobrescritas posteriormente pelas variáveis específicas ou gerais do Worker.
+
+SQL DO D1
+- Se você NÃO executou o SQL da v8.5: execute somente d1-ai-usage-v8_6.sql.
+- Se você JÁ executou o SQL da v8.5: execute somente d1-ai-usage-v8_5-para-v8_6.sql.
+- Nunca execute os dois caminhos para a mesma situação.
+
+CONTROLE DE CONSUMO DE IA
+- O Worker registra cada chamada ao Gemini vinculada à família, usuário, criança e recurso utilizado.
+- São armazenados tokens de entrada, saída, raciocínio e total; estimativas são identificadas separadamente.
+- Uma ação da família pode gerar mais de uma chamada técnica. O painel mostra separadamente “Ações de IA” e “Chamadas Gemini”.
+- O administrador geral pode consultar o consumo por período e por família em Mais > Administração do Diário.
+- Nenhum limite ou bloqueio foi ativado nesta versão; a finalidade é medir o beta antes de definir as franquias de produção.
+
+ORDEM OBRIGATÓRIA DE PUBLICAÇÃO
+1. Execute no D1 o SQL adequado indicado acima.
+2. Publique o worker.js 0.23-beta.
+3. Publique index.html, sw.js e version.json da v8.6.
+
+ARQUIVOS DESTA VERSÃO
+- index.html — aplicativo v8.6.
+- sw.js — cache diario-estudos-v8.6.
+- version.json — identificador público da versão.
+- worker.js — API 0.23-beta com custos separados por modelo e natureza.
+- d1-ai-usage-v8_6.sql — criação completa da tabela para instalação nova.
+- d1-ai-usage-v8_5-para-v8_6.sql — correção para quem já aplicou o SQL anterior.
 
 1. Removido o bloco grande de botões de criança (verde/claro) da tela
    "Registrar" quando o formulário de novo registro está aberto — ele
@@ -9,8 +43,6 @@ DIÁRIO DE ESTUDOS — v8.4
 2. Adicionado um botão "ⓘ" ao lado de "Modo rápido", que mostra uma
    explicação curta (o que o modo faz e como usar) só quando tocado —
    não ocupa espaço permanente na tela.
-
-NENHUMA MUDANÇA NO WORKER. worker.js incluído sem alteração.
 
 VALIDAÇÕES REALIZADAS
 - JavaScript inline do index.html: sintaxe OK.

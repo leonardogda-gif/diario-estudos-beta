@@ -891,7 +891,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v8.4 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v8.6 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -1527,6 +1527,15 @@ details[open]>summary:after{content:"⌃"}
 <div class="card"><h2>Administração do Diário</h2>
 <div class="notice" style="margin-bottom:12px">Área exclusiva do administrador geral para gerenciar o catálogo compartilhado e os recursos técnicos do Diário de Estudos.</div>
 
+<details class="tech-details" open><summary>🤖 Consumo de IA por família</summary><div class="drive-folder-card" style="margin-top:8px">
+  <div class="grid">
+    <div><label class="field">De</label><input id="adminAiUsageFrom" type="date"></div>
+    <div><label class="field">Até</label><input id="adminAiUsageTo" type="date"></div>
+  </div>
+  <div class="toolbar" style="margin-top:8px"><button class="btn small" type="button" onclick="loadAdminAiUsage()">Atualizar consumo</button></div>
+  <div id="adminAiUsageBox" class="meta" style="margin-top:10px">Carregando consumo de IA…</div>
+</div></details>
+
 <div id="adminValidationAlertControls" class="drive-folder-card" style="margin-bottom:10px">
             <div class="toolbar" style="justify-content:space-between">
               <div><b>🔔 Alertas de validação</b><div id="adminValidationAlertStatus" class="meta">O Diário pode avisar quando houver novos livros ou materiais aguardando revisão.</div></div>
@@ -1791,7 +1800,7 @@ function showPage(name){
  document.querySelectorAll(".nav-tab").forEach(x=>x.classList.toggle("active",x.dataset.page===name));
  if(name==="inicio")renderDashboard();
  if(name==="registro")renderRecordPage();
- if(name==="planejamento"){renderPlans();refreshCalendarIntegrationUI();checkImportedCalendarChanges();} if(name==="mais"){refreshCalendarIntegrationUI();checkAdminPendingValidations(false);} if(name==="administracao"){updateAdminValidationNotificationStatus();loadPendingCommunityBooks();loadPendingMaterials();}
+ if(name==="planejamento"){renderPlans();refreshCalendarIntegrationUI();checkImportedCalendarChanges();} if(name==="mais"){refreshCalendarIntegrationUI();checkAdminPendingValidations(false);} if(name==="administracao"){updateAdminValidationNotificationStatus();loadAdminAiUsage();loadPendingCommunityBooks();loadPendingMaterials();}
  if(name==="relatorios")renderReportPage();
  if(name==="historico"){renderHistoryBrowser();renderHistoryBatchRows();refreshHistoryActivityOptions();}
  if(name==="leituras"){renderReadingPage();}
@@ -5786,6 +5795,25 @@ async function buildBnccEmbeddings(){
 let isGlobalDiaryAdmin=false;
 let adminValidationLastCount=Number(localStorage.getItem("DE_ADMIN_PENDING_COUNT")||"0");
 let adminValidationTimer=null;
+function adminAiFeatureLabel(value){return value==="analyze_experience"?"Análise de experiência":value==="report_summary"?"Resumo de relatório":value==="components_classify"?"Classificação de componentes":value==="bncc_suggest"?"Sugestão BNCC":value==="material_bncc_suggest"?"BNCC de material":value||"Outro recurso"}
+function adminAiModelLabel(value){return value==="gemini-embedding-2"?"Gemini Embedding 2":value==="gemini-3.5-flash-lite"?"Gemini 3.5 Flash-Lite":value||"Modelo não informado"}
+function adminAiOperationLabel(value){return value==="semantic_search"?"Embedding do relato":value==="classify_experience"?"Classificação da experiência":value==="select_bncc"?"Seleção de BNCC":value==="generate_summary"?"Resumo do relatório":value||"Operação de IA"}
+function adminAiNumber(value){return Number(value||0).toLocaleString("pt-BR")}
+function adminAiUsd(micros){return (Number(micros||0)/1000000).toLocaleString("pt-BR",{style:"currency",currency:"USD",minimumFractionDigits:4,maximumFractionDigits:6})}
+async function loadAdminAiUsage(){
+ const box=$("adminAiUsageBox");if(!box||!googleAccessToken)return;
+ const todayIso=today(),month=todayIso.slice(0,8)+"01",from=$("adminAiUsageFrom"),to=$("adminAiUsageTo");
+ if(from&&!from.value)from.value=month;if(to&&!to.value)to.value=todayIso;
+ box.innerHTML="Carregando consumo de IA…";
+ try{
+  const data=await backendFetch(`/admin/ai-usage?from=${encodeURIComponent(from?.value||month)}&to=${encodeURIComponent(to?.value||todayIso)}`),tot=data?.totals||{},features=data?.features||[],models=data?.models||[];
+  const featureMap={},modelMap={};for(const f of features){(featureMap[f.family_id]??=[]).push(f)}for(const m of models){(modelMap[m.family_id]??=[]).push(m)}
+  const totalsHtml=`<div class="path-grid"><div class="path-box"><b>${adminAiNumber(tot.families)}</b><span>Famílias</span></div><div class="path-box"><b>${adminAiNumber(tot.user_requests)}</b><span>Ações de IA</span></div><div class="path-box"><b>${adminAiNumber(tot.provider_calls)}</b><span>Chamadas Gemini</span></div><div class="path-box"><b>${adminAiNumber(tot.total_tokens)}</b><span>Tokens</span></div></div>`;
+  const costHtml=`<div class="notice" style="margin-top:8px"><b>Custo projetado no plano pago: ${adminAiUsd(tot.estimated_cost_usd_micros)}</b><br><span class="meta">Entrada: ${adminAiUsd(tot.estimated_input_cost_usd_micros)} · saída e raciocínio: ${adminAiUsd(tot.estimated_output_cost_usd_micros)}. A conta pode permanecer sem cobrança enquanto estiver no plano gratuito.</span></div>`;
+  const families=(data.families||[]).map(f=>`<div class="duplicate-card" style="margin-top:8px"><b>${esc(f.family_name||"Família")}</b><div class="meta">${adminAiNumber(f.user_requests)} ação(ões) · ${adminAiNumber(f.provider_calls)} chamada(s) Gemini · ${adminAiNumber(f.total_tokens)} tokens</div><div class="meta"><b>Total projetado: ${adminAiUsd(f.estimated_cost_usd_micros)}</b> · entrada ${adminAiUsd(f.estimated_input_cost_usd_micros)} · saída/raciocínio ${adminAiUsd(f.estimated_output_cost_usd_micros)}</div>${(modelMap[f.family_id]||[]).map(x=>`<div class="notice" style="margin-top:6px"><b>${esc(adminAiModelLabel(x.model))} · ${esc(adminAiOperationLabel(x.operation))}</b><br><span class="meta">${adminAiNumber(x.provider_calls)} chamada(s) · entrada ${adminAiNumber(x.prompt_tokens)} tokens (${adminAiUsd(x.estimated_input_cost_usd_micros)})${x.model!=="gemini-embedding-2"?` · saída ${adminAiNumber(x.output_tokens)} + raciocínio ${adminAiNumber(x.thoughts_tokens)} (${adminAiUsd(x.estimated_output_cost_usd_micros)})`:""} · total ${adminAiUsd(x.estimated_cost_usd_micros)}${x.token_count_source==="estimated_chars"?" · tokens estimados pelo tamanho do texto":""}</span></div>`).join("")}${(featureMap[f.family_id]||[]).map(x=>`<div class="meta" style="margin-top:4px">• ${esc(adminAiFeatureLabel(x.feature))}: ${adminAiNumber(x.user_requests)} ação(ões), ${adminAiNumber(x.total_tokens)} tokens</div>`).join("")}</div>`).join("");
+  box.innerHTML=totalsHtml+costHtml+(families||`<div class="notice" style="margin-top:8px">Nenhum consumo de IA registrado neste período.</div>`);
+ }catch(e){const msg=String(e.message||e);box.innerHTML=`<div class="notice">${esc(msg.includes("ai_usage_events")?"A tabela de medição ainda não existe no D1. Aplique primeiro o arquivo d1-ai-usage-v8_6.sql.":"Não foi possível carregar o consumo de IA: "+msg)}</div>`}
+}
 async function enableAdminValidationNotifications(){
  if(!("Notification" in window))return alert("Este navegador não oferece notificações do sistema para este aplicativo.");
  const permission=await Notification.requestPermission();updateAdminValidationNotificationStatus();
@@ -7099,7 +7127,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "8.4";
+const APP_VERSION = "8.6";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
