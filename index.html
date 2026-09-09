@@ -837,6 +837,10 @@ details[open]>summary:after{content:"⌃"}
 .book-barcode-guide{position:absolute;left:9%;right:9%;top:35%;height:30%;border:3px solid rgba(255,255,255,.9);border-radius:12px;box-shadow:0 0 0 999px rgba(0,0,0,.25);pointer-events:none}
 .book-barcode-guide:after{content:"";position:absolute;left:7%;right:7%;top:50%;height:2px;background:#e9bc58;box-shadow:0 0 7px rgba(233,188,88,.8)}
 .book-barcode-scanner .toolbar{margin-top:10px;justify-content:space-between}
+.book-camera-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.book-camera-controls select{width:auto;min-width:150px;max-width:100%;min-height:40px}
+.book-camera-zoom{display:flex;gap:7px;align-items:center;font-size:12px;color:#56635c;padding:5px 8px;border-radius:10px;background:#fff}
+.book-camera-zoom input{width:120px;min-height:24px;padding:0}
 .plan-details-later{margin-top:3px;padding:11px;border:1px solid #ebe8df;border-radius:12px;background:#faf9f5}
 .record-more-options{border:1px solid #e7ebe7;border-radius:12px;padding:10px 12px;background:#fafbf9}
 .record-more-options>summary{display:flex;justify-content:space-between;gap:10px;cursor:pointer;color:#56635c;font-size:12px}.record-more-options>summary span{font-weight:500;color:#89918c}
@@ -899,7 +903,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v8.8 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v8.9 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -1086,8 +1090,14 @@ details[open]>summary:after{content:"⌃"}
       </div>
       <div id="bookBarcodeScanner" class="book-barcode-scanner hidden">
         <div class="book-barcode-video-wrap">
-          <video id="bookBarcodeVideo" class="book-barcode-video" playsinline muted autoplay></video>
+          <video id="bookBarcodeVideo" class="book-barcode-video" playsinline muted autoplay onclick="focusBookCamera()" title="Toque para tentar refocar"></video>
           <div class="book-barcode-guide" aria-hidden="true"></div>
+        </div>
+        <div class="book-camera-controls">
+          <select id="bookCameraSelect" class="hidden" aria-label="Escolher câmera" onchange="restartBookBarcodeWithDevice(this.value)"></select>
+          <button id="bookCameraFocusButton" class="btn small hidden" type="button" onclick="focusBookCamera()">◎ Refocar</button>
+          <button id="bookCameraTorchButton" class="btn small hidden" type="button" onclick="toggleBookCameraTorch()">🔦 Ligar luz</button>
+          <label id="bookCameraZoomBox" class="book-camera-zoom hidden">Zoom <input id="bookCameraZoom" type="range" oninput="setBookCameraZoom(this.value)"></label>
         </div>
         <div class="toolbar">
           <div id="bookBarcodeStatus" class="meta" role="status">Aponte a câmera para o código de barras do livro.</div>
@@ -6674,7 +6684,7 @@ function closeBookSearch(){closeBookBarcodeScanner();$("bookSearchPanel")?.class
 function bookQueryIsbn(){const q=String($("bookSearchQuery")?.value||"").replace(/[^0-9X]/gi,"").toUpperCase();return q.length===10||q.length===13?q:""}
 function toggleManualBookForm(){const box=$("manualBookBox");if(!box)return;const opening=box.classList.contains("hidden");box.classList.toggle("hidden",!opening);if(opening){const isbn=bookQueryIsbn(),title=$("manualBookTitle");if(isbn){if($("manualBookIsbn"))$("manualBookIsbn").value=isbn}else if(title&&!title.value)title.value=String($("bookSearchQuery")?.value||"").trim();title?.focus()}}
 let bookSearchTimer=null,bookSearchSeq=0,bookVisibleCount=3;
-let bookBarcodeStream=null,bookBarcodeControls=null,bookBarcodeLoopTimer=null,bookBarcodeActive=false,bookBarcodeAccepted=false;
+let bookBarcodeStream=null,bookBarcodeControls=null,bookBarcodeLoopTimer=null,bookBarcodeActive=false,bookBarcodeAccepted=false,bookBarcodeTrack=null,bookBarcodeCapabilities={},bookBarcodeDeviceId="",bookBarcodeTorch=false,bookBarcodeInvalidReads=0;
 function validBookIsbn(value){
  const v=String(value||"").replace(/[^0-9X]/gi,"").toUpperCase();
  if(v.length===13){if(!/^97[89]\d{10}$/.test(v))return "";let sum=0;for(let i=0;i<12;i++)sum+=Number(v[i])*(i%2?3:1);return (10-(sum%10))%10===Number(v[12])?v:""}
@@ -6692,33 +6702,77 @@ function stopBookBarcodeMedia(){
  bookBarcodeActive=false;clearTimeout(bookBarcodeLoopTimer);bookBarcodeLoopTimer=null;
  try{bookBarcodeControls?.stop?.()}catch(e){}bookBarcodeControls=null;
  if(bookBarcodeStream){for(const track of bookBarcodeStream.getTracks())try{track.stop()}catch(e){}}bookBarcodeStream=null;
+ bookBarcodeTrack=null;bookBarcodeCapabilities={};bookBarcodeTorch=false;
  const video=$("bookBarcodeVideo");if(video){try{video.pause()}catch(e){}video.srcObject=null}
 }
-function closeBookBarcodeScanner(){stopBookBarcodeMedia();bookBarcodeAccepted=false;$("bookBarcodeScanner")?.classList.add("hidden");const btn=$("bookBarcodeButton");if(btn){btn.disabled=false;btn.textContent="📷 Ler código de barras"}}
+function resetBookCameraControls(){
+ $("bookCameraSelect")?.classList.add("hidden");$("bookCameraFocusButton")?.classList.add("hidden");$("bookCameraTorchButton")?.classList.add("hidden");$("bookCameraZoomBox")?.classList.add("hidden");
+}
+function closeBookBarcodeScanner(){stopBookBarcodeMedia();resetBookCameraControls();bookBarcodeAccepted=false;bookBarcodeInvalidReads=0;$("bookBarcodeScanner")?.classList.add("hidden");const btn=$("bookBarcodeButton");if(btn){btn.disabled=false;btn.textContent="📷 Ler código de barras"}}
 async function acceptBookBarcode(rawValue){
- if(bookBarcodeAccepted)return;const isbn=validBookIsbn(rawValue);if(!isbn){if($("bookBarcodeStatus"))$("bookBarcodeStatus").textContent="Código detectado, mas não parece ser um ISBN válido. Tente enquadrar o código que começa com 978 ou 979.";return}
+ if(bookBarcodeAccepted)return;const isbn=validBookIsbn(rawValue);if(!isbn){bookBarcodeInvalidReads++;if(bookBarcodeInvalidReads>=6&&$("bookBarcodeStatus"))$("bookBarcodeStatus").textContent="Ainda não foi possível ler o ISBN completo. Toque em Refocar, escolha outra câmera ou ajuste o zoom.";return}
  bookBarcodeAccepted=true;stopBookBarcodeMedia();$("bookBarcodeScanner")?.classList.add("hidden");
  const btn=$("bookBarcodeButton");if(btn){btn.disabled=false;btn.textContent="📷 Ler código de barras"}
  if($("bookSearchQuery"))$("bookSearchQuery").value=isbn;if($("manualBookIsbn"))$("manualBookIsbn").value=isbn;
  if($("bookSearchStatus"))$("bookSearchStatus").textContent=`ISBN ${isbn} identificado. Consultando biblioteca…`;
  await searchGoogleBooks();bookBarcodeAccepted=false;
 }
-async function startNativeBookBarcode(video){
+function bookVideoConstraints(deviceId=""){
+ const video={width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30}};if(deviceId)video.deviceId={exact:deviceId};else video.facingMode={ideal:"environment"};return {audio:false,video};
+}
+async function applyBookTrackConstraint(value){if(!bookBarcodeTrack?.applyConstraints)return false;try{await bookBarcodeTrack.applyConstraints({advanced:[value]});return true}catch(e){console.warn("Ajuste da câmera não suportado:",value,e);return false}}
+async function listBookCameras(){
+ const select=$("bookCameraSelect");if(!select||!navigator.mediaDevices?.enumerateDevices)return;
+ const devices=(await navigator.mediaDevices.enumerateDevices()).filter(x=>x.kind==="videoinput");if(!devices.length)return;
+ const settings=bookBarcodeTrack?.getSettings?.()||{},current=settings.deviceId||bookBarcodeDeviceId;
+ select.innerHTML=devices.map((d,i)=>`<option value="${esc(d.deviceId)}" ${d.deviceId===current?"selected":""}>${esc(d.label||`Câmera ${i+1}`)}</option>`).join("");
+ select.classList.toggle("hidden",devices.length<2);if(current)bookBarcodeDeviceId=current;
+}
+async function configureBookCamera(video){
+ bookBarcodeStream=video.srcObject||bookBarcodeStream;bookBarcodeTrack=bookBarcodeStream?.getVideoTracks?.()[0]||null;bookBarcodeCapabilities=bookBarcodeTrack?.getCapabilities?.()||{};
+ const settings=bookBarcodeTrack?.getSettings?.()||{};if(settings.deviceId)bookBarcodeDeviceId=settings.deviceId;
+ const modes=Array.isArray(bookBarcodeCapabilities.focusMode)?bookBarcodeCapabilities.focusMode:[];
+ if(modes.includes("continuous"))await applyBookTrackConstraint({focusMode:"continuous"});
+ const focusBtn=$("bookCameraFocusButton");if(focusBtn)focusBtn.classList.toggle("hidden",!modes.length);
+ const torchBtn=$("bookCameraTorchButton");if(torchBtn){torchBtn.classList.toggle("hidden",!bookBarcodeCapabilities.torch);torchBtn.textContent="🔦 Ligar luz"}
+ const zoom=bookBarcodeCapabilities.zoom,zoomBox=$("bookCameraZoomBox"),zoomInput=$("bookCameraZoom");
+ if(zoom&&zoomInput){zoomInput.min=String(zoom.min);zoomInput.max=String(zoom.max);zoomInput.step=String(zoom.step||0.1);zoomInput.value=String(settings.zoom??zoom.min);zoomBox?.classList.remove("hidden")}else zoomBox?.classList.add("hidden");
+ await listBookCameras();
+ if($("bookBarcodeStatus"))$("bookBarcodeStatus").textContent=modes.includes("continuous")?"Foco contínuo ativado. Centralize o código; toque na imagem ou em Refocar se necessário.":"Centralize o código. Se estiver desfocado, escolha outra câmera ou ajuste o zoom.";
+}
+async function focusBookCamera(){
+ if(!bookBarcodeTrack)return;const modes=Array.isArray(bookBarcodeCapabilities.focusMode)?bookBarcodeCapabilities.focusMode:[],status=$("bookBarcodeStatus");if(status)status.textContent="Tentando refocar…";
+ let changed=false;if(modes.includes("single-shot"))changed=await applyBookTrackConstraint({focusMode:"single-shot"});else if(modes.includes("continuous"))changed=await applyBookTrackConstraint({focusMode:"continuous"});
+ if(modes.includes("continuous")&&modes.includes("single-shot"))setTimeout(()=>{if(bookBarcodeActive)applyBookTrackConstraint({focusMode:"continuous"})},900);
+ if(status)status.textContent=changed?"Foco solicitado. Mantenha o código centralizado por alguns instantes.":"Este aparelho não liberou controle manual de foco. Tente outra câmera ou ajuste o zoom.";
+}
+async function setBookCameraZoom(value){const zoom=bookBarcodeCapabilities.zoom;if(!zoom)return;const n=Math.max(Number(zoom.min),Math.min(Number(zoom.max),Number(value)));await applyBookTrackConstraint({zoom:n})}
+async function toggleBookCameraTorch(){
+ if(!bookBarcodeCapabilities.torch)return;bookBarcodeTorch=!bookBarcodeTorch;const ok=await applyBookTrackConstraint({torch:bookBarcodeTorch});if(!ok)bookBarcodeTorch=false;const btn=$("bookCameraTorchButton");if(btn)btn.textContent=bookBarcodeTorch?"🔦 Desligar luz":"🔦 Ligar luz";
+}
+async function startNativeBookBarcode(video,deviceId=""){
  const formats=await BarcodeDetector.getSupportedFormats();if(!formats.includes("ean_13"))return false;
  const detector=new BarcodeDetector({formats:["ean_13"]});
- bookBarcodeStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}}});
- video.srcObject=bookBarcodeStream;await video.play();
+ bookBarcodeStream=await navigator.mediaDevices.getUserMedia(bookVideoConstraints(deviceId));
+ video.srcObject=bookBarcodeStream;await video.play();await configureBookCamera(video);
  const scan=async()=>{if(!bookBarcodeActive)return;try{const found=await detector.detect(video);if(found?.[0]){await acceptBookBarcode(found[0].rawValue);return}}catch(e){console.warn("Leitor nativo de ISBN:",e)}bookBarcodeLoopTimer=setTimeout(scan,220)};scan();return true;
 }
-async function startZxingBookBarcode(video){
+async function startZxingBookBarcode(video,deviceId=""){
  if(!window.ZXingBrowser?.BrowserMultiFormatOneDReader)throw new Error("ZXING_UNAVAILABLE");
  const reader=new ZXingBrowser.BrowserMultiFormatOneDReader();
- bookBarcodeControls=await reader.decodeFromConstraints({audio:false,video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}}},video,(result,error,controls)=>{if(!bookBarcodeActive||!result)return;bookBarcodeControls=controls||bookBarcodeControls;acceptBookBarcode(result.getText?.()||String(result.text||result||""))});
+ bookBarcodeControls=await reader.decodeFromConstraints(bookVideoConstraints(deviceId),video,(result,error,controls)=>{if(!bookBarcodeActive||!result)return;bookBarcodeControls=controls||bookBarcodeControls;acceptBookBarcode(result.getText?.()||String(result.text||result||""))});await configureBookCamera(video);
+}
+async function startBookBarcodePipeline(deviceId=""){
+ const video=$("bookBarcodeVideo");let nativeStarted=false;if("BarcodeDetector" in window)try{nativeStarted=await startNativeBookBarcode(video,deviceId)}catch(e){if(e?.name==="NotAllowedError")throw e;console.warn("Leitor nativo indisponível; usando ZXing:",e);stopBookBarcodeMedia();bookBarcodeActive=true}if(!nativeStarted)await startZxingBookBarcode(video,deviceId);
+}
+async function restartBookBarcodeWithDevice(deviceId){
+ if(!deviceId||deviceId===bookBarcodeDeviceId&&!bookBarcodeActive)return;const status=$("bookBarcodeStatus");stopBookBarcodeMedia();bookBarcodeActive=true;bookBarcodeAccepted=false;bookBarcodeInvalidReads=0;bookBarcodeDeviceId=deviceId;if(status)status.textContent="Trocando a câmera…";
+ try{await startBookBarcodePipeline(deviceId)}catch(e){if(status)status.textContent=bookCameraErrorMessage(e)}
 }
 async function openBookBarcodeScanner(){
  openBookSearch();if(bookBarcodeActive)return;const scanner=$("bookBarcodeScanner"),status=$("bookBarcodeStatus"),btn=$("bookBarcodeButton"),video=$("bookBarcodeVideo");if(!scanner||!video)return;
- scanner.classList.remove("hidden");bookBarcodeActive=true;bookBarcodeAccepted=false;if(btn){btn.disabled=true;btn.textContent="Abrindo câmera…"}if(status)status.textContent="Aponte a câmera para o código de barras do livro.";
- try{let nativeStarted=false;if("BarcodeDetector" in window)try{nativeStarted=await startNativeBookBarcode(video)}catch(e){if(e?.name==="NotAllowedError")throw e;console.warn("Leitor nativo indisponível; usando ZXing:",e);stopBookBarcodeMedia();bookBarcodeActive=true}if(!nativeStarted)await startZxingBookBarcode(video);if(btn)btn.textContent="Câmera aberta"}
+ scanner.classList.remove("hidden");bookBarcodeActive=true;bookBarcodeAccepted=false;bookBarcodeInvalidReads=0;if(btn){btn.disabled=true;btn.textContent="Abrindo câmera…"}if(status)status.textContent="Aponte a câmera para o código de barras do livro.";
+ try{await startBookBarcodePipeline();if(btn)btn.textContent="Câmera aberta"}
  catch(e){console.warn("Leitor de ISBN:",e);stopBookBarcodeMedia();scanner.classList.add("hidden");if(status)status.textContent=bookCameraErrorMessage(e);if($("bookSearchStatus"))$("bookSearchStatus").textContent=bookCameraErrorMessage(e);if(btn){btn.disabled=false;btn.textContent="📷 Tentar câmera novamente"}}
 }
 function scheduleBookSearch(){
@@ -7201,7 +7255,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "8.8";
+const APP_VERSION = "8.9";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

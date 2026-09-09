@@ -1,4 +1,14 @@
-DIÁRIO DE ESTUDOS — v8.8
+DIÁRIO DE ESTUDOS — v8.9
+
+AJUSTES DE FOCO DO LEITOR — v8.9
+- O Diário solicita foco contínuo quando a câmera e o navegador disponibilizam esse controle.
+- Tocar sobre a imagem ou no botão “Refocar” solicita uma nova tentativa de foco.
+- Em aparelhos com várias câmeras, aparece uma lista para trocar de lente.
+- O controle de zoom aparece somente quando suportado pela câmera selecionada.
+- O botão de luz aparece somente quando o aparelho permite controlar a lanterna pelo navegador.
+- A captura passa a solicitar resolução Full HD quando disponível.
+- Leituras parciais ou inválidas não mudam imediatamente a mensagem; após tentativas repetidas, o app orienta a refocar, trocar a câmera ou ajustar o zoom.
+- O Worker permanece em 0.25-beta e o D1 não muda.
 
 CADASTRO DE LIVRO PELO CÓDIGO DE BARRAS
 - Em Leituras > Adicionar livro, foi criado o botão “Ler código de barras”.
@@ -19,15 +29,15 @@ ARQUIVO ZXING
 - A pasta vendor precisa ser publicada junto com os demais arquivos, preservando exatamente esse nome.
 - Os arquivos manifest.json e icons já usados pelo PWA devem permanecer publicados no repositório, mesmo não sendo alterados nesta versão.
 
-PUBLICAÇÃO DA v8.8
+PUBLICAÇÃO DA v8.9
 1. Publique index.html, sw.js e version.json.
-2. Publique a pasta vendor com zxing-browser.min.js e ZXING-LICENSE.txt.
-3. Publique o worker.js 0.25-beta. Na pesquisa por ISBN exato, ele não aplica filtro de idioma; pesquisas por título e autor continuam priorizando português.
+2. A pasta vendor é a mesma da v8.8; mantenha-a publicada.
+3. O worker.js permanece em 0.25-beta; não precisa ser republicado se a v8.8 já foi instalada completamente.
 4. Nenhuma alteração no D1 é necessária.
 
 ARQUIVOS DO PACOTE
-- index.html — aplicativo v8.8.
-- sw.js — cache diario-estudos-v8.8, incluindo os arquivos do leitor.
+- index.html — aplicativo v8.9.
+- sw.js — cache diario-estudos-v8.9, incluindo os arquivos do leitor.
 - version.json — identificador público da versão.
 - worker.js — API 0.25-beta, com consulta exata por ISBN sem restrição de idioma.
 - vendor/zxing-browser.min.js — leitor de código de barras.
