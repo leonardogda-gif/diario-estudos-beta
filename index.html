@@ -15,6 +15,7 @@
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://apis.google.com/js/api.js"></script>
+<script src="./vendor/zxing-browser.min.js"></script>
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -829,6 +830,13 @@ details[open]>summary:after{content:"⌃"}
 
 /* v5.27 */
 .book-search-auto{grid-template-columns:1fr}.book-more-btn{justify-self:start;margin-top:2px}
+.book-barcode-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.book-barcode-scanner{margin-top:12px;padding:12px;border:1px solid #d8e4dc;border-radius:14px;background:#edf4ef}
+.book-barcode-video-wrap{position:relative;overflow:hidden;border-radius:12px;background:#14231d;aspect-ratio:4/3;max-height:420px}
+.book-barcode-video{width:100%;height:100%;object-fit:cover;display:block}
+.book-barcode-guide{position:absolute;left:9%;right:9%;top:35%;height:30%;border:3px solid rgba(255,255,255,.9);border-radius:12px;box-shadow:0 0 0 999px rgba(0,0,0,.25);pointer-events:none}
+.book-barcode-guide:after{content:"";position:absolute;left:7%;right:7%;top:50%;height:2px;background:#e9bc58;box-shadow:0 0 7px rgba(233,188,88,.8)}
+.book-barcode-scanner .toolbar{margin-top:10px;justify-content:space-between}
 .plan-details-later{margin-top:3px;padding:11px;border:1px solid #ebe8df;border-radius:12px;background:#faf9f5}
 .record-more-options{border:1px solid #e7ebe7;border-radius:12px;padding:10px 12px;background:#fafbf9}
 .record-more-options>summary{display:flex;justify-content:space-between;gap:10px;cursor:pointer;color:#56635c;font-size:12px}.record-more-options>summary span{font-weight:500;color:#89918c}
@@ -891,7 +899,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v8.7 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v8.8 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -1072,6 +1080,19 @@ details[open]>summary:after{content:"⌃"}
       </div>
       <div class="book-search-row book-search-auto">
         <input id="bookSearchQuery" placeholder="Ex.: O Pequeno Príncipe" oninput="scheduleBookSearch()" autocomplete="off">
+      </div>
+      <div class="book-barcode-actions">
+        <button id="bookBarcodeButton" class="btn" type="button" onclick="openBookBarcodeScanner()">📷 Ler código de barras</button>
+      </div>
+      <div id="bookBarcodeScanner" class="book-barcode-scanner hidden">
+        <div class="book-barcode-video-wrap">
+          <video id="bookBarcodeVideo" class="book-barcode-video" playsinline muted autoplay></video>
+          <div class="book-barcode-guide" aria-hidden="true"></div>
+        </div>
+        <div class="toolbar">
+          <div id="bookBarcodeStatus" class="meta" role="status">Aponte a câmera para o código de barras do livro.</div>
+          <button class="btn small" type="button" onclick="closeBookBarcodeScanner()">Cancelar</button>
+        </div>
       </div>
       <div id="bookSearchStatus" class="meta" style="margin-top:8px"></div>
       <div id="bookSearchResults" class="book-results"></div>
@@ -1796,6 +1817,7 @@ function ageFromBirth(b){if(!b)return"";let x=new Date(b+"T00:00:00"),n=new Date
 
 function showPage(name){
  if(name==="administracao"&&!isGlobalDiaryAdmin){alert("Esta área está disponível somente para o administrador geral do Diário de Estudos.");name="mais"}
+ if(name!=="leituras"&&typeof closeBookBarcodeScanner==="function")closeBookBarcodeScanner();
  document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id==="page-"+name));
  document.querySelectorAll(".nav-tab").forEach(x=>x.classList.toggle("active",x.dataset.page===name));
  if(name==="inicio")renderDashboard();
@@ -6648,9 +6670,57 @@ async function renderReadingPage(){
  const local=getReadingLibrary().filter(b=>b.childId===readingChildId());window.currentReadingBooks=local;renderReadingCards(local)
 }
 function openBookSearch(){$("bookSearchPanel")?.classList.remove("hidden");$("bookSearchQuery")?.focus()}
-function closeBookSearch(){$("bookSearchPanel")?.classList.add("hidden")}
-function toggleManualBookForm(){const box=$("manualBookBox");if(!box)return;const opening=box.classList.contains("hidden");box.classList.toggle("hidden",!opening);if(opening){const title=$("manualBookTitle");if(title&&!title.value)title.value=String($("bookSearchQuery")?.value||"").trim();title?.focus()}}
+function closeBookSearch(){closeBookBarcodeScanner();$("bookSearchPanel")?.classList.add("hidden")}
+function bookQueryIsbn(){const q=String($("bookSearchQuery")?.value||"").replace(/[^0-9X]/gi,"").toUpperCase();return q.length===10||q.length===13?q:""}
+function toggleManualBookForm(){const box=$("manualBookBox");if(!box)return;const opening=box.classList.contains("hidden");box.classList.toggle("hidden",!opening);if(opening){const isbn=bookQueryIsbn(),title=$("manualBookTitle");if(isbn){if($("manualBookIsbn"))$("manualBookIsbn").value=isbn}else if(title&&!title.value)title.value=String($("bookSearchQuery")?.value||"").trim();title?.focus()}}
 let bookSearchTimer=null,bookSearchSeq=0,bookVisibleCount=3;
+let bookBarcodeStream=null,bookBarcodeControls=null,bookBarcodeLoopTimer=null,bookBarcodeActive=false,bookBarcodeAccepted=false;
+function validBookIsbn(value){
+ const v=String(value||"").replace(/[^0-9X]/gi,"").toUpperCase();
+ if(v.length===13){if(!/^97[89]\d{10}$/.test(v))return "";let sum=0;for(let i=0;i<12;i++)sum+=Number(v[i])*(i%2?3:1);return (10-(sum%10))%10===Number(v[12])?v:""}
+ if(v.length===10&&/^\d{9}[\dX]$/.test(v)){let sum=0;for(let i=0;i<10;i++)sum+=(10-i)*(v[i]==="X"?10:Number(v[i]));return sum%11===0?v:""}
+ return "";
+}
+function bookCameraErrorMessage(error){
+ const name=String(error?.name||""),message=String(error?.message||"").toLowerCase();
+ if(name==="NotAllowedError"||message.includes("permission")||message.includes("permiss"))return "A câmera não foi autorizada. Libere a câmera nas permissões do navegador ou digite o ISBN.";
+ if(name==="NotFoundError"||message.includes("device")||message.includes("camera"))return "Não encontramos uma câmera disponível. Você ainda pode digitar o ISBN.";
+ if(!window.isSecureContext)return "A câmera precisa de uma conexão segura (HTTPS). Você ainda pode digitar o ISBN.";
+ return "Não foi possível abrir o leitor. Você ainda pode digitar o ISBN no campo de busca.";
+}
+function stopBookBarcodeMedia(){
+ bookBarcodeActive=false;clearTimeout(bookBarcodeLoopTimer);bookBarcodeLoopTimer=null;
+ try{bookBarcodeControls?.stop?.()}catch(e){}bookBarcodeControls=null;
+ if(bookBarcodeStream){for(const track of bookBarcodeStream.getTracks())try{track.stop()}catch(e){}}bookBarcodeStream=null;
+ const video=$("bookBarcodeVideo");if(video){try{video.pause()}catch(e){}video.srcObject=null}
+}
+function closeBookBarcodeScanner(){stopBookBarcodeMedia();bookBarcodeAccepted=false;$("bookBarcodeScanner")?.classList.add("hidden");const btn=$("bookBarcodeButton");if(btn){btn.disabled=false;btn.textContent="📷 Ler código de barras"}}
+async function acceptBookBarcode(rawValue){
+ if(bookBarcodeAccepted)return;const isbn=validBookIsbn(rawValue);if(!isbn){if($("bookBarcodeStatus"))$("bookBarcodeStatus").textContent="Código detectado, mas não parece ser um ISBN válido. Tente enquadrar o código que começa com 978 ou 979.";return}
+ bookBarcodeAccepted=true;stopBookBarcodeMedia();$("bookBarcodeScanner")?.classList.add("hidden");
+ const btn=$("bookBarcodeButton");if(btn){btn.disabled=false;btn.textContent="📷 Ler código de barras"}
+ if($("bookSearchQuery"))$("bookSearchQuery").value=isbn;if($("manualBookIsbn"))$("manualBookIsbn").value=isbn;
+ if($("bookSearchStatus"))$("bookSearchStatus").textContent=`ISBN ${isbn} identificado. Consultando biblioteca…`;
+ await searchGoogleBooks();bookBarcodeAccepted=false;
+}
+async function startNativeBookBarcode(video){
+ const formats=await BarcodeDetector.getSupportedFormats();if(!formats.includes("ean_13"))return false;
+ const detector=new BarcodeDetector({formats:["ean_13"]});
+ bookBarcodeStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}}});
+ video.srcObject=bookBarcodeStream;await video.play();
+ const scan=async()=>{if(!bookBarcodeActive)return;try{const found=await detector.detect(video);if(found?.[0]){await acceptBookBarcode(found[0].rawValue);return}}catch(e){console.warn("Leitor nativo de ISBN:",e)}bookBarcodeLoopTimer=setTimeout(scan,220)};scan();return true;
+}
+async function startZxingBookBarcode(video){
+ if(!window.ZXingBrowser?.BrowserMultiFormatOneDReader)throw new Error("ZXING_UNAVAILABLE");
+ const reader=new ZXingBrowser.BrowserMultiFormatOneDReader();
+ bookBarcodeControls=await reader.decodeFromConstraints({audio:false,video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}}},video,(result,error,controls)=>{if(!bookBarcodeActive||!result)return;bookBarcodeControls=controls||bookBarcodeControls;acceptBookBarcode(result.getText?.()||String(result.text||result||""))});
+}
+async function openBookBarcodeScanner(){
+ openBookSearch();if(bookBarcodeActive)return;const scanner=$("bookBarcodeScanner"),status=$("bookBarcodeStatus"),btn=$("bookBarcodeButton"),video=$("bookBarcodeVideo");if(!scanner||!video)return;
+ scanner.classList.remove("hidden");bookBarcodeActive=true;bookBarcodeAccepted=false;if(btn){btn.disabled=true;btn.textContent="Abrindo câmera…"}if(status)status.textContent="Aponte a câmera para o código de barras do livro.";
+ try{let nativeStarted=false;if("BarcodeDetector" in window)try{nativeStarted=await startNativeBookBarcode(video)}catch(e){if(e?.name==="NotAllowedError")throw e;console.warn("Leitor nativo indisponível; usando ZXing:",e);stopBookBarcodeMedia();bookBarcodeActive=true}if(!nativeStarted)await startZxingBookBarcode(video);if(btn)btn.textContent="Câmera aberta"}
+ catch(e){console.warn("Leitor de ISBN:",e);stopBookBarcodeMedia();scanner.classList.add("hidden");if(status)status.textContent=bookCameraErrorMessage(e);if($("bookSearchStatus"))$("bookSearchStatus").textContent=bookCameraErrorMessage(e);if(btn){btn.disabled=false;btn.textContent="📷 Tentar câmera novamente"}}
+}
 function scheduleBookSearch(){
  clearTimeout(bookSearchTimer);
  const q=String($("bookSearchQuery")?.value||"").trim();
@@ -6669,21 +6739,22 @@ function renderBookSearchResults(){
 function showMoreBookResults(){bookVisibleCount+=3;renderBookSearchResults()}
 async function searchGoogleBooks(){
  const q=String($("bookSearchQuery")?.value||"").trim();if(q.length<2)return;
+ const isbn=bookQueryIsbn(),googleQuery=isbn?`isbn:${isbn}`:q,communityQuery=isbn||q;
  const seq=++bookSearchSeq;bookVisibleCount=3;
  $("bookSearchStatus").textContent="Consultando biblioteca…";$("bookSearchResults").innerHTML="";$("manualBookBox").classList.add("hidden");
  try{
-  const [googleResult,communityResult]=await Promise.allSettled([backendFetch("/books/search?q="+encodeURIComponent(q)),backendFetch("/community-books/search?q="+encodeURIComponent(q))]);
+  const [googleResult,communityResult]=await Promise.allSettled([backendFetch("/books/search?q="+encodeURIComponent(googleQuery)),backendFetch("/community-books/search?q="+encodeURIComponent(communityQuery))]);
   if(seq!==bookSearchSeq)return;
   const google=googleResult.status==="fulfilled"&&Array.isArray(googleResult.value?.items)?googleResult.value.items:[];
   const community=communityResult.status==="fulfilled"&&Array.isArray(communityResult.value?.items)?communityResult.value.items.map(x=>({...x,source:"community"})):[];
-  const nq=q.toLowerCase(),family=(window.currentReadingBooks||[]).filter(b=>`${b.title||""} ${(b.authors||[]).join(" ")} ${b.isbn13||""}`.toLowerCase().includes(nq)).map(b=>({...b,source:"family",alreadyAdded:true}));
+  const nq=communityQuery.toLowerCase(),family=(window.currentReadingBooks||[]).filter(b=>`${b.title||""} ${(b.authors||[]).join(" ")} ${b.isbn13||""} ${b.isbn10||""}`.toLowerCase().includes(nq)).map(b=>({...b,source:"family",alreadyAdded:true}));
   const key=b=>String(b.community_book_id||b.google_volume_id||b.isbn13||`${b.title||""}|${(b.authors||[])[0]||""}`).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim();
   const map=new Map();[...family,...community,...google].forEach(b=>{const k=key(b);if(!k)return;const current=map.get(k);if(!current||b.alreadyAdded)map.set(k,b)});let items=[...map.values()];
   window.lastGoogleBookResults=items;
-  $("bookSearchStatus").textContent=items.length?`${items.length} opções na biblioteca`:"Nenhum livro encontrado na biblioteca.";
+  $("bookSearchStatus").textContent=items.length?(isbn?`Livro encontrado para o ISBN ${isbn}. Confirme os dados antes de adicionar.`:`${items.length} opções na biblioteca`):(isbn?`Nenhum livro encontrado para o ISBN ${isbn}. Você pode cadastrá-lo manualmente.`:"Nenhum livro encontrado na biblioteca.");
   renderBookSearchResults();
-  if(!items.length){$("manualBookBox").classList.remove("hidden");$("manualBookTitle").value=q}
- }catch(e){if(seq!==bookSearchSeq)return;$("bookSearchStatus").textContent="Não foi possível consultar a biblioteca agora.";$("manualBookBox").classList.remove("hidden");$("manualBookTitle").value=q}
+  if(!items.length){$("manualBookBox").classList.remove("hidden");if(isbn){$("manualBookIsbn").value=isbn;if($("manualBookTitle").value===isbn)$("manualBookTitle").value=""}else $("manualBookTitle").value=q}
+ }catch(e){if(seq!==bookSearchSeq)return;$("bookSearchStatus").textContent="Não foi possível consultar a biblioteca agora.";$("manualBookBox").classList.remove("hidden");if(isbn)$("manualBookIsbn").value=isbn;else $("manualBookTitle").value=q}
 }
 async function addLibrarySearchBook(i){
  const b=(window.lastGoogleBookResults||[])[i];if(!b)return;
@@ -7118,7 +7189,7 @@ window.addEventListener("offline",()=>{restoreBackendProfileForOffline();updateA
 window.addEventListener("online",()=>{if(tokenValid()){setCloudStatus("busy","Internet voltou · sincronizando...");syncWithDrive({silent:true})}else{setCloudStatus("pending","Internet voltou · reconecte o Google para sincronizar");tryAutomaticGoogleReconnect()}});
 window.addEventListener("pagehide",()=>{try{saveRecordDraft(true)}catch(e){}});
 document.addEventListener("visibilitychange",()=>{
- if(document.visibilityState==="hidden"){try{saveRecordDraft(true)}catch(e){}}
+ if(document.visibilityState==="hidden"){try{saveRecordDraft(true)}catch(e){}closeBookBarcodeScanner()}
  else queueSavedPlanningWeatherRefresh();
 });
 
@@ -7130,7 +7201,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "8.7";
+const APP_VERSION = "8.8";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
