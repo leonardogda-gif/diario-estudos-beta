@@ -903,7 +903,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v8.9 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v9.0 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -1191,11 +1191,32 @@ details[open]>summary:after{content:"⌃"}
                   <option value="complementar">Complementar</option>
                 </select>
               </div>
+              <div>
+                <label class="field">Vínculo curricular</label>
+                <select id="historyBrowseLink" onchange="historyBrowseLinkChanged()">
+                  <option value="">Todos</option>
+                  <option value="missing">Sem BNCC</option>
+                  <option value="bncc">Com BNCC</option>
+                  <option value="complementary_only">Somente complementar</option>
+                  <option value="complementary_bncc">Complementar com BNCC</option>
+                </select>
+              </div>
             </div>
           </details>
 
           <div id="historyBrowseSummary" class="meta" style="margin:12px 0 6px"></div>
+          <div id="historyBnccBatchToolbar" class="notice hidden" style="margin-bottom:10px">
+            <div><b>Classificar registros sem BNCC</b></div>
+            <div class="meta" style="margin-top:4px">Selecione até 10 registros. O Diário analisará um por vez e pedirá confirmação antes de alterar cada registro.</div>
+            <div class="toolbar" style="margin-top:9px">
+              <button type="button" class="btn small" onclick="toggleAllVisibleHistoryBncc(true)">Selecionar exibidos</button>
+              <button type="button" class="btn small" onclick="toggleAllVisibleHistoryBncc(false)">Limpar seleção</button>
+              <button type="button" id="historyBnccBatchBtn" class="btn primary small" onclick="startHistoryBnccBatch()">✨ Analisar selecionados</button>
+            </div>
+            <div id="historyBnccBatchSelection" class="meta" style="margin-top:7px"></div>
+          </div>
           <div id="historyBrowseList"></div>
+          <div id="historyBnccBatchPanel" class="hidden" style="margin-top:12px"></div>
         </div>
 
         <div class="card" style="margin-top:12px;background:#F8F5EC"><div class="toolbar" style="justify-content:space-between"><div><h3 style="margin-bottom:3px">Adicionar atividade antiga</h3><div class="meta">Um registro simples, sem exigir código BNCC.</div></div><button class="btn" onclick="toggleOldRecordForm(true)">+ Adicionar</button></div>
@@ -4646,7 +4667,7 @@ function renderDashboard(){
  const due=state.plans.filter(x=>planPendingForChild(x,child.id)&&!x.completedAt&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
  const todayPlans=due.filter(p=>(p.nextDate||p.date)===td),latePlans=due.filter(p=>(p.nextDate||p.date)<td),futurePlans=due.filter(p=>(p.nextDate||p.date)>td).slice(0,3);
  const planHtml=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div class="meta">👨‍👩‍👧‍👦 Planejamento compartilhado: ${esc(planChildNames(p).join(", "))}</div>`:""}<div class="meta">${esc(p.component||'')}</div>${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}','${child.id}')">✓ Concluir e registrar</button><button class="btn small" onclick="showPage('planejamento');editPlan('${p.id}')">Editar</button>${(p.nextDate||p.date)<td?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Reagendar próxima</button>`:''}</div></div>`;
- box.innerHTML=`<div class="card"><div class="grid" style="align-items:end"><div>${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje</h2><div class="meta">${fmtDate(td)}</div></div><div><label class="field">Criança</label><select onchange="selectChild(this.value);showPage('inicio')">${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===child.id?'selected':''}>${esc(c.name)}${c.stage?' · '+esc(c.stage):''}</option>`).join('')}</select></div></div>
+ box.innerHTML=`<div class="card"><div class="grid" style="align-items:end"><div>${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje</h2><div class="meta">${fmtDate(td)}</div></div><div><label class="field">Criança</label><select onchange="selectChild(this.value);showPage('inicio')">${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===child.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div></div>
  <div class="daily-actions"><button class="btn success" onclick="openTodayRecord()">+ Registrar atividade</button><button class="btn primary" onclick="showPage('planejamento')">📅 Abrir planejamento</button><button class="btn" onclick="showPage('planejamento');openNewPlanForm()">+ Novo planejamento</button></div></div>
  ${latePlans.length?`<div class="card"><h3>Precisa de atenção</h3><div class="meta">Atividades planejadas que ficaram para trás.</div>${latePlans.map(planHtml).join('')}</div>`:''}
  <div class="card"><h3>Para hoje</h3>${todayPlans.map(planHtml).join('')||"<div class='notice'>Nada planejado para hoje. Você pode registrar uma atividade que aconteceu sem planejamento.</div>"}</div>
@@ -7077,9 +7098,22 @@ async function shareReportHtml(){
  shareOrDownloadText(h,"relatorio_"+child.name.replace(/\s+/g,"_")+".html","text/html","Relatório");
 }
 
+let historyBnccSelected=new Set();
+let historyBnccVisibleIds=[];
+let historyBnccBatchResults=[];
+let historyBnccBatchRunning=false;
+let historyBnccReviewIndex=0;
+
 function historyBrowseChildChanged(id){
   if(!id)return;
   activeChildId=id;
+  historyBnccSelected.clear();
+  closeHistoryBnccBatchReview();
+  renderHistoryBrowser();
+}
+function historyBrowseLinkChanged(){
+  historyBnccSelected.clear();
+  closeHistoryBnccBatchReview();
   renderHistoryBrowser();
 }
 function fillHistoryBrowseChildren(){
@@ -7104,12 +7138,18 @@ function renderHistoryBrowser(){
   const start=historyBrowsePeriodStart($("historyBrowsePeriod")?.value||"all");
   const status=$("historyBrowseStatus")?.value||"";
   const type=$("historyBrowseType")?.value||"";
+  const link=$("historyBrowseLink")?.value||"";
   let rows=[...(state.entries[childId]||[])];
 
   rows=rows.filter(x=>{
+    const hasBncc=entrySkills(x).length>0,hasComplementary=!!x.complementaryActivityName;
     if(start && String(x.date||"")<start)return false;
     if(status && x.status!==status)return false;
     if(type && !(type==="complementar"?!!x.complementaryActivityName:entrySkills(x).length>0))return false;
+    if(link==="missing"&&hasBncc)return false;
+    if(link==="bncc"&&!hasBncc)return false;
+    if(link==="complementary_only"&&(!hasComplementary||hasBncc))return false;
+    if(link==="complementary_bncc"&&(!hasComplementary||!hasBncc))return false;
     if(q){
       const hay=[x.atividade,x.componente,x.codigo,x.habilidade,x.observacoes,x.materialName,x.complementaryActivityName,...entryComponents(x),...entrySkills(x).flatMap(s=>[s.code,s.curricular_component,s.description]),...entryCompetencies(x).flatMap(c=>[c.code,c.description])]
         .filter(Boolean).join(" ").toLowerCase();
@@ -7118,11 +7158,18 @@ function renderHistoryBrowser(){
     return true;
   }).sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))||ts(b.createdAt)-ts(a.createdAt));
 
-  if(sum)sum.innerHTML=`<b>${rows.length}</b> ${rows.length===1?"registro":"registros"}`;
+  historyBnccVisibleIds=link==="missing"?rows.map(x=>x.id):[];
+  for(const id of [...historyBnccSelected])if(!historyBnccVisibleIds.includes(id))historyBnccSelected.delete(id);
+  if(sum)sum.innerHTML=`<b>${rows.length}</b> ${rows.length===1?"registro":"registros"}${link==="missing"?" sem habilidade BNCC":""}`;
+  $("historyBnccBatchToolbar")?.classList.toggle("hidden",link!=="missing");
+  updateHistoryBnccBatchSelection();
 
   list.innerHTML=rows.map(x=>`
     <div class="entry record-clickable" onclick="viewEntry('${x.id}','${childId}')" style="margin-bottom:10px">
-      <div class="meta">${esc(fmtDate(x.date))}</div>
+      <div class="toolbar" style="justify-content:space-between;align-items:flex-start">
+        <div class="meta">${esc(fmtDate(x.date))}</div>
+        ${link==="missing"?`<label onclick="event.stopPropagation()" style="display:flex;gap:7px;align-items:center;font-weight:800"><input type="checkbox" ${historyBnccSelected.has(x.id)?"checked":""} onchange="toggleHistoryBnccSelection('${x.id}',this.checked)"> Selecionar</label>`:""}
+      </div>
       <div class="entry-title">${esc(x.atividade||"Registro")}</div>
       <div class="toolbar" style="margin-top:8px;justify-content:space-between">
         <span class="badge">${esc(x.status||"Sem avaliação")}</span>
@@ -7130,6 +7177,87 @@ function renderHistoryBrowser(){
       </div>
     </div>`).join("") || "<div class='notice'>Nenhum registro encontrado para os filtros selecionados.</div>";
 }
+
+function toggleHistoryBnccSelection(id,checked){
+  if(checked){
+    if(historyBnccSelected.size>=10){alert("Analise no máximo 10 registros por rodada.");renderHistoryBrowser();return}
+    historyBnccSelected.add(id);
+  }else historyBnccSelected.delete(id);
+  updateHistoryBnccBatchSelection();
+}
+function toggleAllVisibleHistoryBncc(checked){
+  historyBnccSelected.clear();
+  if(checked)historyBnccVisibleIds.slice(0,10).forEach(id=>historyBnccSelected.add(id));
+  renderHistoryBrowser();
+}
+function updateHistoryBnccBatchSelection(){
+  const box=$("historyBnccBatchSelection"),btn=$("historyBnccBatchBtn"),n=historyBnccSelected.size;
+  if(box)box.textContent=`${n} de 10 registro(s) selecionado(s).`;
+  if(btn)btn.disabled=historyBnccBatchRunning||!n;
+}
+function historyBatchResultById(id){return historyBnccBatchResults.find(x=>x.entryId===id)}
+async function startHistoryBnccBatch(){
+  if(historyBnccBatchRunning)return;
+  if(!googleAccessToken)return alert("Entre com Google para usar a análise.");
+  const childId=$("historyBrowseChild")?.value||activeChildId,backendChildId=localToBackendChildId(childId);
+  if(!backendChildId)return alert("Esta criança ainda não está vinculada ao backend.");
+  const ids=[...historyBnccSelected].slice(0,10),entries=ids.map(id=>(state.entries[childId]||[]).find(x=>x.id===id)).filter(Boolean);
+  if(!entries.length)return alert("Selecione pelo menos um registro sem BNCC.");
+  historyBnccBatchRunning=true;historyBnccBatchResults=[];historyBnccReviewIndex=0;updateHistoryBnccBatchSelection();
+  const btn=$("historyBnccBatchBtn"),panel=$("historyBnccBatchPanel");
+  if(panel){panel.classList.remove("hidden");panel.innerHTML='<div class="notice"><b>Preparando análises…</b><div id="historyBnccBatchProgress" class="meta" style="margin-top:6px"></div></div>'}
+  for(let i=0;i<entries.length;i++){
+    const entry=entries[i],progress=$("historyBnccBatchProgress");
+    if(progress)progress.textContent=`Analisando ${i+1} de ${entries.length}: ${entry.atividade||"Registro"}`;
+    try{
+      const data=await backendFetch("/ai/analyze-experience",{method:"POST",body:JSON.stringify({child_id:backendChildId,activity:String(entry.atividade||"").trim(),planning:{},source:"history_batch"})});
+      historyBnccBatchResults.push({entryId:entry.id,childId,status:"ready",data,selectedComponents:(data.components||[]).map((_,n)=>n),selectedSkills:(data.skills||[]).map((_,n)=>n),selectedCompetencies:(data.competencies||[]).map((_,n)=>n),complementarySelected:data?.experience?.kind==="complementary"&&!!String(data?.experience?.complementary_activity||"").trim()});
+    }catch(error){
+      historyBnccBatchResults.push({entryId:entry.id,childId,status:"error",error:recordAnalysisErrorMessage(error)});
+    }
+  }
+  historyBnccBatchRunning=false;updateHistoryBnccBatchSelection();renderHistoryBnccBatchReview();
+}
+function nextHistoryBnccReviewIndex(from=0){
+  for(let i=from;i<historyBnccBatchResults.length;i++)if(historyBnccBatchResults[i].status==="ready")return i;
+  return -1;
+}
+function toggleHistoryBnccReview(group,index,checked){
+  const r=historyBnccBatchResults[historyBnccReviewIndex];if(!r)return;
+  const key=group==="component"?"selectedComponents":group==="skill"?"selectedSkills":"selectedCompetencies";
+  const set=new Set(r[key]||[]);checked?set.add(index):set.delete(index);r[key]=[...set];renderHistoryBnccBatchReview();
+}
+function toggleHistoryBnccComplementary(checked){const r=historyBnccBatchResults[historyBnccReviewIndex];if(r){r.complementarySelected=!!checked;renderHistoryBnccBatchReview()}}
+function renderHistoryBnccBatchReview(){
+  const panel=$("historyBnccBatchPanel");if(!panel)return;
+  let idx=nextHistoryBnccReviewIndex(historyBnccReviewIndex);
+  if(idx<0)idx=nextHistoryBnccReviewIndex(0);
+  const errors=historyBnccBatchResults.filter(x=>x.status==="error"),confirmed=historyBnccBatchResults.filter(x=>x.status==="confirmed").length,skipped=historyBnccBatchResults.filter(x=>x.status==="skipped").length;
+  if(idx<0){
+    panel.classList.remove("hidden");panel.innerHTML=`<div class="notice"><b>Revisão concluída</b><div class="meta" style="margin-top:5px">${confirmed} confirmado(s) · ${skipped} ignorado(s) · ${errors.length} falha(s).</div>${errors.map(x=>`<div class="meta" style="margin-top:7px">${esc(findEntryById(x.entryId,x.childId)?.entry?.atividade||"Registro")}: ${esc(x.error||"Não foi possível analisar.")}</div>`).join("")}<button type="button" class="btn small" style="margin-top:9px" onclick="closeHistoryBnccBatchReview()">Fechar</button></div>`;return;
+  }
+  historyBnccReviewIndex=idx;
+  const r=historyBnccBatchResults[idx],entry=findEntryById(r.entryId,r.childId)?.entry,data=r.data||{},experience=data.experience||{},components=data.components||[],skills=data.skills||[],competencies=data.competencies||[];
+  const chosen=(arr,n)=>arr.includes(n),compName=String(experience.complementary_activity||"").trim();
+  panel.classList.remove("hidden");panel.innerHTML=`<div class="card" style="box-shadow:none;border:2px solid #B8CCBD">
+    <div class="meta">Revisão ${idx+1} de ${historyBnccBatchResults.length}</div><h3 style="margin:5px 0">${esc(entry?.atividade||"Registro")}</h3><div class="meta">${esc(fmtDate(entry?.date||""))}</div>
+    ${experience.reason?`<div class="notice" style="margin-top:10px">${esc(experience.reason)}</div>`:""}
+    ${compName?`<div style="font-weight:900;margin:13px 0 6px">Experiência</div><label class="component-choice ${r.complementarySelected?"selected":""}"><input type="checkbox" ${r.complementarySelected?"checked":""} onchange="toggleHistoryBnccComplementary(this.checked)"><span><div class="component-choice-main">Atividade complementar — ${esc(compName)}</div></span></label>`:""}
+    <div style="font-weight:900;margin:13px 0 6px">Componentes</div><div class="component-suggestions">${components.map((x,i)=>`<label class="component-choice ${chosen(r.selectedComponents,i)?"selected":""}"><input type="checkbox" ${chosen(r.selectedComponents,i)?"checked":""} onchange="toggleHistoryBnccReview('component',${i},this.checked)"><span><div class="component-choice-main">${esc(x.component||"")}</div><div class="component-choice-area">${esc(x.area||"")}</div></span><span class="component-relevance">${Number(x.relevance)||0}% relevância</span></label>`).join("")||'<div class="meta">Nenhum componente sugerido.</div>'}</div>
+    <div style="font-weight:900;margin:13px 0 6px">Habilidades BNCC</div><div class="component-suggestions">${skills.map((x,i)=>`<label class="component-choice ${chosen(r.selectedSkills,i)?"selected":""}"><input type="checkbox" ${chosen(r.selectedSkills,i)?"checked":""} onchange="toggleHistoryBnccReview('skill',${i},this.checked)"><span><div class="component-choice-main">${esc(x.code||"")} · ${esc(x.curricular_component||"")}</div><div class="component-choice-area">${esc(x.description||"")}</div></span><span class="component-relevance">${semanticLabel(x)}</span></label>`).join("")||'<div class="meta">Nenhuma habilidade suficientemente relacionada.</div>'}</div>
+    <div style="font-weight:900;margin:13px 0 6px">Competências relacionadas</div><div class="component-suggestions">${competencies.map((x,i)=>`<label class="component-choice ${chosen(r.selectedCompetencies,i)?"selected":""}"><input type="checkbox" ${chosen(r.selectedCompetencies,i)?"checked":""} onchange="toggleHistoryBnccReview('competency',${i},this.checked)"><span><div class="component-choice-main">${esc(x.code||"")}</div><div class="component-choice-area">${esc(x.description||"")}</div></span><span class="component-relevance">${semanticLabel(x)}</span></label>`).join("")||'<div class="meta">Nenhuma competência suficientemente relacionada.</div>'}</div>
+    <div class="toolbar" style="margin-top:14px"><button type="button" class="btn success" onclick="confirmHistoryBnccReview()">✓ Confirmar neste registro</button><button type="button" class="btn" onclick="skipHistoryBnccReview()">Ignorar</button><button type="button" class="btn small" onclick="closeHistoryBnccBatchReview()">Fechar revisão</button></div>
+  </div>`;
+  panel.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function confirmHistoryBnccReview(){
+  const r=historyBnccBatchResults[historyBnccReviewIndex],found=r&&findEntryById(r.entryId,r.childId);if(!r||!found)return;
+  const data=r.data||{},components=(data.components||[]).filter((_,i)=>(r.selectedComponents||[]).includes(i)),skills=(data.skills||[]).filter((_,i)=>(r.selectedSkills||[]).includes(i)),competencies=(data.competencies||[]).filter((_,i)=>(r.selectedCompetencies||[]).includes(i)),experience=data.experience||{},complementaryName=r.complementarySelected?String(experience.complementary_activity||"").trim():"",first=components[0]||null,skill=skills[0]||null;
+  Object.assign(found.entry,{updatedAt:now(),type:complementaryName&&!skills.length?"complementar":"bncc",area:first?.area||skill?.knowledge_area||found.entry.area||"",componente:first?.component||skill?.curricular_component||found.entry.componente||"",codigo:skill?.code||"",habilidade:skill?.description||"",aiExperience:experience,complementarySelected:!!complementaryName,complementaryActivityName:complementaryName,aiComponents:data.components||[],selectedComponents:components,aiSkills:data.skills||[],selectedSkills:skills,aiCompetencies:data.competencies||[],selectedCompetencies:competencies});
+  r.status="confirmed";historyBnccSelected.delete(r.entryId);saveLocal();historyBnccReviewIndex++;renderHistoryBrowser();renderHistoryBnccBatchReview();
+}
+function skipHistoryBnccReview(){const r=historyBnccBatchResults[historyBnccReviewIndex];if(!r)return;r.status="skipped";historyBnccReviewIndex++;renderHistoryBnccBatchReview()}
+function closeHistoryBnccBatchReview(){historyBnccBatchResults=[];historyBnccReviewIndex=0;const p=$("historyBnccBatchPanel");if(p){p.classList.add("hidden");p.innerHTML=""}}
 
 function newHistoryBatchRow(){return{id:uid(),date:today(),activity:"",component:"",status:""}}
 function renderHistoryBatchRows(){let b=$("historyBatchRows");if(!b)return;if(!historyBatchRows.length)historyBatchRows=[newHistoryBatchRow(),newHistoryBatchRow(),newHistoryBatchRow()];b.innerHTML=historyBatchRows.map(r=>`<div class="history-row"><div><label class="field">Data</label><input type="date" value="${r.date}" onchange="updateHistoryRow('${r.id}','date',this.value)"></div><div><label class="field">Atividade</label><input value="${esc(r.activity)}" onchange="updateHistoryRow('${r.id}','activity',this.value)"></div><div><label class="field">Componente</label><input value="${esc(r.component)}" onchange="updateHistoryRow('${r.id}','component',this.value)"></div><div><label class="field">Avaliação</label><select onchange="updateHistoryRow('${r.id}','status',this.value)"><option value="">Padrão</option><option ${r.status==="Dominado"?"selected":""}>Dominado</option><option ${r.status==="Em progresso"?"selected":""}>Em progresso</option><option ${r.status==="Precisa de revisão"?"selected":""}>Precisa de revisão</option></select><button class="btn danger small" onclick="removeHistoryBatchRow('${r.id}')">Excluir linha</button></div></div>`).join("")}
@@ -7255,7 +7383,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "8.9";
+const APP_VERSION = "9.0";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

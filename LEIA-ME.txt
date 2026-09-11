@@ -1,58 +1,41 @@
-DIÁRIO DE ESTUDOS — v8.9
+DIÁRIO DE ESTUDOS — v9.0
 
-AJUSTES DE FOCO DO LEITOR — v8.9
-- O Diário solicita foco contínuo quando a câmera e o navegador disponibilizam esse controle.
-- Tocar sobre a imagem ou no botão “Refocar” solicita uma nova tentativa de foco.
-- Em aparelhos com várias câmeras, aparece uma lista para trocar de lente.
-- O controle de zoom aparece somente quando suportado pela câmera selecionada.
-- O botão de luz aparece somente quando o aparelho permite controlar a lanterna pelo navegador.
-- A captura passa a solicitar resolução Full HD quando disponível.
-- Leituras parciais ou inválidas não mudam imediatamente a mensagem; após tentativas repetidas, o app orienta a refocar, trocar a câmera ou ajustar o zoom.
-- O Worker permanece em 0.25-beta e o D1 não muda.
+CLASSIFICAÇÃO DE REGISTROS SEM BNCC
+- Em Histórico > Mais filtros foi criado o filtro “Vínculo curricular”.
+- A opção “Sem BNCC” localiza registros que ainda não possuem habilidade vinculada.
+- É possível selecionar até 10 registros por rodada e tocar em “Analisar selecionados”.
+- As análises são executadas uma por vez para evitar requisições simultâneas e reduzir o risco de instabilidade.
+- Nenhuma sugestão é gravada automaticamente. A família revisa atividade complementar, componentes, habilidades e competências antes de confirmar cada registro.
+- Se uma análise falhar, os outros registros continuam sendo processados e o erro é mostrado ao final.
+- Também foram incluídos os filtros “Com BNCC”, “Somente complementar” e “Complementar com BNCC”.
 
-CADASTRO DE LIVRO PELO CÓDIGO DE BARRAS
-- Em Leituras > Adicionar livro, foi criado o botão “Ler código de barras”.
-- O aplicativo abre preferencialmente a câmera traseira e procura o ISBN do livro.
-- Quando o navegador oferece BarcodeDetector com EAN-13, o Diário usa o leitor nativo.
-- Nos demais navegadores, utiliza o ZXing incluído localmente na pasta vendor.
-- O código só é aceito quando passa pela validação de ISBN-10 ou ISBN-13; ISBN-13 de livro deve começar com 978 ou 979.
-- Depois da leitura, o Diário consulta o Google Books, o catálogo compartilhado e a biblioteca da criança.
-- O livro nunca é incluído automaticamente: a família confere os dados e toca em “Adicionar”.
-- Se o ISBN não for encontrado, o formulário manual é aberto com o código já preenchido.
-- A câmera é encerrada ao cancelar, fechar a pesquisa, sair da aba Leituras ou colocar o aplicativo em segundo plano.
-- A digitação manual do ISBN e a pesquisa por título/autor continuam disponíveis.
+CAPA
+- A lista suspensa de criança na página Hoje mostra somente o nome.
+- O ano/série permanece cadastrado e continua sendo utilizado internamente na análise BNCC e nos relatórios.
 
-ARQUIVO ZXING
-- vendor/zxing-browser.min.js — ZXing Browser 0.2.1, usado somente para reconhecer o código na imagem da câmera.
-- vendor/ZXING-LICENSE.txt — licença MIT da biblioteca.
-- O ZXing não consulta livros e não envia a imagem da câmera; ele devolve apenas o número reconhecido.
-- A pasta vendor precisa ser publicada junto com os demais arquivos, preservando exatamente esse nome.
-- Os arquivos manifest.json e icons já usados pelo PWA devem permanecer publicados no repositório, mesmo não sendo alterados nesta versão.
+CONTROLE DE CONSUMO DE IA
+- O Worker passa para a versão 0.26-beta.
+- As análises iniciadas pelo Histórico são registradas como “history_batch_classification”.
+- Classificação, embedding e seleção BNCC continuam contabilizados separadamente.
+- Nenhuma alteração no D1 é necessária quando a estrutura de ai_usage_events da v8.6 já estiver instalada.
 
-PUBLICAÇÃO DA v8.9
-1. Publique index.html, sw.js e version.json.
-2. A pasta vendor é a mesma da v8.8; mantenha-a publicada.
-3. O worker.js permanece em 0.25-beta; não precisa ser republicado se a v8.8 já foi instalada completamente.
-4. Nenhuma alteração no D1 é necessária.
+PUBLICAÇÃO DA v9.0
+1. Publique index.html, sw.js e version.json no GitHub Pages.
+2. Publique o novo worker.js no Cloudflare Worker.
+3. Mantenha manifest.json, icons, vendor e os demais arquivos já existentes no repositório.
+4. Não é necessário executar comando no D1.
 
 ARQUIVOS DO PACOTE
-- index.html — aplicativo v8.9.
-- sw.js — cache diario-estudos-v8.9, incluindo os arquivos do leitor.
-- version.json — identificador público da versão.
-- worker.js — API 0.25-beta, com consulta exata por ISBN sem restrição de idioma.
-- vendor/zxing-browser.min.js — leitor de código de barras.
+- index.html — aplicativo v9.0.
+- sw.js — cache diario-estudos-v9.0.
+- version.json — identificador público v9.0.
+- worker.js — API 0.26-beta.
+- vendor/zxing-browser.min.js — leitor de código de barras mantido da v8.9.
 - vendor/ZXING-LICENSE.txt — licença do ZXing.
 - d1-ai-usage-v8_6.sql — instalação completa do controle de IA para ambiente novo.
-- d1-ai-usage-v8_5-para-v8_6.sql — migração antiga, somente para quem havia instalado a estrutura v8.5.
+- d1-ai-usage-v8_5-para-v8_6.sql — migração antiga, somente para ambiente que havia instalado a estrutura v8.5.
 
 OBSERVAÇÕES
-- A leitura por câmera exige HTTPS e permissão de câmera no navegador.
-- O Diário tenta utilizar a câmera traseira, mas a escolha final depende do aparelho e do navegador.
-- Em caso de câmera bloqueada ou indisponível, o app mostra uma orientação e mantém o campo de busca utilizável.
-
-VALIDAÇÕES REALIZADAS
-- JavaScript inline do index.html: sintaxe OK.
-- worker.js 0.25-beta: sintaxe OK.
-- ZXing Browser 0.2.1: arquivo local carregado e API BrowserMultiFormatOneDReader confirmada.
-- version.json: JSON válido.
-- index.html, sw.js e version.json alinhados na versão 8.8.
+- A classificação em lote exige internet, login Google válido e criança sincronizada com o backend.
+- Fechar a revisão não altera os registros ainda não confirmados.
+- Os registros confirmados seguem o fluxo normal de salvamento e sincronização da família.
