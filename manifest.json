@@ -1,26 +1,15 @@
 {
-  "id": "./",
-  "name": "Diário de Estudos",
+  "name": "Meu Diário de Estudos",
   "short_name": "Diário",
-  "description": "Diário de Estudos para registro e acompanhamento de atividades educacionais alinhadas à BNCC.",
+  "description": "Planejamento e registros de aprendizagem em família com apoio da BNCC.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#EFEAE0",
-  "theme_color": "#17332A",
-  "lang": "pt-BR",
+  "background_color": "#f8f6f0",
+  "theme_color": "#17332a",
   "icons": [
-    {
-      "src": "./icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "./icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    }
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

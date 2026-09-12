@@ -1,13 +1,15 @@
-const CACHE_NAME = "diario-estudos-v9.1";
+const CACHE_NAME = "diario-estudos-v9.2";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./manifest.json",
   "./version.json",
+  "./logo-diario.png",
   "./vendor/zxing-browser.min.js",
   "./vendor/ZXING-LICENSE.txt",
   "./icons/icon-192.png",
-  "./icons/icon-512.png"
+  "./icons/icon-512.png",
+  "./icons/maskable-512.png"
 ];
 
 self.addEventListener("install", event => {

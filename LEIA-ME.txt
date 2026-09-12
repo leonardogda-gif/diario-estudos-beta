@@ -1,4 +1,9 @@
-DIÁRIO DE ESTUDOS — v9.1
+DIÁRIO DE ESTUDOS — v9.2
+
+NOVA IDENTIDADE VISUAL
+- O caderno com broto do card de compartilhamento agora é o logo oficial do aplicativo.
+- Cabeçalho, ícone instalado, atalho e tela do PWA usam a mesma identidade do site.
+- Incluídos manifest.json, logo transparente e ícones 192, 512 e maskable.
 
 CORREÇÃO VISUAL DA ANÁLISE EM LOTE
 - O botão “Analisar selecionados” muda imediatamente para indicar que a solicitação começou.
@@ -26,16 +31,16 @@ CONTROLE DE CONSUMO DE IA
 - Classificação, embedding e seleção BNCC continuam contabilizados separadamente.
 - Nenhuma alteração no D1 é necessária quando a estrutura de ai_usage_events da v8.6 já estiver instalada.
 
-PUBLICAÇÃO DA v9.1
+PUBLICAÇÃO DA v9.2
 1. Publique index.html, sw.js e version.json no GitHub Pages.
 2. Publique o novo worker.js no Cloudflare Worker.
 3. Mantenha manifest.json, icons, vendor e os demais arquivos já existentes no repositório.
 4. Não é necessário executar comando no D1.
 
 ARQUIVOS DO PACOTE
-- index.html — aplicativo v9.1.
-- sw.js — cache diario-estudos-v9.1.
-- version.json — identificador público v9.1.
+- index.html — aplicativo v9.2.
+- sw.js — cache diario-estudos-v9.2.
+- version.json — identificador público v9.2.
 - worker.js — API 0.26-beta.
 - vendor/zxing-browser.min.js — leitor de código de barras mantido da v8.9.
 - vendor/ZXING-LICENSE.txt — licença do ZXing.
