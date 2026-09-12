@@ -903,7 +903,7 @@ details[open]>summary:after{content:"⌃"}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11.5A2.5 2.5 0 0 1 19 6v14H7a3 3 0 0 1-3-3V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M7 3.5v16.5M9.5 8h6M9.5 11h6M9.5 14h4"/></svg>
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v9.0 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v9.1 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -1215,8 +1215,8 @@ details[open]>summary:after{content:"⌃"}
             </div>
             <div id="historyBnccBatchSelection" class="meta" style="margin-top:7px"></div>
           </div>
-          <div id="historyBrowseList"></div>
           <div id="historyBnccBatchPanel" class="hidden" style="margin-top:12px"></div>
+          <div id="historyBrowseList"></div>
         </div>
 
         <div class="card" style="margin-top:12px;background:#F8F5EC"><div class="toolbar" style="justify-content:space-between"><div><h3 style="margin-bottom:3px">Adicionar atividade antiga</h3><div class="meta">Um registro simples, sem exigir código BNCC.</div></div><button class="btn" onclick="toggleOldRecordForm(true)">+ Adicionar</button></div>
@@ -7205,9 +7205,15 @@ async function startHistoryBnccBatch(){
   if(!entries.length)return alert("Selecione pelo menos um registro sem BNCC.");
   historyBnccBatchRunning=true;historyBnccBatchResults=[];historyBnccReviewIndex=0;updateHistoryBnccBatchSelection();
   const btn=$("historyBnccBatchBtn"),panel=$("historyBnccBatchPanel");
-  if(panel){panel.classList.remove("hidden");panel.innerHTML='<div class="notice"><b>Preparando análises…</b><div id="historyBnccBatchProgress" class="meta" style="margin-top:6px"></div></div>'}
+  if(btn)btn.innerHTML='<span class="ai-spinner"></span> Preparando análise…';
+  if(panel){
+    panel.classList.remove("hidden");
+    panel.innerHTML='<div class="notice"><b>Preparando análises…</b><div class="meta" style="margin-top:6px">Não feche esta tela enquanto a análise estiver em andamento.</div><div id="historyBnccBatchProgress" class="meta" style="margin-top:8px"></div></div>';
+    panel.scrollIntoView({behavior:"smooth",block:"center"});
+  }
   for(let i=0;i<entries.length;i++){
     const entry=entries[i],progress=$("historyBnccBatchProgress");
+    if(btn)btn.innerHTML=`<span class="ai-spinner"></span> Analisando ${i+1} de ${entries.length}…`;
     if(progress)progress.textContent=`Analisando ${i+1} de ${entries.length}: ${entry.atividade||"Registro"}`;
     try{
       const data=await backendFetch("/ai/analyze-experience",{method:"POST",body:JSON.stringify({child_id:backendChildId,activity:String(entry.atividade||"").trim(),planning:{},source:"history_batch"})});
@@ -7216,7 +7222,9 @@ async function startHistoryBnccBatch(){
       historyBnccBatchResults.push({entryId:entry.id,childId,status:"error",error:recordAnalysisErrorMessage(error)});
     }
   }
-  historyBnccBatchRunning=false;updateHistoryBnccBatchSelection();renderHistoryBnccBatchReview();
+  historyBnccBatchRunning=false;
+  if(btn)btn.textContent="✨ Analisar selecionados";
+  updateHistoryBnccBatchSelection();renderHistoryBnccBatchReview();
 }
 function nextHistoryBnccReviewIndex(from=0){
   for(let i=from;i<historyBnccBatchResults.length;i++)if(historyBnccBatchResults[i].status==="ready")return i;
@@ -7383,7 +7391,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "9.0";
+const APP_VERSION = "9.1";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

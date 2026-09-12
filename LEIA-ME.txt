@@ -1,4 +1,11 @@
-DIÁRIO DE ESTUDOS — v9.0
+DIÁRIO DE ESTUDOS — v9.1
+
+CORREÇÃO VISUAL DA ANÁLISE EM LOTE
+- O botão “Analisar selecionados” muda imediatamente para indicar que a solicitação começou.
+- Durante o processamento, mostra “Analisando X de Y” e permanece bloqueado.
+- O painel de progresso agora aparece junto ao botão, antes da lista de registros.
+- A tela orienta a permanecer aberta até o término da rodada.
+- A lógica de classificação e o Worker 0.26-beta permanecem os mesmos da v9.0.
 
 CLASSIFICAÇÃO DE REGISTROS SEM BNCC
 - Em Histórico > Mais filtros foi criado o filtro “Vínculo curricular”.
@@ -19,16 +26,16 @@ CONTROLE DE CONSUMO DE IA
 - Classificação, embedding e seleção BNCC continuam contabilizados separadamente.
 - Nenhuma alteração no D1 é necessária quando a estrutura de ai_usage_events da v8.6 já estiver instalada.
 
-PUBLICAÇÃO DA v9.0
+PUBLICAÇÃO DA v9.1
 1. Publique index.html, sw.js e version.json no GitHub Pages.
 2. Publique o novo worker.js no Cloudflare Worker.
 3. Mantenha manifest.json, icons, vendor e os demais arquivos já existentes no repositório.
 4. Não é necessário executar comando no D1.
 
 ARQUIVOS DO PACOTE
-- index.html — aplicativo v9.0.
-- sw.js — cache diario-estudos-v9.0.
-- version.json — identificador público v9.0.
+- index.html — aplicativo v9.1.
+- sw.js — cache diario-estudos-v9.1.
+- version.json — identificador público v9.1.
 - worker.js — API 0.26-beta.
 - vendor/zxing-browser.min.js — leitor de código de barras mantido da v8.9.
 - vendor/ZXING-LICENSE.txt — licença do ZXing.
