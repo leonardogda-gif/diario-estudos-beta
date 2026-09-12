@@ -904,7 +904,7 @@ details[open]>summary:after{content:"⌃"}
     <img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true">
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v9.2 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v9.3 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -1275,6 +1275,10 @@ details[open]>summary:after{content:"⌃"}
         <div id="adminValidationNotice" class="admin-validation-notice hidden" onclick="showPage('administracao')">
           <span>🔔</span><div><b id="adminValidationNoticeTitle">Itens aguardando validação</b><div id="adminValidationNoticeText" class="meta"></div></div>
         </div>
+        <div class="drive-folder-card" style="margin-bottom:14px">
+          <div class="toolbar" style="justify-content:space-between;align-items:flex-start"><div><b>💳 Plano da família</b><div id="billingStatusText" class="meta" style="margin-top:4px">Verificando acesso…</div></div><span class="meta" style="background:#f3efe3;padding:5px 8px;border-radius:999px">Ambiente de teste</span></div>
+          <div id="billingCheckoutArea" class="hidden" style="margin-top:10px"><label class="field">E-mail do pagador no Mercado Pago</label><input id="billingPayerEmail" type="email" placeholder="Use o e-mail da conta buyer no teste"><div class="meta" style="margin-top:5px">No teste, informe o e-mail da conta buyer. A assinatura continuará vinculada à família aberta no Diário.</div><div class="toolbar" style="margin-top:9px"><button id="billingSubscribeBtn" class="btn success" type="button" onclick="startBillingCheckout()">Começar assinatura</button><button class="btn small" type="button" onclick="syncBillingStatus()">Atualizar situação</button></div></div>
+        </div>
         <div class="grid">
           <button class="btn" onclick="showPage('bncc-ajuda')">📘 Entenda a BNCC</button>
           <button class="btn" onclick="showPage('bncc-como-encontramos')">✨ Como encontramos habilidades</button>
@@ -1580,6 +1584,13 @@ details[open]>summary:after{content:"⌃"}
 <div class="card"><h2>Administração do Diário</h2>
 <div class="notice" style="margin-bottom:12px">Área exclusiva do administrador geral para gerenciar o catálogo compartilhado e os recursos técnicos do Diário de Estudos.</div>
 
+<details class="tech-details" open><summary>💳 Assinaturas e acessos gratuitos</summary><div class="drive-folder-card" style="margin-top:8px">
+  <div class="grid"><div><label class="field">Valor mensal em centavos</label><input id="adminBillingAmount" type="number" min="100" value="2990"></div><div><label class="field">Dias gratuitos</label><input id="adminBillingTrial" type="number" min="0" max="365" value="7"></div><div class="full"><label style="display:flex;gap:8px;align-items:center"><input id="adminBillingEnforcement" type="checkbox" style="width:auto"><span>Ativar bloqueio de edição por pagamento</span></label><div class="meta">Deixe desligado enquanto estivermos testando.</div></div></div>
+  <div class="toolbar" style="margin-top:8px"><button class="btn small" type="button" onclick="saveAdminBillingConfig()">Salvar configuração</button><button class="btn small" type="button" onclick="loadAdminBilling()">Atualizar lista</button></div><hr>
+  <div class="grid"><div class="full"><label class="field">Família</label><select id="adminGrantFamily"></select></div><div><label class="field">Tipo de acesso</label><select id="adminGrantType"><option value="beta_tester">Beta tester</option><option value="social">Acesso social</option><option value="partnership">Parceria</option><option value="courtesy">Cortesia</option></select></div><div><label class="field">Válido até (opcional)</label><input id="adminGrantEnds" type="date"></div><div class="full"><label class="field">Motivo</label><input id="adminGrantReason" placeholder="Ex.: família participante do beta inicial"></div></div>
+  <div class="toolbar" style="margin-top:8px"><button class="btn success small" type="button" onclick="grantFamilyAccess()">Liberar acesso</button><button class="btn danger small" type="button" onclick="revokeFamilyAccess()">Remover gratuidade</button></div><div id="adminBillingFamilies" class="meta" style="margin-top:12px">Carregando famílias…</div>
+</div></details>
+
 <details class="tech-details" open><summary>🤖 Consumo de IA por família</summary><div class="drive-folder-card" style="margin-top:8px">
   <div class="grid">
     <div><label class="field">De</label><input id="adminAiUsageFrom" type="date"></div>
@@ -1854,7 +1865,7 @@ function showPage(name){
  document.querySelectorAll(".nav-tab").forEach(x=>x.classList.toggle("active",x.dataset.page===name));
  if(name==="inicio")renderDashboard();
  if(name==="registro")renderRecordPage();
- if(name==="planejamento"){renderPlans();refreshCalendarIntegrationUI();checkImportedCalendarChanges();} if(name==="mais"){refreshCalendarIntegrationUI();checkAdminPendingValidations(false);} if(name==="administracao"){updateAdminValidationNotificationStatus();loadAdminAiUsage();loadPendingCommunityBooks();loadPendingMaterials();}
+ if(name==="planejamento"){renderPlans();refreshCalendarIntegrationUI();checkImportedCalendarChanges();} if(name==="mais"){refreshCalendarIntegrationUI();checkAdminPendingValidations(false);loadBillingStatus();} if(name==="administracao"){updateAdminValidationNotificationStatus();loadAdminBilling();loadAdminAiUsage();loadPendingCommunityBooks();loadPendingMaterials();}
  if(name==="relatorios")renderReportPage();
  if(name==="historico"){renderHistoryBrowser();renderHistoryBatchRows();refreshHistoryActivityOptions();}
  if(name==="leituras"){renderReadingPage();}
@@ -3540,6 +3551,54 @@ async function backendFetch(path, options={}){
     const err=new Error(detail);err.status=response.status;err.payload=data;throw err;
   }
   return data;
+}
+
+let billingStatusData=null;
+function billingMoney(cents){return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(Number(cents||0)/100)}
+function billingStatusLabel(data){
+ const s=String(data?.subscription?.provider_status||"none");
+ if(data?.grant)return `Acesso gratuito: ${data.grant.grant_type} — ${data.grant.reason}`;
+ if(["authorized","active"].includes(s))return "Assinatura ativa";
+ if(s==="pending")return "Assinatura aguardando confirmação";
+ const end=data?.subscription?.trial_ends_at;
+ if(end&&Date.parse(end)>Date.now())return `Período gratuito até ${new Date(end).toLocaleDateString("pt-BR")}`;
+ return data?.enforcement_enabled?"Acesso somente para visualização":"Beta aberto — nenhuma função será bloqueada";
+}
+async function loadBillingStatus(){
+ const fam=currentBackendFamily(),text=$("billingStatusText"),area=$("billingCheckoutArea");
+ if(!fam||!backendProfile?.user){if(text)text.textContent="Conecte sua família para consultar o plano.";area?.classList.add("hidden");return}
+ try{
+  const data=await backendFetch(`/billing/status?family_id=${encodeURIComponent(fam.id)}`);billingStatusData=data;
+  if(text)text.innerHTML=`<b>${esc(billingStatusLabel(data))}</b><br>${billingMoney(data?.plan?.monthly_amount_cents)} por mês · ${Number(data?.plan?.trial_days||0)} dias gratuitos`;
+  area?.classList.remove("hidden");if($("billingPayerEmail")&&!$("billingPayerEmail").value)$("billingPayerEmail").value=backendProfile?.user?.email||"";
+ }catch(e){if(text)text.textContent="Não foi possível consultar o plano: "+e.message;area?.classList.add("hidden")}
+}
+async function startBillingCheckout(){
+ const fam=currentBackendFamily(),email=$("billingPayerEmail")?.value.trim(),btn=$("billingSubscribeBtn");
+ if(!fam)return alert("Selecione uma família.");if(!email)return alert("Informe o e-mail da conta buyer do Mercado Pago.");
+ btn.disabled=true;btn.textContent="Abrindo Mercado Pago…";
+ try{const data=await backendFetch("/billing/checkout",{method:"POST",body:JSON.stringify({family_id:fam.id,payer_email:email})});if(!data?.init_point)throw new Error("O Mercado Pago não retornou o endereço do checkout.");location.href=data.init_point}catch(e){alert("Não foi possível iniciar a assinatura: "+e.message);btn.disabled=false;btn.textContent="Começar assinatura"}
+}
+async function syncBillingStatus(){
+ const fam=currentBackendFamily();if(!fam)return;
+ try{await backendFetch("/billing/sync",{method:"POST",body:JSON.stringify({family_id:fam.id})});await loadBillingStatus()}catch(e){alert("Não foi possível atualizar a assinatura: "+e.message)}
+}
+async function loadAdminBilling(){
+ const box=$("adminBillingFamilies"),select=$("adminGrantFamily");if(!isGlobalDiaryAdmin)return;
+ try{const data=await backendFetch("/admin/billing");const c=data.config||{},families=data.families||[];$("adminBillingAmount").value=c.monthly_amount_cents??2990;$("adminBillingTrial").value=c.trial_days??7;$("adminBillingEnforcement").checked=Number(c.enforcement_enabled||0)===1;if(select)select.innerHTML=families.map(f=>`<option value="${esc(f.id)}">${esc(f.name)}</option>`).join("");if(box)box.innerHTML=families.map(f=>`<div class="duplicate-card" style="margin-top:7px"><b>${esc(f.name)}</b><div class="meta">Mercado Pago: ${esc(f.provider_status||"não iniciado")}${f.grant_type?` · Gratuidade: ${esc(f.grant_type)} — ${esc(f.grant_reason||"")}`:""}</div></div>`).join("")||"Nenhuma família cadastrada."}catch(e){if(box)box.textContent="Não foi possível carregar: "+e.message}
+}
+async function saveAdminBillingConfig(){
+ try{await backendFetch("/admin/billing/config",{method:"PUT",body:JSON.stringify({monthly_amount_cents:Number($("adminBillingAmount").value||2990),trial_days:Number($("adminBillingTrial").value||0),enforcement_enabled:$("adminBillingEnforcement").checked})});alert("Configuração salva.");loadAdminBilling()}catch(e){alert("Não foi possível salvar: "+e.message)}
+}
+async function grantFamilyAccess(){
+ const family_id=$("adminGrantFamily")?.value,grant_type=$("adminGrantType")?.value,reason=$("adminGrantReason")?.value.trim(),date=$("adminGrantEnds")?.value;
+ if(!reason)return alert("Informe o motivo da liberação.");
+ try{await backendFetch("/admin/billing/grants",{method:"POST",body:JSON.stringify({family_id,grant_type,reason,ends_at:date?date+"T23:59:59Z":null})});alert("Acesso liberado.");$("adminGrantReason").value="";loadAdminBilling()}catch(e){alert("Não foi possível liberar: "+e.message)}
+}
+async function revokeFamilyAccess(){
+ const family_id=$("adminGrantFamily")?.value;if(!family_id)return;
+ if(!confirm("Remover a gratuidade desta família?"))return;
+ try{await backendFetch("/admin/billing/grants/revoke",{method:"POST",body:JSON.stringify({family_id})});loadAdminBilling()}catch(e){alert("Não foi possível remover: "+e.message)}
 }
 
 async function connectBackend(){
@@ -7392,7 +7451,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "9.2";
+const APP_VERSION = "9.3";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

@@ -1,4 +1,13 @@
-DIÁRIO DE ESTUDOS — v9.2
+DIÁRIO DE ESTUDOS — v9.3
+
+INTEGRAÇÃO MERCADO PAGO — PRIMEIRA FASE DE TESTE
+- Plano Família configurável, inicialmente em R$ 29,90/mês e 7 dias gratuitos.
+- Checkout recorrente vinculado à família autenticada.
+- Webhook confirma o estado consultando diretamente a API do Mercado Pago.
+- Tela da família mostra situação do plano e permite iniciar/atualizar a assinatura.
+- ADM controla valor, dias gratuitos e acessos beta tester, social, parceria e cortesia.
+- O bloqueio por pagamento começa desligado; nenhum beta tester perde funções durante o teste.
+- Novo SQL d1-billing-v9_3.sql deve ser executado uma única vez antes de publicar o Worker.
 
 NOVA IDENTIDADE VISUAL
 - O caderno com broto do card de compartilhamento agora é o logo oficial do aplicativo.
@@ -10,7 +19,7 @@ CORREÇÃO VISUAL DA ANÁLISE EM LOTE
 - Durante o processamento, mostra “Analisando X de Y” e permanece bloqueado.
 - O painel de progresso agora aparece junto ao botão, antes da lista de registros.
 - A tela orienta a permanecer aberta até o término da rodada.
-- A lógica de classificação e o Worker 0.26-beta permanecem os mesmos da v9.0.
+- A lógica de classificação permanece a mesma; o Worker avança para 0.27-beta por causa da cobrança.
 
 CLASSIFICAÇÃO DE REGISTROS SEM BNCC
 - Em Histórico > Mais filtros foi criado o filtro “Vínculo curricular”.
@@ -26,22 +35,26 @@ CAPA
 - O ano/série permanece cadastrado e continua sendo utilizado internamente na análise BNCC e nos relatórios.
 
 CONTROLE DE CONSUMO DE IA
-- O Worker passa para a versão 0.26-beta.
+- O controle de IA permanece igual ao da versão anterior.
 - As análises iniciadas pelo Histórico são registradas como “history_batch_classification”.
 - Classificação, embedding e seleção BNCC continuam contabilizados separadamente.
 - Nenhuma alteração no D1 é necessária quando a estrutura de ai_usage_events da v8.6 já estiver instalada.
 
-PUBLICAÇÃO DA v9.2
-1. Publique index.html, sw.js e version.json no GitHub Pages.
-2. Publique o novo worker.js no Cloudflare Worker.
-3. Mantenha manifest.json, icons, vendor e os demais arquivos já existentes no repositório.
-4. Não é necessário executar comando no D1.
+PUBLICAÇÃO DA v9.3 — ORDEM OBRIGATÓRIA
+1. Execute d1-billing-v9_3.sql uma única vez no Console do D1.
+2. Confirme que MP_ACCESS_TOKEN_TEST continua cadastrado como Secret do Worker.
+3. Publique worker.js no Cloudflare Worker.
+4. No Mercado Pago, cadastre o webhook:
+   https://diario-estudos-api.leonardo-gda.workers.dev/payments/mercadopago/webhook
+5. Publique index.html, sw.js e version.json no GitHub Pages.
+6. Mantenha manifest.json, icons, logo-diario.png, vendor e os demais arquivos existentes.
 
 ARQUIVOS DO PACOTE
-- index.html — aplicativo v9.2.
-- sw.js — cache diario-estudos-v9.2.
-- version.json — identificador público v9.2.
-- worker.js — API 0.26-beta.
+- index.html — aplicativo v9.3.
+- sw.js — cache diario-estudos-v9.3.
+- version.json — identificador público v9.3.
+- worker.js — API 0.27-beta.
+- d1-billing-v9_3.sql — tabelas de cobrança, configuração, gratuidade e eventos.
 - vendor/zxing-browser.min.js — leitor de código de barras mantido da v8.9.
 - vendor/ZXING-LICENSE.txt — licença do ZXing.
 - d1-ai-usage-v8_6.sql — instalação completa do controle de IA para ambiente novo.
