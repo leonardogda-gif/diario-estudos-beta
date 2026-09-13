@@ -1,0 +1,16 @@
+DIÁRIO DE ESTUDOS — CORREÇÃO DE CHECKOUT v11.2
+================================================
+
+Publique os arquivos nesta ordem:
+
+1. Cloudflare: worker.js (versão 0.37-beta)
+2. GitHub: index.html, sw.js e version.json (versão 11.2)
+
+Não execute SQL novamente e não altere secrets ou webhook.
+
+Correções:
+- O Worker devolve o link correto da sessão pendente conforme o ambiente Asaas.
+- O app mostra "Continuar pagamento" quando já existe checkout pendente.
+- "Atualizar situação" permanece disponível ao lado.
+- Uma sessão pendente não provoca a criação automática de outra cobrança.
+

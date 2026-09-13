@@ -986,7 +986,7 @@ body.app-authenticated main{padding-bottom:0}
     <img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true">
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · famílias convidadas · v11.1 PWA</p>
+  <p>Homeschooling alinhado à BNCC · famílias convidadas · v11.2 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -3670,7 +3670,7 @@ async function refreshAsaasBilling(){
    box.innerHTML=`<b>Assinatura ativa</b><div class="meta" style="margin-top:5px">${sub.plan_code==="yearly"?"Plano anual":"Plano mensal"}${sub.next_due_date?` · próxima cobrança: ${esc(fmtDate(sub.next_due_date))}`:""}</div><button type="button" class="btn danger small" style="margin-top:10px" onclick="cancelAsaasSubscription()">Cancelar renovação</button>`;return
   }
   if(sub?.status==="past_due"){box.innerHTML=`<b>Pagamento pendente</b><div class="meta" style="margin-top:5px">Atualize a forma de pagamento no Asaas ou tente novamente.</div><button type="button" class="btn small" style="margin-top:10px" onclick="refreshAsaasBilling()">Atualizar situação</button>`;return}
-  if(checkout?.status==="pending"){box.innerHTML=`<b>Checkout aguardando conclusão</b><div class="meta" style="margin-top:5px">Conclua o pagamento na janela do Asaas ou atualize a situação.</div><button type="button" class="btn small" style="margin-top:10px" onclick="refreshAsaasBilling()">Atualizar situação</button>`;return}
+  if(checkout?.status==="pending"){box.innerHTML=`<b>Checkout aguardando conclusão</b><div class="meta" style="margin-top:5px">Conclua o pagamento na janela segura do Asaas.</div><div class="row" style="margin-top:10px">${checkout.checkout_url?`<button type="button" class="btn success small" onclick="location.href='${esc(checkout.checkout_url)}'">Continuar pagamento</button>`:""}<button type="button" class="btn small" onclick="refreshAsaasBilling()">Atualizar situação</button></div>`;return}
   box.innerHTML=`<b>Escolha o plano da família</b><div class="meta" style="margin-top:4px">Pagamento seguro no ambiente do Asaas. Sem período gratuito.</div><div class="billing-plans"><div class="billing-plan"><b>Plano mensal</b><div class="billing-price">R$ 39,90</div><div class="meta">Cobrança mensal. Cancele quando precisar.</div><button type="button" class="btn success" onclick="startAsaasCheckout('monthly',this)">Assinar mensal</button></div><div class="billing-plan"><b>Plano anual</b><div class="billing-price">R$ 359,10</div><span class="billing-saving">Economize 25%</span><div class="meta">Equivale a R$ 29,93 por mês.</div><button type="button" class="btn success" onclick="startAsaasCheckout('yearly',this)">Assinar anual</button></div></div><div class="meta" style="margin-top:9px">Ambiente de teste: nenhuma cobrança real será feita.</div>`;
  }catch(e){box.innerHTML=`<b>Não foi possível consultar o plano</b><div class="meta" style="margin-top:5px">${esc(e.message||"Tente novamente.")}</div><button type="button" class="btn small" style="margin-top:9px" onclick="refreshAsaasBilling()">Tentar novamente</button>`}
 }
@@ -7604,7 +7604,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "11.1";
+const APP_VERSION = "11.2";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
