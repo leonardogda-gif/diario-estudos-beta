@@ -77,6 +77,12 @@ h3{font-size:16px}
 .login-gate{max-width:580px;margin:38px auto;text-align:center;padding:28px}
 .login-gate svg{width:52px;height:52px;fill:none;stroke:#17332A;stroke-width:1.6}
 .login-gate h2{margin:12px 0 7px}
+.login-gate{max-width:500px;margin-top:28px;padding:30px 28px}
+.login-gate .login-kicker{font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#557066;margin-bottom:7px}
+.login-gate .login-intro{max-width:340px;margin:8px auto 20px;color:#5F5B50;font-size:15px;line-height:1.55}
+.login-gate .login-action{width:100%;max-width:320px;min-height:48px;font-size:15px}
+.login-gate .login-promise{display:flex;align-items:center;justify-content:center;gap:7px;margin:18px auto 0;color:#5F5B50;font-size:12px;line-height:1.4}
+.login-gate .login-promise svg{width:18px;height:18px;flex:0 0 auto;stroke:#7A9D6F;stroke-width:2}
 .onboarding-gate{max-width:760px;margin:28px auto;padding:26px}
 .onboarding-gate h2{margin:0 0 8px}
 .onboarding-steps{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 18px}
@@ -260,11 +266,14 @@ body.app-authenticated .cloud-card{display:none!important}
 
 
 /* v4.17 — ajuda e tutorial de instalação do PWA */
-.daily-actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
-.daily-actions .btn{padding:12px 16px;font-size:14px}
+.daily-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 0}
+.daily-actions .btn{padding:12px 16px;font-size:14px;min-height:46px}
+.daily-actions .daily-primary{grid-column:1/-1;font-weight:800}
+.daily-actions .daily-secondary{background:#FFFDF8;border:2px solid #6B8CAE;color:#5D7F9F;font-weight:700}
+.daily-actions .daily-tertiary{background:#E9E4D8;color:#3F3D37;font-weight:700}
 .plan-section-title{margin:16px 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:#6b665c}
 .plan-card.is-late{border-left:4px solid #9b3b2e}.plan-card.is-today{border-left:4px solid #17332A}
-@media(max-width:700px){.daily-actions .btn{flex:1 1 100%}.nav-tabs{width:100%;justify-content:space-around;min-width:0}.nav-tab{flex:1;justify-content:center;padding:12px 8px}}
+@media(max-width:700px){.daily-actions{grid-template-columns:minmax(0,1.35fr) minmax(0,.85fr)}.daily-actions .btn{padding-left:9px;padding-right:9px}.nav-tabs{width:100%;justify-content:space-around;min-width:0}.nav-tab{flex:1;justify-content:center;padding:12px 8px}}
 
 /* v5.0 — janela de teste da IA BNCC */
 .ai-test-box{background:#F7F3EA;border:1px solid #D8D1C2;border-radius:10px;padding:12px;margin-top:10px}
@@ -968,7 +977,7 @@ body.app-authenticated main{padding-bottom:0}
     <img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true">
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v10.6 PWA</p>
+  <p>Homeschooling alinhado à BNCC · famílias convidadas · v10.7 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -994,7 +1003,7 @@ body.app-authenticated main{padding-bottom:0}
 
 <div id="authBoot" class="auth-boot"><div class="auth-boot-card">Abrindo Diário de Estudos…</div></div>
 <main>
-  <div class="cloud-card no-print">
+  <div class="cloud-card no-print hidden" aria-hidden="true">
     <div class="cloud-layout">
       <div class="cloud-info">
         <svg class="cloud-icon" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .7-7.94A6 6 0 0 0 6.2 8.3 4.5 4.5 0 0 0 7 18Z"/><path d="M12 10v6M9.5 12.5 12 10l2.5 2.5"/></svg>
@@ -1014,10 +1023,11 @@ body.app-authenticated main{padding-bottom:0}
   </div>
 
   <div id="loginGate" class="card login-gate">
-    <svg viewBox="0 0 24 24"><path d="M6 10V7a6 6 0 0 1 12 0v3"/><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M12 14v3"/></svg>
-    <h2>Beta com acesso controlado</h2>
-    <p>Entre com uma conta Google autorizada como usuário de teste para acessar o Diário e sincronizar os dados entre celular e computador.</p>
-    <button class="btn dark" onclick="googleLogin()">Entrar com Google</button>
+    <div class="login-kicker">Acesso para famílias convidadas</div>
+    <h2>Entre no seu Diário</h2>
+    <p class="login-intro">Use a conta Google da sua família para acessar e sincronizar seus registros.</p>
+    <button id="loginGateGoogleBtn" class="btn success login-action" onclick="googleLogin()">Entrar com Google</button>
+    <div class="login-promise"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg><span>Seus dados ficam salvos no Google Drive da sua família.</span></div>
   </div>
 
   <div id="onboardingGate" class="card onboarding-gate hidden">
@@ -4785,7 +4795,7 @@ function renderDashboard(){
  const todayPlans=due.filter(p=>(p.nextDate||p.date)===td),latePlans=due.filter(p=>(p.nextDate||p.date)<td),futurePlans=due.filter(p=>(p.nextDate||p.date)>td).slice(0,3);
  const planHtml=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div class="meta">👨‍👩‍👧‍👦 Planejamento compartilhado: ${esc(planChildNames(p).join(", "))}</div>`:""}<div class="meta">${esc(p.component||'')}</div>${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}','${child.id}')">✓ Concluir e registrar</button><button class="btn small" onclick="showPage('planejamento');editPlan('${p.id}')">Editar</button>${(p.nextDate||p.date)<td?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Reagendar próxima</button>`:''}</div></div>`;
  box.innerHTML=`<div class="card"><div class="grid" style="align-items:end"><div>${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje</h2><div class="meta">${fmtDate(td)}</div></div><div><label class="field">Criança</label><select onchange="selectChild(this.value);showPage('inicio')">${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===child.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div></div>
- <div class="daily-actions"><button class="btn success" onclick="openTodayRecord()">+ Registrar atividade</button><button class="btn primary" onclick="showPage('planejamento')">📅 Abrir planejamento</button><button class="btn" onclick="showPage('planejamento');openNewPlanForm()">+ Novo planejamento</button></div></div>
+ <div class="daily-actions"><button class="btn success daily-primary" onclick="openTodayRecord()">+ Registrar atividade</button><button class="btn daily-secondary" onclick="showPage('planejamento')">📅 Planejamento</button><button class="btn daily-tertiary" onclick="showPage('planejamento');openNewPlanForm()">+ Novo plano</button></div></div>
  ${latePlans.length?`<div class="card"><h3>Precisa de atenção</h3><div class="meta">Atividades planejadas que ficaram para trás.</div>${latePlans.map(planHtml).join('')}</div>`:''}
  <div class="card"><h3>Para hoje</h3>${todayPlans.map(planHtml).join('')||"<div class='notice'>Nada planejado para hoje. Você pode registrar uma atividade que aconteceu sem planejamento.</div>"}</div>
  ${futurePlans.length?`<div class="card"><h3>Próximos dias</h3>${futurePlans.map(p=>`<div class="plan-card record-clickable" onclick="openPlanFromDashboard('${p.id}')"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${p.place?`<div class="meta">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="entry-actions"><button class="btn success small" type="button" onclick="event.stopPropagation();startPlan('${p.id}')">+ Registrar atividade</button><button class="btn small" type="button" onclick="event.stopPropagation();openPlanFromDashboard('${p.id}')">Visualizar planejamento</button></div></div>`).join('')}<button class="btn" onclick="showPage('planejamento')">Ver todos os planejamentos</button></div>`:''}`;
@@ -7538,7 +7548,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "10.6";
+const APP_VERSION = "10.7";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

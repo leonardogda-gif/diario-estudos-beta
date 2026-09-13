@@ -1,5 +1,18 @@
-DIÁRIO DE ESTUDOS — v10.6
-LIMPEZA DO MERCADO PAGO + MELHORIA DAS SUGESTÕES BNCC
+DIÁRIO DE ESTUDOS — v10.7
+ENTRADA SIMPLIFICADA + HIERARQUIA DOS BOTÕES + SUGESTÕES BNCC
+
+NOVIDADES DA v10.7
+
+- Tela de entrada com um único botão "Entrar com Google".
+- Mensagem direta explicando que o login dá acesso e sincroniza os registros.
+- Promessa do armazenamento no Google Drive visível antes da entrada.
+- Remoção da linguagem técnica e da expressão "usuário de teste" da tela pública.
+- Identificação como acesso para famílias convidadas.
+- Na tela Hoje, "Registrar atividade" permanece como ação principal; Planejamento
+  e Novo plano aparecem como ações secundárias menores, lado a lado.
+
+Esta versão contém também todos os ajustes da v10.6 e toda a limpeza do Mercado
+Pago preparada na v10.5. É possível publicar diretamente a v10.7.
 
 NOVIDADE DESTA VERSÃO
 
@@ -37,7 +50,7 @@ ORDEM DE PUBLICAÇÃO
 
 1. Publique worker.js e confirme a versão 0.32-beta no Preview.
 2. Publique index.html, sw.js e version.json no GitHub Pages.
-3. Confirme v10.6 PWA e reabra o PWA para atualizar o cache.
+3. Confirme v10.7 PWA e reabra o PWA para atualizar o cache.
 4. No D1, execute d1-remove-mercadopago-v10_5.sql.
 
 O SQL DA ETAPA 4 APAGA SOMENTE
@@ -63,10 +76,10 @@ a aplicação de testes que não será mais utilizada.
 
 ARQUIVOS PRINCIPAIS
 
-- index.html — aplicativo v10.6
+- index.html — aplicativo v10.7
 - worker.js — API 0.32-beta
-- sw.js — cache diario-estudos-v10.6
-- version.json — versão pública 10.6
+- sw.js — cache diario-estudos-v10.7
+- version.json — versão pública 10.7
 - d1-remove-mercadopago-v10_5.sql — limpeza definitiva do D1
 - d1-access-grants-v10_5.sql — estrutura independente de acessos especiais
 
