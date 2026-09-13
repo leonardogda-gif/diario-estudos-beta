@@ -1,4 +1,17 @@
-DIÁRIO DE ESTUDOS — v9.3.2
+DIÁRIO DE ESTUDOS — v10.0
+
+NOVA EXPERIÊNCIA VISUAL E PLANOS
+- Visual do aplicativo aproximado da identidade profissional do site institucional.
+- Rodapé verde com marca, BNCC, privacidade, ajuda, termos e suporte.
+- Suporte abre https://www.meudiariodeestudos.com.br/suporte.html em nova aba.
+- Informações institucionais saíram da página Mais; nela permanecem plano, relatórios, configurações e administração.
+- Família sem assinatura vê os planos de forma elegante no início da página Hoje.
+- Família ativa não vê propaganda de dias gratuitos; visualiza plano e próxima renovação.
+- Beta tester, social, parceria e cortesia não veem preços nem botões de assinatura.
+- Planos iniciais: mensal R$ 29,90 e anual R$ 299,00, ambos configuráveis no ADM.
+- Botão Cancelar renovação confirma o cancelamento na API e preserva acesso até o fim do período concedido.
+- Os dias gratuitos passam a começar somente com a autorização do Mercado Pago.
+- Execute d1-billing-plans-v10_0.sql uma única vez antes do novo Worker.
 
 CONFIRMAÇÃO SEGURA DA ASSINATURA
 - O botão Atualizar situação agora procura no Mercado Pago a assinatura associada ao plano exclusivo da família.
@@ -36,7 +49,7 @@ CORREÇÃO VISUAL DA ANÁLISE EM LOTE
 - Durante o processamento, mostra “Analisando X de Y” e permanece bloqueado.
 - O painel de progresso agora aparece junto ao botão, antes da lista de registros.
 - A tela orienta a permanecer aberta até o término da rodada.
-- A lógica de classificação permanece a mesma; o Worker avança para 0.27.2-beta por causa da confirmação segura da cobrança.
+- A lógica de classificação permanece a mesma; o Worker avança para 0.28-beta por causa dos planos e cancelamento.
 
 CLASSIFICAÇÃO DE REGISTROS SEM BNCC
 - Em Histórico > Mais filtros foi criado o filtro “Vínculo curricular”.
@@ -57,8 +70,8 @@ CONTROLE DE CONSUMO DE IA
 - Classificação, embedding e seleção BNCC continuam contabilizados separadamente.
 - Nenhuma alteração no D1 é necessária quando a estrutura de ai_usage_events da v8.6 já estiver instalada.
 
-PUBLICAÇÃO DA v9.3.2 — ORDEM OBRIGATÓRIA
-1. Como a v9.3.1 já está instalada, execute somente d1-billing-sync-v9_3_2.sql no Console do D1. Em instalação nova, execute d1-billing-v9_3.sql.
+PUBLICAÇÃO DA v10.0 — ORDEM OBRIGATÓRIA
+1. Como a v9.3.2 já está instalada, execute somente d1-billing-plans-v10_0.sql no Console do D1. Em instalação nova, execute d1-billing-v9_3.sql.
 2. Confirme que MP_ACCESS_TOKEN_TEST continua cadastrado como Secret do Worker.
 3. Publique worker.js no Cloudflare Worker.
 4. No Mercado Pago, cadastre o webhook:
@@ -67,13 +80,14 @@ PUBLICAÇÃO DA v9.3.2 — ORDEM OBRIGATÓRIA
 6. Mantenha manifest.json, icons, logo-diario.png, vendor e os demais arquivos existentes.
 
 ARQUIVOS DO PACOTE
-- index.html — aplicativo v9.3.2.
-- sw.js — cache diario-estudos-v9.3.2.
-- version.json — identificador público v9.3.2.
-- worker.js — API 0.27.2-beta.
+- index.html — aplicativo v10.0.
+- sw.js — cache diario-estudos-v10.0.
+- version.json — identificador público v10.0.
+- worker.js — API 0.28-beta.
 - d1-billing-v9_3.sql — tabelas de cobrança, configuração, gratuidade e eventos.
 - d1-billing-plan-v9_3_1.sql — complemento para quem já executou o SQL da v9.3.
 - d1-billing-sync-v9_3_2.sql — complemento de confirmação segura para a v9.3.2.
+- d1-billing-plans-v10_0.sql — complemento de planos, cancelamento e preço anual.
 - vendor/zxing-browser.min.js — leitor de código de barras mantido da v8.9.
 - vendor/ZXING-LICENSE.txt — licença do ZXing.
 - d1-ai-usage-v8_6.sql — instalação completa do controle de IA para ambiente novo.

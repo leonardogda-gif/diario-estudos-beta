@@ -175,6 +175,22 @@ body:not(.auth-checking) #authBoot{display:none!important}
  #page-relatorios{display:block!important}
 }
 
+/* v10.0 — assinatura contextual e rodapé institucional */
+.billing-home{margin:0 0 14px;background:linear-gradient(135deg,#12382e,#1f5848);color:#fff;border-radius:18px;padding:24px;box-shadow:0 14px 34px rgba(18,56,46,.18)}
+.billing-home h2{font-size:25px;margin:0 0 7px}.billing-home p{margin:0;color:#dce9e3;line-height:1.55}.billing-home .meta{color:#dce9e3}
+.billing-state-compact{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.billing-plans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
+.billing-plan{background:#fff;color:#17332a;border-radius:14px;padding:16px;border:1px solid rgba(255,255,255,.3)}
+.billing-plan.featured{box-shadow:inset 0 0 0 2px #8eaf83}.billing-plan-name{font-size:13px;text-transform:uppercase;letter-spacing:.08em;font-weight:900;color:#5e715f}
+.billing-plan-price{font-size:27px;font-weight:900;margin:7px 0}.billing-plan-price span{font-size:12px;font-weight:700;color:#6a675d}
+.billing-plan .btn{width:100%;margin-top:10px}.billing-saving{display:inline-block;background:#dcebd7;color:#244d35;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:900}
+.billing-manage{background:#f4f0e6;border:1px solid #e0d8c8;border-radius:13px;padding:15px;margin:12px 0}
+.app-footer{background:#0d2e26;color:#fff;margin:28px -14px -14px;padding:34px max(22px,calc((100% - 1000px)/2));display:grid;grid-template-columns:1.2fr 1fr;gap:30px}
+.app-footer-brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:17px}.app-footer-brand img{width:40px;height:40px;object-fit:contain}
+.app-footer p{color:#d6e3de;max-width:480px;line-height:1.6;font-size:13px}.app-footer-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px 22px;align-content:start}
+.app-footer button,.app-footer a{background:none;border:0;padding:0;color:#fff;text-decoration:none;text-align:left;font:inherit;font-weight:800;cursor:pointer}.app-footer button:hover,.app-footer a:hover{text-decoration:underline}
+@media(max-width:650px){.billing-plans,.app-footer{grid-template-columns:1fr}.billing-home{padding:19px}.app-footer{margin-left:-14px;margin-right:-14px;padding:28px 22px}.app-footer-links{grid-template-columns:1fr 1fr}}
+
 /* v4.6.2 — status compacto no cabeçalho + navegação persistente */
 header{position:sticky;top:0;z-index:1000;padding:12px 16px 9px;box-shadow:0 1px 0 rgba(255,255,255,.08)}
 header h1{font-size:25px} header p{margin:4px 0 0}
@@ -904,7 +920,7 @@ details[open]>summary:after{content:"⌃"}
     <img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true">
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v9.3.2 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v10.0 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -991,6 +1007,7 @@ details[open]>summary:after{content:"⌃"}
     </div>
 
     <section id="page-inicio" class="page active">
+      <div id="dashboardBillingCard" class="hidden"></div>
       <div id="dashboard"></div>
     </section>
 
@@ -1275,15 +1292,8 @@ details[open]>summary:after{content:"⌃"}
         <div id="adminValidationNotice" class="admin-validation-notice hidden" onclick="showPage('administracao')">
           <span>🔔</span><div><b id="adminValidationNoticeTitle">Itens aguardando validação</b><div id="adminValidationNoticeText" class="meta"></div></div>
         </div>
-        <div class="drive-folder-card" style="margin-bottom:14px">
-          <div class="toolbar" style="justify-content:space-between;align-items:flex-start"><div><b>💳 Plano da família</b><div id="billingStatusText" class="meta" style="margin-top:4px">Verificando acesso…</div></div><span class="meta" style="background:#f3efe3;padding:5px 8px;border-radius:999px">Ambiente de teste</span></div>
-          <div id="billingCheckoutArea" class="hidden" style="margin-top:10px"><div class="meta">No checkout de teste, entre com o <b>Usuário TESTUSER…</b>, a senha e o código de verificação da conta Buyer.</div><div class="toolbar" style="margin-top:9px"><button id="billingSubscribeBtn" class="btn success" type="button" onclick="startBillingCheckout()">Começar assinatura</button><button class="btn small" type="button" onclick="syncBillingStatus()">Atualizar situação</button></div></div>
-        </div>
+        <div id="billingManageCard" class="billing-manage"><div class="toolbar" style="justify-content:space-between;align-items:flex-start"><div><b>💳 Plano da família</b><div id="billingStatusText" class="meta" style="margin-top:4px">Verificando acesso…</div></div><span class="meta" style="background:#e8e1d2;padding:5px 8px;border-radius:999px">Teste</span></div><div id="billingCheckoutArea" class="hidden"></div></div>
         <div class="grid">
-          <button class="btn" onclick="showPage('bncc-ajuda')">📘 Entenda a BNCC</button>
-          <button class="btn" onclick="showPage('bncc-como-encontramos')">✨ Como encontramos habilidades</button>
-          <button class="btn" onclick="showPage('privacidade')">🔒 Como tratamos seus dados</button>
-          <button class="btn" onclick="showPage('ajuda')">Ajuda e instalação</button>
           <button class="btn" onclick="showPage('relatorios')">Relatórios</button>
           <button class="btn" onclick="showPage('configuracoes')">Configurações</button>
           <button id="globalAdminMenuBtn" class="btn hidden" onclick="showPage('administracao')">Administração do Diário</button>
@@ -1585,7 +1595,7 @@ details[open]>summary:after{content:"⌃"}
 <div class="notice" style="margin-bottom:12px">Área exclusiva do administrador geral para gerenciar o catálogo compartilhado e os recursos técnicos do Diário de Estudos.</div>
 
 <details class="tech-details" open><summary>💳 Assinaturas e acessos gratuitos</summary><div class="drive-folder-card" style="margin-top:8px">
-  <div class="grid"><div><label class="field">Valor mensal em centavos</label><input id="adminBillingAmount" type="number" min="100" value="2990"></div><div><label class="field">Dias gratuitos</label><input id="adminBillingTrial" type="number" min="0" max="365" value="7"></div><div class="full"><label style="display:flex;gap:8px;align-items:center"><input id="adminBillingEnforcement" type="checkbox" style="width:auto"><span>Ativar bloqueio de edição por pagamento</span></label><div class="meta">Deixe desligado enquanto estivermos testando.</div></div></div>
+  <div class="grid"><div><label class="field">Valor mensal em centavos</label><input id="adminBillingAmount" type="number" min="100" value="2990"></div><div><label class="field">Valor anual em centavos</label><input id="adminBillingAnnualAmount" type="number" min="100" value="29900"></div><div><label class="field">Dias gratuitos</label><input id="adminBillingTrial" type="number" min="0" max="365" value="7"></div><div class="full"><label style="display:flex;gap:8px;align-items:center"><input id="adminBillingEnforcement" type="checkbox" style="width:auto"><span>Ativar bloqueio de edição por pagamento</span></label><div class="meta">Deixe desligado enquanto estivermos testando.</div></div></div>
   <div class="toolbar" style="margin-top:8px"><button class="btn small" type="button" onclick="saveAdminBillingConfig()">Salvar configuração</button><button class="btn small" type="button" onclick="loadAdminBilling()">Atualizar lista</button></div><hr>
   <div class="grid"><div class="full"><label class="field">Família</label><select id="adminGrantFamily"></select></div><div><label class="field">Tipo de acesso</label><select id="adminGrantType"><option value="beta_tester">Beta tester</option><option value="social">Acesso social</option><option value="partnership">Parceria</option><option value="courtesy">Cortesia</option></select></div><div><label class="field">Válido até (opcional)</label><input id="adminGrantEnds" type="date"></div><div class="full"><label class="field">Motivo</label><input id="adminGrantReason" placeholder="Ex.: família participante do beta inicial"></div></div>
   <div class="toolbar" style="margin-top:8px"><button class="btn success small" type="button" onclick="grantFamilyAccess()">Liberar acesso</button><button class="btn danger small" type="button" onclick="revokeFamilyAccess()">Remover gratuidade</button></div><div id="adminBillingFamilies" class="meta" style="margin-top:12px">Carregando famílias…</div>
@@ -1622,6 +1632,10 @@ details[open]>summary:after{content:"⌃"}
           <details class="tech-details" ontoggle="if(this.open){loadPendingCommunityBooks();}"><summary>📚 Livros aguardando validação</summary><div class="drive-folder-card" style="margin-top:8px"><div id="pendingCommunityBooksBox" class="meta">Carregando...</div></div></details>
           <details class="tech-details" ontoggle="if(this.open){loadPendingMaterials();loadBnccEmbeddingStatus();}"><summary>Materiais pendentes de validação</summary><div class="drive-folder-card" style="margin-top:8px"><div id="pendingMaterialsBox" class="meta">Carregando...</div><div id="bnccEmbeddingAdmin" style="margin-top:14px;border-top:1px solid #E8E1D2;padding-top:12px"><b>Busca semântica BNCC</b><div id="bnccEmbeddingStatus" class="meta" style="margin:6px 0">Verificando índice...</div><button type="button" class="btn dark small" id="bnccEmbeddingBuildBtn" onclick="buildBnccEmbeddings()">Preparar embeddings da BNCC</button></div></div></details>
 </div></section>
+    <footer class="app-footer no-print">
+      <div><div class="app-footer-brand"><img src="./logo-diario.png" alt=""><span>Meu Diário de Estudos</span></div><p>Organização da aprendizagem em família com planejamento, registros, leituras, relatórios e apoio à BNCC. Seus dados permanecem no Google Drive da família.</p></div>
+      <div class="app-footer-links"><button onclick="showPage('bncc-ajuda')">Entenda a BNCC</button><button onclick="showPage('bncc-como-encontramos')">Como encontramos habilidades</button><button onclick="showPage('privacidade')">Privacidade</button><button onclick="showPage('ajuda')">Ajuda e instalação</button><a href="https://www.meudiariodeestudos.com.br/termos.html" target="_blank" rel="noopener">Termos de uso</a><a href="https://www.meudiariodeestudos.com.br/suporte.html" target="_blank" rel="noopener">Suporte</a></div>
+    </footer>
   </div>
 </main>
 <div id="recordViewOverlay" class="record-view-overlay hidden no-print" onclick="if(event.target===this)closeRecordView()">
@@ -1863,7 +1877,7 @@ function showPage(name){
  if(name!=="leituras"&&typeof closeBookBarcodeScanner==="function")closeBookBarcodeScanner();
  document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id==="page-"+name));
  document.querySelectorAll(".nav-tab").forEach(x=>x.classList.toggle("active",x.dataset.page===name));
- if(name==="inicio")renderDashboard();
+ if(name==="inicio"){renderDashboard();loadBillingStatus()}
  if(name==="registro")renderRecordPage();
  if(name==="planejamento"){renderPlans();refreshCalendarIntegrationUI();checkImportedCalendarChanges();} if(name==="mais"){refreshCalendarIntegrationUI();checkAdminPendingValidations(false);loadBillingStatus();} if(name==="administracao"){updateAdminValidationNotificationStatus();loadAdminBilling();loadAdminAiUsage();loadPendingCommunityBooks();loadPendingMaterials();}
  if(name==="relatorios")renderReportPage();
@@ -3555,26 +3569,51 @@ async function backendFetch(path, options={}){
 
 let billingStatusData=null;
 function billingMoney(cents){return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(Number(cents||0)/100)}
+function billingDate(value){return value?new Date(value).toLocaleDateString("pt-BR"):""}
 function billingStatusLabel(data){
- const s=String(data?.subscription?.provider_status||"none");
+ const s=String(data?.subscription?.provider_status||"none").toLowerCase(),sub=data?.subscription||{};
  if(data?.grant){
   const names={beta_tester:"Beta tester",social:"Acesso social",partnership:"Parceria",courtesy:"Cortesia"};
   return `Acesso gratuito — ${names[data.grant.grant_type]||data.grant.grant_type}${data.grant.reason?` · ${data.grant.reason}`:""}`;
  }
- if(["authorized","active"].includes(s))return "Assinatura ativa";
+ if(["cancelled","canceled"].includes(s))return sub.access_until&&Date.parse(sub.access_until)>Date.now()?`Renovação cancelada · acesso completo até ${billingDate(sub.access_until)}`:"Assinatura encerrada · acesso para visualização";
+ if(["authorized","active"].includes(s)){
+  if(sub.trial_ends_at&&Date.parse(sub.trial_ends_at)>Date.now())return `Teste grátis ativo até ${billingDate(sub.trial_ends_at)}`;
+  return `Plano ${sub.plan_code==="annual"?"anual":"mensal"} ativo`;
+ }
  if(s==="pending")return "Assinatura aguardando confirmação";
- const end=data?.subscription?.trial_ends_at;
- if(end&&Date.parse(end)>Date.now())return `Período gratuito até ${new Date(end).toLocaleDateString("pt-BR")}`;
  return data?.enforcement_enabled?"Acesso somente para visualização":"Beta aberto — nenhuma função será bloqueada";
+}
+function billingPlansHtml(data){
+ const trial=Number(data?.plan?.trial_days||0),monthly=Number(data?.plan?.monthly_amount_cents||2990),annual=Number(data?.plan?.annual_amount_cents||29900),saving=Math.max(0,monthly*12-annual);
+ return `<div class="billing-plans"><div class="billing-plan"><div class="billing-plan-name">Plano mensal</div><div class="billing-plan-price">${billingMoney(monthly)} <span>/ mês</span></div><div class="meta">Flexibilidade para cancelar a próxima renovação.</div><button class="btn dark" type="button" onclick="startBillingCheckout('monthly',this)">${trial?`Começar ${trial} dias grátis`:"Assinar mensal"}</button></div><div class="billing-plan featured"><div class="billing-plan-name">Plano anual</div><div class="billing-plan-price">${billingMoney(annual)} <span>/ ano</span></div>${saving?`<span class="billing-saving">Economize ${billingMoney(saving)} no ano</span>`:""}<div class="meta" style="margin-top:7px">Um pagamento para doze meses de acesso.</div><button class="btn success" type="button" onclick="startBillingCheckout('annual',this)">${trial?`Começar ${trial} dias grátis`:"Assinar anual"}</button></div></div><div class="meta" style="margin-top:11px">No ambiente de teste, use a conta Buyer e mantenha “Usar saldo” desativado.</div>`;
+}
+function renderBillingUI(data){
+ const home=$("dashboardBillingCard"),text=$("billingStatusText"),area=$("billingCheckoutArea"),sub=data?.subscription||{},status=String(sub.provider_status||"none").toLowerCase();
+ const active=["authorized","active"].includes(status),canceled=["cancelled","canceled"].includes(status),label=billingStatusLabel(data),renewal=sub.current_period_end||sub.trial_ends_at;
+ if(text)text.innerHTML=`<b>${esc(label)}</b>${active&&renewal?`<br>Próxima cobrança ou renovação: ${esc(billingDate(renewal))}`:""}`;
+ if(data?.grant){
+  if(home){home.classList.remove("hidden");home.innerHTML=`<div class="billing-home billing-state-compact"><div><div class="billing-plan-name" style="color:#b9d1c6">Plano da família</div><h2>${esc(label)}</h2><p>Todos os recursos estão liberados. Nenhum preço ou cobrança se aplica a este acesso.</p></div><button class="btn" onclick="showPage('mais')">Ver detalhes</button></div>`}
+  if(area){area.classList.add("hidden");area.innerHTML=""}return;
+ }
+ if(active){
+  const trial=!!sub.trial_ends_at&&Date.parse(sub.trial_ends_at)>Date.now();
+  if(home){home.classList.remove("hidden");home.innerHTML=`<div class="billing-home billing-state-compact"><div><div class="billing-plan-name" style="color:#b9d1c6">${trial?"Período gratuito":"Assinatura confirmada"}</div><h2>${esc(label)}</h2><p>${trial?`A primeira cobrança será em ${esc(billingDate(sub.trial_ends_at))}.`:renewal?`Próxima renovação em ${esc(billingDate(renewal))}.`:"Seu acesso completo está liberado."}</p></div><button class="btn" onclick="showPage('mais')">Gerenciar plano</button></div>`}
+  if(area){area.classList.remove("hidden");area.innerHTML=`<div class="toolbar" style="margin-top:12px"><button class="btn small" onclick="syncBillingStatus()">Atualizar situação</button><button class="btn danger small" onclick="cancelBillingSubscription()">Cancelar renovação</button></div>`}return;
+ }
+ if(canceled){
+  if(home){home.classList.remove("hidden");home.innerHTML=`<div class="billing-home"><h2>${esc(label)}</h2><p>Seus registros permanecem guardados. Você pode escolher um novo plano quando quiser.</p>${billingPlansHtml(data)}</div>`}
+  if(area){area.classList.remove("hidden");area.innerHTML=`<div class="toolbar" style="margin-top:12px"><button class="btn small" onclick="syncBillingStatus()">Atualizar situação</button></div>`}return;
+ }
+ if(home){home.classList.remove("hidden");home.innerHTML=`<div class="billing-home"><div class="billing-plan-name" style="color:#b9d1c6">Seu Diário completo, sempre com você</div><h2>Escolha como continuar</h2><p>Experimente gratuitamente. Seus registros continuarão no Google Drive da família mesmo sem assinatura ativa.</p>${billingPlansHtml(data)}</div>`}
+ if(area){area.classList.remove("hidden");area.innerHTML=`<div class="meta" style="margin-top:9px">Escolha o plano no início da página Hoje.</div><button class="btn small" style="margin-top:8px" onclick="showPage('inicio')">Conhecer os planos</button>`}
 }
 async function loadBillingStatus(){
  const fam=currentBackendFamily(),text=$("billingStatusText"),area=$("billingCheckoutArea");
- if(!fam||!backendProfile?.user){if(text)text.textContent="Conecte sua família para consultar o plano.";area?.classList.add("hidden");return}
+ if(!fam||!backendProfile?.user){if(text)text.textContent="Conecte sua família para consultar o plano.";area?.classList.add("hidden");$("dashboardBillingCard")?.classList.add("hidden");return}
  try{
   const data=await backendFetch(`/billing/status?family_id=${encodeURIComponent(fam.id)}`);billingStatusData=data;
-  if(text)text.innerHTML=`<b>${esc(billingStatusLabel(data))}</b><br>${billingMoney(data?.plan?.monthly_amount_cents)} por mês · ${Number(data?.plan?.trial_days||0)} dias gratuitos`;
-  const providerActive=["authorized","active"].includes(String(data?.subscription?.provider_status||"").toLowerCase());
-  area?.classList.toggle("hidden",!!data?.grant||providerActive);
+  renderBillingUI(data);
  }catch(e){if(text)text.textContent="Não foi possível consultar o plano: "+e.message;area?.classList.add("hidden")}
 }
 async function syncBillingReturn(){
@@ -3586,11 +3625,16 @@ async function syncBillingReturn(){
   await loadBillingStatus();
  }catch(e){console.warn("Assinatura ainda não confirmada",e)}
 }
-async function startBillingCheckout(){
- const fam=currentBackendFamily(),btn=$("billingSubscribeBtn");
+async function startBillingCheckout(planCode="monthly",btn=null){
+ const fam=currentBackendFamily();
  if(!fam)return alert("Selecione uma família.");
- btn.disabled=true;btn.textContent="Abrindo Mercado Pago…";
- try{const data=await backendFetch("/billing/checkout",{method:"POST",body:JSON.stringify({family_id:fam.id})});if(!data?.init_point)throw new Error("O Mercado Pago não retornou o endereço do checkout.");location.href=data.init_point}catch(e){alert("Não foi possível iniciar a assinatura: "+e.message);btn.disabled=false;btn.textContent="Começar assinatura"}
+ const old=btn?.textContent;if(btn){btn.disabled=true;btn.textContent="Abrindo Mercado Pago…"}
+ try{const data=await backendFetch("/billing/checkout",{method:"POST",body:JSON.stringify({family_id:fam.id,plan_code:planCode})});if(!data?.init_point)throw new Error("O Mercado Pago não retornou o endereço do checkout.");location.href=data.init_point}catch(e){alert("Não foi possível iniciar a assinatura: "+e.message);if(btn){btn.disabled=false;btn.textContent=old||"Assinar"}}
+}
+async function cancelBillingSubscription(){
+ const fam=currentBackendFamily();if(!fam)return;
+ if(!confirm("Cancelar a renovação? O acesso completo continuará até o fim do período já concedido e nenhum registro será apagado."))return;
+ try{const data=await backendFetch("/billing/cancel",{method:"POST",body:JSON.stringify({family_id:fam.id})});billingStatusData=data;renderBillingUI(data);alert("Renovação cancelada. Seus dados continuam guardados.")}catch(e){alert("Não foi possível cancelar: "+e.message)}
 }
 async function syncBillingStatus(){
  const fam=currentBackendFamily();if(!fam)return;
@@ -3598,10 +3642,10 @@ async function syncBillingStatus(){
 }
 async function loadAdminBilling(){
  const box=$("adminBillingFamilies"),select=$("adminGrantFamily");if(!isGlobalDiaryAdmin)return;
- try{const data=await backendFetch("/admin/billing");const c=data.config||{},families=data.families||[];$("adminBillingAmount").value=c.monthly_amount_cents??2990;$("adminBillingTrial").value=c.trial_days??7;$("adminBillingEnforcement").checked=Number(c.enforcement_enabled||0)===1;if(select)select.innerHTML=families.map(f=>`<option value="${esc(f.id)}">${esc(f.name)}</option>`).join("");if(box)box.innerHTML=families.map(f=>`<div class="duplicate-card" style="margin-top:7px"><b>${esc(f.name)}</b><div class="meta">Mercado Pago: ${esc(f.provider_status||"não iniciado")}${f.grant_type?` · Gratuidade: ${esc(f.grant_type)} — ${esc(f.grant_reason||"")}`:""}</div></div>`).join("")||"Nenhuma família cadastrada."}catch(e){if(box)box.textContent="Não foi possível carregar: "+e.message}
+ try{const data=await backendFetch("/admin/billing");const c=data.config||{},families=data.families||[];$("adminBillingAmount").value=c.monthly_amount_cents??2990;$("adminBillingAnnualAmount").value=c.annual_amount_cents??29900;$("adminBillingTrial").value=c.trial_days??7;$("adminBillingEnforcement").checked=Number(c.enforcement_enabled||0)===1;if(select)select.innerHTML=families.map(f=>`<option value="${esc(f.id)}">${esc(f.name)}</option>`).join("");if(box)box.innerHTML=families.map(f=>`<div class="duplicate-card" style="margin-top:7px"><b>${esc(f.name)}</b><div class="meta">Mercado Pago: ${esc(f.provider_status||"não iniciado")}${f.plan_code?` · Plano: ${esc(f.plan_code)}`:""}${f.grant_type?` · Gratuidade: ${esc(f.grant_type)} — ${esc(f.grant_reason||"")}`:""}</div></div>`).join("")||"Nenhuma família cadastrada."}catch(e){if(box)box.textContent="Não foi possível carregar: "+e.message}
 }
 async function saveAdminBillingConfig(){
- try{await backendFetch("/admin/billing/config",{method:"PUT",body:JSON.stringify({monthly_amount_cents:Number($("adminBillingAmount").value||2990),trial_days:Number($("adminBillingTrial").value||0),enforcement_enabled:$("adminBillingEnforcement").checked})});alert("Configuração salva.");loadAdminBilling()}catch(e){alert("Não foi possível salvar: "+e.message)}
+ try{await backendFetch("/admin/billing/config",{method:"PUT",body:JSON.stringify({monthly_amount_cents:Number($("adminBillingAmount").value||2990),annual_amount_cents:Number($("adminBillingAnnualAmount").value||29900),trial_days:Number($("adminBillingTrial").value||0),enforcement_enabled:$("adminBillingEnforcement").checked})});alert("Configuração salva.");loadAdminBilling()}catch(e){alert("Não foi possível salvar: "+e.message)}
 }
 async function grantFamilyAccess(){
  const family_id=$("adminGrantFamily")?.value,grant_type=$("adminGrantType")?.value,reason=$("adminGrantReason")?.value.trim(),date=$("adminGrantEnds")?.value;
@@ -7465,7 +7509,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "9.3.2";
+const APP_VERSION = "10.0";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
