@@ -203,27 +203,6 @@ body:not(.auth-checking) #authBoot{display:none!important}
 @media(max-width:560px){.billing-plans{grid-template-columns:1fr}}
 .app-footer{width:100vw;margin:28px 0 0 calc(50% - 50vw);padding-left:max(22px,calc((100vw - 1000px)/2 + 14px));padding-right:max(22px,calc((100vw - 1000px)/2 + 14px))}
 body.app-authenticated main{padding-bottom:0}
-@media(max-width:650px){
- :root{--header-h:78px}
- header p{display:none}
- main{padding-left:12px;padding-right:12px}
- body.app-authenticated main{padding-bottom:0}
- .nav-wrap{position:fixed;z-index:1800;left:0;right:0;bottom:0;top:auto;margin:0;border-radius:18px 18px 0 0;overflow:visible;border-top:1px solid #D8D1C2;box-shadow:0 -5px 24px rgba(23,51,42,.14);padding-bottom:env(safe-area-inset-bottom)}
- .nav-tabs{width:100%;min-width:0;justify-content:stretch}
- .nav-tab{flex:1;min-width:0;padding:9px 2px 7px;border-bottom:0;border-top:3px solid transparent;display:flex;flex-direction:column;gap:2px;font-size:10px;font-weight:600;color:#777266}
- .nav-tab-icon{display:block}
- .nav-tab.active{background:#F5F1E7;border-bottom:0;border-top-color:#17332A;color:#17332A}
- .app-footer{grid-template-columns:1fr;width:100vw;margin:24px 0 0 calc(50% - 50vw);padding:30px 22px calc(92px + env(safe-area-inset-bottom));gap:22px}
- .app-footer-links{grid-template-columns:1fr 1fr}
- .more-action-grid{grid-template-columns:1fr}
- .app-install-banner,.app-update-banner{bottom:calc(76px + env(safe-area-inset-bottom))}
- .app-footer{display:none}
- body.mobile-footer-visible .app-footer{display:grid}
- .page.active{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
- body.mobile-footer-visible .page.active{padding-bottom:0}
- body.mobile-keyboard-open .app-install-banner,body.mobile-keyboard-open .app-update-banner{bottom:10px}
-}
-
 /* v4.6.2 — status compacto no cabeçalho + navegação persistente */
 header{position:sticky;top:0;z-index:1000;padding:12px 16px 9px;box-shadow:0 1px 0 rgba(255,255,255,.08)}
 header h1{font-size:25px} header p{margin:4px 0 0}
@@ -963,12 +942,34 @@ details[open]>summary:after{content:"⌃"}
 .analysis-next{margin-top:10px;padding-top:10px;border-top:1px solid #dde4df}
 .record-context-card{border:1px solid #e5ded0;border-radius:11px;background:#fbf8f1;padding:11px 12px}
 .record-context-card b{color:#35483f}
-/* v10.1 final: mantém a barra inferior acima das regras históricas */
+/* v11.3 — sistema visual unificado */
+input[type="checkbox"],input[type="radio"]{accent-color:#7FA574}
+.btn.primary,.btn.success,.btn.action-primary{background:#7FA574;color:#fff;border-color:#7FA574;font-weight:800}
+.btn.action-secondary{background:#E9E4D8;color:#292922;border:1px solid #E9E4D8}
+.btn.action-risk{background:#F3E1DE;color:#94473C;border:1px solid #DDB9B2}
+.status-pill{display:inline-flex;align-items:center;width:max-content;min-height:25px;padding:4px 9px;border-radius:999px;background:#E7EFE9;color:#365847;font-size:11px;font-weight:800;line-height:1.2}
+.child-selector{display:flex;gap:8px;flex-wrap:wrap}
+.child-selector .child,.child-tabs .child{border:1px solid #BFD0C5;background:#FFFDF8;color:#29483A;padding:9px 14px;border-radius:12px;font-weight:750;cursor:pointer}
+.child-selector .child.active,.child-tabs .child.active{background:#244D3B;color:#fff;border-color:#244D3B}
+.filter-panel{margin:8px 0 14px}.filter-panel>summary{display:flex;justify-content:space-between;gap:12px;padding:8px 2px;color:#5E6B64;font-size:12px;cursor:pointer}.filter-panel>summary span{font-weight:500;color:#89918C}
+.filter-panel-body{margin-top:8px;padding:12px;border:1px solid #E6E9E5;background:#FAFBF9;border-radius:12px}
+.title-with-icon{display:flex;align-items:center;gap:10px}.title-with-icon h2,.title-with-icon h3{margin:0}
+.title-icon-box{width:42px;height:42px;flex:0 0 42px;border-radius:12px;background:#F3EFE3;color:#17332A;display:inline-flex;align-items:center;justify-content:center}
+.title-icon-box svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.daily-actions .daily-secondary,.daily-actions .daily-tertiary{background:#E9E4D8;color:#292922;border:1px solid #E9E4D8;font-weight:700}
+.attention-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.attention-actions .attention-primary{grid-column:1/-1;width:100%;min-height:44px}.attention-actions .btn:not(.attention-primary){width:100%}
+.reading-actions .reading-primary{background:#7FA574;color:#fff;border-color:#7FA574;font-weight:800}
+.billing-plan.recommended{border-color:#9DB795;box-shadow:0 0 0 2px rgba(127,165,116,.12)}.billing-recommended{font-size:11px;font-weight:800;color:#365847}
+.environment-test{margin-top:9px;padding:7px 9px;border-radius:9px;background:#FFF5D9;color:#6A541E;font-size:11px;font-weight:700}
+.calendar-status-button{pointer-events:none;border-radius:999px!important;min-height:25px!important;padding:4px 9px!important;background:#E7EFE9!important;color:#365847!important;border:0!important;font-size:11px!important}
+/* bloco móvel único: mantém a barra inferior fixa e acima do conteúdo */
 body.app-authenticated main{padding-bottom:0}
 .app-footer{width:100vw;margin:28px 0 0 calc(50% - 50vw);padding-left:max(22px,calc((100vw - 1000px)/2 + 14px));padding-right:max(22px,calc((100vw - 1000px)/2 + 14px))}
 @media(max-width:650px){
  :root{--header-h:78px}
  header p{display:none}
+ main{padding-left:12px;padding-right:12px}
+ body.app-authenticated main{padding-bottom:0}
  .nav-wrap{position:fixed;z-index:1800;left:0;right:0;bottom:0;top:auto;margin:0;border-radius:18px 18px 0 0;overflow:visible;border-top:1px solid #D8D1C2;box-shadow:0 -5px 24px rgba(23,51,42,.14);padding-bottom:env(safe-area-inset-bottom)}
  .nav-tabs{width:100%;min-width:0;justify-content:stretch}
  .nav-tab{flex:1;min-width:0;padding:9px 2px 7px;border-bottom:0;border-top:3px solid transparent;display:flex;flex-direction:column;gap:2px;font-size:10px;font-weight:600;color:#777266}
@@ -976,7 +977,13 @@ body.app-authenticated main{padding-bottom:0}
  .nav-tab.active{background:#F5F1E7;border-bottom:0;border-top-color:#17332A;color:#17332A}
  .app-footer{grid-template-columns:1fr;width:100vw;margin:24px 0 0 calc(50% - 50vw);padding:30px 22px calc(92px + env(safe-area-inset-bottom));gap:22px}
  .app-footer-links{grid-template-columns:1fr 1fr}
+ .more-action-grid{grid-template-columns:1fr}
  .app-install-banner,.app-update-banner{bottom:calc(76px + env(safe-area-inset-bottom))}
+ .app-footer{display:none}
+ body.mobile-footer-visible .app-footer{display:grid}
+ .page.active{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
+ body.mobile-footer-visible .page.active{padding-bottom:0}
+ body.mobile-keyboard-open .app-install-banner,body.mobile-keyboard-open .app-update-banner{bottom:10px}
 }
 </style>
 </head>
@@ -986,7 +993,7 @@ body.app-authenticated main{padding-bottom:0}
     <img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true">
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · famílias convidadas · v11.2 PWA</p>
+  <p>Homeschooling alinhado à BNCC · famílias convidadas · v11.3 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -1143,18 +1150,18 @@ body.app-authenticated main{padding-bottom:0}
           <div style="margin-top:8px"><label class="field">Repetir até (opcional)</label><input id="planEndDate" type="date"></div>
         </div>
       </div><div class="toolbar" style="margin-top:10px"><button id="planSaveBtn" class="btn success" onclick="addPlan()">Salvar planejamento</button><button class="btn" onclick="cancelPlanEdit()">Cancelar</button></div></div>
-      <div class="card"><div class="toolbar" style="justify-content:space-between;align-items:flex-end"><div><h3 style="margin-bottom:3px">Agenda da família</h3><div class="meta">Veja tudo junto ou filtre por criança.</div></div></div><div id="planViewChildren" class="child-tabs" style="margin:12px 0"></div><div id="plansList"></div></div>
+      <div class="card"><div class="toolbar" style="justify-content:space-between;align-items:flex-end"><div><h3 style="margin-bottom:3px">Agenda da família</h3><div class="meta">Veja tudo junto ou filtre por criança.</div></div></div><div id="planViewChildren" class="child-tabs child-selector" style="margin:12px 0"></div><div id="plansList"></div></div>
     </section>
 
     
 <section id="page-leituras" class="page">
   <div class="card">
-    <h2 style="margin-top:12px">📚 Leituras</h2>
+    <div class="title-with-icon" style="margin-top:12px"><span class="title-icon-box" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H11v17H7.5A3.5 3.5 0 0 0 4 22zM20 5.5A3.5 3.5 0 0 0 16.5 2H13v17h3.5A3.5 3.5 0 0 1 20 22z"/></svg></span><h2>Leituras</h2></div>
     <div class="field-help">Cadastre os livros uma vez e registre cada momento de leitura como uma experiência da criança.</div>
 
     <div class="report-child-picker" style="margin-top:14px">
       <div class="meta" style="margin-bottom:7px">Criança</div>
-      <div id="readingChildButtons" class="child-tabs"></div>
+      <div id="readingChildButtons" class="child-tabs child-selector"></div>
     </div>
 
     <div id="readingCurrent"></div>
@@ -1210,14 +1217,14 @@ body.app-authenticated main{padding-bottom:0}
 <section id="page-relatorios" class="page">
       <div class="card">
         <div class="toolbar no-print">
-          <button class="btn dark" onclick="window.print()">Imprimir / Salvar PDF</button>
+          <button class="btn success action-primary" onclick="window.print()">Imprimir / Salvar PDF</button>
           <button class="btn" onclick="shareReportHtml()">Compartilhar relatório</button>
           <button class="btn report-profile-link" onclick="openReportInfoSettings()">⚙ Informações para relatório</button>
         </div>
         <h2 style="margin-top:12px">Relatórios</h2>
-        <div class="report-child-picker no-print"><div class="meta" style="margin-bottom:7px">Criança</div><div id="reportChildButtons" class="child-tabs"></div><select id="reportChild" class="hidden" onchange="renderReportPage()"></select></div>
-      <details class="report-filter-details no-print"><summary><b>Filtrar período e registros</b><span id="reportFilterLabel">Todos os registros</span></summary>
-      <div class="report-filters report-filters-subtle">
+        <div class="report-child-picker no-print"><div class="meta" style="margin-bottom:7px">Criança</div><div id="reportChildButtons" class="child-tabs child-selector"></div><select id="reportChild" class="hidden" onchange="renderReportPage()"></select></div>
+      <details class="report-filter-details filter-panel no-print"><summary><b>Mais filtros</b><span id="reportFilterLabel">Todos os registros</span></summary>
+      <div class="report-filters report-filters-subtle filter-panel-body">
         <div><label class="field">De</label><input id="reportFrom" type="date" onchange="renderReportPage()"></div>
         <div><label class="field">Até</label><input id="reportTo" type="date" onchange="renderReportPage()"></div>
         <div><label class="field">Avaliação</label><select id="reportStatus" onchange="renderReportPage()"><option value="">Todos</option><option>Precisa de revisão</option><option>Em progresso</option><option>Dominado</option></select></div>
@@ -1256,9 +1263,9 @@ body.app-authenticated main{padding-bottom:0}
             </div>
           </div>
 
-          <details style="margin-top:10px">
-            <summary><b>Mais filtros</b></summary>
-            <div class="grid" style="margin-top:10px">
+          <details class="filter-panel" style="margin-top:10px">
+            <summary><b>Mais filtros</b><span>Refinar resultados</span></summary>
+            <div class="grid filter-panel-body">
               <div>
                 <label class="field">Avaliação</label>
                 <select id="historyBrowseStatus" onchange="renderHistoryBrowser()">
@@ -3671,7 +3678,8 @@ async function refreshAsaasBilling(){
   }
   if(sub?.status==="past_due"){box.innerHTML=`<b>Pagamento pendente</b><div class="meta" style="margin-top:5px">Atualize a forma de pagamento no Asaas ou tente novamente.</div><button type="button" class="btn small" style="margin-top:10px" onclick="refreshAsaasBilling()">Atualizar situação</button>`;return}
   if(checkout?.status==="pending"){box.innerHTML=`<b>Checkout aguardando conclusão</b><div class="meta" style="margin-top:5px">Conclua o pagamento na janela segura do Asaas.</div><div class="row" style="margin-top:10px">${checkout.checkout_url?`<button type="button" class="btn success small" onclick="location.href='${esc(checkout.checkout_url)}'">Continuar pagamento</button>`:""}<button type="button" class="btn small" onclick="refreshAsaasBilling()">Atualizar situação</button></div>`;return}
-  box.innerHTML=`<b>Escolha o plano da família</b><div class="meta" style="margin-top:4px">Pagamento seguro no ambiente do Asaas. Sem período gratuito.</div><div class="billing-plans"><div class="billing-plan"><b>Plano mensal</b><div class="billing-price">R$ 39,90</div><div class="meta">Cobrança mensal. Cancele quando precisar.</div><button type="button" class="btn success" onclick="startAsaasCheckout('monthly',this)">Assinar mensal</button></div><div class="billing-plan"><b>Plano anual</b><div class="billing-price">R$ 359,10</div><span class="billing-saving">Economize 25%</span><div class="meta">Equivale a R$ 29,93 por mês.</div><button type="button" class="btn success" onclick="startAsaasCheckout('yearly',this)">Assinar anual</button></div></div><div class="meta" style="margin-top:9px">Ambiente de teste: nenhuma cobrança real será feita.</div>`;
+  const sandboxNotice=data.environment==="sandbox"?`<div class="environment-test">Teste do Asaas: nenhuma cobrança real será feita.</div>`:"";
+  box.innerHTML=`<b>Escolha o plano da família</b><div class="meta" style="margin-top:4px">Pagamento seguro no ambiente do Asaas. Sem período gratuito.</div><div class="billing-plans"><div class="billing-plan"><b>Plano mensal</b><div class="billing-price">R$ 39,90</div><div class="meta">Cobrança mensal. Cancele quando precisar.</div><button type="button" class="btn success" onclick="startAsaasCheckout('monthly',this)">Assinar mensal</button></div><div class="billing-plan recommended"><span class="billing-recommended">Melhor economia</span><b>Plano anual</b><div class="billing-price">R$ 359,10</div><span class="billing-saving">Economize 25%</span><div class="meta">Equivale a R$ 29,93 por mês.</div><button type="button" class="btn success" onclick="startAsaasCheckout('yearly',this)">Assinar anual</button></div></div>${sandboxNotice}`;
  }catch(e){box.innerHTML=`<b>Não foi possível consultar o plano</b><div class="meta" style="margin-top:5px">${esc(e.message||"Tente novamente.")}</div><button type="button" class="btn small" style="margin-top:9px" onclick="refreshAsaasBilling()">Tentar novamente</button>`}
 }
 async function startAsaasCheckout(plan,button){
@@ -4829,7 +4837,7 @@ function renderDashboard(){
  const td=today();
  const due=state.plans.filter(x=>planPendingForChild(x,child.id)&&!x.completedAt&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
  const todayPlans=due.filter(p=>(p.nextDate||p.date)===td),latePlans=due.filter(p=>(p.nextDate||p.date)<td),futurePlans=due.filter(p=>(p.nextDate||p.date)>td).slice(0,3);
- const planHtml=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div class="meta">👨‍👩‍👧‍👦 Planejamento compartilhado: ${esc(planChildNames(p).join(", "))}</div>`:""}<div class="meta">${esc(p.component||'')}</div>${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}','${child.id}')">✓ Concluir e registrar</button><button class="btn small" onclick="showPage('planejamento');editPlan('${p.id}')">Editar</button>${(p.nextDate||p.date)<td?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Reagendar próxima</button>`:''}</div></div>`;
+ const planHtml=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div class="meta">👨‍👩‍👧‍👦 Planejamento compartilhado: ${esc(planChildNames(p).join(", "))}</div>`:""}<div class="meta">${esc(p.component||'')}</div>${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="attention-actions"><button class="btn success attention-primary" onclick="startPlan('${p.id}','${child.id}')">✓ Concluir e registrar</button><button class="btn small" onclick="showPage('planejamento');editPlan('${p.id}')">Editar</button>${(p.nextDate||p.date)<td?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Reagendar próxima</button>`:''}</div></div>`;
  box.innerHTML=`<div class="card"><div class="grid" style="align-items:end"><div>${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje</h2><div class="meta">${fmtDate(td)}</div></div><div><label class="field">Criança</label><select onchange="selectChild(this.value);showPage('inicio')">${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===child.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div></div>
  <div class="daily-actions"><button class="btn success daily-primary" onclick="openTodayRecord()">+ Registrar atividade</button><button class="btn daily-secondary" onclick="showPage('planejamento')">📅 Planejamento</button><button class="btn daily-tertiary" onclick="showPage('planejamento');openNewPlanForm()">+ Novo plano</button></div></div>
  ${latePlans.length?`<div class="card"><h3>Precisa de atenção</h3><div class="meta">Atividades planejadas que ficaram para trás.</div>${latePlans.map(planHtml).join('')}</div>`:''}
@@ -6465,18 +6473,17 @@ async function ensureDiaryCalendar(createIfMissing=true){
 async function setupDiaryCalendar(){
  if(!googleAccessToken)return googleLogin();
  const status=$("calendarIntegrationStatus"),btn=$("calendarIntegrationBtn");if(status)status.textContent="Preparando o calendário…";if(btn)btn.disabled=true;
- try{const cal=await ensureDiaryCalendar(true);if(status)status.textContent=`Conectado · ${cal.summary||DIARY_CALENDAR_NAME}`;if(btn){btn.textContent="Conectado";btn.classList.add("success")}}
- catch(e){if(status)status.textContent=e.message||"Não foi possível conectar.";if(btn){btn.textContent="Tentar novamente";btn.classList.remove("success")}}
- finally{if(btn)btn.disabled=false}
+ try{const cal=await ensureDiaryCalendar(true);if(status)status.textContent=`Conectado · ${cal.summary||DIARY_CALENDAR_NAME}`;if(btn){btn.textContent="Conectado";btn.classList.add("calendar-status-button");btn.disabled=true}}
+ catch(e){if(status)status.textContent=e.message||"Não foi possível conectar.";if(btn){btn.textContent="Tentar novamente";btn.classList.remove("calendar-status-button");btn.disabled=false}}
 }
 async function refreshCalendarIntegrationUI(){
  const status=$("calendarIntegrationStatus"),btn=$("calendarIntegrationBtn");if(!status||!btn)return;
- if(!googleAccessToken){status.textContent="Entre com Google para conectar.";btn.textContent="Conectar";btn.classList.remove("success");return}
+ if(!googleAccessToken){status.textContent="Entre com Google para conectar.";btn.textContent="Conectar";btn.classList.remove("calendar-status-button");btn.disabled=false;return}
  try{
   const cal=await ensureDiaryCalendar(false);
-  if(cal){status.textContent=`Conectado · ${cal.summary||DIARY_CALENDAR_NAME}`;btn.textContent="Conectado";btn.classList.add("success")}
-  else{status.textContent="Disponível para conectar.";btn.textContent="Conectar";btn.classList.remove("success")}
- }catch(e){status.textContent="A integração precisa de autorização.";btn.textContent="Conectar";btn.classList.remove("success")}
+  if(cal){status.textContent=`Conectado · ${cal.summary||DIARY_CALENDAR_NAME}`;btn.textContent="Conectado";btn.classList.add("calendar-status-button");btn.disabled=true}
+  else{status.textContent="Disponível para conectar.";btn.textContent="Conectar";btn.classList.remove("calendar-status-button");btn.disabled=false}
+ }catch(e){status.textContent="A integração precisa de autorização.";btn.textContent="Conectar";btn.classList.remove("calendar-status-button");btn.disabled=false}
 }
 function calendarEventDate(ev){return ev?.start?.date||String(ev?.start?.dateTime||"").slice(0,10)||""}
 function calendarEventTimeLabel(ev){
@@ -6867,7 +6874,7 @@ function findFamilyReportAiSummary(childId,from,to,status,type,comp,rows){
  const candidates=Object.entries(all).map(([key,saved])=>{const p=key.split("::");if(p[0]==="v2"||p.length<7||!filters.every((v,i)=>String(p[i+1]||"")===String(v||"")))return null;const ids=String(p.slice(6).join("::")||"").split("|").map(x=>x.split(":")[0]).filter(Boolean),overlap=ids.filter(id=>currentIds.has(id)).length,childMatch=p[0]===stableChildId||p[0]===childId;return {saved,key,overlap,childMatch}}).filter(Boolean).filter(x=>x.childMatch||x.overlap>0).sort((a,b)=>(Number(b.childMatch)-Number(a.childMatch))||(b.overlap-a.overlap)||(ts(b.saved?.updatedAt)-ts(a.saved?.updatedAt)));
  return candidates[0]||{saved:null,key:stableKey};
 }
-function reportAiBox(childId,from,to,status,type,comp,rows){const found=findFamilyReportAiSummary(childId,from,to,status,type,comp,rows),saved=found.saved,cached=typeof saved==="string"?saved:saved?.text||"",currentFingerprint=reportRowsFingerprint(rows),savedFingerprint=saved?.fingerprint||(found.key?.startsWith("v2::")?"":found.key?.split("::").slice(6).join("::")),stale=!!cached&&!!savedFingerprint&&savedFingerprint!==currentFingerprint,hasRows=rows.length>0;return `<div class="ai-period-summary"><div class="ai-period-head"><div><h3>✨ Resumo do período</h3><div class="learning-section-intro" style="margin:0">Uma leitura breve dos registros selecionados, guardada para toda a família.</div></div>${hasRows?`<button class="btn small" type="button" onclick="generateReportAiSummary()">${cached?"↻ Atualizar resumo":"✨ Gerar resumo com IA"}</button>`:""}</div><div id="reportAiSummaryText" class="ai-period-text">${cached?esc(cached).replace(/\n/g,"<br>"):(hasRows?"Clique em “Gerar resumo com IA” para criar uma síntese deste período.":"Não há registros suficientes para gerar um resumo.")}</div><div id="reportAiSummaryLoading" class="ai-period-loading hidden">Analisando os registros do período...</div>${stale?`<div class="notice" style="margin-top:10px">Existem registros novos ou alterados desde este resumo. Você pode atualizá-lo quando quiser.</div>`:""}${saved?.updatedAt?`<div class="meta" style="margin-top:8px">Atualizado em ${esc(fmtDateTime(saved.updatedAt))}${saved.updatedBy?` por ${esc(saved.updatedBy)}`:""}.</div>`:""}<div class="ai-period-note">Resumo elaborado por IA. A família pode atualizar esta síntese quando quiser.</div></div>`}
+function reportAiBox(childId,from,to,status,type,comp,rows){const found=findFamilyReportAiSummary(childId,from,to,status,type,comp,rows),saved=found.saved,cached=typeof saved==="string"?saved:saved?.text||"",currentFingerprint=reportRowsFingerprint(rows),savedFingerprint=saved?.fingerprint||(found.key?.startsWith("v2::")?"":found.key?.split("::").slice(6).join("::")),stale=!!cached&&!!savedFingerprint&&savedFingerprint!==currentFingerprint,hasRows=rows.length>0;return `<div class="ai-period-summary"><div class="ai-period-head"><div><div class="title-with-icon"><span class="title-icon-box" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 1.4 4.1L17.5 8.5l-4.1 1.4L12 14l-1.4-4.1-4.1-1.4 4.1-1.4zM18.5 14l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8zM6 15l.7 1.8 1.8.7-1.8.7L6 20l-.7-1.8-1.8-.7 1.8-.7z"/></svg></span><h3>Resumo do período</h3></div><div class="learning-section-intro" style="margin:6px 0 0 52px">Uma leitura breve dos registros selecionados, guardada para toda a família.</div></div>${hasRows?`<button class="btn small" type="button" onclick="generateReportAiSummary()">${cached?"↻ Atualizar resumo":"Gerar resumo com IA"}</button>`:""}</div><div id="reportAiSummaryText" class="ai-period-text">${cached?esc(cached).replace(/\n/g,"<br>"):(hasRows?"Clique em “Gerar resumo com IA” para criar uma síntese deste período.":"Não há registros suficientes para gerar um resumo.")}</div><div id="reportAiSummaryLoading" class="ai-period-loading hidden">Analisando os registros do período...</div>${stale?`<div class="notice" style="margin-top:10px">Existem registros novos ou alterados desde este resumo. Você pode atualizá-lo quando quiser.</div>`:""}${saved?.updatedAt?`<div class="meta" style="margin-top:8px">Atualizado em ${esc(fmtDateTime(saved.updatedAt))}${saved.updatedBy?` por ${esc(saved.updatedBy)}`:""}.</div>`:""}<div class="ai-period-note">Resumo elaborado por IA. A família pode atualizar esta síntese quando quiser.</div></div>`}
 async function generateReportAiSummary(){const childId=$("reportChild")?.value||activeChildId,child=state.family.children.find(c=>c.id===childId);if(!child)return;const all=state.entries[childId]||[],from=$("reportFrom")?.value||"",to=$("reportTo")?.value||"",status=$("reportStatus")?.value||"",type=$("reportType")?.value||"",comp=$("reportComponent")?.value||"",rows=all.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!status||x.status===status)&&(!type||(type==="complementar"?!!x.complementaryActivityName:entrySkills(x).length>0))&&(!comp||entryComponents(x).includes(comp)));if(!rows.length)return alert("Não há registros neste período para resumir.");const period=reportPeriodText(from,to),key=reportAiKey(childId,from,to,status,type,comp),backendChildId=localToBackendChildId(child.id);if(!backendChildId)return alert("Sincronize a criança com a família antes de gerar o resumo.");$("reportAiSummaryLoading")?.classList.remove("hidden");try{const data=await backendFetch("/ai/report-summary",{method:"POST",body:JSON.stringify({child_id:backendChildId,child_name:child.name||"",reference_stage:child.stage||"",period,activities:rows.slice(0,120).map(x=>({date:x.date||"",activity:String(x.atividade||"").slice(0,500),component:entryComponents(x).join(", "),status:x.status||"",bncc_code:entrySkills(x).map(s=>s.code).filter(Boolean).join(", "),bncc_skill:entrySkills(x).map(s=>s.description).filter(Boolean).join(" | ").slice(0,500),notes:String(x.observacoes||"").slice(0,350)}))})});const text=String(data?.summary||"").trim();if(!text)throw new Error("A IA não retornou um resumo.");familyReportAiSummaries()[key]={text,fingerprint:reportRowsFingerprint(rows),recordCount:rows.length,updatedAt:now(),updatedBy:backendProfile?.user?.name||googleUser?.name||"Família"};state.family.updatedAt=now();saveLocal();renderReportPage()}catch(e){alert("Não foi possível gerar o resumo: "+(e.message||e))}finally{$("reportAiSummaryLoading")?.classList.add("hidden")}}
 
 
@@ -6900,7 +6907,7 @@ function renderReadingCards(books){
    <div><div class="book-title">${esc(b.title)}</div><div class="book-meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.publisher?" · "+esc(b.publisher):""}</div>
    <div style="margin-top:6px"><span class="reading-status">${esc(b.status||"Lendo")}</span>${b.catalog_status==="pending"?` <span class="reading-status">Aguardando validação</span>`:""}</div>
    <div class="book-reading-dates">${b.started_at?`<span>Início: <b>${fmtDate(b.started_at)}</b></span>`:""}${b.finished_at?`<span>Conclusão: <b>${fmtDate(b.finished_at)}</b></span>`:""}</div>
-   <div class="reading-actions"><button class="btn small primary" type="button" onclick="startReadingMoment('${b.id}')">+ Registrar momento de leitura</button><button class="btn small" type="button" onclick="editFamilyBookReading('${b.id}')">Editar leitura</button><button class="btn small" type="button" onclick="toggleBookFinished('${b.id}')">${b.status==="Concluído"?"Reabrir leitura":"Concluir livro"}</button><button class="btn danger small" type="button" onclick="deleteFamilyBookReading('${b.id}')">Excluir</button></div>
+   <div class="reading-actions"><button class="btn small success reading-primary" type="button" onclick="startReadingMoment('${b.id}')">+ Registrar momento de leitura</button><button class="btn small" type="button" onclick="editFamilyBookReading('${b.id}')">Editar leitura</button><button class="btn small" type="button" onclick="toggleBookFinished('${b.id}')">${b.status==="Concluído"?"Reabrir leitura":"Concluir livro"}</button><button class="btn danger small" type="button" onclick="deleteFamilyBookReading('${b.id}')">Excluir</button></div>
    </div>
   </div>`).join("")}</div>`:`<div class="notice" style="margin:14px 0">Nenhum livro cadastrado para esta criança ainda.</div>`
 }
@@ -7604,7 +7611,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "11.2";
+const APP_VERSION = "11.3";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
