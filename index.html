@@ -904,7 +904,7 @@ details[open]>summary:after{content:"⌃"}
     <img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true">
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v9.3 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v9.3.1 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -1277,7 +1277,7 @@ details[open]>summary:after{content:"⌃"}
         </div>
         <div class="drive-folder-card" style="margin-bottom:14px">
           <div class="toolbar" style="justify-content:space-between;align-items:flex-start"><div><b>💳 Plano da família</b><div id="billingStatusText" class="meta" style="margin-top:4px">Verificando acesso…</div></div><span class="meta" style="background:#f3efe3;padding:5px 8px;border-radius:999px">Ambiente de teste</span></div>
-          <div id="billingCheckoutArea" class="hidden" style="margin-top:10px"><label class="field">E-mail do pagador no Mercado Pago</label><input id="billingPayerEmail" type="email" placeholder="Use o e-mail da conta buyer no teste"><div class="meta" style="margin-top:5px">No teste, informe o e-mail da conta buyer. A assinatura continuará vinculada à família aberta no Diário.</div><div class="toolbar" style="margin-top:9px"><button id="billingSubscribeBtn" class="btn success" type="button" onclick="startBillingCheckout()">Começar assinatura</button><button class="btn small" type="button" onclick="syncBillingStatus()">Atualizar situação</button></div></div>
+          <div id="billingCheckoutArea" class="hidden" style="margin-top:10px"><div class="meta">No checkout de teste, entre com o <b>Usuário TESTUSER…</b>, a senha e o código de verificação da conta Buyer.</div><div class="toolbar" style="margin-top:9px"><button id="billingSubscribeBtn" class="btn success" type="button" onclick="startBillingCheckout()">Começar assinatura</button><button class="btn small" type="button" onclick="syncBillingStatus()">Atualizar situação</button></div></div>
         </div>
         <div class="grid">
           <button class="btn" onclick="showPage('bncc-ajuda')">📘 Entenda a BNCC</button>
@@ -3547,7 +3547,7 @@ async function backendFetch(path, options={}){
   let data=null;
   try{data=await response.json()}catch(e){}
   if(!response.ok){
-    const detail=(data?.error==="Erro interno"&&data?.detail)?data.detail:(data?.error||data?.detail||data?.message||("Backend HTTP "+response.status));
+    const detail=data?.detail?`${data?.error||"Erro"}: ${data.detail}`:(data?.error||data?.message||("Backend HTTP "+response.status));
     const err=new Error(detail);err.status=response.status;err.payload=data;throw err;
   }
   return data;
@@ -3557,7 +3557,10 @@ let billingStatusData=null;
 function billingMoney(cents){return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(Number(cents||0)/100)}
 function billingStatusLabel(data){
  const s=String(data?.subscription?.provider_status||"none");
- if(data?.grant)return `Acesso gratuito: ${data.grant.grant_type} — ${data.grant.reason}`;
+ if(data?.grant){
+  const names={beta_tester:"Beta tester",social:"Acesso social",partnership:"Parceria",courtesy:"Cortesia"};
+  return `Acesso gratuito — ${names[data.grant.grant_type]||data.grant.grant_type}${data.grant.reason?` · ${data.grant.reason}`:""}`;
+ }
  if(["authorized","active"].includes(s))return "Assinatura ativa";
  if(s==="pending")return "Assinatura aguardando confirmação";
  const end=data?.subscription?.trial_ends_at;
@@ -3570,14 +3573,14 @@ async function loadBillingStatus(){
  try{
   const data=await backendFetch(`/billing/status?family_id=${encodeURIComponent(fam.id)}`);billingStatusData=data;
   if(text)text.innerHTML=`<b>${esc(billingStatusLabel(data))}</b><br>${billingMoney(data?.plan?.monthly_amount_cents)} por mês · ${Number(data?.plan?.trial_days||0)} dias gratuitos`;
-  area?.classList.remove("hidden");if($("billingPayerEmail")&&!$("billingPayerEmail").value)$("billingPayerEmail").value=backendProfile?.user?.email||"";
+  area?.classList.toggle("hidden",!!data?.grant);
  }catch(e){if(text)text.textContent="Não foi possível consultar o plano: "+e.message;area?.classList.add("hidden")}
 }
 async function startBillingCheckout(){
- const fam=currentBackendFamily(),email=$("billingPayerEmail")?.value.trim(),btn=$("billingSubscribeBtn");
- if(!fam)return alert("Selecione uma família.");if(!email)return alert("Informe o e-mail da conta buyer do Mercado Pago.");
+ const fam=currentBackendFamily(),btn=$("billingSubscribeBtn");
+ if(!fam)return alert("Selecione uma família.");
  btn.disabled=true;btn.textContent="Abrindo Mercado Pago…";
- try{const data=await backendFetch("/billing/checkout",{method:"POST",body:JSON.stringify({family_id:fam.id,payer_email:email})});if(!data?.init_point)throw new Error("O Mercado Pago não retornou o endereço do checkout.");location.href=data.init_point}catch(e){alert("Não foi possível iniciar a assinatura: "+e.message);btn.disabled=false;btn.textContent="Começar assinatura"}
+ try{const data=await backendFetch("/billing/checkout",{method:"POST",body:JSON.stringify({family_id:fam.id})});if(!data?.init_point)throw new Error("O Mercado Pago não retornou o endereço do checkout.");location.href=data.init_point}catch(e){alert("Não foi possível iniciar a assinatura: "+e.message);btn.disabled=false;btn.textContent="Começar assinatura"}
 }
 async function syncBillingStatus(){
  const fam=currentBackendFamily();if(!fam)return;
@@ -7451,7 +7454,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "9.3";
+const APP_VERSION = "9.3.1";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
