@@ -216,7 +216,6 @@ body.app-authenticated main{padding-bottom:0}
  body.mobile-footer-visible .app-footer{display:grid}
  .page.active{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
  body.mobile-footer-visible .page.active{padding-bottom:0}
- body.mobile-keyboard-open .nav-wrap{display:none}
  body.mobile-keyboard-open .app-install-banner,body.mobile-keyboard-open .app-update-banner{bottom:10px}
 }
 
@@ -982,7 +981,7 @@ body.app-authenticated main{padding-bottom:0}
     <img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true">
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · famílias convidadas · v10.8 PWA</p>
+  <p>Homeschooling alinhado à BNCC · famílias convidadas · v10.9 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -7573,7 +7572,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "10.8";
+const APP_VERSION = "10.9";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

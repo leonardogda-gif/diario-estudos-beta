@@ -1,5 +1,16 @@
-DIÁRIO DE ESTUDOS — v10.7
-ENTRADA SIMPLIFICADA + HIERARQUIA DOS BOTÕES + SUGESTÕES BNCC
+DIÁRIO DE ESTUDOS — v10.9
+CORREÇÃO DA NAVEGAÇÃO INFERIOR NO CELULAR
+
+CORREÇÃO DA v10.9
+
+- A barra inferior permanece visível ao selecionar criança, período ou filtros.
+- Removida a regra que ocultava a navegação ao interpretar um seletor como teclado.
+- Preservados o badge do Histórico, o card "Precisa de classificação" e o fluxo
+  de classificação em lote já mesclados no GitHub.
+
+Para esta correção, publique index.html, sw.js e version.json.
+
+HISTÓRICO DA v10.7
 
 NOVIDADES DA v10.7
 
