@@ -962,6 +962,7 @@ input[type="checkbox"],input[type="radio"]{accent-color:#7FA574}
 .billing-plan.recommended{border-color:#9DB795;box-shadow:0 0 0 2px rgba(127,165,116,.12)}.billing-recommended{font-size:11px;font-weight:800;color:#365847}
 .environment-test{margin-top:9px;padding:7px 9px;border-radius:9px;background:#FFF5D9;color:#6A541E;font-size:11px;font-weight:700}
 .calendar-status-button{pointer-events:none;border-radius:999px!important;min-height:25px!important;padding:4px 9px!important;background:#E7EFE9!important;color:#365847!important;border:0!important;font-size:11px!important}
+#printableReport{display:none}
 /* bloco móvel único: mantém a barra inferior fixa e acima do conteúdo */
 body.app-authenticated main{padding-bottom:0}
 .app-footer{width:100vw;margin:28px 0 0 calc(50% - 50vw);padding-left:max(22px,calc((100vw - 1000px)/2 + 14px));padding-right:max(22px,calc((100vw - 1000px)/2 + 14px))}
@@ -985,6 +986,25 @@ body.app-authenticated main{padding-bottom:0}
  body.mobile-footer-visible .page.active{padding-bottom:0}
  body.mobile-keyboard-open .app-install-banner,body.mobile-keyboard-open .app-update-banner{bottom:10px}
 }
+@media print{
+ @page{size:A4;margin:18mm 16mm}
+ body>*:not(#printableReport){display:none!important}
+ html,body{background:#fff!important;margin:0!important;padding:0!important;width:auto!important;min-height:0!important}
+ #printableReport{display:block!important;position:static!important;width:auto!important;margin:0!important;padding:0!important;background:#fff!important;color:#1E241F!important}
+ .print-doc{font-family:Arial,Helvetica,sans-serif;font-size:10.5pt;line-height:1.5;color:#1E241F}
+ .print-doc-header{display:flex;align-items:center;gap:12px;border-bottom:2px solid #17332A;padding-bottom:11px;margin-bottom:16px}
+ .print-doc-header img{width:42px;height:42px;object-fit:contain}.print-doc-header h1{font-family:"Fraunces",Georgia,serif;font-size:21pt;line-height:1.1;margin:0;color:#17332A}.print-doc-header p{margin:3px 0 0;color:#626A64;font-size:9.5pt}
+ .print-doc section{margin:0 0 17px}.print-doc h2{font-family:"Fraunces",Georgia,serif;font-size:14pt;color:#17332A;border-bottom:1px solid #C9D2CC;padding-bottom:4px;margin:0 0 10px}.print-doc h3{font-size:11.5pt;margin:2px 0 5px}.print-doc p{margin:5px 0}
+ .print-profile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 18px}.print-profile-grid>div{border-bottom:1px solid #E4E7E4;padding-bottom:5px}.print-profile-grid span{display:block;text-transform:uppercase;letter-spacing:.03em;color:#6C746E;font-size:7.5pt}.print-profile-grid b{display:block;font-size:9.5pt}
+ .print-counts{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:9px}.print-counts>div{border:1px solid #D9E1DC;border-radius:7px;padding:7px;text-align:center;background:#F6F8F6}.print-counts b{display:block;font-size:15pt;color:#17332A}.print-counts span{font-size:7.5pt;color:#66706A}
+ .print-components{display:flex;flex-wrap:wrap;gap:5px}.print-components span{border:1px solid #D9E1DC;border-radius:999px;padding:3px 7px;font-size:8pt}
+ .print-doc-summary{border:1px solid #D9E1DC;border-radius:8px;padding:11px 13px;background:#F7F9F7}.print-doc-summary h2{margin-top:0}.print-doc-summary p{white-space:normal}
+ .print-bncc-list{display:grid;gap:7px}.print-bncc-list>div{border-left:3px solid #7FA574;padding:4px 0 4px 9px;break-inside:avoid}.print-bncc-list p{font-size:8.5pt;color:#4F5751;margin:2px 0}
+ .print-entry{break-inside:avoid;border-bottom:1px solid #DDE2DE;padding:0 0 11px;margin:0 0 12px}.print-entry:last-child{border-bottom:0}.print-entry-date{font-size:8pt;text-transform:uppercase;letter-spacing:.03em;color:#657069}.print-entry-meta{font-size:8.5pt;color:#4F5952;margin-top:3px}.print-skills{font-size:8.5pt;margin:5px 0;display:grid;gap:3px}.print-skills>div{border-left:2px solid #A9B9AF;padding-left:7px}
+ .print-entry-photos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:8px}.print-entry-photos img{display:block;width:100%;height:55mm;object-fit:cover;border-radius:5px}
+ .print-books{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.print-books>div{display:grid;grid-template-columns:auto 1fr;gap:8px;border:1px solid #DDE2DE;border-radius:7px;padding:7px;break-inside:avoid}.print-books img{width:28px;height:40px;object-fit:cover;border-radius:3px}.print-books p{font-size:8pt;color:#626A64;margin:2px 0}
+ .print-doc-footer{margin-top:24px;padding-top:8px;border-top:1px solid #C9D2CC;color:#747B76;text-align:center;font-size:8pt}
+}
 </style>
 </head>
 <body class="auth-checking">
@@ -993,7 +1013,7 @@ body.app-authenticated main{padding-bottom:0}
     <img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true">
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · famílias convidadas · v11.3 PWA</p>
+  <p>Homeschooling alinhado à BNCC · famílias convidadas · v11.4 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -1217,7 +1237,7 @@ body.app-authenticated main{padding-bottom:0}
 <section id="page-relatorios" class="page">
       <div class="card">
         <div class="toolbar no-print">
-          <button class="btn success action-primary" onclick="window.print()">Imprimir / Salvar PDF</button>
+          <button class="btn success action-primary" onclick="printReport()">Imprimir / Salvar PDF</button>
           <button class="btn" onclick="shareReportHtml()">Compartilhar relatório</button>
           <button class="btn report-profile-link" onclick="openReportInfoSettings()">⚙ Informações para relatório</button>
         </div>
@@ -1729,6 +1749,7 @@ body.app-authenticated main{padding-bottom:0}
 <div id="recordViewOverlay" class="record-view-overlay hidden no-print" onclick="if(event.target===this)closeRecordView()">
   <div id="recordViewCard" class="record-view-card" role="dialog" aria-modal="true" aria-label="Visualizar registro"></div>
 </div>
+<div id="printableReport" aria-hidden="true"></div>
 
 <script>
 const GOOGLE_CLIENT_ID = "629410527657-f5b9r4o0jvcvf0517oracmhpvhsj19pn.apps.googleusercontent.com";
@@ -7220,18 +7241,27 @@ function renderCompletedBooksReportSection(books){
  return `<div class="report-books-grid">${books.map(b=>`<div class="report-book-card">${b.thumbnail?`<img src="${esc(b.thumbnail)}" alt="">`:""}<div><b>${esc(b.title||"Livro")}</b><div class="meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}</div><div class="book-reading-dates">${b.started_at?`<span>Início: <b>${fmtDate(b.started_at)}</b></span>`:""}${b.finished_at?`<span>Conclusão: <b>${fmtDate(b.finished_at)}</b></span>`:""}</div></div></div>`).join("")}</div>`
 }
 
+function getReportContext(){
+ const childId=$("reportChild")?.value||activeChildId;
+ const child=state.family.children.find(c=>c.id===childId);
+ if(!child)return null;
+ const from=$("reportFrom")?.value||"",to=$("reportTo")?.value||"",status=$("reportStatus")?.value||"",type=$("reportType")?.value||"",comp=$("reportComponent")?.value||"",reading=$("reportReading")?.value||"";
+ let rows=[...(state.entries[childId]||[])].filter(x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!status||x.status===status)&&(!type||(type==="complementar"?!!x.complementaryActivityName:entrySkills(x).length>0))&&(!comp||entryComponents(x).includes(comp)));
+ if(reading==="reading_records")rows=rows.filter(isReadingReportEntry);
+ const period=reportPeriodText(from,to);
+ const found=findFamilyReportAiSummary(childId,from,to,status,type,comp,rows);
+ const cachedAiSummary=typeof found.saved==="string"?found.saved:String(found.saved?.text||"");
+ return {childId,child,from,to,status,type,comp,reading,rows,period,completedBooks:completedReportBooks(childId,from,to),cachedAiSummary};
+}
+
 function renderReportPage(){
- let childId=$("reportChild")?.value||activeChildId;if(!childId)return;
- let all=state.entries[childId]||[],from=$("reportFrom")?.value||"",to=$("reportTo")?.value||"",status=$("reportStatus")?.value||"",type=$("reportType")?.value||"",comp=$("reportComponent")?.value||"",reading=$("reportReading")?.value||"";
- let f=all.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!status||x.status===status)&&(!type||(type==="complementar"?!!x.complementaryActivityName:entrySkills(x).length>0))&&(!comp||entryComponents(x).includes(comp)));
- if(reading==="reading_records")f=f.filter(isReadingReportEntry);
- const completedBooks=completedReportBooks(childId,from,to);
+ const context=getReportContext();if(!context)return;
+ const {childId,child,from,to,status,type,comp,reading,period,completedBooks}=context;
+ const f=context.rows;
 
  let counts={dom:f.filter(x=>x.status==="Dominado").length,prog:f.filter(x=>x.status==="Em progresso").length,rev:f.filter(x=>x.status==="Precisa de revisão").length};
  if($("reportSummary"))$("reportSummary").innerHTML=`<div class="stat"><b>${f.length}</b><span>Atividades</span></div><div class="stat"><b>${counts.rev}</b><span>Revisão</span></div><div class="stat"><b>${counts.prog}</b><span>Em progresso</span></div><div class="stat"><b>${counts.dom}</b><span>Dominado</span></div>`;
 
- const child=state.family.children.find(c=>c.id===childId);
- if(!child)return;
  const cInfo=reportInfoForChild(child);
  const famInfo=state.family.reportInfo||{};
  const reportName=cInfo.fullName||child.name;
@@ -7240,7 +7270,6 @@ function renderReportPage(){
  const schoolYear=cInfo.schoolYear||String(new Date().getFullYear());
  const location=[famInfo.city,famInfo.state].filter(Boolean).join(" / ");
  const responsible=[famInfo.responsibleName,famInfo.responsibleRelation?`(${famInfo.responsibleRelation})`:""].filter(Boolean).join(" ");
- const period=reportPeriodText(from,to);
 
  const profileItems=[
    ["Criança",reportName],
@@ -7307,6 +7336,55 @@ function renderReportPage(){
  </div>`}
  <details style="margin-top:14px"><summary><b>Ver relatório detalhado</b></summary><div style="margin-top:12px">` + (reportHeader+overview+pathHeader+`<h3 class="report-section-title">Atividades realizadas</h3>`+(activities||"<div class='notice'>Nenhum registro para os filtros selecionados.</div>")) + `</div></details>`;
 }
+
+function renderPrintEntry(entry){
+ const components=entryComponents(entry),skills=entrySkills(entry),photos=entryPhotos(entry);
+ return `<article class="print-entry">
+  <div class="print-entry-date">${esc(fmtDate(entry.date))}${entry.status?` · ${esc(entry.status)}`:""}</div>
+  <h3>${esc(entry.atividade||"Atividade")}</h3>
+  ${components.length?`<div class="print-entry-meta"><b>Componentes:</b> ${esc(components.join(", "))}</div>`:""}
+  ${skills.length?`<div class="print-skills">${skills.map(skill=>`<div><b>${esc(skill.code||"")}</b>${skill.description?` — ${esc(skill.description)}`:""}</div>`).join("")}</div>`:""}
+  ${entry.materialName?`<div class="print-entry-meta"><b>Material:</b> ${esc(entry.materialName)}</div>`:""}
+  ${entry.observacoes?`<p>${esc(entry.observacoes).replace(/\n/g,"<br>")}</p>`:""}
+  ${photos.length?`<div class="print-entry-photos">${photos.map(photo=>`<img src="${photoDisplayData(photo)}" alt="Evidência do registro">`).join("")}</div>`:""}
+  ${entry.audio?`<div class="print-entry-meta">Áudio anexado ao registro digital.</div>`:""}
+ </article>`;
+}
+
+function buildPrintableReport(){
+ const context=getReportContext(),target=$("printableReport");
+ if(!context||!target)return false;
+ const {child,rows,period,completedBooks,cachedAiSummary,reading}=context,cInfo=reportInfoForChild(child),famInfo=state.family.reportInfo||{};
+ const reportName=cInfo.fullName||child.name,stage=child.stage||"Sem ano de referência",responsible=[famInfo.responsibleName,famInfo.responsibleRelation?`(${famInfo.responsibleRelation})`:""].filter(Boolean).join(" ");
+ const profileItems=[["Criança",reportName],["Período",period],["Ano / série",stage],["Ano letivo",cInfo.schoolYear||String(new Date().getFullYear())],["Responsável / educador",responsible],["Modalidade",famInfo.modality||""],["Instituição",famInfo.institution||""],["Cidade / UF",[famInfo.city,famInfo.state].filter(Boolean).join(" / ")]].filter(item=>item[1]);
+ const counts={total:rows.length,dom:rows.filter(x=>x.status==="Dominado").length,prog:rows.filter(x=>x.status==="Em progresso").length,rev:rows.filter(x=>x.status==="Precisa de revisão").length};
+ const componentCounts={};rows.forEach(entry=>(entryComponents(entry).length?entryComponents(entry):["Sem componente"]).forEach(name=>componentCounts[name]=(componentCounts[name]||0)+1));
+ const components=Object.entries(componentCounts).sort((a,b)=>a[0].localeCompare(b[0],"pt-BR"));
+ const uniqueSkills=new Map();rows.forEach(entry=>entrySkills(entry).forEach(skill=>{if(skill.code&&!uniqueSkills.has(skill.code))uniqueSkills.set(skill.code,skill)}));
+ const books=(reading==="completed_books"||completedBooks.length)?completedBooks:[];
+ target.innerHTML=`<div class="print-doc">
+  <header class="print-doc-header"><img src="./logo-diario.png" alt=""><div><h1>Diário de Estudos</h1><p>Relatório de atividades educacionais</p></div></header>
+  <section class="print-doc-identification"><h2>Identificação</h2><div class="print-profile-grid">${profileItems.map(([label,value])=>`<div><span>${esc(label)}</span><b>${esc(value)}</b></div>`).join("")}</div>${cInfo.notes?`<p><b>Observações gerais:</b> ${esc(cInfo.notes)}</p>`:""}</section>
+  <section><h2>Visão geral do período</h2><div class="print-counts"><div><b>${counts.total}</b><span>Registros</span></div><div><b>${counts.dom}</b><span>Dominados</span></div><div><b>${counts.prog}</b><span>Em progresso</span></div><div><b>${counts.rev}</b><span>Para revisão</span></div></div>${components.length?`<div class="print-components">${components.map(([name,count])=>`<span>${esc(name)} · <b>${count}</b></span>`).join("")}</div>`:""}</section>
+  ${cachedAiSummary?`<section class="print-doc-summary"><h2>Resumo do período</h2><p>${esc(cachedAiSummary).replace(/\n/g,"<br>")}</p></section>`:""}
+  ${uniqueSkills.size?`<section><h2>Habilidades BNCC trabalhadas</h2><div class="print-bncc-list">${[...uniqueSkills.values()].map(skill=>`<div><b>${esc(skill.code)}</b>${skill.curricular_component?` · ${esc(skill.curricular_component)}`:""}${skill.description?`<p>${esc(skill.description)}</p>`:""}</div>`).join("")}</div></section>`:""}
+  ${books.length?`<section><h2>Livros concluídos</h2><div class="print-books">${books.map(book=>`<div>${book.thumbnail?`<img src="${esc(book.thumbnail)}" alt="">`:""}<div><b>${esc(book.title||"Livro")}</b><p>${esc((book.authors||[]).join(", ")||"Autor não informado")}${book.finished_at?` · concluído em ${esc(fmtDate(book.finished_at))}`:""}</p></div></div>`).join("")}</div></section>`:""}
+  ${reading!=="completed_books"?`<section class="print-doc-entries"><h2>Registros</h2>${rows.length?rows.slice().sort((a,b)=>String(a.date||"").localeCompare(String(b.date||""))).map(renderPrintEntry).join(""):`<p>Nenhum registro para os filtros selecionados.</p>`}</section>`:""}
+  <footer class="print-doc-footer">Gerado em ${esc(fmtDateTime(now()))} · Meu Diário de Estudos</footer>
+ </div>`;
+ target.setAttribute("aria-hidden","false");
+ return true;
+}
+
+async function printReport(){
+ if(!buildPrintableReport())return alert("Selecione uma criança para gerar o relatório.");
+ const target=$("printableReport"),images=[...target.querySelectorAll("img")];
+ await Promise.allSettled(images.map(img=>img.complete?Promise.resolve():img.decode?.()||new Promise(resolve=>{img.onload=img.onerror=resolve})));
+ await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+ window.print();
+}
+window.addEventListener("afterprint",()=>$("printableReport")?.setAttribute("aria-hidden","true"));
+
 async function shareReportHtml(){
  let child=state.family.children.find(c=>c.id===($("reportChild")?.value||activeChildId)),content=$("reportContent")?.innerHTML||"";
  if(!child)return;
@@ -7611,7 +7689,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "11.3";
+const APP_VERSION = "11.4";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
