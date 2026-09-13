@@ -704,6 +704,11 @@ details>summary:after{
 details[open]>summary:after{content:"⌃"}
 
 /* Histórico: busca e filtros com menos ruído */
+.nav-tab{position:relative}
+.history-pending-badge{position:absolute;top:2px;left:calc(50% + 8px);min-width:20px;height:20px;padding:0 5px;display:flex;align-items:center;justify-content:center;border:2px solid #fff;border-radius:999px;background:#D68719;color:#fff;font-size:10px;font-weight:900;line-height:1;box-sizing:border-box}
+.history-attention-card{margin-top:14px;padding:16px;border:1px solid #E8C98F;border-radius:14px;background:#FFF6E5;color:#44351F}
+.history-attention-card h3{margin:0 0 5px;color:#3C3020}
+.history-attention-card .btn{width:100%;margin-top:12px;background:#C78918;border-color:#C78918;color:#fff}
 .filters,.filter-box,.history-filters{
   background:#fff;
   border:1px solid var(--v522-line)!important;
@@ -977,7 +982,7 @@ body.app-authenticated main{padding-bottom:0}
     <img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true">
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · famílias convidadas · v10.7 PWA</p>
+  <p>Homeschooling alinhado à BNCC · famílias convidadas · v10.8 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -1059,7 +1064,7 @@ body.app-authenticated main{padding-bottom:0}
         <button class="nav-tab active" data-page="inicio" onclick="showPage('inicio')"><svg class="nav-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg><span>Hoje</span></button>
         <button class="nav-tab" data-page="planejamento" onclick="showPage('planejamento')"><svg class="nav-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>Planejar</span></button>
         <button class="nav-tab" data-page="leituras" onclick="showPage('leituras')"><svg class="nav-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H11v17H7.5A3.5 3.5 0 0 0 4 22zM20 5.5A3.5 3.5 0 0 0 16.5 2H13v17h3.5A3.5 3.5 0 0 1 20 22z"/></svg><span>Leituras</span></button>
-        <button class="nav-tab" data-page="historico" onclick="showPage('historico')"><svg class="nav-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Histórico</span></button>
+        <button class="nav-tab" data-page="historico" onclick="showPage('historico')"><svg class="nav-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Histórico</span><span id="historyPendingBadge" class="history-pending-badge hidden" aria-label="Registros aguardando classificação"></span></button>
         <button class="nav-tab" data-page="mais" onclick="showPage('mais')"><svg class="nav-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg><span>Mais</span></button>
       </nav>
     </div>
@@ -1222,6 +1227,7 @@ body.app-authenticated main{padding-bottom:0}
     <section id="page-historico" class="page">
       <div class="card">
         <h2>Histórico</h2><div class="field-help">Encontre rapidamente o que foi registrado. Use mais filtros somente quando precisar.</div>
+        <div id="historyClassificationAttention" class="history-attention-card hidden"></div>
         
         <div class="notice">Consulte abaixo todos os registros da criança selecionada. As ferramentas para registros antigos continuam disponíveis mais abaixo.</div>
 
@@ -1267,13 +1273,11 @@ body.app-authenticated main{padding-bottom:0}
                 </select>
               </div>
               <div>
-                <label class="field">Vínculo curricular</label>
+                <label class="field">Situação da classificação</label>
                 <select id="historyBrowseLink" onchange="historyBrowseLinkChanged()">
                   <option value="">Todos</option>
-                  <option value="missing">Sem BNCC</option>
-                  <option value="bncc">Com BNCC</option>
-                  <option value="complementary_only">Somente complementar</option>
-                  <option value="complementary_bncc">Complementar com BNCC</option>
+                  <option value="pending">Aguardando classificação</option>
+                  <option value="classified">Classificados</option>
                 </select>
               </div>
             </div>
@@ -4630,6 +4634,7 @@ function renderAll(skipDraftSave=false){
  safeRenderStep("cartões das crianças",renderChildrenCards);
  safeRenderStep("histórico em lote",renderHistoryBatchRows);
  safeRenderStep("opções do histórico",refreshHistoryActivityOptions);
+ safeRenderStep("pendências de classificação",updateHistoryClassificationAttention);
  safeRenderStep("estado da família",renderBackendFamilyState);
  safeRenderStep("painéis da família",renderBackendFamilyPanels);
  safeRenderStep("resumo da família",renderSimpleFamilySummary);
@@ -4812,7 +4817,7 @@ function toggleOldRecordForm(open){$('oldRecordForm')?.classList.toggle('hidden'
 function saveOldRecord(){
  const childId=$('oldRecordChild')?.value||activeChildId,date=$('oldRecordDate')?.value||'',activity=($('oldRecordActivity')?.value||'').trim();
  if(!childId||!date||!activity)return alert('Informe criança, data e atividade.');
- const x={id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||'',createdByEmail:backendProfile?.user?.email||googleUser?.email||'',createdByName:backendProfile?.user?.name||googleUser?.name||'',date,type:'bncc',area:'',componente:($('oldRecordComponent')?.value||'').trim(),codigo:'',habilidade:'',atividade:activity,observacoes:($('oldRecordNotes')?.value||'').trim(),status:$('oldRecordStatus')?.value||'',foto:'',audio:''};
+ const x={id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||'',createdByEmail:backendProfile?.user?.email||googleUser?.email||'',createdByName:backendProfile?.user?.name||googleUser?.name||'',date,type:'bncc',classificationStatus:'pending',area:'',componente:($('oldRecordComponent')?.value||'').trim(),codigo:'',habilidade:'',atividade:activity,observacoes:($('oldRecordNotes')?.value||'').trim(),status:$('oldRecordStatus')?.value||'',foto:'',audio:''};
  state.entries[childId]=[x,...(state.entries[childId]||[])];saveLocal();toggleOldRecordForm(false);['oldRecordActivity','oldRecordComponent','oldRecordNotes'].forEach(id=>{if($(id))$(id).value=''});if($('oldRecordStatus'))$('oldRecordStatus').value='';renderAll();showPage('inicio');
 }
 
@@ -6195,6 +6200,26 @@ async function readPhoto(ev){saveRecordDraft(true);const files=[...(ev.target.fi
 function entryComponents(x){const a=Array.isArray(x?.selectedComponents)?x.selectedComponents.map(c=>c?.component):[];if(x?.componente)a.unshift(x.componente);return [...new Set(a.filter(Boolean))]}
 function entrySkills(x){if(Array.isArray(x?.selectedSkills)&&x.selectedSkills.length)return x.selectedSkills;return x?.codigo||x?.habilidade?[{code:x.codigo||"",curricular_component:x.componente||"",description:x.habilidade||""}]:[]}
 function entryCompetencies(x){return Array.isArray(x?.selectedCompetencies)?x.selectedCompetencies:[]}
+function isEntryClassificationPending(entry){
+ if(!entry)return false;
+ if(entry.classificationStatus==="pending")return true;
+ if(entry.classificationStatus==="classified")return false;
+ if(entry.type==="complementar"||entry.complementarySelected||entry.complementaryActivityName)return false;
+ return entrySkills(entry).length===0&&!(entry.selectedComponents||[]).length&&!(entry.selectedCompetencies||[]).length;
+}
+function historyPendingEntries(childId=activeChildId){return (state.entries[childId]||[]).filter(isEntryClassificationPending)}
+function updateHistoryClassificationAttention(){
+ const count=historyPendingEntries().length,badge=$("historyPendingBadge"),card=$("historyClassificationAttention");
+ if(badge){badge.textContent=count>99?"99+":String(count);badge.classList.toggle("hidden",!count);badge.setAttribute("aria-label",`${count} ${count===1?"registro aguardando":"registros aguardando"} classificação`)}
+ if(card){card.classList.toggle("hidden",!count);card.innerHTML=count?`<h3>🔶 Precisa de classificação</h3><div>${count} ${count===1?"registro aguarda":"registros aguardam"} classificação.</div><button type="button" class="btn" onclick="openPendingClassification()">Classificar agora</button>`:""}
+}
+function openPendingClassification(){
+ showPage("historico");
+ const link=$("historyBrowseLink");if(link)link.value="pending";
+ historyBnccSelected.clear();historyPendingEntries($("historyBrowseChild")?.value||activeChildId).slice(0,10).forEach(x=>historyBnccSelected.add(x.id));
+ renderHistoryBrowser();
+ requestAnimationFrame(()=>$("historyBnccBatchToolbar")?.scrollIntoView({behavior:"smooth",block:"center"}));
+}
 function entryRelationsHtml(x){
  const comps=entryComponents(x),skills=entrySkills(x),competencies=entryCompetencies(x),activity=x?.complementaryActivityName||"";
  return `<div class="record-relations">${activity?`<div><b>Atividade complementar:</b> ${esc(activity)}</div>`:""}${comps.length?`<div><b>Componentes relacionados:</b> ${comps.map(esc).join(" · ")}</div>`:""}${skills.length?`<div><b>Habilidades BNCC:</b>${skills.map(s=>`<div class="skill"><b>${esc(s.code||"")}</b>${s.curricular_component?` · ${esc(s.curricular_component)}`:""}${s.description?` — ${esc(s.description)}`:""}</div>`).join("")}</div>`:""}${competencies.length?`<div><b>Competências relacionadas:</b>${competencies.map(c=>`<div class="skill"><b>${esc(c.code||"")}</b>${c.description?` — ${esc(c.description)}`:""}</div>`).join("")}</div>`:""}</div>`;
@@ -6206,7 +6231,7 @@ function saveEntry(){
  let complementaryName=recordComplementarySelected?String(recordAiExperience?.complementary_activity||"").trim():"",comp=state.complementaryActivities.find(x=>x.name.toLowerCase()===complementaryName.toLowerCase()),compId=comp?.id||"",missing=[];
  if(complementaryName&&!comp){comp={id:uid(),name:complementaryName,category:"",description:"Criada após confirmação da análise da experiência",createdAt:now(),updatedAt:now()};state.complementaryActivities.push(comp);compId=comp.id}
  let type=complementaryName?"complementar":"bncc";
- let e={id:editing?.id||uid(),childId:activeChildId,collectiveGroupId:editing?.collectiveGroupId||"",createdAt:editing?.createdAt||now(),updatedAt:now(),createdByUserId:editing?.createdByUserId||backendProfile?.user?.id||"",createdByEmail:editing?.createdByEmail||backendProfile?.user?.email||googleUser?.email||"",createdByName:editing?.createdByName||backendProfile?.user?.name||googleUser?.name||"",date:$("fDate").value,activityDateSource:(photoTakenAt&&isoDateFromTimestamp(photoTakenAt)===$("fDate").value)?(photoDateSource==="exif"?"photo_exif":"photo_file"):(editing?.activityDateSource||"manual"),photoTakenAt:photoTakenAt||editing?.photoTakenAt||"",photoDateSource:photoDateSource||editing?.photoDateSource||"",type,yearRefAtRecord:currentChild()?.stage||"",complementaryId:type==="complementar"?compId:"",
+ let e={id:editing?.id||uid(),childId:activeChildId,collectiveGroupId:editing?.collectiveGroupId||"",createdAt:editing?.createdAt||now(),updatedAt:now(),createdByUserId:editing?.createdByUserId||backendProfile?.user?.id||"",createdByEmail:editing?.createdByEmail||backendProfile?.user?.email||googleUser?.email||"",createdByName:editing?.createdByName||backendProfile?.user?.name||googleUser?.name||"",date:$("fDate").value,activityDateSource:(photoTakenAt&&isoDateFromTimestamp(photoTakenAt)===$("fDate").value)?(photoDateSource==="exif"?"photo_exif":"photo_file"):(editing?.activityDateSource||"manual"),photoTakenAt:photoTakenAt||editing?.photoTakenAt||"",photoDateSource:photoDateSource||editing?.photoDateSource||"",type,classificationStatus:(!editing&&recordQuickMode())?"pending":"classified",yearRefAtRecord:currentChild()?.stage||"",complementaryId:type==="complementar"?compId:"",
  area:$("fArea")?.value||recordSelectedComponents[0]?.area||"",componente:$("fComp")?.value||recordSelectedComponents[0]?.component||"",codigo:$("fCode")?.value||"",
  habilidade:$("fSkill")?.value||"",aiExperience:recordAiExperience||null,complementarySelected:!!recordComplementarySelected,complementaryActivityName:complementaryName,aiComponents:Array.isArray(recordAiComponents)?recordAiComponents:[],selectedComponents:Array.isArray(recordSelectedComponents)?recordSelectedComponents:[],aiSkills:Array.isArray(recordAiSkills)?recordAiSkills:[],selectedSkills:Array.isArray(recordSelectedSkills)?recordSelectedSkills:[],aiCompetencies:Array.isArray(recordAiCompetencies)?recordAiCompetencies:[],selectedCompetencies:Array.isArray(recordSelectedCompetencies)?recordSelectedCompetencies:[],materialId:$("fMaterialId")?.value||"",materialName:$("fMaterialName")?.value||"",materialPublisher:$("fMaterialPublisher")?.value||"",atividade:$("fActivity").value.trim(),observacoes:$("fObs").value.trim(),status:$("fStatus").value,
  photos:photosData.map(p=>({...p})),foto:"",fotoDriveId:photosData[0]?.driveId||editing?.fotoDriveId||"",fotoVisibleDriveId:photosData[0]?.visibleDriveId||editing?.fotoVisibleDriveId||"",audio:editing?.audio||"",audioDriveId:editing?.audioDriveId||""};
@@ -7302,10 +7327,9 @@ function renderHistoryBrowser(){
     if(start && String(x.date||"")<start)return false;
     if(status && x.status!==status)return false;
     if(type && !(type==="complementar"?!!x.complementaryActivityName:entrySkills(x).length>0))return false;
-    if(link==="missing"&&hasBncc)return false;
-    if(link==="bncc"&&!hasBncc)return false;
-    if(link==="complementary_only"&&(!hasComplementary||hasBncc))return false;
-    if(link==="complementary_bncc"&&(!hasComplementary||!hasBncc))return false;
+    const classificationPending=isEntryClassificationPending(x);
+    if(link==="pending"&&!classificationPending)return false;
+    if(link==="classified"&&classificationPending)return false;
     if(q){
       const hay=[x.atividade,x.componente,x.codigo,x.habilidade,x.observacoes,x.materialName,x.complementaryActivityName,...entryComponents(x),...entrySkills(x).flatMap(s=>[s.code,s.curricular_component,s.description]),...entryCompetencies(x).flatMap(c=>[c.code,c.description])]
         .filter(Boolean).join(" ").toLowerCase();
@@ -7314,17 +7338,18 @@ function renderHistoryBrowser(){
     return true;
   }).sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))||ts(b.createdAt)-ts(a.createdAt));
 
-  historyBnccVisibleIds=link==="missing"?rows.map(x=>x.id):[];
+  historyBnccVisibleIds=link==="pending"?rows.map(x=>x.id):[];
   for(const id of [...historyBnccSelected])if(!historyBnccVisibleIds.includes(id))historyBnccSelected.delete(id);
-  if(sum)sum.innerHTML=`<b>${rows.length}</b> ${rows.length===1?"registro":"registros"}${link==="missing"?" sem habilidade BNCC":""}`;
-  $("historyBnccBatchToolbar")?.classList.toggle("hidden",link!=="missing");
+  if(sum)sum.innerHTML=`<b>${rows.length}</b> ${rows.length===1?"registro":"registros"}${link==="pending"?" aguardando classificação":""}`;
+  $("historyBnccBatchToolbar")?.classList.toggle("hidden",link!=="pending");
+  updateHistoryClassificationAttention();
   updateHistoryBnccBatchSelection();
 
   list.innerHTML=rows.map(x=>`
     <div class="entry record-clickable" onclick="viewEntry('${x.id}','${childId}')" style="margin-bottom:10px">
       <div class="toolbar" style="justify-content:space-between;align-items:flex-start">
         <div class="meta">${esc(fmtDate(x.date))}</div>
-        ${link==="missing"?`<label onclick="event.stopPropagation()" style="display:flex;gap:7px;align-items:center;font-weight:800"><input type="checkbox" ${historyBnccSelected.has(x.id)?"checked":""} onchange="toggleHistoryBnccSelection('${x.id}',this.checked)"> Selecionar</label>`:""}
+        ${link==="pending"?`<label onclick="event.stopPropagation()" style="display:flex;gap:7px;align-items:center;font-weight:800"><input type="checkbox" ${historyBnccSelected.has(x.id)?"checked":""} onchange="toggleHistoryBnccSelection('${x.id}',this.checked)"> Selecionar</label>`:""}
       </div>
       <div class="entry-title">${esc(x.atividade||"Registro")}</div>
       <div class="toolbar" style="margin-top:8px;justify-content:space-between">
@@ -7418,7 +7443,7 @@ function renderHistoryBnccBatchReview(){
 function confirmHistoryBnccReview(){
   const r=historyBnccBatchResults[historyBnccReviewIndex],found=r&&findEntryById(r.entryId,r.childId);if(!r||!found)return;
   const data=r.data||{},components=(data.components||[]).filter((_,i)=>(r.selectedComponents||[]).includes(i)),skills=(data.skills||[]).filter((_,i)=>(r.selectedSkills||[]).includes(i)),competencies=(data.competencies||[]).filter((_,i)=>(r.selectedCompetencies||[]).includes(i)),experience=data.experience||{},complementaryName=r.complementarySelected?String(experience.complementary_activity||"").trim():"",first=components[0]||null,skill=skills[0]||null;
-  Object.assign(found.entry,{updatedAt:now(),type:complementaryName&&!skills.length?"complementar":"bncc",area:first?.area||skill?.knowledge_area||found.entry.area||"",componente:first?.component||skill?.curricular_component||found.entry.componente||"",codigo:skill?.code||"",habilidade:skill?.description||"",aiExperience:experience,complementarySelected:!!complementaryName,complementaryActivityName:complementaryName,aiComponents:data.components||[],selectedComponents:components,aiSkills:data.skills||[],selectedSkills:skills,aiCompetencies:data.competencies||[],selectedCompetencies:competencies});
+  Object.assign(found.entry,{updatedAt:now(),classificationStatus:"classified",type:complementaryName&&!skills.length?"complementar":"bncc",area:first?.area||skill?.knowledge_area||found.entry.area||"",componente:first?.component||skill?.curricular_component||found.entry.componente||"",codigo:skill?.code||"",habilidade:skill?.description||"",aiExperience:experience,complementarySelected:!!complementaryName,complementaryActivityName:complementaryName,aiComponents:data.components||[],selectedComponents:components,aiSkills:data.skills||[],selectedSkills:skills,aiCompetencies:data.competencies||[],selectedCompetencies:competencies});
   r.status="confirmed";historyBnccSelected.delete(r.entryId);saveLocal();historyBnccReviewIndex++;renderHistoryBrowser();renderHistoryBnccBatchReview();
 }
 function skipHistoryBnccReview(){const r=historyBnccBatchResults[historyBnccReviewIndex];if(!r)return;r.status="skipped";historyBnccReviewIndex++;renderHistoryBnccBatchReview()}
@@ -7429,7 +7454,7 @@ function renderHistoryBatchRows(){let b=$("historyBatchRows");if(!b)return;if(!h
 function updateHistoryRow(id,k,v){let r=historyBatchRows.find(x=>x.id===id);if(r)r[k]=v}
 function addHistoryBatchRow(){historyBatchRows.push(newHistoryBatchRow());renderHistoryBatchRows()}
 function removeHistoryBatchRow(id){historyBatchRows=historyBatchRows.filter(x=>x.id!==id);renderHistoryBatchRows()}
-function saveHistoryBatch(){let childId=$("historyChild").value,statusDefault=$("historyDefaultStatus").value,compDefault=$("historyDefaultComponent").value.trim(),valid=historyBatchRows.filter(x=>x.activity.trim());if(!valid.length)return alert("Preencha pelo menos uma linha.");let missing=valid.filter(x=>!(x.status||statusDefault));if(missing.length)return alert("Defina avaliação em todas as linhas ou use a avaliação padrão.");let created=valid.map(r=>({id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",date:r.date||today(),type:"bncc",area:"",componente:r.component||compDefault,codigo:"",habilidade:"",atividade:r.activity.trim(),observacoes:"Registro histórico em lote",status:r.status||statusDefault,foto:"",audio:""}));state.entries[childId]=[...created,...(state.entries[childId]||[])];historyBatchRows=[];saveLocal();renderAll();alert(created.length+" registros adicionados.")}
+function saveHistoryBatch(){let childId=$("historyChild").value,statusDefault=$("historyDefaultStatus").value,compDefault=$("historyDefaultComponent").value.trim(),valid=historyBatchRows.filter(x=>x.activity.trim());if(!valid.length)return alert("Preencha pelo menos uma linha.");let missing=valid.filter(x=>!(x.status||statusDefault));if(missing.length)return alert("Defina avaliação em todas as linhas ou use a avaliação padrão.");let created=valid.map(r=>({id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",date:r.date||today(),type:"bncc",classificationStatus:"pending",area:"",componente:r.component||compDefault,codigo:"",habilidade:"",atividade:r.activity.trim(),observacoes:"Registro histórico em lote",status:r.status||statusDefault,foto:"",audio:""}));state.entries[childId]=[...created,...(state.entries[childId]||[])];historyBatchRows=[];saveLocal();renderAll();alert(created.length+" registros adicionados.")}
 function refreshHistoryActivityOptions(){let s=$("histPeriodActivity");if(s)s.innerHTML='<option value="">Selecione...</option>'+state.complementaryActivities.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("")}
 function parseISO(s){let[y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)}function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function savePeriodHistory(){let childId=$("historyChild").value,start=$("histPeriodStart").value,end=$("histPeriodEnd").value,act=state.complementaryActivities.find(x=>x.id===$("histPeriodActivity").value),freq=+$("histPeriodFreq").value,status=$("histPeriodStatus").value,desc=$("histPeriodDesc").value.trim();if(!childId||!start||!end||!act||!status)return alert("Preencha criança, período, atividade e avaliação.");let s=parseISO(start),e=parseISO(end);if(e<s)return alert("Período inválido.");let offsets=[0,2,4,1,3].slice(0,freq),created=[];for(let w=new Date(s);w<=e;w.setDate(w.getDate()+7)){let mon=new Date(w);mon.setDate(mon.getDate()-mon.getDay()+1);for(let o of offsets){let d=new Date(mon);d.setDate(mon.getDate()+o);if(d<s||d>e)continue;created.push({id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",date:iso(d),type:"complementar",complementaryId:act.id,area:"Atividades Complementares",componente:act.category||"Atividade Complementar",codigo:"",habilidade:act.name,atividade:desc||act.name,observacoes:"Registro histórico por período",status,foto:"",audio:""})}}state.entries[childId]=[...created,...(state.entries[childId]||[])];saveLocal();renderAll();alert(created.length+" registros criados.")}
@@ -7444,13 +7469,13 @@ function clearHistoricalPhotoImport(){historicalPhotoQueue=[];if($("historicalPh
 async function createHistoricalPhotoRecords(){
  const childId=$("historyPhotoChild")?.value||"",status=$("historyPhotoStatus")?.value||"",activity=($("historyPhotoActivity")?.value||"").trim()||"Registro fotográfico de atividade";
  if(!childId)return alert("Escolha a criança.");if(!status)return alert("Escolha uma avaliação padrão.");if(!historicalPhotoQueue.length)return alert("Selecione fotos.");
- const created=[];for(const p of historicalPhotoQueue){const mediaId=`photo_${uid()}`;await mediaPut(mediaId,p.data,"image/jpeg");created.push({id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",date:p.date||today(),type:"bncc",area:"",componente:"",codigo:"",habilidade:"",atividade:activity,observacoes:"Importado a partir de foto antiga. BNCC não classificada.",status,photos:[{mediaId,_previewData:p.data,takenAt:"",dateSource:"file",visibleDriveId:"",driveId:""}],foto:"",fotoDriveId:"",fotoVisibleDriveId:"",audio:"",audioDriveId:"",yearRefAtRecord:state.family.children.find(c=>c.id===childId)?.stage||""})}
+ const created=[];for(const p of historicalPhotoQueue){const mediaId=`photo_${uid()}`;await mediaPut(mediaId,p.data,"image/jpeg");created.push({id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",date:p.date||today(),type:"bncc",classificationStatus:"pending",area:"",componente:"",codigo:"",habilidade:"",atividade:activity,observacoes:"Importado a partir de foto antiga. BNCC não classificada.",status,photos:[{mediaId,_previewData:p.data,takenAt:"",dateSource:"file",visibleDriveId:"",driveId:""}],foto:"",fotoDriveId:"",fotoVisibleDriveId:"",audio:"",audioDriveId:"",yearRefAtRecord:state.family.children.find(c=>c.id===childId)?.stage||""})}
  state.entries[childId]=[...created,...(state.entries[childId]||[])];clearHistoricalPhotoImport();saveLocal();renderAll();alert(`${created.length} registro(s) histórico(s) criados. Você pode classificar a BNCC depois.`)
 }
 
 function downloadHistoryTemplate(){shareOrDownloadText("data;tipo;atividade;componente;codigo;habilidade;observacoes;avaliacao\n2025-03-10;bncc;Leitura;Língua Portuguesa;EF03LP00;Habilidade;Registro antigo;Dominado","modelo_historico.csv","text/csv","Modelo de histórico")}
 function parseCsvLine(line,sep){let out=[],cur="",q=false;for(let i=0;i<line.length;i++){let c=line[i];if(c==='"'){if(q&&line[i+1]==='"'){cur+='"';i++}else q=!q}else if(c===sep&&!q){out.push(cur);cur=""}else cur+=c}out.push(cur);return out}
-function importHistoryCSV(ev){let file=ev.target.files[0],childId=$("historyChild").value;if(!file||!childId)return;let fr=new FileReader();fr.onload=()=>{try{let lines=fr.result.replace(/^\uFEFF/,"").split(/\r?\n/).filter(Boolean),sep=lines[0].includes(";")?";":",",h=parseCsvLine(lines[0],sep).map(x=>x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")),idx=n=>h.indexOf(n),created=[];for(let i=1;i<lines.length;i++){let p=parseCsvLine(lines[i],sep),at=(p[idx("atividade")]||"").trim(),st=(p[idx("avaliacao")]||"").trim();if(!at)continue;if(!st)throw new Error("Linha "+(i+1)+" sem avaliação");let type=(p[idx("tipo")]||"bncc").toLowerCase()==="complementar"?"complementar":"bncc";created.push({id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",date:(p[idx("data")]||today()).trim(),type,area:type==="complementar"?"Atividades Complementares":"",componente:(p[idx("componente")]||"").trim(),codigo:type==="bncc"?(p[idx("codigo")]||"").trim():"",habilidade:(p[idx("habilidade")]||"").trim(),atividade:at,observacoes:(p[idx("observacoes")]||"").trim(),status:st,foto:"",audio:""})}state.entries[childId]=[...created,...(state.entries[childId]||[])];saveLocal();renderAll();alert("Histórico importado.")}catch(e){alert("Erro no CSV: "+e.message)}};fr.readAsText(file,"UTF-8")}
+function importHistoryCSV(ev){let file=ev.target.files[0],childId=$("historyChild").value;if(!file||!childId)return;let fr=new FileReader();fr.onload=()=>{try{let lines=fr.result.replace(/^\uFEFF/,"").split(/\r?\n/).filter(Boolean),sep=lines[0].includes(";")?";":",",h=parseCsvLine(lines[0],sep).map(x=>x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")),idx=n=>h.indexOf(n),created=[];for(let i=1;i<lines.length;i++){let p=parseCsvLine(lines[i],sep),at=(p[idx("atividade")]||"").trim(),st=(p[idx("avaliacao")]||"").trim();if(!at)continue;if(!st)throw new Error("Linha "+(i+1)+" sem avaliação");let type=(p[idx("tipo")]||"bncc").toLowerCase()==="complementar"?"complementar":"bncc",code=type==="bncc"?(p[idx("codigo")]||"").trim():"";created.push({id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",date:(p[idx("data")]||today()).trim(),type,classificationStatus:type==="complementar"||code?"classified":"pending",area:type==="complementar"?"Atividades Complementares":"",componente:(p[idx("componente")]||"").trim(),codigo:code,habilidade:(p[idx("habilidade")]||"").trim(),atividade:at,observacoes:(p[idx("observacoes")]||"").trim(),status:st,foto:"",audio:""})}state.entries[childId]=[...created,...(state.entries[childId]||[])];saveLocal();renderAll();alert("Histórico importado.")}catch(e){alert("Erro no CSV: "+e.message)}};fr.readAsText(file,"UTF-8")}
 
 function addComplementaryActivity(){let name=$("compActivityName").value.trim();if(!name)return alert("Informe o nome.");if(state.complementaryActivities.some(x=>x.name.toLowerCase()===name.toLowerCase()))return alert("Atividade já cadastrada.");state.complementaryActivities.push({id:uid(),name,category:$("compActivityCategory").value.trim(),description:$("compActivityDescription").value.trim(),createdAt:now(),updatedAt:now()});$("compActivityName").value="";$("compActivityCategory").value="";$("compActivityDescription").value="";saveLocal();renderAll()}
 function renderComplementaryList(){let b=$("complementaryList");if(!b)return;b.innerHTML=state.complementaryActivities.map(x=>`<div class="entry"><div class="entry-title">${esc(x.name)}</div><div class="skill">${esc(x.category||"")}</div><div class="obs">${esc(x.description||"")}</div><button class="btn danger small" onclick="deleteComplementaryActivity('${x.id}')">Excluir</button></div>`).join("")||"<div class='notice'>Nenhuma atividade complementar.</div>"}
@@ -7548,7 +7573,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "10.7";
+const APP_VERSION = "10.8";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
