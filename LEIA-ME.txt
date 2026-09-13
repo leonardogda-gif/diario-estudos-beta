@@ -1,4 +1,15 @@
-DIÁRIO DE ESTUDOS — v10.0
+DIÁRIO DE ESTUDOS — v10.1
+
+AJUSTES VISUAIS RESPONSIVOS
+- No celular, as cinco áreas principais agora aparecem em uma barra inferior fixa com ícones.
+- No computador, a navegação permanece no topo como na versão anterior.
+- Títulos usam Fraunces e os demais textos usam Work Sans, com fontes de sistema como alternativa.
+- Textos auxiliares importantes receberam mais contraste e ações secundárias ficaram visualmente mais leves.
+- A página Mais foi agrupada em Conta e acesso, Acompanhamento e Administração.
+- O rodapé verde ocupa toda a largura e chega ao final da tela, inclusive atrás da área segura do menu móvel.
+- O plano anual mostra a economia percentual e o valor mensal equivalente.
+- O leitor de código de barras foi mantido exatamente como estava; carregamento sob demanda ficará para outra versão.
+- Esta atualização não exige novo SQL nem alteração no Worker quando a v10.0 já está funcionando.
 
 NOVA EXPERIÊNCIA VISUAL E PLANOS
 - Visual do aplicativo aproximado da identidade profissional do site institucional.
@@ -70,19 +81,16 @@ CONTROLE DE CONSUMO DE IA
 - Classificação, embedding e seleção BNCC continuam contabilizados separadamente.
 - Nenhuma alteração no D1 é necessária quando a estrutura de ai_usage_events da v8.6 já estiver instalada.
 
-PUBLICAÇÃO DA v10.0 — ORDEM OBRIGATÓRIA
-1. Como a v9.3.2 já está instalada, execute somente d1-billing-plans-v10_0.sql no Console do D1. Em instalação nova, execute d1-billing-v9_3.sql.
-2. Confirme que MP_ACCESS_TOKEN_TEST continua cadastrado como Secret do Worker.
-3. Publique worker.js no Cloudflare Worker.
-4. No Mercado Pago, cadastre o webhook:
-   https://diario-estudos-api.leonardo-gda.workers.dev/payments/mercadopago/webhook
-5. Publique index.html, sw.js e version.json no GitHub Pages.
-6. Mantenha manifest.json, icons, logo-diario.png, vendor e os demais arquivos existentes.
+PUBLICAÇÃO DA v10.1 — PARA QUEM JÁ PUBLICOU A v10.0
+1. Publique somente index.html, sw.js e version.json no GitHub Pages.
+2. Não execute novamente os SQLs da v10.0.
+3. Não é necessário substituir o Worker; a API 0.28-beta continua compatível.
+4. Mantenha manifest.json, icons, logo-diario.png, vendor e os demais arquivos existentes.
 
 ARQUIVOS DO PACOTE
-- index.html — aplicativo v10.0.
-- sw.js — cache diario-estudos-v10.0.
-- version.json — identificador público v10.0.
+- index.html — aplicativo v10.1.
+- sw.js — cache diario-estudos-v10.1.
+- version.json — identificador público v10.1.
 - worker.js — API 0.28-beta.
 - d1-billing-v9_3.sql — tabelas de cobrança, configuração, gratuidade e eventos.
 - d1-billing-plan-v9_3_1.sql — complemento para quem já executou o SQL da v9.3.

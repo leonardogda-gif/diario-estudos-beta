@@ -13,14 +13,17 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Diário de Estudos">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,650;9..144,750&family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://apis.google.com/js/api.js"></script>
 <script src="./vendor/zxing-browser.min.js"></script>
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;padding:0}
-body{background:#EFEAE0;color:#292922;font-family:Arial,Helvetica,sans-serif;font-size:14px}
+html,body{margin:0;padding:0;overflow-x:hidden}
+body{background:#EFEAE0;color:#292922;font-family:"Work Sans",Arial,Helvetica,sans-serif;font-size:14px}
 :root{--header-h:93px}
 header{background:#17332A;color:#fff;padding:20px 16px;text-align:center}
 .brand{display:flex;justify-content:center;align-items:center;gap:10px}
@@ -47,10 +50,11 @@ textarea{resize:vertical}
 label.field{display:block;font-size:11px;letter-spacing:.01em;text-transform:none;font-weight:500;color:#777266;margin:8px 0 4px}
 label.field:has(.required-mark){font-size:10px;letter-spacing:.05em;text-transform:uppercase;font-weight:800;color:#6A675D}
 .required-mark{color:#A23B2A;font-weight:900;margin-left:2px}.field-help{font-size:11px;color:#7A766B;margin-top:4px}
-.meta{font-size:11px;color:#777266}
+.meta{font-size:11px;color:#5F5B50}
 .notice{background:#F3EFE3;border-radius:8px;padding:10px;font-size:12px;color:#625F56}
 .hidden{display:none!important}
 hr{border:0;border-top:1px solid #E8E1D2;margin:14px 0}
+h1,h2,h3{font-family:"Fraunces",Georgia,serif}
 h2,h3{margin-top:0}
 h2{font-size:20px}
 h3{font-size:16px}
@@ -190,6 +194,31 @@ body:not(.auth-checking) #authBoot{display:none!important}
 .app-footer p{color:#d6e3de;max-width:480px;line-height:1.6;font-size:13px}.app-footer-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px 22px;align-content:start}
 .app-footer button,.app-footer a{background:none;border:0;padding:0;color:#fff;text-decoration:none;text-align:left;font:inherit;font-weight:800;cursor:pointer}.app-footer button:hover,.app-footer a:hover{text-decoration:underline}
 @media(max-width:650px){.billing-plans,.app-footer{grid-template-columns:1fr}.billing-home{padding:19px}.app-footer{margin-left:-14px;margin-right:-14px;padding:28px 22px}.app-footer-links{grid-template-columns:1fr 1fr}}
+
+/* v10.1 — identidade editorial, navegação móvel e rodapé de largura total */
+.btn{font-weight:600}.btn.primary,.btn.success,.btn.dark{font-weight:800}
+.nav-tab-icon{display:none;width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.more-group{margin-top:18px}.more-group:first-of-type{margin-top:14px}.more-group-title{font-size:13px;margin:0 0 8px;color:#17332A}.more-action-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.app-footer{width:100vw;margin:28px 0 0 calc(50% - 50vw);padding-left:max(22px,calc((100vw - 1000px)/2 + 14px));padding-right:max(22px,calc((100vw - 1000px)/2 + 14px))}
+body.app-authenticated main{padding-bottom:0}
+@media(max-width:650px){
+ :root{--header-h:78px}
+ header p{display:none}
+ main{padding-left:12px;padding-right:12px}
+ body.app-authenticated main{padding-bottom:0}
+ .nav-wrap{position:fixed;z-index:1800;left:0;right:0;bottom:0;top:auto;margin:0;border-radius:18px 18px 0 0;overflow:visible;border-top:1px solid #D8D1C2;box-shadow:0 -5px 24px rgba(23,51,42,.14);padding-bottom:env(safe-area-inset-bottom)}
+ .nav-tabs{width:100%;min-width:0;justify-content:stretch}
+ .nav-tab{flex:1;min-width:0;padding:9px 2px 7px;border-bottom:0;border-top:3px solid transparent;display:flex;flex-direction:column;gap:2px;font-size:10px;font-weight:600;color:#777266}
+ .nav-tab-icon{display:block}
+ .nav-tab.active{background:#F5F1E7;border-bottom:0;border-top-color:#17332A;color:#17332A}
+ .app-footer{grid-template-columns:1fr;width:100vw;margin:24px 0 0 calc(50% - 50vw);padding:30px 22px calc(92px + env(safe-area-inset-bottom));gap:22px}
+ .app-footer-links{grid-template-columns:1fr 1fr}
+ .more-action-grid{grid-template-columns:1fr}
+ .billing-home{border-radius:15px;padding:18px}
+ .billing-home h2{font-size:23px}
+ .billing-plan-price{font-size:24px}
+ .app-install-banner,.app-update-banner{bottom:calc(76px + env(safe-area-inset-bottom))}
+}
 
 /* v4.6.2 — status compacto no cabeçalho + navegação persistente */
 header{position:sticky;top:0;z-index:1000;padding:12px 16px 9px;box-shadow:0 1px 0 rgba(255,255,255,.08)}
@@ -912,6 +941,21 @@ details[open]>summary:after{content:"⌃"}
 .analysis-next{margin-top:10px;padding-top:10px;border-top:1px solid #dde4df}
 .record-context-card{border:1px solid #e5ded0;border-radius:11px;background:#fbf8f1;padding:11px 12px}
 .record-context-card b{color:#35483f}
+/* v10.1 final: mantém a barra inferior acima das regras históricas */
+body.app-authenticated main{padding-bottom:0}
+.app-footer{width:100vw;margin:28px 0 0 calc(50% - 50vw);padding-left:max(22px,calc((100vw - 1000px)/2 + 14px));padding-right:max(22px,calc((100vw - 1000px)/2 + 14px))}
+@media(max-width:650px){
+ :root{--header-h:78px}
+ header p{display:none}
+ .nav-wrap{position:fixed;z-index:1800;left:0;right:0;bottom:0;top:auto;margin:0;border-radius:18px 18px 0 0;overflow:visible;border-top:1px solid #D8D1C2;box-shadow:0 -5px 24px rgba(23,51,42,.14);padding-bottom:env(safe-area-inset-bottom)}
+ .nav-tabs{width:100%;min-width:0;justify-content:stretch}
+ .nav-tab{flex:1;min-width:0;padding:9px 2px 7px;border-bottom:0;border-top:3px solid transparent;display:flex;flex-direction:column;gap:2px;font-size:10px;font-weight:600;color:#777266}
+ .nav-tab-icon{display:block}
+ .nav-tab.active{background:#F5F1E7;border-bottom:0;border-top-color:#17332A;color:#17332A}
+ .app-footer{grid-template-columns:1fr;width:100vw;margin:24px 0 0 calc(50% - 50vw);padding:30px 22px calc(92px + env(safe-area-inset-bottom));gap:22px}
+ .app-footer-links{grid-template-columns:1fr 1fr}
+ .app-install-banner,.app-update-banner{bottom:calc(76px + env(safe-area-inset-bottom))}
+}
 </style>
 </head>
 <body class="auth-checking">
@@ -920,7 +964,7 @@ details[open]>summary:after{content:"⌃"}
     <img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true">
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v10.0 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v10.1 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -998,11 +1042,11 @@ details[open]>summary:after{content:"⌃"}
   <div id="protectedApp" class="hidden">
     <div class="nav-wrap no-print">
       <nav class="nav-tabs">
-        <button class="nav-tab active" data-page="inicio" onclick="showPage('inicio')">Hoje</button>
-        <button class="nav-tab" data-page="planejamento" onclick="showPage('planejamento')">Planejar</button>
-        <button class="nav-tab" data-page="leituras" onclick="showPage('leituras')">Leituras</button>
-        <button class="nav-tab" data-page="historico" onclick="showPage('historico')">Histórico</button>
-        <button class="nav-tab" data-page="mais" onclick="showPage('mais')">Mais</button>
+        <button class="nav-tab active" data-page="inicio" onclick="showPage('inicio')"><svg class="nav-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg><span>Hoje</span></button>
+        <button class="nav-tab" data-page="planejamento" onclick="showPage('planejamento')"><svg class="nav-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>Planejar</span></button>
+        <button class="nav-tab" data-page="leituras" onclick="showPage('leituras')"><svg class="nav-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H11v17H7.5A3.5 3.5 0 0 0 4 22zM20 5.5A3.5 3.5 0 0 0 16.5 2H13v17h3.5A3.5 3.5 0 0 1 20 22z"/></svg><span>Leituras</span></button>
+        <button class="nav-tab" data-page="historico" onclick="showPage('historico')"><svg class="nav-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Histórico</span></button>
+        <button class="nav-tab" data-page="mais" onclick="showPage('mais')"><svg class="nav-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg><span>Mais</span></button>
       </nav>
     </div>
 
@@ -1292,11 +1336,15 @@ details[open]>summary:after{content:"⌃"}
         <div id="adminValidationNotice" class="admin-validation-notice hidden" onclick="showPage('administracao')">
           <span>🔔</span><div><b id="adminValidationNoticeTitle">Itens aguardando validação</b><div id="adminValidationNoticeText" class="meta"></div></div>
         </div>
-        <div id="billingManageCard" class="billing-manage"><div class="toolbar" style="justify-content:space-between;align-items:flex-start"><div><b>💳 Plano da família</b><div id="billingStatusText" class="meta" style="margin-top:4px">Verificando acesso…</div></div><span class="meta" style="background:#e8e1d2;padding:5px 8px;border-radius:999px">Teste</span></div><div id="billingCheckoutArea" class="hidden"></div></div>
-        <div class="grid">
-          <button class="btn" onclick="showPage('relatorios')">Relatórios</button>
-          <button class="btn" onclick="showPage('configuracoes')">Configurações</button>
-          <button id="globalAdminMenuBtn" class="btn hidden" onclick="showPage('administracao')">Administração do Diário</button>
+        <div class="more-group"><h3 class="more-group-title">Conta e acesso</h3>
+          <div id="billingManageCard" class="billing-manage"><div class="toolbar" style="justify-content:space-between;align-items:flex-start"><div><b>💳 Plano da família</b><div id="billingStatusText" class="meta" style="margin-top:4px">Verificando acesso…</div></div><span class="meta" style="background:#e8e1d2;padding:5px 8px;border-radius:999px">Teste</span></div><div id="billingCheckoutArea" class="hidden"></div></div>
+          <div class="more-action-grid"><button class="btn" onclick="showPage('configuracoes')">Configurações da família</button></div>
+        </div>
+        <div class="more-group"><h3 class="more-group-title">Acompanhamento</h3>
+          <div class="more-action-grid"><button class="btn" onclick="showPage('relatorios')">Relatórios</button></div>
+        </div>
+        <div id="globalAdminMenuGroup" class="more-group hidden"><h3 class="more-group-title">Administração</h3>
+          <div class="more-action-grid"><button id="globalAdminMenuBtn" class="btn" onclick="showPage('administracao')">Administração do Diário</button></div>
         </div>
       </div>
     </section>
@@ -1873,6 +1921,7 @@ function currentChild(){
 function ageFromBirth(b){if(!b)return"";let x=new Date(b+"T00:00:00"),n=new Date(),a=n.getFullYear()-x.getFullYear();if(n.getMonth()<x.getMonth()||(n.getMonth()===x.getMonth()&&n.getDate()<x.getDate()))a--;return a>=0?a:""}
 
 function showPage(name){
+ const previousPage=document.querySelector(".page.active")?.id||"";
  if(name==="administracao"&&!isGlobalDiaryAdmin){alert("Esta área está disponível somente para o administrador geral do Diário de Estudos.");name="mais"}
  if(name!=="leituras"&&typeof closeBookBarcodeScanner==="function")closeBookBarcodeScanner();
  document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id==="page-"+name));
@@ -1885,6 +1934,7 @@ function showPage(name){
  if(name==="leituras"){renderReadingPage();}
  if(name==="manutencao")renderComplementaryList();
  if(name==="configuracoes")renderSettingsChildren();
+ if(previousPage!=="page-"+name)requestAnimationFrame(()=>window.scrollTo({top:0,behavior:"smooth"}));
 }
 
 const MEDIA_DB_NAME="diario-estudos-media";
@@ -3585,8 +3635,8 @@ function billingStatusLabel(data){
  return data?.enforcement_enabled?"Acesso somente para visualização":"Beta aberto — nenhuma função será bloqueada";
 }
 function billingPlansHtml(data){
- const trial=Number(data?.plan?.trial_days||0),monthly=Number(data?.plan?.monthly_amount_cents||2990),annual=Number(data?.plan?.annual_amount_cents||29900),saving=Math.max(0,monthly*12-annual);
- return `<div class="billing-plans"><div class="billing-plan"><div class="billing-plan-name">Plano mensal</div><div class="billing-plan-price">${billingMoney(monthly)} <span>/ mês</span></div><div class="meta">Flexibilidade para cancelar a próxima renovação.</div><button class="btn dark" type="button" onclick="startBillingCheckout('monthly',this)">${trial?`Começar ${trial} dias grátis`:"Assinar mensal"}</button></div><div class="billing-plan featured"><div class="billing-plan-name">Plano anual</div><div class="billing-plan-price">${billingMoney(annual)} <span>/ ano</span></div>${saving?`<span class="billing-saving">Economize ${billingMoney(saving)} no ano</span>`:""}<div class="meta" style="margin-top:7px">Um pagamento para doze meses de acesso.</div><button class="btn success" type="button" onclick="startBillingCheckout('annual',this)">${trial?`Começar ${trial} dias grátis`:"Assinar anual"}</button></div></div><div class="meta" style="margin-top:11px">No ambiente de teste, use a conta Buyer e mantenha “Usar saldo” desativado.</div>`;
+ const trial=Number(data?.plan?.trial_days||0),monthly=Number(data?.plan?.monthly_amount_cents||2990),annual=Number(data?.plan?.annual_amount_cents||29900),saving=Math.max(0,monthly*12-annual),savingPercent=monthly>0?Math.round((saving/(monthly*12))*100):0,annualMonthly=Math.round(annual/12);
+ return `<div class="billing-plans"><div class="billing-plan"><div class="billing-plan-name">Plano mensal</div><div class="billing-plan-price">${billingMoney(monthly)} <span>/ mês</span></div><div class="meta">Flexibilidade para cancelar a próxima renovação.</div><button class="btn dark" type="button" onclick="startBillingCheckout('monthly',this)">${trial?`Começar ${trial} dias grátis`:"Assinar mensal"}</button></div><div class="billing-plan featured"><div class="billing-plan-name">Plano anual</div><div class="billing-plan-price">${billingMoney(annual)} <span>/ ano</span></div>${saving?`<span class="billing-saving">Economize ${savingPercent}% no anual</span>`:""}<div class="meta" style="margin-top:7px">Equivale a ${billingMoney(annualMonthly)} por mês · um pagamento por ano.</div><button class="btn success" type="button" onclick="startBillingCheckout('annual',this)">${trial?`Começar ${trial} dias grátis`:"Assinar anual"}</button></div></div><div class="meta" style="margin-top:11px">No ambiente de teste, use a conta Buyer e mantenha “Usar saldo” desativado.</div>`;
 }
 function renderBillingUI(data){
  const home=$("dashboardBillingCard"),text=$("billingStatusText"),area=$("billingCheckoutArea"),sub=data?.subscription||{},status=String(sub.provider_status||"none").toLowerCase();
@@ -6008,17 +6058,17 @@ async function showAdminPendingSystemNotification(total,books,materials){
  }catch(e){console.warn("Notificação de validação:",e)}
 }
 async function checkAdminPendingValidations(forceNotify=false){
- if(!googleAccessToken){isGlobalDiaryAdmin=false;$("globalAdminMenuBtn")?.classList.add("hidden");return}
+ if(!googleAccessToken){isGlobalDiaryAdmin=false;$("globalAdminMenuGroup")?.classList.add("hidden");return}
  try{
   const [bookData,matData]=await Promise.all([backendFetch("/community-books/pending"),backendFetch("/materials/pending")]);
   const books=(bookData?.books||[]).length,materials=(matData?.materials||[]).length,total=books+materials;
   const notice=$("adminValidationNotice"),text=$("adminValidationNoticeText"),title=$("adminValidationNoticeTitle");
-  isGlobalDiaryAdmin=true;$("globalAdminMenuBtn")?.classList.remove("hidden");
+  isGlobalDiaryAdmin=true;$("globalAdminMenuGroup")?.classList.remove("hidden");
   if(notice){notice.classList.toggle("hidden",total===0);if(title)title.textContent=total===1?"1 item aguardando validação":`${total} itens aguardando validação`;if(text)text.textContent=[books?`${books} livro${books===1?"":"s"}`:"",materials?`${materials} material${materials===1?"":"is"}`:""].filter(Boolean).join(" · ")}
   if((forceNotify&&total>0)||(total>adminValidationLastCount))await showAdminPendingSystemNotification(total,books,materials);
   adminValidationLastCount=total;localStorage.setItem("DE_ADMIN_PENDING_COUNT",String(total));updateAdminValidationNotificationStatus();
   return {books,materials,total,isGlobalAdmin:true};
- }catch(e){isGlobalDiaryAdmin=false;$("globalAdminMenuBtn")?.classList.add("hidden");$("adminValidationNotice")?.classList.add("hidden");if(document.querySelector("#page-administracao.active"))showPage("mais");return {books:0,materials:0,total:0,isGlobalAdmin:false}}
+ }catch(e){isGlobalDiaryAdmin=false;$("globalAdminMenuGroup")?.classList.add("hidden");$("adminValidationNotice")?.classList.add("hidden");if(document.querySelector("#page-administracao.active"))showPage("mais");return {books:0,materials:0,total:0,isGlobalAdmin:false}}
 }
 function startAdminPendingValidationWatch(){
  clearInterval(adminValidationTimer);checkAdminPendingValidations(false);adminValidationTimer=setInterval(()=>checkAdminPendingValidations(false),10*60*1000);
@@ -7509,7 +7559,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "10.0";
+const APP_VERSION = "10.1";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
