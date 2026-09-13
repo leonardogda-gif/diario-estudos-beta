@@ -230,6 +230,9 @@ header h1{font-size:25px} header p{margin:4px 0 0}
 .header-cloud-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:min(70vw,620px)}
 .header-cloud-actions{display:flex;gap:4px;align-items:center}
 .header-cloud-actions .btn{min-height:26px;padding:3px 8px;font-size:11px;border-radius:999px;background:rgba(255,255,255,.10);color:#fff}
+.header-billing-pill{border:0;min-height:24px;padding:3px 9px;border-radius:999px;background:rgba(151,188,135,.18);color:#eef6ea;font:inherit;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.header-billing-pill:before{content:"";width:7px;height:7px;border-radius:50%;background:#9bc58b;flex:0 0 auto}.header-billing-pill:hover{background:rgba(151,188,135,.28)}
+.header-billing-details .billing-detail-title{font-weight:800;color:#17332A;margin-bottom:5px}.header-billing-details .billing-detail-date{font-size:12px;color:#5F5B50;line-height:1.5}
 .header-cloud-details{position:fixed;z-index:1200;top:calc(var(--header-h) + 6px);left:50%;transform:translateX(-50%);width:min(92vw,520px);background:#FFFDF8;color:#292922;border:1px solid #D8D1C2;border-radius:12px;padding:13px;box-shadow:0 12px 32px rgba(0,0,0,.20);text-align:left}
 .header-cloud-details .toolbar{margin-top:10px}
 .nav-wrap{position:sticky;top:var(--header-h);z-index:950;border-radius:0 0 12px 12px;margin-top:-14px;margin-left:-14px;margin-right:-14px;margin-bottom:12px;box-shadow:0 3px 10px rgba(0,0,0,.08)}
@@ -964,13 +967,14 @@ body.app-authenticated main{padding-bottom:0}
     <img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true">
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v10.1 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v10.2 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
       <span id="headerSyncDot" class="sync-dot"></span>
       <span id="headerCloudText" class="header-cloud-text">Aguardando login</span>
     </div>
+    <button id="headerBillingPill" class="header-billing-pill hidden" type="button" onclick="event.stopPropagation();toggleHeaderBillingDetails()">Plano ativo</button>
     <div class="header-cloud-actions">
       <button id="headerSyncBtn" class="btn hidden" onclick="event.stopPropagation();syncWithDrive({manual:true})" title="Sincronizar agora">↻</button>
     </div>
@@ -985,6 +989,9 @@ body.app-authenticated main{padding-bottom:0}
       <button class="btn" onclick="showPage('configuracoes');toggleHeaderCloudDetails(false)">Configurações</button>
       <button class="btn danger" onclick="googleLogout();toggleHeaderCloudDetails(false)">Sair</button>
     </div>
+  </div>
+  <div id="headerBillingDetails" class="header-cloud-details header-billing-details hidden no-print">
+    <div id="headerBillingDetailsContent"></div>
   </div>
 </header>
 
@@ -3638,20 +3645,35 @@ function billingPlansHtml(data){
  const trial=Number(data?.plan?.trial_days||0),monthly=Number(data?.plan?.monthly_amount_cents||2990),annual=Number(data?.plan?.annual_amount_cents||29900),saving=Math.max(0,monthly*12-annual),savingPercent=monthly>0?Math.round((saving/(monthly*12))*100):0,annualMonthly=Math.round(annual/12);
  return `<div class="billing-plans"><div class="billing-plan"><div class="billing-plan-name">Plano mensal</div><div class="billing-plan-price">${billingMoney(monthly)} <span>/ mês</span></div><div class="meta">Flexibilidade para cancelar a próxima renovação.</div><button class="btn dark" type="button" onclick="startBillingCheckout('monthly',this)">${trial?`Começar ${trial} dias grátis`:"Assinar mensal"}</button></div><div class="billing-plan featured"><div class="billing-plan-name">Plano anual</div><div class="billing-plan-price">${billingMoney(annual)} <span>/ ano</span></div>${saving?`<span class="billing-saving">Economize ${savingPercent}% no anual</span>`:""}<div class="meta" style="margin-top:7px">Equivale a ${billingMoney(annualMonthly)} por mês · um pagamento por ano.</div><button class="btn success" type="button" onclick="startBillingCheckout('annual',this)">${trial?`Começar ${trial} dias grátis`:"Assinar anual"}</button></div></div><div class="meta" style="margin-top:11px">No ambiente de teste, use a conta Buyer e mantenha “Usar saldo” desativado.</div>`;
 }
+function renderHeaderBilling(data){
+ const pill=$("headerBillingPill"),panel=$("headerBillingDetails"),content=$("headerBillingDetailsContent");if(!pill||!content)return;
+ const sub=data?.subscription||{},status=String(sub.provider_status||"none").toLowerCase(),active=["authorized","active"].includes(status),canceled=["cancelled","canceled"].includes(status),accessValid=canceled&&sub.access_until&&Date.parse(sub.access_until)>Date.now(),trial=active&&sub.trial_ends_at&&Date.parse(sub.trial_ends_at)>Date.now();
+ let short="",title=billingStatusLabel(data),detail="";
+ if(data?.grant){
+  const names={beta_tester:"Acesso beta",social:"Acesso social",partnership:"Parceria",courtesy:"Cortesia"};short=names[data.grant.grant_type]||"Acesso gratuito";detail=data.grant.reason?`Motivo: ${esc(data.grant.reason)}`:"Nenhuma cobrança se aplica a este acesso.";
+ }else if(active){
+  short=trial?`Teste até ${billingDate(sub.trial_ends_at)}`:`Plano ${sub.plan_code==="annual"?"anual":"mensal"}`;
+  const next=sub.current_period_end||sub.trial_ends_at;detail=trial?`Primeira cobrança em ${esc(billingDate(sub.trial_ends_at))}.`:next?`Próxima renovação em ${esc(billingDate(next))}.`:"Acesso completo liberado.";
+ }else if(accessValid){short=`Acesso até ${billingDate(sub.access_until)}`;detail=`A renovação foi cancelada. O acesso completo continua até ${esc(billingDate(sub.access_until))}.`;}
+ if(!short){pill.classList.add("hidden");panel?.classList.add("hidden");content.innerHTML="";return;}
+ pill.textContent=short;pill.classList.remove("hidden");
+ content.innerHTML=`<div class="billing-detail-title">${esc(title)}</div><div class="billing-detail-date">${detail}</div><div class="toolbar" style="margin-top:11px"><button class="btn small" type="button" onclick="toggleHeaderBillingDetails(false);showPage('mais')">Gerenciar plano</button><button class="btn small" type="button" onclick="syncBillingStatus()">Atualizar situação</button></div>`;
+}
 function renderBillingUI(data){
  const home=$("dashboardBillingCard"),text=$("billingStatusText"),area=$("billingCheckoutArea"),sub=data?.subscription||{},status=String(sub.provider_status||"none").toLowerCase();
- const active=["authorized","active"].includes(status),canceled=["cancelled","canceled"].includes(status),label=billingStatusLabel(data),renewal=sub.current_period_end||sub.trial_ends_at;
+ const active=["authorized","active"].includes(status),canceled=["cancelled","canceled"].includes(status),accessValid=canceled&&sub.access_until&&Date.parse(sub.access_until)>Date.now(),label=billingStatusLabel(data),renewal=sub.current_period_end||sub.trial_ends_at;
+ renderHeaderBilling(data);
  if(text)text.innerHTML=`<b>${esc(label)}</b>${active&&renewal?`<br>Próxima cobrança ou renovação: ${esc(billingDate(renewal))}`:""}`;
  if(data?.grant){
-  if(home){home.classList.remove("hidden");home.innerHTML=`<div class="billing-home billing-state-compact"><div><div class="billing-plan-name" style="color:#b9d1c6">Plano da família</div><h2>${esc(label)}</h2><p>Todos os recursos estão liberados. Nenhum preço ou cobrança se aplica a este acesso.</p></div><button class="btn" onclick="showPage('mais')">Ver detalhes</button></div>`}
+  if(home){home.classList.add("hidden");home.innerHTML=""}
   if(area){area.classList.add("hidden");area.innerHTML=""}return;
  }
  if(active){
-  const trial=!!sub.trial_ends_at&&Date.parse(sub.trial_ends_at)>Date.now();
-  if(home){home.classList.remove("hidden");home.innerHTML=`<div class="billing-home billing-state-compact"><div><div class="billing-plan-name" style="color:#b9d1c6">${trial?"Período gratuito":"Assinatura confirmada"}</div><h2>${esc(label)}</h2><p>${trial?`A primeira cobrança será em ${esc(billingDate(sub.trial_ends_at))}.`:renewal?`Próxima renovação em ${esc(billingDate(renewal))}.`:"Seu acesso completo está liberado."}</p></div><button class="btn" onclick="showPage('mais')">Gerenciar plano</button></div>`}
+  if(home){home.classList.add("hidden");home.innerHTML=""}
   if(area){area.classList.remove("hidden");area.innerHTML=`<div class="toolbar" style="margin-top:12px"><button class="btn small" onclick="syncBillingStatus()">Atualizar situação</button><button class="btn danger small" onclick="cancelBillingSubscription()">Cancelar renovação</button></div>`}return;
  }
  if(canceled){
+  if(accessValid){if(home){home.classList.add("hidden");home.innerHTML=""}if(area){area.classList.remove("hidden");area.innerHTML=`<div class="toolbar" style="margin-top:12px"><button class="btn small" onclick="syncBillingStatus()">Atualizar situação</button></div>`}return;}
   if(home){home.classList.remove("hidden");home.innerHTML=`<div class="billing-home"><h2>${esc(label)}</h2><p>Seus registros permanecem guardados. Você pode escolher um novo plano quando quiser.</p>${billingPlansHtml(data)}</div>`}
   if(area){area.classList.remove("hidden");area.innerHTML=`<div class="toolbar" style="margin-top:12px"><button class="btn small" onclick="syncBillingStatus()">Atualizar situação</button></div>`}return;
  }
@@ -3660,11 +3682,11 @@ function renderBillingUI(data){
 }
 async function loadBillingStatus(){
  const fam=currentBackendFamily(),text=$("billingStatusText"),area=$("billingCheckoutArea");
- if(!fam||!backendProfile?.user){if(text)text.textContent="Conecte sua família para consultar o plano.";area?.classList.add("hidden");$("dashboardBillingCard")?.classList.add("hidden");return}
+ if(!fam||!backendProfile?.user){if(text)text.textContent="Conecte sua família para consultar o plano.";area?.classList.add("hidden");$("dashboardBillingCard")?.classList.add("hidden");$("headerBillingPill")?.classList.add("hidden");$("headerBillingDetails")?.classList.add("hidden");return}
  try{
   const data=await backendFetch(`/billing/status?family_id=${encodeURIComponent(fam.id)}`);billingStatusData=data;
   renderBillingUI(data);
- }catch(e){if(text)text.textContent="Não foi possível consultar o plano: "+e.message;area?.classList.add("hidden")}
+ }catch(e){if(text)text.textContent="Não foi possível consultar o plano: "+e.message;area?.classList.add("hidden");$("headerBillingPill")?.classList.add("hidden");$("headerBillingDetails")?.classList.add("hidden")}
 }
 async function syncBillingReturn(){
  if(new URLSearchParams(location.search).get("billing")!=="return")return;
@@ -3797,11 +3819,19 @@ function compactCloudStatus(msg){
 function toggleHeaderCloudDetails(force){
  const el=$("headerCloudDetails");if(!el)return;
  const show=typeof force==="boolean"?force:el.classList.contains("hidden");
+ if(show)$("headerBillingDetails")?.classList.add("hidden");
+ el.classList.toggle("hidden",!show);
+}
+function toggleHeaderBillingDetails(force){
+ const el=$("headerBillingDetails");if(!el)return;
+ const show=typeof force==="boolean"?force:el.classList.contains("hidden");
+ if(show)$("headerCloudDetails")?.classList.add("hidden");
  el.classList.toggle("hidden",!show);
 }
 document.addEventListener("click",e=>{
- const panel=$("headerCloudDetails"),bar=$("headerCloud");
- if(panel&&!panel.classList.contains("hidden")&&!panel.contains(e.target)&&!bar?.contains(e.target))panel.classList.add("hidden");
+ const cloudPanel=$("headerCloudDetails"),billingPanel=$("headerBillingDetails"),bar=$("headerCloud");
+ if(cloudPanel&&!cloudPanel.classList.contains("hidden")&&!cloudPanel.contains(e.target)&&!bar?.contains(e.target))cloudPanel.classList.add("hidden");
+ if(billingPanel&&!billingPanel.classList.contains("hidden")&&!billingPanel.contains(e.target)&&!bar?.contains(e.target))billingPanel.classList.add("hidden");
 });
 let headerResizeObserver=null;
 function updateHeaderHeightCss(){
@@ -7559,7 +7589,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "10.1";
+const APP_VERSION = "10.2";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

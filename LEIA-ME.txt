@@ -1,4 +1,12 @@
-DIÁRIO DE ESTUDOS — v10.1
+DIÁRIO DE ESTUDOS — v10.2
+
+ASSINATURA DISCRETA NO CABEÇALHO
+- Assinatura ativa, teste gratuito e acessos beta/social/parceria/cortesia não exibem mais um card grande na página Hoje.
+- O estado do acesso aparece em um selo discreto ao lado de “Sincronizado”.
+- Ao tocar no selo, um painel mostra situação, data relevante e botões Gerenciar plano e Atualizar situação.
+- Renovação cancelada ainda dentro do período aparece como “Acesso até ...” no cabeçalho.
+- Família sem assinatura ou com acesso encerrado continua vendo os planos no início da página Hoje.
+- Nenhuma alteração no Worker ou no D1 é necessária.
 
 AJUSTES VISUAIS RESPONSIVOS
 - No celular, as cinco áreas principais agora aparecem em uma barra inferior fixa com ícones.
@@ -81,16 +89,16 @@ CONTROLE DE CONSUMO DE IA
 - Classificação, embedding e seleção BNCC continuam contabilizados separadamente.
 - Nenhuma alteração no D1 é necessária quando a estrutura de ai_usage_events da v8.6 já estiver instalada.
 
-PUBLICAÇÃO DA v10.1 — PARA QUEM JÁ PUBLICOU A v10.0
+PUBLICAÇÃO DA v10.2 — PARA QUEM JÁ PUBLICOU A v10.0 OU v10.1
 1. Publique somente index.html, sw.js e version.json no GitHub Pages.
 2. Não execute novamente os SQLs da v10.0.
 3. Não é necessário substituir o Worker; a API 0.28-beta continua compatível.
 4. Mantenha manifest.json, icons, logo-diario.png, vendor e os demais arquivos existentes.
 
 ARQUIVOS DO PACOTE
-- index.html — aplicativo v10.1.
-- sw.js — cache diario-estudos-v10.1.
-- version.json — identificador público v10.1.
+- index.html — aplicativo v10.2.
+- sw.js — cache diario-estudos-v10.2.
+- version.json — identificador público v10.2.
 - worker.js — API 0.28-beta.
 - d1-billing-v9_3.sql — tabelas de cobrança, configuração, gratuidade e eventos.
 - d1-billing-plan-v9_3_1.sql — complemento para quem já executou o SQL da v9.3.
