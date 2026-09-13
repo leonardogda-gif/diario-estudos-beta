@@ -218,6 +218,12 @@ body.app-authenticated main{padding-bottom:0}
  .billing-home h2{font-size:23px}
  .billing-plan-price{font-size:24px}
  .app-install-banner,.app-update-banner{bottom:calc(76px + env(safe-area-inset-bottom))}
+ .app-footer{display:none}
+ body.mobile-footer-visible .app-footer{display:grid}
+ .page.active{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
+ body.mobile-footer-visible .page.active{padding-bottom:0}
+ body.mobile-keyboard-open .nav-wrap{display:none}
+ body.mobile-keyboard-open .app-install-banner,body.mobile-keyboard-open .app-update-banner{bottom:10px}
 }
 
 /* v4.6.2 — status compacto no cabeçalho + navegação persistente */
@@ -967,7 +973,7 @@ body.app-authenticated main{padding-bottom:0}
     <img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true">
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v10.2 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v10.3 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -1464,6 +1470,14 @@ body.app-authenticated main{padding-bottom:0}
           <p><b>No Google Drive da família</b>, ficam os dados educacionais e arquivos mantidos pela própria família, como registros e fotos associados às atividades.</p>
           <p><b>Neste dispositivo</b>, textos, preferências e referências leves ficam no armazenamento local. Fotos ainda não enviadas ficam em uma área maior e separada do navegador, o <b>IndexedDB</b>. Depois que o Drive confirma o envio, a cópia pesada local pode ser removida, mantendo apenas a referência necessária.</p>
 
+          <h3 style="margin-top:18px">👨‍👩‍👧 Dados de crianças e responsabilidade</h3>
+          <p>A criança é a <b>titular dos próprios dados pessoais</b>. O cadastro e o uso do Diário são realizados pelo responsável legal, que fornece e administra as autorizações necessárias em nome da criança. A criança não cria uma conta própria nem contrata o serviço diretamente.</p>
+          <p>Nome, data de nascimento ou ano de referência, atividades, avaliações e fotos são usados para organizar o acompanhamento educacional solicitado pela família. O tratamento deve considerar sempre o melhor interesse da criança e não é usado para publicidade direcionada a ela.</p>
+
+          <h3 style="margin-top:18px">💳 Assinatura e pagamento</h3>
+          <p>Os registros de estudo e arquivos permanecem no Google Drive controlado pela família. No banco do Diário ficam separadamente os dados necessários para conta, vínculo familiar e cobrança, como identificador da família, plano, estado da assinatura, datas de vigência, e-mail do pagador quando informado pelo provedor e referências técnicas do Mercado Pago.</p>
+          <p>O Diário não recebe nem armazena o número completo do cartão. O pagamento é preenchido e processado no ambiente do Mercado Pago.</p>
+
           <h3 style="margin-top:18px">✨ Inteligência artificial</h3>
           <p>A análise só acontece quando a família toca no botão correspondente. Para analisar uma experiência, o Diário envia ao serviço de IA o relato, a identificação necessária da criança, seu ano de referência e, quando existir, um contexto resumido do planejamento, como título, descrição, local e material.</p>
           <p>O Diário usa o serviço Google Gemini para classificar a experiência, gerar a representação semântica do relato e selecionar relações entre os candidatos curriculares. Não é enviada toda a biblioteca de registros para analisar uma única atividade.</p>
@@ -1488,6 +1502,10 @@ body.app-authenticated main{padding-bottom:0}
             <div><span class="privacy-icon">✨</span><b>IA</b><small>Recebe os dados necessários somente quando a família solicita análise ou resumo.</small></div>
             <div><span class="privacy-icon">📅</span><b>Calendar</b><small>Agendas escolhidas são lidas; eventos importados viram cópias no calendário do Diário.</small></div>
           </div>
+          <h3 style="margin-top:18px">🗑️ Correção e exclusão dos dados</h3>
+          <p>O responsável legal pode solicitar acesso, correção ou exclusão dos dados da família e das crianças. Arquivar uma criança dentro do aplicativo <b>não equivale à exclusão completa</b>.</p>
+          <p>A solicitação de exclusão pode ser enviada pela página de suporte. Antes de apagar dados, será necessário confirmar a identidade e a administração da família. Quando aplicável, serão removidos os dados criados pelo Diário no Drive e eliminados ou anonimizados os vínculos no banco do aplicativo. Informações mínimas poderão ser conservadas somente quando houver obrigação legal, regulatória ou necessidade de exercício de direitos, com acesso restrito.</p>
+          <div class="toolbar" style="margin:12px 0"><a class="btn dark" href="https://www.meudiariodeestudos.com.br/suporte.html" target="_blank" rel="noopener">Solicitar acesso, correção ou exclusão</a></div>
           <div class="bncc-soft-note"><b>Transparência faz parte do Diário.</b><br>Esta página acompanha a evolução do aplicativo sempre que novos recursos usam ou armazenam informações.</div>
         </div>
         <div class="toolbar" style="margin-top:14px"><button class="btn" onclick="showPage('mais')">← Voltar para Mais</button></div>
@@ -1654,6 +1672,7 @@ body.app-authenticated main{padding-bottom:0}
   <div class="toolbar" style="margin-top:8px"><button class="btn small" type="button" onclick="saveAdminBillingConfig()">Salvar configuração</button><button class="btn small" type="button" onclick="loadAdminBilling()">Atualizar lista</button></div><hr>
   <div class="grid"><div class="full"><label class="field">Família</label><select id="adminGrantFamily"></select></div><div><label class="field">Tipo de acesso</label><select id="adminGrantType"><option value="beta_tester">Beta tester</option><option value="social">Acesso social</option><option value="partnership">Parceria</option><option value="courtesy">Cortesia</option></select></div><div><label class="field">Válido até (opcional)</label><input id="adminGrantEnds" type="date"></div><div class="full"><label class="field">Motivo</label><input id="adminGrantReason" placeholder="Ex.: família participante do beta inicial"></div></div>
   <div class="toolbar" style="margin-top:8px"><button class="btn success small" type="button" onclick="grantFamilyAccess()">Liberar acesso</button><button class="btn danger small" type="button" onclick="revokeFamilyAccess()">Remover gratuidade</button></div><div id="adminBillingFamilies" class="meta" style="margin-top:12px">Carregando famílias…</div>
+  <details class="tech-details" style="margin-top:14px"><summary>Notificações do Mercado Pago</summary><div id="adminBillingWebhooks" class="drive-folder-card meta" style="margin-top:8px">Carregando eventos…</div></details>
 </div></details>
 
 <details class="tech-details" open><summary>🤖 Consumo de IA por família</summary><div class="drive-folder-card" style="margin-top:8px">
@@ -1930,6 +1949,7 @@ function ageFromBirth(b){if(!b)return"";let x=new Date(b+"T00:00:00"),n=new Date
 function showPage(name){
  const previousPage=document.querySelector(".page.active")?.id||"";
  if(name==="administracao"&&!isGlobalDiaryAdmin){alert("Esta área está disponível somente para o administrador geral do Diário de Estudos.");name="mais"}
+ document.body.classList.toggle("mobile-footer-visible",name==="mais");
  if(name!=="leituras"&&typeof closeBookBarcodeScanner==="function")closeBookBarcodeScanner();
  document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id==="page-"+name));
  document.querySelectorAll(".nav-tab").forEach(x=>x.classList.toggle("active",x.dataset.page===name));
@@ -1943,6 +1963,13 @@ function showPage(name){
  if(name==="configuracoes")renderSettingsChildren();
  if(previousPage!=="page-"+name)requestAnimationFrame(()=>window.scrollTo({top:0,behavior:"smooth"}));
 }
+
+function isMobileTextEntry(element){
+ return window.matchMedia("(max-width:650px)").matches && !!element?.matches?.("input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]),textarea,select,[contenteditable=true]");
+}
+document.addEventListener("focusin",event=>{if(isMobileTextEntry(event.target))document.body.classList.add("mobile-keyboard-open")});
+document.addEventListener("focusout",()=>setTimeout(()=>{if(!isMobileTextEntry(document.activeElement))document.body.classList.remove("mobile-keyboard-open")},180));
+window.addEventListener("resize",()=>{if(!window.matchMedia("(max-width:650px)").matches)document.body.classList.remove("mobile-keyboard-open")});
 
 const MEDIA_DB_NAME="diario-estudos-media";
 const MEDIA_DB_VERSION=1;
@@ -3713,8 +3740,17 @@ async function syncBillingStatus(){
  try{await backendFetch("/billing/sync",{method:"POST",body:JSON.stringify({family_id:fam.id})});await loadBillingStatus()}catch(e){alert("Não foi possível atualizar a assinatura: "+e.message)}
 }
 async function loadAdminBilling(){
- const box=$("adminBillingFamilies"),select=$("adminGrantFamily");if(!isGlobalDiaryAdmin)return;
- try{const data=await backendFetch("/admin/billing");const c=data.config||{},families=data.families||[];$("adminBillingAmount").value=c.monthly_amount_cents??2990;$("adminBillingAnnualAmount").value=c.annual_amount_cents??29900;$("adminBillingTrial").value=c.trial_days??7;$("adminBillingEnforcement").checked=Number(c.enforcement_enabled||0)===1;if(select)select.innerHTML=families.map(f=>`<option value="${esc(f.id)}">${esc(f.name)}</option>`).join("");if(box)box.innerHTML=families.map(f=>`<div class="duplicate-card" style="margin-top:7px"><b>${esc(f.name)}</b><div class="meta">Mercado Pago: ${esc(f.provider_status||"não iniciado")}${f.plan_code?` · Plano: ${esc(f.plan_code)}`:""}${f.grant_type?` · Gratuidade: ${esc(f.grant_type)} — ${esc(f.grant_reason||"")}`:""}</div></div>`).join("")||"Nenhuma família cadastrada."}catch(e){if(box)box.textContent="Não foi possível carregar: "+e.message}
+ const box=$("adminBillingFamilies"),webhookBox=$("adminBillingWebhooks"),select=$("adminGrantFamily");if(!isGlobalDiaryAdmin)return;
+ try{
+  const data=await backendFetch("/admin/billing"),c=data.config||{},families=data.families||[],events=data.webhook_events||[],summary=data.webhook_summary||[];
+  $("adminBillingAmount").value=c.monthly_amount_cents??2990;$("adminBillingAnnualAmount").value=c.annual_amount_cents??29900;$("adminBillingTrial").value=c.trial_days??7;$("adminBillingEnforcement").checked=Number(c.enforcement_enabled||0)===1;
+  if(select)select.innerHTML=families.map(f=>`<option value="${esc(f.id)}">${esc(f.name)}</option>`).join("");
+  if(box)box.innerHTML=families.map(f=>`<div class="duplicate-card" style="margin-top:7px"><b>${esc(f.name)}</b><div class="meta">Mercado Pago: ${esc(f.provider_status||"não iniciado")}${f.plan_code?` · Plano: ${esc(f.plan_code)}`:""}${f.grant_type?` · Gratuidade: ${esc(f.grant_type)} — ${esc(f.grant_reason||"")}`:""}</div></div>`).join("")||"Nenhuma família cadastrada.";
+  if(webhookBox){
+   const counts=Object.fromEntries(summary.map(x=>[x.status,Number(x.total||0)]));
+   webhookBox.innerHTML=`<div style="margin-bottom:9px"><b>Últimos eventos</b> · processados: ${counts.processed||0} · ignorados: ${counts.ignored||0} · erros: <b style="color:${counts.error?'#94473C':'inherit'}">${counts.error||0}</b></div>${events.map(e=>`<div class="duplicate-card" style="margin-top:7px;border-color:${e.status==='error'?'#D8B3AB':'#E2DCCD'}"><b>${esc(e.status||"received")}</b> · ${esc(e.event_type||"sem tipo")}<div class="meta">Evento: ${esc(e.provider_event_id||"sem identificador")} · Recurso: ${esc(e.resource_id||"-")} · ${esc(e.received_at||"")}</div>${e.error_message?`<div style="color:#94473C;margin-top:4px">${esc(e.error_message)}</div>`:""}</div>`).join("")||"Nenhuma notificação recebida."}`;
+  }
+ }catch(e){if(box)box.textContent="Não foi possível carregar: "+e.message;if(webhookBox)webhookBox.textContent="Não foi possível carregar os webhooks."}
 }
 async function saveAdminBillingConfig(){
  try{await backendFetch("/admin/billing/config",{method:"PUT",body:JSON.stringify({monthly_amount_cents:Number($("adminBillingAmount").value||2990),annual_amount_cents:Number($("adminBillingAnnualAmount").value||29900),trial_days:Number($("adminBillingTrial").value||0),enforcement_enabled:$("adminBillingEnforcement").checked})});alert("Configuração salva.");loadAdminBilling()}catch(e){alert("Não foi possível salvar: "+e.message)}
@@ -7589,7 +7625,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "10.2";
+const APP_VERSION = "10.3";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

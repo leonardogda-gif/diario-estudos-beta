@@ -1,4 +1,15 @@
-DIÁRIO DE ESTUDOS — v10.2
+DIÁRIO DE ESTUDOS — v10.3
+
+PRIVACIDADE, WEBHOOK E EXPERIÊNCIA MÓVEL
+- No celular, o rodapé institucional aparece somente na aba Mais; nas telas diárias fica apenas a navegação inferior.
+- O menu inferior se recolhe enquanto a família digita em campos no celular, evitando conflito com o teclado virtual.
+- A página de privacidade explica que a criança é titular dos dados e o responsável legal administra as autorizações.
+- A página diferencia dados educacionais no Drive, dados operacionais/billing no D1 e pagamento processado pelo Mercado Pago.
+- O canal de suporte passa a ser o caminho formal para pedir acesso, correção ou exclusão; arquivar não é apresentado como exclusão.
+- O webhook não cria outra linha quando o mesmo provider_event_id já foi processado ou ignorado.
+- Eventos com erro podem ser tentados novamente, preservando o mesmo registro de auditoria.
+- O ADM mostra contagem e os 20 eventos de webhook mais recentes, destacando erros.
+- Execute d1-webhook-dedupe-v10_3.sql uma única vez antes de publicar o Worker 0.29-beta.
 
 ASSINATURA DISCRETA NO CABEÇALHO
 - Assinatura ativa, teste gratuito e acessos beta/social/parceria/cortesia não exibem mais um card grande na página Hoje.
@@ -68,7 +79,7 @@ CORREÇÃO VISUAL DA ANÁLISE EM LOTE
 - Durante o processamento, mostra “Analisando X de Y” e permanece bloqueado.
 - O painel de progresso agora aparece junto ao botão, antes da lista de registros.
 - A tela orienta a permanecer aberta até o término da rodada.
-- A lógica de classificação permanece a mesma; o Worker avança para 0.28-beta por causa dos planos e cancelamento.
+- A lógica de classificação permanece a mesma; o Worker 0.29-beta acrescenta idempotência e auditoria do webhook.
 
 CLASSIFICAÇÃO DE REGISTROS SEM BNCC
 - Em Histórico > Mais filtros foi criado o filtro “Vínculo curricular”.
@@ -89,17 +100,19 @@ CONTROLE DE CONSUMO DE IA
 - Classificação, embedding e seleção BNCC continuam contabilizados separadamente.
 - Nenhuma alteração no D1 é necessária quando a estrutura de ai_usage_events da v8.6 já estiver instalada.
 
-PUBLICAÇÃO DA v10.2 — PARA QUEM JÁ PUBLICOU A v10.0 OU v10.1
-1. Publique somente index.html, sw.js e version.json no GitHub Pages.
-2. Não execute novamente os SQLs da v10.0.
-3. Não é necessário substituir o Worker; a API 0.28-beta continua compatível.
-4. Mantenha manifest.json, icons, logo-diario.png, vendor e os demais arquivos existentes.
+PUBLICAÇÃO DA v10.3 — PARA QUEM JÁ PUBLICOU A v10.0, v10.1 OU v10.2
+1. Execute d1-webhook-dedupe-v10_3.sql uma única vez no Console do D1.
+2. Publique worker.js no Cloudflare Worker e confirme a versão 0.29-beta no Preview.
+3. Publique index.html, sw.js e version.json no GitHub Pages.
+4. Não execute novamente os SQLs anteriores da v10.0.
+5. Mantenha manifest.json, icons, logo-diario.png, vendor e os demais arquivos existentes.
 
 ARQUIVOS DO PACOTE
-- index.html — aplicativo v10.2.
-- sw.js — cache diario-estudos-v10.2.
-- version.json — identificador público v10.2.
-- worker.js — API 0.28-beta.
+- index.html — aplicativo v10.3.
+- sw.js — cache diario-estudos-v10.3.
+- version.json — identificador público v10.3.
+- worker.js — API 0.29-beta.
+- d1-webhook-dedupe-v10_3.sql — remove duplicatas antigas e impede novas duplicações por evento do provedor.
 - d1-billing-v9_3.sql — tabelas de cobrança, configuração, gratuidade e eventos.
 - d1-billing-plan-v9_3_1.sql — complemento para quem já executou o SQL da v9.3.
 - d1-billing-sync-v9_3_2.sql — complemento de confirmação segura para a v9.3.2.
