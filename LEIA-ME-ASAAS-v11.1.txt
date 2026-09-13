@@ -1,0 +1,100 @@
+MEU DIÁRIO DE ESTUDOS — ASAAS SANDBOX v11.1
+================================================
+
+O que esta versão inclui
+------------------------
+- Checkout recorrente hospedado pelo Asaas.
+- Plano mensal: R$ 39,90 por mês.
+- Plano anual: R$ 359,10 por ano (25% de economia sobre 12 mensalidades).
+- Sem período gratuito.
+- Ativação somente pelo webhook CHECKOUT_PAID; o retorno do navegador não ativa o plano.
+- Webhook autenticado e eventos deduplicados pelo ID do Asaas.
+- Famílias com acesso gratuito autorizado continuam sem ver preços.
+- Cancelamento da renovação pelo app.
+- Header User-Agent obrigatório nas chamadas ao Asaas.
+- Data da primeira cobrança configurada 65 minutos à frente para permanecer válida durante o checkout sandbox de 60 minutos.
+- Após cancelar, o card mantém o plano visível e informa até quando o acesso continua.
+
+ORDEM OBRIGATÓRIA DE PUBLICAÇÃO
+-------------------------------
+
+1. D1 — execute primeiro o arquivo:
+   d1-asaas-v11_1.sql
+
+   Ele cria somente as novas tabelas do Asaas. Não apaga dados existentes.
+
+2. Cloudflare Worker — mantenha o segredo já criado:
+   ASAAS_API_KEY
+
+3. Cloudflare Worker — crie um NOVO segredo:
+   ASAAS_WEBHOOK_TOKEN
+
+   Use um valor aleatório exclusivo com pelo menos 32 caracteres.
+   NÃO use a API Key do Asaas como token do webhook.
+
+4. Publique o worker.js desta pasta.
+   Versão esperada na raiz do Worker: 0.34-beta
+
+5. No painel sandbox do Asaas, cadastre o webhook:
+
+   URL:
+   https://diario-estudos-api.leonardo-gda.workers.dev/payments/asaas/webhook
+
+   Token de autenticação:
+   exatamente o mesmo valor salvo em ASAAS_WEBHOOK_TOKEN
+
+   Tipo de envio:
+   sequencial
+
+   Eventos de Checkout:
+   CHECKOUT_CREATED
+   CHECKOUT_PAID
+   CHECKOUT_CANCELED
+   CHECKOUT_EXPIRED
+
+   Eventos de assinatura:
+   SUBSCRIPTION_CREATED
+   SUBSCRIPTION_UPDATED
+   SUBSCRIPTION_INACTIVATED
+   SUBSCRIPTION_DELETED
+
+   Eventos de cobrança:
+   PAYMENT_CREATED
+   PAYMENT_CONFIRMED
+   PAYMENT_RECEIVED
+   PAYMENT_OVERDUE
+   PAYMENT_CREDIT_CARD_CAPTURE_REFUSED
+   PAYMENT_REFUNDED
+   PAYMENT_CHARGEBACK_REQUESTED
+   PAYMENT_DELETED
+
+6. GitHub — publique os arquivos do aplicativo:
+   index.html
+   sw.js
+   version.json
+
+TESTE RECOMENDADO
+-----------------
+1. Entre com uma família de teste que NÃO tenha gratuidade/beta_tester ativa.
+2. Abra a aba Mais e localize Plano da família.
+3. Teste primeiro o plano mensal.
+4. Finalize o checkout no sandbox do Asaas.
+5. Volte ao app, abra Mais e toque em Atualizar situação se necessário.
+6. Confirme no D1:
+   - asaas_checkout_sessions: status paid
+   - asaas_family_subscriptions: status active e provider_subscription_id preenchido
+   - asaas_webhook_events: eventos com status processed
+7. Teste o botão Cancelar renovação somente depois de provider_subscription_id estar preenchido.
+   O card deve exibir "Renovação cancelada" e manter o acesso até next_due_date.
+8. Repita com outra família/conta para testar o plano anual.
+
+OBSERVAÇÕES IMPORTANTES
+-----------------------
+- O callback do navegador serve apenas para voltar ao app. Ele não comprova pagamento.
+- A confirmação do acesso acontece pelo evento CHECKOUT_PAID autenticado.
+- O ID único de cada evento impede processamento duplicado.
+- O ambiente padrão deste Worker é sandbox:
+  https://api-sandbox.asaas.com/v3
+- Não configure ASAAS_API_BASE para produção durante estes testes.
+- No primeiro checkout, confirme no painel Asaas que existe apenas uma cobrança.
+- Esta versão foi validada estaticamente, mas não executada contra sua conta Asaas nem seu D1.
