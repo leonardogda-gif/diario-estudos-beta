@@ -904,7 +904,7 @@ details[open]>summary:after{content:"⌃"}
     <img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true">
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v9.3.1 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v9.3.2 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -3573,8 +3573,18 @@ async function loadBillingStatus(){
  try{
   const data=await backendFetch(`/billing/status?family_id=${encodeURIComponent(fam.id)}`);billingStatusData=data;
   if(text)text.innerHTML=`<b>${esc(billingStatusLabel(data))}</b><br>${billingMoney(data?.plan?.monthly_amount_cents)} por mês · ${Number(data?.plan?.trial_days||0)} dias gratuitos`;
-  area?.classList.toggle("hidden",!!data?.grant);
+  const providerActive=["authorized","active"].includes(String(data?.subscription?.provider_status||"").toLowerCase());
+  area?.classList.toggle("hidden",!!data?.grant||providerActive);
  }catch(e){if(text)text.textContent="Não foi possível consultar o plano: "+e.message;area?.classList.add("hidden")}
+}
+async function syncBillingReturn(){
+ if(new URLSearchParams(location.search).get("billing")!=="return")return;
+ const fam=currentBackendFamily();if(!fam||!backendProfile?.user)return;
+ try{
+  history.replaceState({},"",location.pathname+location.hash);
+  await backendFetch("/billing/sync",{method:"POST",body:JSON.stringify({family_id:fam.id})});
+  await loadBillingStatus();
+ }catch(e){console.warn("Assinatura ainda não confirmada",e)}
 }
 async function startBillingCheckout(){
  const fam=currentBackendFamily(),btn=$("billingSubscribeBtn");
@@ -3617,6 +3627,7 @@ async function connectBackend(){
 
   try{
     await refreshBackendProfile();
+    await syncBillingReturn();
     return true;
   }catch(e){
     console.error("Falha de autenticação do backend:",e);
@@ -7454,7 +7465,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "9.3.1";
+const APP_VERSION = "9.3.2";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

@@ -1,4 +1,13 @@
-DIÁRIO DE ESTUDOS — v9.3.1
+DIÁRIO DE ESTUDOS — v9.3.2
+
+CONFIRMAÇÃO SEGURA DA ASSINATURA
+- O botão Atualizar situação agora procura no Mercado Pago a assinatura associada ao plano exclusivo da família.
+- O Worker confere o ID do plano retornado pela API antes de salvar a assinatura no D1.
+- ID, status, data e origem da última verificação são armazenados; nenhum status informado pelo navegador é aceito.
+- O retorno do checkout também tenta sincronizar automaticamente.
+- Assinatura ativa e acessos gratuitos escondem o botão Começar assinatura.
+- Execute d1-billing-sync-v9_3_2.sql uma única vez antes de publicar este Worker.
+- Para produção, cadastre MP_WEBHOOK_SECRET como Secret. Depois dos testes, configure MP_REQUIRE_WEBHOOK_SIGNATURE=true.
 
 CORREÇÃO DO CHECKOUT DE TESTE
 - O aplicativo não solicita mais o e-mail da conta Buyer.
@@ -27,7 +36,7 @@ CORREÇÃO VISUAL DA ANÁLISE EM LOTE
 - Durante o processamento, mostra “Analisando X de Y” e permanece bloqueado.
 - O painel de progresso agora aparece junto ao botão, antes da lista de registros.
 - A tela orienta a permanecer aberta até o término da rodada.
-- A lógica de classificação permanece a mesma; o Worker avança para 0.27.1-beta por causa da correção da cobrança.
+- A lógica de classificação permanece a mesma; o Worker avança para 0.27.2-beta por causa da confirmação segura da cobrança.
 
 CLASSIFICAÇÃO DE REGISTROS SEM BNCC
 - Em Histórico > Mais filtros foi criado o filtro “Vínculo curricular”.
@@ -48,8 +57,8 @@ CONTROLE DE CONSUMO DE IA
 - Classificação, embedding e seleção BNCC continuam contabilizados separadamente.
 - Nenhuma alteração no D1 é necessária quando a estrutura de ai_usage_events da v8.6 já estiver instalada.
 
-PUBLICAÇÃO DA v9.3.1 — ORDEM OBRIGATÓRIA
-1. Se a v9.3 já está instalada, execute somente d1-billing-plan-v9_3_1.sql no Console do D1. Em instalação nova, execute d1-billing-v9_3.sql.
+PUBLICAÇÃO DA v9.3.2 — ORDEM OBRIGATÓRIA
+1. Como a v9.3.1 já está instalada, execute somente d1-billing-sync-v9_3_2.sql no Console do D1. Em instalação nova, execute d1-billing-v9_3.sql.
 2. Confirme que MP_ACCESS_TOKEN_TEST continua cadastrado como Secret do Worker.
 3. Publique worker.js no Cloudflare Worker.
 4. No Mercado Pago, cadastre o webhook:
@@ -58,12 +67,13 @@ PUBLICAÇÃO DA v9.3.1 — ORDEM OBRIGATÓRIA
 6. Mantenha manifest.json, icons, logo-diario.png, vendor e os demais arquivos existentes.
 
 ARQUIVOS DO PACOTE
-- index.html — aplicativo v9.3.1.
-- sw.js — cache diario-estudos-v9.3.1.
-- version.json — identificador público v9.3.1.
-- worker.js — API 0.27.1-beta.
+- index.html — aplicativo v9.3.2.
+- sw.js — cache diario-estudos-v9.3.2.
+- version.json — identificador público v9.3.2.
+- worker.js — API 0.27.2-beta.
 - d1-billing-v9_3.sql — tabelas de cobrança, configuração, gratuidade e eventos.
 - d1-billing-plan-v9_3_1.sql — complemento para quem já executou o SQL da v9.3.
+- d1-billing-sync-v9_3_2.sql — complemento de confirmação segura para a v9.3.2.
 - vendor/zxing-browser.min.js — leitor de código de barras mantido da v8.9.
 - vendor/ZXING-LICENSE.txt — licença do ZXing.
 - d1-ai-usage-v8_6.sql — instalação completa do controle de IA para ambiente novo.
