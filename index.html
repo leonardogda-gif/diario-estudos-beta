@@ -180,20 +180,11 @@ body:not(.auth-checking) #authBoot{display:none!important}
 }
 
 /* v10.0 — assinatura contextual e rodapé institucional */
-.billing-home{margin:0 0 14px;background:linear-gradient(135deg,#12382e,#1f5848);color:#fff;border-radius:18px;padding:24px;box-shadow:0 14px 34px rgba(18,56,46,.18)}
-.billing-home h2{font-size:25px;margin:0 0 7px}.billing-home p{margin:0;color:#dce9e3;line-height:1.55}.billing-home .meta{color:#dce9e3}
-.billing-state-compact{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
-.billing-plans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
-.billing-plan{background:#fff;color:#17332a;border-radius:14px;padding:16px;border:1px solid rgba(255,255,255,.3)}
-.billing-plan.featured{box-shadow:inset 0 0 0 2px #8eaf83}.billing-plan-name{font-size:13px;text-transform:uppercase;letter-spacing:.08em;font-weight:900;color:#5e715f}
-.billing-plan-price{font-size:27px;font-weight:900;margin:7px 0}.billing-plan-price span{font-size:12px;font-weight:700;color:#6a675d}
-.billing-plan .btn{width:100%;margin-top:10px}.billing-saving{display:inline-block;background:#dcebd7;color:#244d35;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:900}
-.billing-manage{background:#f4f0e6;border:1px solid #e0d8c8;border-radius:13px;padding:15px;margin:12px 0}
 .app-footer{background:#0d2e26;color:#fff;margin:28px -14px -14px;padding:34px max(22px,calc((100% - 1000px)/2));display:grid;grid-template-columns:1.2fr 1fr;gap:30px}
 .app-footer-brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:17px}.app-footer-brand img{width:40px;height:40px;object-fit:contain}
 .app-footer p{color:#d6e3de;max-width:480px;line-height:1.6;font-size:13px}.app-footer-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px 22px;align-content:start}
 .app-footer button,.app-footer a{background:none;border:0;padding:0;color:#fff;text-decoration:none;text-align:left;font:inherit;font-weight:800;cursor:pointer}.app-footer button:hover,.app-footer a:hover{text-decoration:underline}
-@media(max-width:650px){.billing-plans,.app-footer{grid-template-columns:1fr}.billing-home{padding:19px}.app-footer{margin-left:-14px;margin-right:-14px;padding:28px 22px}.app-footer-links{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.app-footer{grid-template-columns:1fr}.app-footer{margin-left:-14px;margin-right:-14px;padding:28px 22px}.app-footer-links{grid-template-columns:1fr 1fr}}
 
 /* v10.1 — identidade editorial, navegação móvel e rodapé de largura total */
 .btn{font-weight:600}.btn.primary,.btn.success,.btn.dark{font-weight:800}
@@ -214,9 +205,6 @@ body.app-authenticated main{padding-bottom:0}
  .app-footer{grid-template-columns:1fr;width:100vw;margin:24px 0 0 calc(50% - 50vw);padding:30px 22px calc(92px + env(safe-area-inset-bottom));gap:22px}
  .app-footer-links{grid-template-columns:1fr 1fr}
  .more-action-grid{grid-template-columns:1fr}
- .billing-home{border-radius:15px;padding:18px}
- .billing-home h2{font-size:23px}
- .billing-plan-price{font-size:24px}
  .app-install-banner,.app-update-banner{bottom:calc(76px + env(safe-area-inset-bottom))}
  .app-footer{display:none}
  body.mobile-footer-visible .app-footer{display:grid}
@@ -236,9 +224,6 @@ header h1{font-size:25px} header p{margin:4px 0 0}
 .header-cloud-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:min(70vw,620px)}
 .header-cloud-actions{display:flex;gap:4px;align-items:center}
 .header-cloud-actions .btn{min-height:26px;padding:3px 8px;font-size:11px;border-radius:999px;background:rgba(255,255,255,.10);color:#fff}
-.header-billing-pill{border:0;min-height:24px;padding:3px 9px;border-radius:999px;background:rgba(151,188,135,.18);color:#eef6ea;font:inherit;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
-.header-billing-pill:before{content:"";width:7px;height:7px;border-radius:50%;background:#9bc58b;flex:0 0 auto}.header-billing-pill:hover{background:rgba(151,188,135,.28)}
-.header-billing-details .billing-detail-title{font-weight:800;color:#17332A;margin-bottom:5px}.header-billing-details .billing-detail-date{font-size:12px;color:#5F5B50;line-height:1.5}
 .header-cloud-details{position:fixed;z-index:1200;top:calc(var(--header-h) + 6px);left:50%;transform:translateX(-50%);width:min(92vw,520px);background:#FFFDF8;color:#292922;border:1px solid #D8D1C2;border-radius:12px;padding:13px;box-shadow:0 12px 32px rgba(0,0,0,.20);text-align:left}
 .header-cloud-details .toolbar{margin-top:10px}
 .nav-wrap{position:sticky;top:var(--header-h);z-index:950;border-radius:0 0 12px 12px;margin-top:-14px;margin-left:-14px;margin-right:-14px;margin-bottom:12px;box-shadow:0 3px 10px rgba(0,0,0,.08)}
@@ -941,12 +926,22 @@ details[open]>summary:after{content:"⌃"}
 .experience-analysis-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
 .experience-analysis-head h3{margin:0 0 4px;color:#17332A}
 .component-suggestions{display:grid;gap:8px;margin-top:12px}
-.component-choice{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;border:1px solid #dde4df;border-radius:11px;background:#fff;padding:11px 12px;cursor:pointer}
+.component-choice{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;border:1px solid #dde4df;border-radius:11px;background:#fff;padding:11px 12px;cursor:pointer}
 .component-choice.selected{border-color:#6c9b7e;background:#f1f7f3}
-.component-choice input{width:auto;margin:0}
+.component-choice input{width:auto;margin:4px 0 0}
 .component-choice-main{font-weight:800;color:#203a30}
 .component-choice-area{font-size:11px;color:#6c746f;margin-top:2px}
-.component-relevance{font-size:11px;color:#607068;white-space:nowrap}
+.suggestion-content{min-width:0}
+.suggestion-header{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.suggestion-header .component-choice-main{min-width:0}
+.component-relevance{flex:0 0 auto;font-size:11px;line-height:1.2;color:#31594d;white-space:nowrap;background:#eef6f2;border:1px solid #cfe2d9;border-radius:999px;padding:4px 7px;font-weight:800}
+.suggestion-description{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;color:#5F5B50;font-size:12px;line-height:1.45;margin-top:7px}
+.suggestion-description.expanded{display:block;-webkit-line-clamp:unset;overflow:visible}
+.suggestion-description-toggle{appearance:none;border:0;background:transparent;color:#587b99;padding:0;margin-top:6px;font:inherit;font-size:12px;font-weight:800;text-decoration:underline;cursor:pointer}
+.suggestion-description-toggle:focus-visible{outline:2px solid #587b99;outline-offset:3px;border-radius:3px}
+.ai-suggestion-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.ai-suggestion-header .ai-suggestion-code{min-width:0}
+.ai-suggestion-header .ai-semantic-match{flex:0 0 auto;margin-top:0!important;white-space:nowrap}
 .analysis-next{margin-top:10px;padding-top:10px;border-top:1px solid #dde4df}
 .record-context-card{border:1px solid #e5ded0;border-radius:11px;background:#fbf8f1;padding:11px 12px}
 .record-context-card b{color:#35483f}
@@ -973,14 +968,13 @@ body.app-authenticated main{padding-bottom:0}
     <img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true">
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · beta privado · v10.3 PWA</p>
+  <p>Homeschooling alinhado à BNCC · beta privado · v10.6 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
       <span id="headerSyncDot" class="sync-dot"></span>
       <span id="headerCloudText" class="header-cloud-text">Aguardando login</span>
     </div>
-    <button id="headerBillingPill" class="header-billing-pill hidden" type="button" onclick="event.stopPropagation();toggleHeaderBillingDetails()">Plano ativo</button>
     <div class="header-cloud-actions">
       <button id="headerSyncBtn" class="btn hidden" onclick="event.stopPropagation();syncWithDrive({manual:true})" title="Sincronizar agora">↻</button>
     </div>
@@ -995,9 +989,6 @@ body.app-authenticated main{padding-bottom:0}
       <button class="btn" onclick="showPage('configuracoes');toggleHeaderCloudDetails(false)">Configurações</button>
       <button class="btn danger" onclick="googleLogout();toggleHeaderCloudDetails(false)">Sair</button>
     </div>
-  </div>
-  <div id="headerBillingDetails" class="header-cloud-details header-billing-details hidden no-print">
-    <div id="headerBillingDetailsContent"></div>
   </div>
 </header>
 
@@ -1064,7 +1055,6 @@ body.app-authenticated main{padding-bottom:0}
     </div>
 
     <section id="page-inicio" class="page active">
-      <div id="dashboardBillingCard" class="hidden"></div>
       <div id="dashboard"></div>
     </section>
 
@@ -1350,7 +1340,6 @@ body.app-authenticated main{padding-bottom:0}
           <span>🔔</span><div><b id="adminValidationNoticeTitle">Itens aguardando validação</b><div id="adminValidationNoticeText" class="meta"></div></div>
         </div>
         <div class="more-group"><h3 class="more-group-title">Conta e acesso</h3>
-          <div id="billingManageCard" class="billing-manage"><div class="toolbar" style="justify-content:space-between;align-items:flex-start"><div><b>💳 Plano da família</b><div id="billingStatusText" class="meta" style="margin-top:4px">Verificando acesso…</div></div><span class="meta" style="background:#e8e1d2;padding:5px 8px;border-radius:999px">Teste</span></div><div id="billingCheckoutArea" class="hidden"></div></div>
           <div class="more-action-grid"><button class="btn" onclick="showPage('configuracoes')">Configurações da família</button></div>
         </div>
         <div class="more-group"><h3 class="more-group-title">Acompanhamento</h3>
@@ -1475,8 +1464,8 @@ body.app-authenticated main{padding-bottom:0}
           <p>Nome, data de nascimento ou ano de referência, atividades, avaliações e fotos são usados para organizar o acompanhamento educacional solicitado pela família. O tratamento deve considerar sempre o melhor interesse da criança e não é usado para publicidade direcionada a ela.</p>
 
           <h3 style="margin-top:18px">💳 Assinatura e pagamento</h3>
-          <p>Os registros de estudo e arquivos permanecem no Google Drive controlado pela família. No banco do Diário ficam separadamente os dados necessários para conta, vínculo familiar e cobrança, como identificador da família, plano, estado da assinatura, datas de vigência, e-mail do pagador quando informado pelo provedor e referências técnicas do Mercado Pago.</p>
-          <p>O Diário não recebe nem armazena o número completo do cartão. O pagamento é preenchido e processado no ambiente do Mercado Pago.</p>
+          <p>Os registros de estudo e arquivos permanecem no Google Drive controlado pela família. No banco do Diário ficam separadamente os dados necessários para conta, vínculo familiar e, quando houver um provedor ativo, metadados de cobrança como plano, estado da assinatura, datas de vigência e referências técnicas.</p>
+          <p>O Diário não recebe nem armazena números de cartão. Se uma cobrança for oferecida futuramente, ela será processada por um provedor externo informado com transparência nesta política.</p>
 
           <h3 style="margin-top:18px">✨ Inteligência artificial</h3>
           <p>A análise só acontece quando a família toca no botão correspondente. Para analisar uma experiência, o Diário envia ao serviço de IA o relato, a identificação necessária da criança, seu ano de referência e, quando existir, um contexto resumido do planejamento, como título, descrição, local e material.</p>
@@ -1667,12 +1656,11 @@ body.app-authenticated main{padding-bottom:0}
 <div class="card"><h2>Administração do Diário</h2>
 <div class="notice" style="margin-bottom:12px">Área exclusiva do administrador geral para gerenciar o catálogo compartilhado e os recursos técnicos do Diário de Estudos.</div>
 
-<details class="tech-details" open><summary>💳 Assinaturas e acessos gratuitos</summary><div class="drive-folder-card" style="margin-top:8px">
-  <div class="grid"><div><label class="field">Valor mensal em centavos</label><input id="adminBillingAmount" type="number" min="100" value="2990"></div><div><label class="field">Valor anual em centavos</label><input id="adminBillingAnnualAmount" type="number" min="100" value="29900"></div><div><label class="field">Dias gratuitos</label><input id="adminBillingTrial" type="number" min="0" max="365" value="7"></div><div class="full"><label style="display:flex;gap:8px;align-items:center"><input id="adminBillingEnforcement" type="checkbox" style="width:auto"><span>Ativar bloqueio de edição por pagamento</span></label><div class="meta">Deixe desligado enquanto estivermos testando.</div></div></div>
-  <div class="toolbar" style="margin-top:8px"><button class="btn small" type="button" onclick="saveAdminBillingConfig()">Salvar configuração</button><button class="btn small" type="button" onclick="loadAdminBilling()">Atualizar lista</button></div><hr>
-  <div class="grid"><div class="full"><label class="field">Família</label><select id="adminGrantFamily"></select></div><div><label class="field">Tipo de acesso</label><select id="adminGrantType"><option value="beta_tester">Beta tester</option><option value="social">Acesso social</option><option value="partnership">Parceria</option><option value="courtesy">Cortesia</option></select></div><div><label class="field">Válido até (opcional)</label><input id="adminGrantEnds" type="date"></div><div class="full"><label class="field">Motivo</label><input id="adminGrantReason" placeholder="Ex.: família participante do beta inicial"></div></div>
-  <div class="toolbar" style="margin-top:8px"><button class="btn success small" type="button" onclick="grantFamilyAccess()">Liberar acesso</button><button class="btn danger small" type="button" onclick="revokeFamilyAccess()">Remover gratuidade</button></div><div id="adminBillingFamilies" class="meta" style="margin-top:12px">Carregando famílias…</div>
-  <details class="tech-details" style="margin-top:14px"><summary>Notificações do Mercado Pago</summary><div id="adminBillingWebhooks" class="drive-folder-card meta" style="margin-top:8px">Carregando eventos…</div></details>
+<details class="tech-details" open><summary>🔓 Acessos gratuitos</summary><div class="drive-folder-card" style="margin-top:8px">
+  <div class="notice"><b>Acessos especiais por família</b><div class="meta" style="margin-top:4px;color:#5F5B50">Use para beta testers, acesso social, parcerias e cortesias.</div></div>
+  <div class="toolbar" style="margin-top:8px"><button class="btn small" type="button" onclick="loadAdminAccessGrants()">Atualizar lista</button></div><hr>
+  <div class="grid"><div class="full"><label class="field">Família</label><select id="adminAccessGrantFamily"></select></div><div><label class="field">Tipo de acesso</label><select id="adminAccessGrantType"><option value="beta_tester">Beta tester</option><option value="social">Acesso social</option><option value="partnership">Parceria</option><option value="courtesy">Cortesia</option></select></div><div><label class="field">Válido até (opcional)</label><input id="adminAccessGrantEnds" type="date"></div><div class="full"><label class="field">Motivo</label><input id="adminAccessGrantReason" placeholder="Ex.: família participante do beta inicial"></div></div>
+  <div class="toolbar" style="margin-top:8px"><button class="btn success small" type="button" onclick="grantFamilyAccess()">Liberar acesso</button><button class="btn danger small" type="button" onclick="revokeFamilyAccess()">Remover gratuidade</button></div><div id="adminAccessGrantFamilies" class="meta" style="margin-top:12px">Carregando famílias…</div>
 </div></details>
 
 <details class="tech-details" open><summary>🤖 Consumo de IA por família</summary><div class="drive-folder-card" style="margin-top:8px">
@@ -1953,9 +1941,9 @@ function showPage(name){
  if(name!=="leituras"&&typeof closeBookBarcodeScanner==="function")closeBookBarcodeScanner();
  document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id==="page-"+name));
  document.querySelectorAll(".nav-tab").forEach(x=>x.classList.toggle("active",x.dataset.page===name));
- if(name==="inicio"){renderDashboard();loadBillingStatus()}
+ if(name==="inicio"){renderDashboard()}
  if(name==="registro")renderRecordPage();
- if(name==="planejamento"){renderPlans();refreshCalendarIntegrationUI();checkImportedCalendarChanges();} if(name==="mais"){refreshCalendarIntegrationUI();checkAdminPendingValidations(false);loadBillingStatus();} if(name==="administracao"){updateAdminValidationNotificationStatus();loadAdminBilling();loadAdminAiUsage();loadPendingCommunityBooks();loadPendingMaterials();}
+ if(name==="planejamento"){renderPlans();refreshCalendarIntegrationUI();checkImportedCalendarChanges();} if(name==="mais"){refreshCalendarIntegrationUI();checkAdminPendingValidations(false);} if(name==="administracao"){updateAdminValidationNotificationStatus();loadAdminAccessGrants();loadAdminAiUsage();loadPendingCommunityBooks();loadPendingMaterials();}
  if(name==="relatorios")renderReportPage();
  if(name==="historico"){renderHistoryBrowser();renderHistoryBatchRows();refreshHistoryActivityOptions();}
  if(name==="leituras"){renderReadingPage();}
@@ -3651,119 +3639,23 @@ async function backendFetch(path, options={}){
   return data;
 }
 
-let billingStatusData=null;
-function billingMoney(cents){return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(Number(cents||0)/100)}
-function billingDate(value){return value?new Date(value).toLocaleDateString("pt-BR"):""}
-function billingStatusLabel(data){
- const s=String(data?.subscription?.provider_status||"none").toLowerCase(),sub=data?.subscription||{};
- if(data?.grant){
-  const names={beta_tester:"Beta tester",social:"Acesso social",partnership:"Parceria",courtesy:"Cortesia"};
-  return `Acesso gratuito — ${names[data.grant.grant_type]||data.grant.grant_type}${data.grant.reason?` · ${data.grant.reason}`:""}`;
- }
- if(["cancelled","canceled"].includes(s))return sub.access_until&&Date.parse(sub.access_until)>Date.now()?`Renovação cancelada · acesso completo até ${billingDate(sub.access_until)}`:"Assinatura encerrada · acesso para visualização";
- if(["authorized","active"].includes(s)){
-  if(sub.trial_ends_at&&Date.parse(sub.trial_ends_at)>Date.now())return `Teste grátis ativo até ${billingDate(sub.trial_ends_at)}`;
-  return `Plano ${sub.plan_code==="annual"?"anual":"mensal"} ativo`;
- }
- if(s==="pending")return "Assinatura aguardando confirmação";
- return data?.enforcement_enabled?"Acesso somente para visualização":"Beta aberto — nenhuma função será bloqueada";
-}
-function billingPlansHtml(data){
- const trial=Number(data?.plan?.trial_days||0),monthly=Number(data?.plan?.monthly_amount_cents||2990),annual=Number(data?.plan?.annual_amount_cents||29900),saving=Math.max(0,monthly*12-annual),savingPercent=monthly>0?Math.round((saving/(monthly*12))*100):0,annualMonthly=Math.round(annual/12);
- return `<div class="billing-plans"><div class="billing-plan"><div class="billing-plan-name">Plano mensal</div><div class="billing-plan-price">${billingMoney(monthly)} <span>/ mês</span></div><div class="meta">Flexibilidade para cancelar a próxima renovação.</div><button class="btn dark" type="button" onclick="startBillingCheckout('monthly',this)">${trial?`Começar ${trial} dias grátis`:"Assinar mensal"}</button></div><div class="billing-plan featured"><div class="billing-plan-name">Plano anual</div><div class="billing-plan-price">${billingMoney(annual)} <span>/ ano</span></div>${saving?`<span class="billing-saving">Economize ${savingPercent}% no anual</span>`:""}<div class="meta" style="margin-top:7px">Equivale a ${billingMoney(annualMonthly)} por mês · um pagamento por ano.</div><button class="btn success" type="button" onclick="startBillingCheckout('annual',this)">${trial?`Começar ${trial} dias grátis`:"Assinar anual"}</button></div></div><div class="meta" style="margin-top:11px">No ambiente de teste, use a conta Buyer e mantenha “Usar saldo” desativado.</div>`;
-}
-function renderHeaderBilling(data){
- const pill=$("headerBillingPill"),panel=$("headerBillingDetails"),content=$("headerBillingDetailsContent");if(!pill||!content)return;
- const sub=data?.subscription||{},status=String(sub.provider_status||"none").toLowerCase(),active=["authorized","active"].includes(status),canceled=["cancelled","canceled"].includes(status),accessValid=canceled&&sub.access_until&&Date.parse(sub.access_until)>Date.now(),trial=active&&sub.trial_ends_at&&Date.parse(sub.trial_ends_at)>Date.now();
- let short="",title=billingStatusLabel(data),detail="";
- if(data?.grant){
-  const names={beta_tester:"Acesso beta",social:"Acesso social",partnership:"Parceria",courtesy:"Cortesia"};short=names[data.grant.grant_type]||"Acesso gratuito";detail=data.grant.reason?`Motivo: ${esc(data.grant.reason)}`:"Nenhuma cobrança se aplica a este acesso.";
- }else if(active){
-  short=trial?`Teste até ${billingDate(sub.trial_ends_at)}`:`Plano ${sub.plan_code==="annual"?"anual":"mensal"}`;
-  const next=sub.current_period_end||sub.trial_ends_at;detail=trial?`Primeira cobrança em ${esc(billingDate(sub.trial_ends_at))}.`:next?`Próxima renovação em ${esc(billingDate(next))}.`:"Acesso completo liberado.";
- }else if(accessValid){short=`Acesso até ${billingDate(sub.access_until)}`;detail=`A renovação foi cancelada. O acesso completo continua até ${esc(billingDate(sub.access_until))}.`;}
- if(!short){pill.classList.add("hidden");panel?.classList.add("hidden");content.innerHTML="";return;}
- pill.textContent=short;pill.classList.remove("hidden");
- content.innerHTML=`<div class="billing-detail-title">${esc(title)}</div><div class="billing-detail-date">${detail}</div><div class="toolbar" style="margin-top:11px"><button class="btn small" type="button" onclick="toggleHeaderBillingDetails(false);showPage('mais')">Gerenciar plano</button><button class="btn small" type="button" onclick="syncBillingStatus()">Atualizar situação</button></div>`;
-}
-function renderBillingUI(data){
- const home=$("dashboardBillingCard"),text=$("billingStatusText"),area=$("billingCheckoutArea"),sub=data?.subscription||{},status=String(sub.provider_status||"none").toLowerCase();
- const active=["authorized","active"].includes(status),canceled=["cancelled","canceled"].includes(status),accessValid=canceled&&sub.access_until&&Date.parse(sub.access_until)>Date.now(),label=billingStatusLabel(data),renewal=sub.current_period_end||sub.trial_ends_at;
- renderHeaderBilling(data);
- if(text)text.innerHTML=`<b>${esc(label)}</b>${active&&renewal?`<br>Próxima cobrança ou renovação: ${esc(billingDate(renewal))}`:""}`;
- if(data?.grant){
-  if(home){home.classList.add("hidden");home.innerHTML=""}
-  if(area){area.classList.add("hidden");area.innerHTML=""}return;
- }
- if(active){
-  if(home){home.classList.add("hidden");home.innerHTML=""}
-  if(area){area.classList.remove("hidden");area.innerHTML=`<div class="toolbar" style="margin-top:12px"><button class="btn small" onclick="syncBillingStatus()">Atualizar situação</button><button class="btn danger small" onclick="cancelBillingSubscription()">Cancelar renovação</button></div>`}return;
- }
- if(canceled){
-  if(accessValid){if(home){home.classList.add("hidden");home.innerHTML=""}if(area){area.classList.remove("hidden");area.innerHTML=`<div class="toolbar" style="margin-top:12px"><button class="btn small" onclick="syncBillingStatus()">Atualizar situação</button></div>`}return;}
-  if(home){home.classList.remove("hidden");home.innerHTML=`<div class="billing-home"><h2>${esc(label)}</h2><p>Seus registros permanecem guardados. Você pode escolher um novo plano quando quiser.</p>${billingPlansHtml(data)}</div>`}
-  if(area){area.classList.remove("hidden");area.innerHTML=`<div class="toolbar" style="margin-top:12px"><button class="btn small" onclick="syncBillingStatus()">Atualizar situação</button></div>`}return;
- }
- if(home){home.classList.remove("hidden");home.innerHTML=`<div class="billing-home"><div class="billing-plan-name" style="color:#b9d1c6">Seu Diário completo, sempre com você</div><h2>Escolha como continuar</h2><p>Experimente gratuitamente. Seus registros continuarão no Google Drive da família mesmo sem assinatura ativa.</p>${billingPlansHtml(data)}</div>`}
- if(area){area.classList.remove("hidden");area.innerHTML=`<div class="meta" style="margin-top:9px">Escolha o plano no início da página Hoje.</div><button class="btn small" style="margin-top:8px" onclick="showPage('inicio')">Conhecer os planos</button>`}
-}
-async function loadBillingStatus(){
- const fam=currentBackendFamily(),text=$("billingStatusText"),area=$("billingCheckoutArea");
- if(!fam||!backendProfile?.user){if(text)text.textContent="Conecte sua família para consultar o plano.";area?.classList.add("hidden");$("dashboardBillingCard")?.classList.add("hidden");$("headerBillingPill")?.classList.add("hidden");$("headerBillingDetails")?.classList.add("hidden");return}
+async function loadAdminAccessGrants(){
+ const box=$("adminAccessGrantFamilies"),select=$("adminAccessGrantFamily");if(!isGlobalDiaryAdmin)return;
  try{
-  const data=await backendFetch(`/billing/status?family_id=${encodeURIComponent(fam.id)}`);billingStatusData=data;
-  renderBillingUI(data);
- }catch(e){if(text)text.textContent="Não foi possível consultar o plano: "+e.message;area?.classList.add("hidden");$("headerBillingPill")?.classList.add("hidden");$("headerBillingDetails")?.classList.add("hidden")}
-}
-async function syncBillingReturn(){
- if(new URLSearchParams(location.search).get("billing")!=="return")return;
- const fam=currentBackendFamily();if(!fam||!backendProfile?.user)return;
- try{
-  history.replaceState({},"",location.pathname+location.hash);
-  await backendFetch("/billing/sync",{method:"POST",body:JSON.stringify({family_id:fam.id})});
-  await loadBillingStatus();
- }catch(e){console.warn("Assinatura ainda não confirmada",e)}
-}
-async function startBillingCheckout(planCode="monthly",btn=null){
- const fam=currentBackendFamily();
- if(!fam)return alert("Selecione uma família.");
- const old=btn?.textContent;if(btn){btn.disabled=true;btn.textContent="Abrindo Mercado Pago…"}
- try{const data=await backendFetch("/billing/checkout",{method:"POST",body:JSON.stringify({family_id:fam.id,plan_code:planCode})});if(!data?.init_point)throw new Error("O Mercado Pago não retornou o endereço do checkout.");location.href=data.init_point}catch(e){alert("Não foi possível iniciar a assinatura: "+e.message);if(btn){btn.disabled=false;btn.textContent=old||"Assinar"}}
-}
-async function cancelBillingSubscription(){
- const fam=currentBackendFamily();if(!fam)return;
- if(!confirm("Cancelar a renovação? O acesso completo continuará até o fim do período já concedido e nenhum registro será apagado."))return;
- try{const data=await backendFetch("/billing/cancel",{method:"POST",body:JSON.stringify({family_id:fam.id})});billingStatusData=data;renderBillingUI(data);alert("Renovação cancelada. Seus dados continuam guardados.")}catch(e){alert("Não foi possível cancelar: "+e.message)}
-}
-async function syncBillingStatus(){
- const fam=currentBackendFamily();if(!fam)return;
- try{await backendFetch("/billing/sync",{method:"POST",body:JSON.stringify({family_id:fam.id})});await loadBillingStatus()}catch(e){alert("Não foi possível atualizar a assinatura: "+e.message)}
-}
-async function loadAdminBilling(){
- const box=$("adminBillingFamilies"),webhookBox=$("adminBillingWebhooks"),select=$("adminGrantFamily");if(!isGlobalDiaryAdmin)return;
- try{
-  const data=await backendFetch("/admin/billing"),c=data.config||{},families=data.families||[],events=data.webhook_events||[],summary=data.webhook_summary||[];
-  $("adminBillingAmount").value=c.monthly_amount_cents??2990;$("adminBillingAnnualAmount").value=c.annual_amount_cents??29900;$("adminBillingTrial").value=c.trial_days??7;$("adminBillingEnforcement").checked=Number(c.enforcement_enabled||0)===1;
+  const data=await backendFetch("/admin/access-grants"),families=data.families||[];
   if(select)select.innerHTML=families.map(f=>`<option value="${esc(f.id)}">${esc(f.name)}</option>`).join("");
-  if(box)box.innerHTML=families.map(f=>`<div class="duplicate-card" style="margin-top:7px"><b>${esc(f.name)}</b><div class="meta">Mercado Pago: ${esc(f.provider_status||"não iniciado")}${f.plan_code?` · Plano: ${esc(f.plan_code)}`:""}${f.grant_type?` · Gratuidade: ${esc(f.grant_type)} — ${esc(f.grant_reason||"")}`:""}</div></div>`).join("")||"Nenhuma família cadastrada.";
-  if(webhookBox){
-   const counts=Object.fromEntries(summary.map(x=>[x.status,Number(x.total||0)]));
-   webhookBox.innerHTML=`<div style="margin-bottom:9px"><b>Últimos eventos</b> · processados: ${counts.processed||0} · ignorados: ${counts.ignored||0} · erros: <b style="color:${counts.error?'#94473C':'inherit'}">${counts.error||0}</b></div>${events.map(e=>`<div class="duplicate-card" style="margin-top:7px;border-color:${e.status==='error'?'#D8B3AB':'#E2DCCD'}"><b>${esc(e.status||"received")}</b> · ${esc(e.event_type||"sem tipo")}<div class="meta">Evento: ${esc(e.provider_event_id||"sem identificador")} · Recurso: ${esc(e.resource_id||"-")} · ${esc(e.received_at||"")}</div>${e.error_message?`<div style="color:#94473C;margin-top:4px">${esc(e.error_message)}</div>`:""}</div>`).join("")||"Nenhuma notificação recebida."}`;
-  }
- }catch(e){if(box)box.textContent="Não foi possível carregar: "+e.message;if(webhookBox)webhookBox.textContent="Não foi possível carregar os webhooks."}
-}
-async function saveAdminBillingConfig(){
- try{await backendFetch("/admin/billing/config",{method:"PUT",body:JSON.stringify({monthly_amount_cents:Number($("adminBillingAmount").value||2990),annual_amount_cents:Number($("adminBillingAnnualAmount").value||29900),trial_days:Number($("adminBillingTrial").value||0),enforcement_enabled:$("adminBillingEnforcement").checked})});alert("Configuração salva.");loadAdminBilling()}catch(e){alert("Não foi possível salvar: "+e.message)}
+  if(box)box.innerHTML=families.map(f=>`<div class="duplicate-card" style="margin-top:7px"><b>${esc(f.name)}</b><div class="meta" style="color:#5F5B50">${f.grant_type?`Acesso gratuito: ${esc(f.grant_type)}${f.grant_reason?` — ${esc(f.grant_reason)}`:""}`:"Acesso completo durante a migração"}</div></div>`).join("")||"Nenhuma família cadastrada.";
+ }catch(e){if(box)box.textContent="Não foi possível carregar: "+e.message}
 }
 async function grantFamilyAccess(){
- const family_id=$("adminGrantFamily")?.value,grant_type=$("adminGrantType")?.value,reason=$("adminGrantReason")?.value.trim(),date=$("adminGrantEnds")?.value;
+ const family_id=$("adminAccessGrantFamily")?.value,grant_type=$("adminAccessGrantType")?.value,reason=$("adminAccessGrantReason")?.value.trim(),date=$("adminAccessGrantEnds")?.value;
  if(!reason)return alert("Informe o motivo da liberação.");
- try{await backendFetch("/admin/billing/grants",{method:"POST",body:JSON.stringify({family_id,grant_type,reason,ends_at:date?date+"T23:59:59Z":null})});alert("Acesso liberado.");$("adminGrantReason").value="";loadAdminBilling()}catch(e){alert("Não foi possível liberar: "+e.message)}
+ try{await backendFetch("/admin/access-grants",{method:"POST",body:JSON.stringify({family_id,grant_type,reason,ends_at:date?date+"T23:59:59Z":null})});alert("Acesso liberado.");$("adminAccessGrantReason").value="";loadAdminAccessGrants()}catch(e){alert("Não foi possível liberar: "+e.message)}
 }
 async function revokeFamilyAccess(){
- const family_id=$("adminGrantFamily")?.value;if(!family_id)return;
+ const family_id=$("adminAccessGrantFamily")?.value;if(!family_id)return;
  if(!confirm("Remover a gratuidade desta família?"))return;
- try{await backendFetch("/admin/billing/grants/revoke",{method:"POST",body:JSON.stringify({family_id})});loadAdminBilling()}catch(e){alert("Não foi possível remover: "+e.message)}
+ try{await backendFetch("/admin/access-grants/revoke",{method:"POST",body:JSON.stringify({family_id})});loadAdminAccessGrants()}catch(e){alert("Não foi possível remover: "+e.message)}
 }
 
 async function connectBackend(){
@@ -3779,7 +3671,6 @@ async function connectBackend(){
 
   try{
     await refreshBackendProfile();
-    await syncBillingReturn();
     return true;
   }catch(e){
     console.error("Falha de autenticação do backend:",e);
@@ -3855,19 +3746,11 @@ function compactCloudStatus(msg){
 function toggleHeaderCloudDetails(force){
  const el=$("headerCloudDetails");if(!el)return;
  const show=typeof force==="boolean"?force:el.classList.contains("hidden");
- if(show)$("headerBillingDetails")?.classList.add("hidden");
- el.classList.toggle("hidden",!show);
-}
-function toggleHeaderBillingDetails(force){
- const el=$("headerBillingDetails");if(!el)return;
- const show=typeof force==="boolean"?force:el.classList.contains("hidden");
- if(show)$("headerCloudDetails")?.classList.add("hidden");
  el.classList.toggle("hidden",!show);
 }
 document.addEventListener("click",e=>{
- const cloudPanel=$("headerCloudDetails"),billingPanel=$("headerBillingDetails"),bar=$("headerCloud");
+ const cloudPanel=$("headerCloudDetails"),bar=$("headerCloud");
  if(cloudPanel&&!cloudPanel.classList.contains("hidden")&&!cloudPanel.contains(e.target)&&!bar?.contains(e.target))cloudPanel.classList.add("hidden");
- if(billingPanel&&!billingPanel.classList.contains("hidden")&&!billingPanel.contains(e.target)&&!bar?.contains(e.target))billingPanel.classList.add("hidden");
 });
 let headerResizeObserver=null;
 function updateHeaderHeightCss(){
@@ -5209,6 +5092,35 @@ function semanticLabel(x){
  const n=Number(x?.semantic_similarity);
  return Number.isFinite(n)?`${Math.max(0,Math.min(100,n*100)).toFixed(1).replace(".",",")}% similaridade semântica`:"";
 }
+function semanticPercent(x){
+ const n=Number(x?.semantic_similarity);
+ return Number.isFinite(n)?`${Math.round(Math.max(0,Math.min(100,n*100)))}%`:"";
+}
+const expandedSuggestionDescriptions=new Set();
+function suggestionDescriptionHtml(description,key){
+ const text=String(description||"").trim();if(!text)return "";
+ const safeKey=encodeURIComponent(String(key||"description"));
+ const expanded=expandedSuggestionDescriptions.has(safeKey);
+ return `<div class="suggestion-description ${expanded?"expanded":""}" id="suggestionDescription-${safeKey}">${esc(text)}</div><button type="button" class="suggestion-description-toggle" data-suggestion-key="${safeKey}" onclick="toggleSuggestionDescription(event,'${safeKey}')">${expanded?"Recolher descrição":"Ver descrição completa"}</button>`;
+}
+function toggleSuggestionDescription(event,key){
+ event?.preventDefault();event?.stopPropagation();
+ const safeKey=String(key||"");
+ const expanded=!expandedSuggestionDescriptions.has(safeKey);
+ expanded?expandedSuggestionDescriptions.add(safeKey):expandedSuggestionDescriptions.delete(safeKey);
+ const description=document.getElementById(`suggestionDescription-${safeKey}`);
+ const button=event?.currentTarget;
+ description?.classList.toggle("expanded",expanded);
+ if(button)button.textContent=expanded?"Recolher descrição":"Ver descrição completa";
+}
+function syncSuggestionDescriptionToggles(root=document){
+ root.querySelectorAll?.(".suggestion-description").forEach(description=>{
+  const button=description.nextElementSibling;
+  if(!button?.classList.contains("suggestion-description-toggle"))return;
+  const needsToggle=description.classList.contains("expanded")||description.scrollHeight>description.clientHeight+1;
+  button.classList.toggle("hidden",!needsToggle);
+ });
+}
 function renderRecordComponentAnalysis(){
  const box=$("experienceComponentResults");if(!box)return;
  if(!recordAiExperience&&!recordAiComponents.length&&!recordAiSkills.length&&!recordAiCompetencies.length){
@@ -5217,9 +5129,9 @@ function renderRecordComponentAnalysis(){
  const selectedComps=new Set(recordSelectedComponents.map(x=>x.component));
  const selectedSkills=new Set(recordSelectedSkills.map(x=>x.code));
  const selectedCompetencies=new Set(recordSelectedCompetencies.map(x=>x.code));
- const comps=recordAiComponents.map((x,i)=>`<label class="component-choice ${selectedComps.has(x.component)?"selected":""}"><input type="checkbox" ${selectedComps.has(x.component)?"checked":""} onchange="toggleRecordComponent(${i},this.checked)"><span><div class="component-choice-main">${esc(x.component)}</div><div class="component-choice-area">${esc(x.area||"")}</div></span><span class="component-relevance">${Number(x.relevance)||0}% relevância</span></label>`).join("");
- const skills=recordAiSkills.map((x,i)=>`<label class="component-choice ${selectedSkills.has(x.code)?"selected":""}"><input type="checkbox" ${selectedSkills.has(x.code)?"checked":""} onchange="toggleRecordSkill(${i},this.checked)"><span><div class="component-choice-main">${esc(x.code)} · ${esc(x.curricular_component||"")}</div><div class="component-choice-area">${esc(x.description||"")}</div></span><span class="component-relevance">${semanticLabel(x)}</span></label>`).join("");
- const competencies=recordAiCompetencies.map((x,i)=>`<label class="component-choice ${selectedCompetencies.has(x.code)?"selected":""}"><input type="checkbox" ${selectedCompetencies.has(x.code)?"checked":""} onchange="toggleRecordCompetency(${i},this.checked)"><span><div class="component-choice-main">${esc(x.code)}</div><div class="component-choice-area">${esc(x.description||"")}</div></span><span class="component-relevance">${semanticLabel(x)}</span></label>`).join("");
+ const comps=recordAiComponents.map((x,i)=>`<label class="component-choice ${selectedComps.has(x.component)?"selected":""}"><input type="checkbox" ${selectedComps.has(x.component)?"checked":""} onchange="toggleRecordComponent(${i},this.checked)"><div class="suggestion-content"><div class="suggestion-header"><span><span class="component-choice-main">${esc(x.component)}</span><span class="component-choice-area">${esc(x.area||"")}</span></span><span class="component-relevance">${Number(x.relevance)||0}%</span></div></div></label>`).join("");
+ const skills=recordAiSkills.map((x,i)=>`<label class="component-choice ${selectedSkills.has(x.code)?"selected":""}"><input type="checkbox" ${selectedSkills.has(x.code)?"checked":""} onchange="toggleRecordSkill(${i},this.checked)"><div class="suggestion-content"><div class="suggestion-header"><span class="component-choice-main">${esc(x.code)} · ${esc(x.curricular_component||"")}</span>${semanticPercent(x)?`<span class="component-relevance" title="Similaridade semântica">${semanticPercent(x)}</span>`:""}</div>${suggestionDescriptionHtml(x.description,`record-skill-${x.code||i}`)}</div></label>`).join("");
+ const competencies=recordAiCompetencies.map((x,i)=>`<label class="component-choice ${selectedCompetencies.has(x.code)?"selected":""}"><input type="checkbox" ${selectedCompetencies.has(x.code)?"checked":""} onchange="toggleRecordCompetency(${i},this.checked)"><div class="suggestion-content"><div class="suggestion-header"><span class="component-choice-main">${esc(x.code)}</span>${semanticPercent(x)?`<span class="component-relevance" title="Similaridade semântica">${semanticPercent(x)}</span>`:""}</div>${suggestionDescriptionHtml(x.description,`record-competency-${x.code||i}`)}</div></label>`).join("");
  const complementaryName=String(recordAiExperience?.complementary_activity||"").trim();
  const experience=recordAiExperience?.kind==="complementary"&&complementaryName?`<div style="font-weight:900;margin:10px 0 6px">Experiência</div><div class="component-suggestions"><label class="component-choice ${recordComplementarySelected?"selected":""}"><input type="checkbox" ${recordComplementarySelected?"checked":""} onchange="toggleRecordComplementary(this.checked)"><span><div class="component-choice-main">Atividade complementar — ${esc(complementaryName)}</div><div class="component-choice-area">Pode coexistir com todas as relações curriculares abaixo.</div></span></label></div>`:"";
  const evidenceNote=recordAiExperience?.reason?`<div class="notice" style="margin-top:9px">${recordAiExperience?.evidence_level==="insufficient_for_curriculum"?"<b>Sem evidência curricular suficiente.</b><br>":""}${esc(recordAiExperience.reason)}</div>`:"";
@@ -5227,6 +5139,7 @@ function renderRecordComponentAnalysis(){
  <div style="font-weight:900;margin:16px 0 6px">Habilidades BNCC</div><div class="component-suggestions">${skills||'<div class="meta">Nenhuma habilidade suficientemente relacionada.</div>'}</div>
  <div style="font-weight:900;margin:16px 0 6px">Competências relacionadas</div><div class="component-suggestions">${competencies||'<div class="meta">Nenhuma competência suficientemente relacionada.</div>'}</div>
  <div class="meta" style="margin-top:10px">Relevância ordena a classificação de componentes. Similaridade semântica mede proximidade textual; nenhuma delas representa certeza.</div>`;
+ requestAnimationFrame(()=>syncSuggestionDescriptionToggles(box));
 }
 function toggleRecordComplementary(checked){recordComplementarySelected=!!checked;renderRecordComponentAnalysis();saveRecordDraft(true)}
 function toggleRecordComponent(index,checked){
@@ -5714,10 +5627,9 @@ async function testAiBnccSuggestion(){
 
    const skillsHtml=latestAiBnccSuggestions.length?latestAiBnccSuggestions.map((s,i)=>`
      <div class="ai-suggestion" id="aiSuggestionCard${i}">
-       <div class="ai-suggestion-code">${i===0?"⭐ ":""}${esc(s.code||"")}${i===0?" · Mais forte":""}</div>
+       <div class="ai-suggestion-header"><div class="ai-suggestion-code">${i===0?"⭐ ":""}${esc(s.code||"")}${i===0?" · Mais forte":""}</div>${semanticPercent(s)?`<span class="ai-semantic-match" title="Similaridade semântica">${semanticPercent(s)}</span>`:""}</div>
        <div class="meta">${esc(s.curricular_component||"")}${s.school_year?" · "+esc(s.school_year):""}</div>
-       ${semanticPct(s)?`<div class="ai-semantic-match">${semanticPct(s)}</div>`:""}
-       <div style="margin-top:6px">${esc(s.description||"")}</div>
+       ${suggestionDescriptionHtml(s.description,`test-skill-${s.code||i}`)}
        <div class="toolbar" style="margin-top:8px">
          <button type="button" id="aiSuggestionBtn${i}" class="btn success small" onclick="applyAiBnccSuggestion(${i})">Usar esta habilidade</button>
        </div>
@@ -5730,10 +5642,9 @@ async function testAiBnccSuggestion(){
        <div class="ai-competency-note">Referências complementares sem série específica. Elas não substituem a habilidade escolhida para o registro.</div>
        ${latestAiBnccCompetencies.map(c=>`
          <div class="ai-suggestion ai-competency">
-           <div class="ai-suggestion-code">${esc(c.code||"")}</div>
+           <div class="ai-suggestion-header"><div class="ai-suggestion-code">${esc(c.code||"")}</div>${semanticPercent(c)?`<span class="ai-semantic-match" title="Similaridade semântica">${semanticPercent(c)}</span>`:""}</div>
            <div class="meta">${esc(c.curricular_component||c.knowledge_area||"Competência BNCC")}</div>
-           ${semanticPct(c)?`<div class="ai-semantic-match">${semanticPct(c)}</div>`:""}
-           <div style="margin-top:6px">${esc(c.description||"")}</div>
+           ${suggestionDescriptionHtml(c.description,`test-competency-${c.code||"item"}`)}
          </div>
        `).join("")}
      </div>`:"";
@@ -5743,6 +5654,7 @@ async function testAiBnccSuggestion(){
      <div class="ai-usage">
        Tokens — entrada: <b>${usage.prompt_tokens??"n/d"}</b> · saída: <b>${usage.output_tokens??"n/d"}</b> · total: <b>${usage.total_tokens??"n/d"}</b>${usage.thoughts_tokens!=null?` · pensamento: <b>${usage.thoughts_tokens}</b>`:""}
      </div>`;
+   if(box)requestAnimationFrame(()=>syncSuggestionDescriptionToggles(box));
  }catch(e){
    console.error("Teste IA BNCC:",e);
    if(status)status.textContent="Falha no teste da IA.";
@@ -7485,11 +7397,12 @@ function renderHistoryBnccBatchReview(){
     <div class="meta">Revisão ${idx+1} de ${historyBnccBatchResults.length}</div><h3 style="margin:5px 0">${esc(entry?.atividade||"Registro")}</h3><div class="meta">${esc(fmtDate(entry?.date||""))}</div>
     ${experience.reason?`<div class="notice" style="margin-top:10px">${esc(experience.reason)}</div>`:""}
     ${compName?`<div style="font-weight:900;margin:13px 0 6px">Experiência</div><label class="component-choice ${r.complementarySelected?"selected":""}"><input type="checkbox" ${r.complementarySelected?"checked":""} onchange="toggleHistoryBnccComplementary(this.checked)"><span><div class="component-choice-main">Atividade complementar — ${esc(compName)}</div></span></label>`:""}
-    <div style="font-weight:900;margin:13px 0 6px">Componentes</div><div class="component-suggestions">${components.map((x,i)=>`<label class="component-choice ${chosen(r.selectedComponents,i)?"selected":""}"><input type="checkbox" ${chosen(r.selectedComponents,i)?"checked":""} onchange="toggleHistoryBnccReview('component',${i},this.checked)"><span><div class="component-choice-main">${esc(x.component||"")}</div><div class="component-choice-area">${esc(x.area||"")}</div></span><span class="component-relevance">${Number(x.relevance)||0}% relevância</span></label>`).join("")||'<div class="meta">Nenhum componente sugerido.</div>'}</div>
-    <div style="font-weight:900;margin:13px 0 6px">Habilidades BNCC</div><div class="component-suggestions">${skills.map((x,i)=>`<label class="component-choice ${chosen(r.selectedSkills,i)?"selected":""}"><input type="checkbox" ${chosen(r.selectedSkills,i)?"checked":""} onchange="toggleHistoryBnccReview('skill',${i},this.checked)"><span><div class="component-choice-main">${esc(x.code||"")} · ${esc(x.curricular_component||"")}</div><div class="component-choice-area">${esc(x.description||"")}</div></span><span class="component-relevance">${semanticLabel(x)}</span></label>`).join("")||'<div class="meta">Nenhuma habilidade suficientemente relacionada.</div>'}</div>
-    <div style="font-weight:900;margin:13px 0 6px">Competências relacionadas</div><div class="component-suggestions">${competencies.map((x,i)=>`<label class="component-choice ${chosen(r.selectedCompetencies,i)?"selected":""}"><input type="checkbox" ${chosen(r.selectedCompetencies,i)?"checked":""} onchange="toggleHistoryBnccReview('competency',${i},this.checked)"><span><div class="component-choice-main">${esc(x.code||"")}</div><div class="component-choice-area">${esc(x.description||"")}</div></span><span class="component-relevance">${semanticLabel(x)}</span></label>`).join("")||'<div class="meta">Nenhuma competência suficientemente relacionada.</div>'}</div>
+    <div style="font-weight:900;margin:13px 0 6px">Componentes</div><div class="component-suggestions">${components.map((x,i)=>`<label class="component-choice ${chosen(r.selectedComponents,i)?"selected":""}"><input type="checkbox" ${chosen(r.selectedComponents,i)?"checked":""} onchange="toggleHistoryBnccReview('component',${i},this.checked)"><div class="suggestion-content"><div class="suggestion-header"><span><span class="component-choice-main">${esc(x.component||"")}</span><span class="component-choice-area">${esc(x.area||"")}</span></span><span class="component-relevance">${Number(x.relevance)||0}%</span></div></div></label>`).join("")||'<div class="meta">Nenhum componente sugerido.</div>'}</div>
+    <div style="font-weight:900;margin:13px 0 6px">Habilidades BNCC</div><div class="component-suggestions">${skills.map((x,i)=>`<label class="component-choice ${chosen(r.selectedSkills,i)?"selected":""}"><input type="checkbox" ${chosen(r.selectedSkills,i)?"checked":""} onchange="toggleHistoryBnccReview('skill',${i},this.checked)"><div class="suggestion-content"><div class="suggestion-header"><span class="component-choice-main">${esc(x.code||"")} · ${esc(x.curricular_component||"")}</span>${semanticPercent(x)?`<span class="component-relevance" title="Similaridade semântica">${semanticPercent(x)}</span>`:""}</div>${suggestionDescriptionHtml(x.description,`batch-${r.entryId}-skill-${x.code||i}`)}</div></label>`).join("")||'<div class="meta">Nenhuma habilidade suficientemente relacionada.</div>'}</div>
+    <div style="font-weight:900;margin:13px 0 6px">Competências relacionadas</div><div class="component-suggestions">${competencies.map((x,i)=>`<label class="component-choice ${chosen(r.selectedCompetencies,i)?"selected":""}"><input type="checkbox" ${chosen(r.selectedCompetencies,i)?"checked":""} onchange="toggleHistoryBnccReview('competency',${i},this.checked)"><div class="suggestion-content"><div class="suggestion-header"><span class="component-choice-main">${esc(x.code||"")}</span>${semanticPercent(x)?`<span class="component-relevance" title="Similaridade semântica">${semanticPercent(x)}</span>`:""}</div>${suggestionDescriptionHtml(x.description,`batch-${r.entryId}-competency-${x.code||i}`)}</div></label>`).join("")||'<div class="meta">Nenhuma competência suficientemente relacionada.</div>'}</div>
     <div class="toolbar" style="margin-top:14px"><button type="button" class="btn success" onclick="confirmHistoryBnccReview()">✓ Confirmar neste registro</button><button type="button" class="btn" onclick="skipHistoryBnccReview()">Ignorar</button><button type="button" class="btn small" onclick="closeHistoryBnccBatchReview()">Fechar revisão</button></div>
   </div>`;
+  requestAnimationFrame(()=>syncSuggestionDescriptionToggles(panel));
   panel.scrollIntoView({behavior:"smooth",block:"start"});
 }
 function confirmHistoryBnccReview(){
@@ -7625,7 +7538,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "10.3";
+const APP_VERSION = "10.6";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

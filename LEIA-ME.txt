@@ -1,128 +1,77 @@
-DIÁRIO DE ESTUDOS — v10.3
+DIÁRIO DE ESTUDOS — v10.6
+LIMPEZA DO MERCADO PAGO + MELHORIA DAS SUGESTÕES BNCC
 
-PRIVACIDADE, WEBHOOK E EXPERIÊNCIA MÓVEL
-- No celular, o rodapé institucional aparece somente na aba Mais; nas telas diárias fica apenas a navegação inferior.
-- O menu inferior se recolhe enquanto a família digita em campos no celular, evitando conflito com o teclado virtual.
-- A página de privacidade explica que a criança é titular dos dados e o responsável legal administra as autorizações.
-- A página diferencia dados educacionais no Drive, dados operacionais/billing no D1 e pagamento processado pelo Mercado Pago.
-- O canal de suporte passa a ser o caminho formal para pedir acesso, correção ou exclusão; arquivar não é apresentado como exclusão.
-- O webhook não cria outra linha quando o mesmo provider_event_id já foi processado ou ignorado.
-- Eventos com erro podem ser tentados novamente, preservando o mesmo registro de auditoria.
-- O ADM mostra contagem e os 20 eventos de webhook mais recentes, destacando erros.
-- Execute d1-webhook-dedupe-v10_3.sql uma única vez antes de publicar o Worker 0.29-beta.
+NOVIDADE DESTA VERSÃO
 
-ASSINATURA DISCRETA NO CABEÇALHO
-- Assinatura ativa, teste gratuito e acessos beta/social/parceria/cortesia não exibem mais um card grande na página Hoje.
-- O estado do acesso aparece em um selo discreto ao lado de “Sincronizado”.
-- Ao tocar no selo, um painel mostra situação, data relevante e botões Gerenciar plano e Atualizar situação.
-- Renovação cancelada ainda dentro do período aparece como “Acesso até ...” no cabeçalho.
-- Família sem assinatura ou com acesso encerrado continua vendo os planos no início da página Hoje.
-- Nenhuma alteração no Worker ou no D1 é necessária.
+- Habilidades e competências mostram somente duas linhas da descrição oficial.
+- "Ver descrição completa" expande apenas o item escolhido; "Recolher descrição"
+  volta ao formato compacto.
+- A porcentagem permanece fixa ao lado do código/título da sugestão.
+- O comportamento foi aplicado no registro individual, na análise em lote do
+  Histórico e na tela auxiliar de teste da IA.
+- Descrições curtas não exibem um controle de expansão desnecessário.
 
-AJUSTES VISUAIS RESPONSIVOS
-- No celular, as cinco áreas principais agora aparecem em uma barra inferior fixa com ícones.
-- No computador, a navegação permanece no topo como na versão anterior.
-- Títulos usam Fraunces e os demais textos usam Work Sans, com fontes de sistema como alternativa.
-- Textos auxiliares importantes receberam mais contraste e ações secundárias ficaram visualmente mais leves.
-- A página Mais foi agrupada em Conta e acesso, Acompanhamento e Administração.
-- O rodapé verde ocupa toda a largura e chega ao final da tela, inclusive atrás da área segura do menu móvel.
-- O plano anual mostra a economia percentual e o valor mensal equivalente.
-- O leitor de código de barras foi mantido exatamente como estava; carregamento sob demanda ficará para outra versão.
-- Esta atualização não exige novo SQL nem alteração no Worker quando a v10.0 já está funcionando.
+Esta versão já inclui integralmente a remoção do Mercado Pago preparada na
+v10.5. Quem ainda não publicou a v10.5 pode ir diretamente para a v10.6.
 
-NOVA EXPERIÊNCIA VISUAL E PLANOS
-- Visual do aplicativo aproximado da identidade profissional do site institucional.
-- Rodapé verde com marca, BNCC, privacidade, ajuda, termos e suporte.
-- Suporte abre https://www.meudiariodeestudos.com.br/suporte.html em nova aba.
-- Informações institucionais saíram da página Mais; nela permanecem plano, relatórios, configurações e administração.
-- Família sem assinatura vê os planos de forma elegante no início da página Hoje.
-- Família ativa não vê propaganda de dias gratuitos; visualiza plano e próxima renovação.
-- Beta tester, social, parceria e cortesia não veem preços nem botões de assinatura.
-- Planos iniciais: mensal R$ 29,90 e anual R$ 299,00, ambos configuráveis no ADM.
-- Botão Cancelar renovação confirma o cancelamento na API e preserva acesso até o fim do período concedido.
-- Os dias gratuitos passam a começar somente com a autorização do Mercado Pago.
-- Execute d1-billing-plans-v10_0.sql uma única vez antes do novo Worker.
+REMOÇÃO DEFINITIVA DO MERCADO PAGO
 
-CONFIRMAÇÃO SEGURA DA ASSINATURA
-- O botão Atualizar situação agora procura no Mercado Pago a assinatura associada ao plano exclusivo da família.
-- O Worker confere o ID do plano retornado pela API antes de salvar a assinatura no D1.
-- ID, status, data e origem da última verificação são armazenados; nenhum status informado pelo navegador é aceito.
-- O retorno do checkout também tenta sincronizar automaticamente.
-- Assinatura ativa e acessos gratuitos escondem o botão Começar assinatura.
-- Execute d1-billing-sync-v9_3_2.sql uma única vez antes de publicar este Worker.
-- Para produção, cadastre MP_WEBHOOK_SECRET como Secret. Depois dos testes, configure MP_REQUIRE_WEBHOOK_SIGNATURE=true.
+O QUE FOI REMOVIDO
 
-CORREÇÃO DO CHECKOUT DE TESTE
-- O aplicativo não solicita mais o e-mail da conta Buyer.
-- Ao iniciar a assinatura, o Mercado Pago abre seu próprio checkout.
-- Entre no checkout com o Usuário TESTUSER, a senha e o código de verificação exibidos na conta Buyer.
-- Cada família recebe um plano de teste próprio, permitindo relacionar a confirmação do Mercado Pago à família correta.
-- Famílias com gratuidade aparecem como “Acesso gratuito — Beta tester/Social/Parceria/Cortesia” e não veem o botão de assinatura.
-- Quem já instalou a v9.3 deve executar somente d1-billing-plan-v9_3_1.sql antes de publicar o novo Worker.
+- Integração, credenciais, chamadas externas e validação de webhook.
+- Rotas de checkout, consulta, sincronização e cancelamento.
+- Planos, preços, teste grátis, status de assinatura e componentes visuais.
+- Relatórios de webhook e configurações comerciais do ADM.
+- Funções JavaScript e CSS que existiam somente para pagamento.
+- Scripts SQL antigos de billing incluídos nos pacotes anteriores.
 
-INTEGRAÇÃO MERCADO PAGO — PRIMEIRA FASE DE TESTE
-- Plano Família configurável, inicialmente em R$ 29,90/mês e 7 dias gratuitos.
-- Checkout recorrente vinculado à família autenticada.
-- Webhook confirma o estado consultando diretamente a API do Mercado Pago.
-- Tela da família mostra situação do plano e permite iniciar/atualizar a assinatura.
-- ADM controla valor, dias gratuitos e acessos beta tester, social, parceria e cortesia.
-- O bloqueio por pagamento começa desligado; nenhum beta tester perde funções durante o teste.
-- Novo SQL d1-billing-v9_3.sql deve ser executado uma única vez antes de publicar o Worker.
+O QUE FOI MANTIDO
 
-NOVA IDENTIDADE VISUAL
-- O caderno com broto do card de compartilhamento agora é o logo oficial do aplicativo.
-- Cabeçalho, ícone instalado, atalho e tela do PWA usam a mesma identidade do site.
-- Incluídos manifest.json, logo transparente e ícones 192, 512 e maskable.
+- Aplicativo integralmente liberado, sem bloqueio por pagamento.
+- Acessos especiais: beta tester, social, parceria e cortesia.
+- Registros de estudo no Google Drive e demais dados normais do D1.
+- Estrutura pronta para receber outro provedor futuramente, sem reaproveitar
+  código específico do Mercado Pago.
 
-CORREÇÃO VISUAL DA ANÁLISE EM LOTE
-- O botão “Analisar selecionados” muda imediatamente para indicar que a solicitação começou.
-- Durante o processamento, mostra “Analisando X de Y” e permanece bloqueado.
-- O painel de progresso agora aparece junto ao botão, antes da lista de registros.
-- A tela orienta a permanecer aberta até o término da rodada.
-- A lógica de classificação permanece a mesma; o Worker 0.29-beta acrescenta idempotência e auditoria do webhook.
+ORDEM DE PUBLICAÇÃO
 
-CLASSIFICAÇÃO DE REGISTROS SEM BNCC
-- Em Histórico > Mais filtros foi criado o filtro “Vínculo curricular”.
-- A opção “Sem BNCC” localiza registros que ainda não possuem habilidade vinculada.
-- É possível selecionar até 10 registros por rodada e tocar em “Analisar selecionados”.
-- As análises são executadas uma por vez para evitar requisições simultâneas e reduzir o risco de instabilidade.
-- Nenhuma sugestão é gravada automaticamente. A família revisa atividade complementar, componentes, habilidades e competências antes de confirmar cada registro.
-- Se uma análise falhar, os outros registros continuam sendo processados e o erro é mostrado ao final.
-- Também foram incluídos os filtros “Com BNCC”, “Somente complementar” e “Complementar com BNCC”.
+1. Publique worker.js e confirme a versão 0.32-beta no Preview.
+2. Publique index.html, sw.js e version.json no GitHub Pages.
+3. Confirme v10.6 PWA e reabra o PWA para atualizar o cache.
+4. No D1, execute d1-remove-mercadopago-v10_5.sql.
 
-CAPA
-- A lista suspensa de criança na página Hoje mostra somente o nome.
-- O ano/série permanece cadastrado e continua sendo utilizado internamente na análise BNCC e nos relatórios.
+O SQL DA ETAPA 4 APAGA SOMENTE
 
-CONTROLE DE CONSUMO DE IA
-- O controle de IA permanece igual ao da versão anterior.
-- As análises iniciadas pelo Histórico são registradas como “history_batch_classification”.
-- Classificação, embedding e seleção BNCC continuam contabilizados separadamente.
-- Nenhuma alteração no D1 é necessária quando a estrutura de ai_usage_events da v8.6 já estiver instalada.
+- payment_webhook_events
+- family_billing_plans
+- family_subscriptions
+- billing_config
 
-PUBLICAÇÃO DA v10.3 — PARA QUEM JÁ PUBLICOU A v10.0, v10.1 OU v10.2
-1. Execute d1-webhook-dedupe-v10_3.sql uma única vez no Console do D1.
-2. Publique worker.js no Cloudflare Worker e confirme a versão 0.29-beta no Preview.
-3. Publique index.html, sw.js e version.json no GitHub Pages.
-4. Não execute novamente os SQLs anteriores da v10.0.
-5. Mantenha manifest.json, icons, logo-diario.png, vendor e os demais arquivos existentes.
+Ele não remove family_access_grants. O arquivo d1-access-grants-v10_5.sql é a
+estrutura independente das gratuidades e serve também para instalações novas.
 
-ARQUIVOS DO PACOTE
-- index.html — aplicativo v10.3.
-- sw.js — cache diario-estudos-v10.3.
-- version.json — identificador público v10.3.
-- worker.js — API 0.29-beta.
-- d1-webhook-dedupe-v10_3.sql — remove duplicatas antigas e impede novas duplicações por evento do provedor.
-- d1-billing-v9_3.sql — tabelas de cobrança, configuração, gratuidade e eventos.
-- d1-billing-plan-v9_3_1.sql — complemento para quem já executou o SQL da v9.3.
-- d1-billing-sync-v9_3_2.sql — complemento de confirmação segura para a v9.3.2.
-- d1-billing-plans-v10_0.sql — complemento de planos, cancelamento e preço anual.
-- vendor/zxing-browser.min.js — leitor de código de barras mantido da v8.9.
-- vendor/ZXING-LICENSE.txt — licença do ZXing.
-- d1-ai-usage-v8_6.sql — instalação completa do controle de IA para ambiente novo.
-- d1-ai-usage-v8_5-para-v8_6.sql — migração antiga, somente para ambiente que havia instalado a estrutura v8.5.
+LIMPEZA MANUAL APÓS A PUBLICAÇÃO
 
-OBSERVAÇÕES
-- A classificação em lote exige internet, login Google válido e criança sincronizada com o backend.
-- Fechar a revisão não altera os registros ainda não confirmados.
-- Os registros confirmados seguem o fluxo normal de salvamento e sincronização da família.
+O responsável pela conta deve remover no Cloudflare:
+
+- MP_ACCESS_TOKEN_TEST
+- MP_WEBHOOK_SECRET
+- MP_REQUIRE_WEBHOOK_SIGNATURE, se existir
+
+No painel do Mercado Pago, também pode excluir/desativar o webhook de testes e
+a aplicação de testes que não será mais utilizada.
+
+ARQUIVOS PRINCIPAIS
+
+- index.html — aplicativo v10.6
+- worker.js — API 0.32-beta
+- sw.js — cache diario-estudos-v10.6
+- version.json — versão pública 10.6
+- d1-remove-mercadopago-v10_5.sql — limpeza definitiva do D1
+- d1-access-grants-v10_5.sql — estrutura independente de acessos especiais
+
+PRÓXIMA ETAPA
+
+Desenhar e implementar a integração com o Asaas como módulo novo, começando
+pelos requisitos e pelo sandbox, sem carregar decisões técnicas do provedor
+anterior.
