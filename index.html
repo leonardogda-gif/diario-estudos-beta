@@ -2982,6 +2982,18 @@ function renderSharedStorageStatus(ready=false,message="",needsPicker=false){
   if(open)open.classList.toggle("hidden",!ready);
 }
 
+async function canAccessDriveItem(fileId){
+  if(!fileId||!tokenValid())return false;
+  try{
+    const r=await apiFetch(
+      `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?fields=id,name,mimeType,parents`
+    );
+    return !!r?.ok;
+  }catch(e){
+    return false;
+  }
+}
+
 async function prepareSharedFamilyStorage(showMessage=false){
   if(!tokenValid())throw new Error("Entre com Google primeiro.");
   const fam=currentBackendFamily();
