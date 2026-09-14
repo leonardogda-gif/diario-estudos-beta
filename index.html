@@ -1087,6 +1087,57 @@ header h1{font-size:30px;line-height:1.08}.brand-motto{display:block!important;m
  .mockup-plus{font-size:20px!important}.mockup-arrow{font-size:22px!important}
 }
 
+
+/* v11.13 — acabamento marsala em cabeçalho, Leituras, Configurações e rodapé */
+header .brand{align-items:center}
+header .brand-copy{padding-top:0}
+header .brand-motto{display:none!important}
+.header-right{justify-content:flex-end;padding-top:23px;gap:11px}
+
+/* Remove os verdes residuais apenas das telas solicitadas. */
+#page-leituras .child-selector,
+#page-leituras .book-search-panel,
+#page-leituras .reading-plan-fields,
+#page-leituras .notice,
+#page-configuracoes .notice,
+#page-configuracoes .drive-folder-card{background:#F4ECE2!important;border-color:#E5D3C7!important;color:#625650}
+#page-leituras .reading-card,
+#page-leituras .book-result,
+#page-configuracoes .settings-section,
+#page-configuracoes .child-card{background:#FFFCF7!important;border-color:#E5D3C7!important}
+#page-leituras .reading-status,
+#page-leituras .status-pill{background:#F2E3DA!important;color:#6B2737!important}
+#page-leituras .btn.primary,
+#page-leituras .btn.success,
+#page-leituras .btn.action-primary,
+#page-leituras .reading-actions .reading-primary,
+#page-configuracoes .btn.primary,
+#page-configuracoes .btn.success,
+#page-configuracoes .btn.action-primary{background:#6B2737!important;border-color:#6B2737!important;color:#fff!important}
+#page-leituras input[type="checkbox"],
+#page-leituras input[type="radio"],
+#page-configuracoes input[type="checkbox"],
+#page-configuracoes input[type="radio"]{accent-color:#6B2737}
+#page-leituras .child.active{background:#441015!important;border-color:#441015!important;color:#fff!important}
+#page-configuracoes h2,
+#page-configuracoes h3,
+#page-leituras h2,
+#page-leituras h3{color:#441015}
+
+/* Rodapé institucional: vinho profundo em vez do verde antigo. */
+.app-footer{background:linear-gradient(145deg,#441015,#591622)!important;color:#FFF9F1!important}
+.app-footer p{color:#E8D8CA!important}
+.app-footer button,.app-footer a{color:#FFF9F1!important}
+
+@media(max-width:650px){
+ header .brand{align-items:center}
+ header .brand-logo{margin:-3px 2px -7px -4px}
+ header h1{margin:0}
+ .header-right{padding-top:26px;gap:9px}
+ .header-cloud{padding-top:4px;padding-bottom:4px}
+ .header-message{font-size:7px}
+}
+
 </style>
 </head>
 <body class="auth-checking">
@@ -1094,7 +1145,7 @@ header h1{font-size:30px;line-height:1.08}.brand-motto{display:block!important;m
   <div class="header-branding">
     <div class="brand">
       <img class="brand-logo" src="./logo-diario-marsala.svg" alt="" aria-hidden="true">
-      <div class="brand-copy"><h1>Diário de Estudos</h1><p class="brand-motto">Disciplina hoje,<br>conquistas amanhã.</p></div>
+      <div class="brand-copy"><h1>Diário de Estudos</h1></div>
     </div>
     <div class="header-right">
       <div id="headerCloud" class="header-cloud hidden no-print">
@@ -7846,7 +7897,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "11.12";
+const APP_VERSION = "11.13";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
