@@ -3,6 +3,7 @@ const GOOGLE_CLIENT_ID =
 
 const ALLOWED_ORIGINS = [
   "https://leonardogda-gif.github.io",
+  "https://app.meudiariodeestudos.com.br",
   "http://localhost:8000",
   "http://127.0.0.1:8000"
 ];
@@ -47,6 +48,123 @@ export default {
 
     function normalizeEmail(email) {
       return String(email || "").trim().toLowerCase();
+    }
+
+    function asaasBaseUrl() {
+      return String(env.ASAAS_API_BASE || "https://api-sandbox.asaas.com/v3").replace(/\/$/, "");
+    }
+
+    async function asaasFetch(path, options = {}) {
+      if (!env.ASAAS_API_KEY) throw new Error("ASAAS_NOT_CONFIGURED");
+      const response = await fetch(asaasBaseUrl() + path, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent": "MeuDiarioDeEstudos/11.1 (Cloudflare-Workers)",
+          access_token: env.ASAAS_API_KEY,
+          ...(options.headers || {})
+        }
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const message = data?.errors?.map(x => x.description).filter(Boolean).join("; ") || data?.message || `Asaas recusou a solicitação (${response.status})`;
+        throw Object.assign(new Error(message), { providerStatus: response.status });
+      }
+      return data;
+    }
+
+    function asaasPlan(code) {
+      if (code === "monthly") return {code, name:"Plano mensal", value:39.90, cycle:"MONTHLY"};
+      if (code === "yearly") return {code, name:"Plano anual", value:359.10, cycle:"YEARLY"};
+      return null;
+    }
+
+    function paidPeriodEnd(dueDate, planCode) {
+      const match = String(dueDate || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!match) return null;
+      const year = Number(match[1]), month = Number(match[2]), day = Number(match[3]);
+      const months = planCode === "yearly" ? 12 : 1;
+      const totalMonth = month - 1 + months;
+      const targetYear = year + Math.floor(totalMonth / 12), targetMonth = totalMonth % 12;
+      const lastDay = new Date(Date.UTC(targetYear, targetMonth + 1, 0)).getUTCDate();
+      return `${targetYear}-${String(targetMonth + 1).padStart(2,"0")}-${String(Math.min(day,lastDay)).padStart(2,"0")}`;
+    }
+
+    async function asaasPaidThrough(providerSubscriptionId, planCode) {
+      if (!providerSubscriptionId) return null;
+      const listed = await asaasFetch(`/payments?subscription=${encodeURIComponent(providerSubscriptionId)}&limit=100`);
+      const paidStatuses = new Set(["CONFIRMED","RECEIVED","RECEIVED_IN_CASH"]);
+      const paid = (Array.isArray(listed?.data) ? listed.data : [])
+        .filter(item => paidStatuses.has(String(item?.status || "")) && /^\d{4}-\d{2}-\d{2}$/.test(String(item?.dueDate || "")))
+        .sort((a,b) => String(b.dueDate).localeCompare(String(a.dueDate)))[0];
+      return paid ? paidPeriodEnd(paid.dueDate,planCode) : null;
+    }
+
+    async function reconcileAsaasSubscription(subscription) {
+      if (!subscription || subscription.provider_subscription_id || !subscription.provider_checkout_id) return subscription;
+
+      // Webhooks may arrive out of order. First reuse the payment payload that
+      // is already stored in D1 and linked to this exact checkout session.
+      const historicalPayment = await env.DB.prepare(`
+        SELECT
+          json_extract(payload_json,'$.payment.customer') AS customer_id,
+          json_extract(payload_json,'$.payment.subscription') AS subscription_id
+        FROM asaas_webhook_events
+        WHERE event_type IN ('PAYMENT_CREATED','PAYMENT_CONFIRMED','PAYMENT_RECEIVED')
+          AND json_extract(payload_json,'$.payment.checkoutSession')=?
+          AND json_extract(payload_json,'$.payment.subscription') IS NOT NULL
+        ORDER BY received_at DESC
+        LIMIT 1
+      `).bind(subscription.provider_checkout_id).first().catch(() => null);
+
+      let providerSubscriptionId = String(historicalPayment?.subscription_id || "").trim();
+      let providerCustomerId = String(historicalPayment?.customer_id || subscription.provider_customer_id || "").trim() || null;
+      let remote = {};
+
+      if (!providerSubscriptionId) {
+        const payments = await asaasFetch(`/payments?checkoutSession=${encodeURIComponent(subscription.provider_checkout_id)}&limit=10`);
+        const paymentItems = Array.isArray(payments?.data) ? payments.data : [];
+        const payment = paymentItems.find(item => item?.subscription) || paymentItems.find(item => item?.customer) || null;
+        providerSubscriptionId = String(payment?.subscription || "").trim();
+        providerCustomerId = String(payment?.customer || providerCustomerId || "").trim() || null;
+      }
+
+      if (providerSubscriptionId) {
+        remote = await asaasFetch(`/subscriptions/${encodeURIComponent(providerSubscriptionId)}`).catch(() => ({}));
+        providerCustomerId = String(remote?.customer || providerCustomerId || "").trim() || null;
+      } else if (providerCustomerId) {
+        // Some Checkout payment payloads omit `subscription`. Recover it from
+        // the customer, preferring a record that matches this app's plan.
+        const listed = await asaasFetch(`/subscriptions?customer=${encodeURIComponent(providerCustomerId)}&limit=100`);
+        const candidates = Array.isArray(listed?.data) ? listed.data : [];
+        const plan = asaasPlan(subscription.plan_code);
+        remote = candidates.find(item =>
+          item?.status === "ACTIVE" &&
+          (!plan || (Number(item?.value) === Number(plan.value) && item?.cycle === plan.cycle))
+        ) || candidates.find(item => item?.status === "ACTIVE") || candidates[0] || {};
+        providerSubscriptionId = String(remote?.id || "").trim();
+      }
+
+      if (!providerSubscriptionId) return subscription;
+      // `subscription.nextDueDate` is the next date the scheduler will generate,
+      // not the end of paid access. Derive entitlement only from paid charges.
+      const nextDueDate = await asaasPaidThrough(providerSubscriptionId,subscription.plan_code).catch(() => null);
+
+      await env.DB.prepare(`
+        UPDATE asaas_family_subscriptions
+        SET provider_subscription_id=?,
+            provider_customer_id=COALESCE(?,provider_customer_id),
+            next_due_date=COALESCE(?,next_due_date),
+            updated_at=CURRENT_TIMESTAMP
+        WHERE family_id=?
+      `).bind(providerSubscriptionId,providerCustomerId,nextDueDate,subscription.family_id).run();
+
+      return {
+        ...subscription,
+        provider_subscription_id: providerSubscriptionId,
+        provider_customer_id: providerCustomerId || subscription.provider_customer_id || null,
+        next_due_date: nextDueDate || subscription.next_due_date || null
+      };
     }
 
     async function googleUserFromRequest() {
@@ -236,6 +354,47 @@ function globalAdminEmails() {
       }
     }
 
+    function aiUsageNumber(usage, ...keys) {
+      for (const key of keys) {
+        const value = Number(usage?.[key]);
+        if (Number.isFinite(value) && value >= 0) return Math.trunc(value);
+      }
+      return 0;
+    }
+
+    function aiModelRates(model) {
+      const safe = String(model || "").toUpperCase().replace(/[^A-Z0-9]+/g, "_");
+      const defaults = model === "gemini-embedding-2" ? {input:0.20,output:0} : model === "gemini-3.5-flash-lite" ? {input:0.30,output:2.50} : {input:0,output:0};
+      const input = Number(env[`AI_${safe}_INPUT_USD_PER_MILLION`] ?? env.AI_INPUT_USD_PER_MILLION ?? defaults.input);
+      const output = Number(env[`AI_${safe}_OUTPUT_USD_PER_MILLION`] ?? env.AI_OUTPUT_USD_PER_MILLION ?? defaults.output);
+      return {
+        input: Number.isFinite(input) && input >= 0 ? input : 0,
+        output: Number.isFinite(output) && output >= 0 ? output : 0
+      };
+    }
+
+    async function recordAiUsage({userId="", familyId="", childId="", requestId="", feature="", operation="", model="", usage={}, tokenCountSource="provider", status="success", providerStatus=0}) {
+      if (!userId || !familyId || !feature || !model) return;
+      const promptTokens = aiUsageNumber(usage, "promptTokenCount", "prompt_tokens");
+      const outputTokens = aiUsageNumber(usage, "candidatesTokenCount", "output_tokens");
+      const thoughtsTokens = aiUsageNumber(usage, "thoughtsTokenCount", "thoughts_tokens");
+      const reportedTotal = aiUsageNumber(usage, "totalTokenCount", "total_tokens");
+      const totalTokens = reportedTotal || promptTokens + outputTokens + thoughtsTokens;
+      const rates = aiModelRates(model);
+      const estimatedInputCostUsdMicros = Math.max(0, Math.round(promptTokens * rates.input));
+      const estimatedOutputCostUsdMicros = Math.max(0, Math.round((outputTokens + thoughtsTokens) * rates.output));
+      const estimatedCostUsdMicros = estimatedInputCostUsdMicros + estimatedOutputCostUsdMicros;
+      try {
+        await env.DB.prepare(`
+          INSERT INTO ai_usage_events
+          (id,request_id,family_id,user_id,child_id,feature,operation,model,token_count_source,status,provider_status,prompt_tokens,output_tokens,thoughts_tokens,total_tokens,input_rate_usd_per_million,output_rate_usd_per_million,estimated_input_cost_usd_micros,estimated_output_cost_usd_micros,estimated_cost_usd_micros)
+          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        `).bind(newId("aiu"),requestId||newId("air"),familyId,userId,childId||null,feature,operation||feature,model,tokenCountSource,status,providerStatus||null,promptTokens,outputTokens,thoughtsTokens,totalTokens,rates.input,rates.output,estimatedInputCostUsdMicros,estimatedOutputCostUsdMicros,estimatedCostUsdMicros).run();
+      } catch (error) {
+        console.warn("AI usage could not be recorded", error?.message || error);
+      }
+    }
+
     // =========================================================
     // ROTAS PÚBLICAS
     // =========================================================
@@ -244,7 +403,7 @@ function globalAdminEmails() {
       return json({
         ok: true,
         service: "Diário de Estudos API",
-        version: "0.21-beta",
+        version: "0.44-beta",
         status: "online"
       });
     }
@@ -285,8 +444,174 @@ function globalAdminEmails() {
       }
     }
 
+    if (url.pathname === "/payments/asaas/webhook" && request.method === "POST") {
+      if (!env.ASAAS_WEBHOOK_TOKEN || request.headers.get("asaas-access-token") !== env.ASAAS_WEBHOOK_TOKEN) {
+        return json({ok:false,error:"Webhook não autorizado"},401);
+      }
+      const body = await request.json().catch(() => ({}));
+      const eventId = String(body.id || "").trim(), eventType = String(body.event || "").trim();
+      if (!eventId || !eventType) return json({ok:false,error:"Evento inválido"},400);
+      const inserted = await env.DB.prepare(`INSERT OR IGNORE INTO asaas_webhook_events (event_id,event_type,payload_json) VALUES (?,?,?)`).bind(eventId,eventType,JSON.stringify(body)).run();
+      if (!inserted.meta?.changes) return json({ok:true,duplicate:true});
+      try {
+        const checkout = body.checkout || {}, subscription = body.subscription || {}, payment = body.payment || {};
+        if (checkout.id) {
+          const status = eventType === "CHECKOUT_PAID" ? "paid" : eventType === "CHECKOUT_CANCELED" ? "canceled" : eventType === "CHECKOUT_EXPIRED" ? "expired" : "pending";
+          await env.DB.prepare(`UPDATE asaas_checkout_sessions SET status=?,provider_customer_id=COALESCE(?,provider_customer_id),updated_at=CURRENT_TIMESTAMP WHERE provider_checkout_id=?`).bind(status,checkout.customer || null,checkout.id).run();
+          if (eventType === "CHECKOUT_PAID") {
+            const session = await env.DB.prepare(`SELECT * FROM asaas_checkout_sessions WHERE provider_checkout_id=? LIMIT 1`).bind(checkout.id).first();
+            if (session) await env.DB.prepare(`INSERT INTO asaas_family_subscriptions (family_id,plan_code,status,provider_checkout_id,provider_customer_id,started_at,updated_at) VALUES (?,?,'active',?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP) ON CONFLICT(family_id) DO UPDATE SET plan_code=excluded.plan_code,status='active',provider_checkout_id=excluded.provider_checkout_id,provider_customer_id=excluded.provider_customer_id,cancel_at_period_end=0,canceled_at=NULL,started_at=COALESCE(asaas_family_subscriptions.started_at,CURRENT_TIMESTAMP),updated_at=CURRENT_TIMESTAMP`).bind(session.family_id,session.plan_code,checkout.id,checkout.customer || null).run();
+          }
+        }
+        if (subscription.id) {
+          const customerId = String(subscription.customer || "").trim();
+          const lifecycleEnded = ["SUBSCRIPTION_DELETED","SUBSCRIPTION_INACTIVATED"].includes(eventType);
+          const subscriptionStatus = lifecycleEnded ? "canceled" : "active";
+          let linked = {meta:{changes:0}};
+          if (customerId) {
+            linked = await env.DB.prepare(`UPDATE asaas_family_subscriptions SET provider_subscription_id=?,provider_customer_id=?,status=CASE WHEN ?=1 AND cancel_at_period_end=1 AND datetime(next_due_date)>datetime('now') THEN 'active' ELSE ? END,next_due_date=COALESCE(?,next_due_date),updated_at=CURRENT_TIMESTAMP WHERE provider_customer_id=?`).bind(subscription.id,customerId,lifecycleEnded ? 1 : 0,subscriptionStatus,subscription.nextDueDate || null,customerId).run();
+          }
+          if (!linked.meta?.changes && customerId) {
+            const session = await env.DB.prepare(`SELECT family_id,plan_code,provider_checkout_id FROM asaas_checkout_sessions WHERE provider_customer_id=? AND status='paid' ORDER BY created_at DESC LIMIT 1`).bind(customerId).first();
+            if (session) {
+              await env.DB.prepare(`INSERT INTO asaas_family_subscriptions (family_id,plan_code,status,provider_checkout_id,provider_customer_id,provider_subscription_id,next_due_date,started_at,updated_at) VALUES (?,?,?,?,?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP) ON CONFLICT(family_id) DO UPDATE SET plan_code=excluded.plan_code,status=excluded.status,provider_checkout_id=excluded.provider_checkout_id,provider_customer_id=excluded.provider_customer_id,provider_subscription_id=excluded.provider_subscription_id,next_due_date=COALESCE(excluded.next_due_date,asaas_family_subscriptions.next_due_date),updated_at=CURRENT_TIMESTAMP`).bind(session.family_id,session.plan_code,subscriptionStatus,session.provider_checkout_id,customerId,subscription.id,subscription.nextDueDate || null).run();
+            }
+          }
+        }
+        if (payment.subscription) {
+          const paymentStatus = ["PAYMENT_CONFIRMED","PAYMENT_RECEIVED"].includes(eventType) ? "active" : ["PAYMENT_OVERDUE","PAYMENT_DUNNING_REQUESTED"].includes(eventType) ? "past_due" : ["PAYMENT_REFUNDED","PAYMENT_CHARGEBACK_REQUESTED","PAYMENT_DELETED"].includes(eventType) ? "canceled" : null;
+          if (paymentStatus) {
+            const localSubscription = await env.DB.prepare(`SELECT plan_code FROM asaas_family_subscriptions WHERE provider_subscription_id=? LIMIT 1`).bind(payment.subscription).first();
+            const paidUntil = ["PAYMENT_CONFIRMED","PAYMENT_RECEIVED"].includes(eventType) ? paidPeriodEnd(payment.dueDate,localSubscription?.plan_code) : null;
+            await env.DB.prepare(`UPDATE asaas_family_subscriptions SET status=?,last_payment_id=?,next_due_date=COALESCE(?,next_due_date),updated_at=CURRENT_TIMESTAMP WHERE provider_subscription_id=?`).bind(paymentStatus,payment.id || null,paidUntil,payment.subscription).run();
+          }
+        }
+        await env.DB.prepare(`UPDATE asaas_webhook_events SET processed_at=CURRENT_TIMESTAMP,status='processed' WHERE event_id=?`).bind(eventId).run();
+        return json({ok:true});
+      } catch (error) {
+        await env.DB.prepare(`UPDATE asaas_webhook_events SET processed_at=CURRENT_TIMESTAMP,status='error',error_detail=? WHERE event_id=?`).bind(String(error.message || error),eventId).run();
+        return json({ok:false,error:"Falha ao processar evento"},500);
+      }
+    }
+
     try {
       const user = await requireUser();
+
+      if (url.pathname === "/payments/asaas/status" && request.method === "GET") {
+        const familyId = String(url.searchParams.get("family_id") || "").trim();
+        await requireFamilyMember(user.id,familyId);
+        const grant = await env.DB.prepare(`SELECT grant_type,reason,ends_at FROM family_access_grants WHERE family_id=? AND active=1 AND (ends_at IS NULL OR datetime(ends_at)>datetime('now')) ORDER BY created_at DESC LIMIT 1`).bind(familyId).first();
+        // Removing the recurrence cancels it at Asaas immediately, but the
+        // family keeps entitlement through the already-paid period.
+        await env.DB.prepare(`UPDATE asaas_family_subscriptions SET status='active',updated_at=CURRENT_TIMESTAMP WHERE family_id=? AND cancel_at_period_end=1 AND next_due_date IS NOT NULL AND datetime(next_due_date)>datetime('now')`).bind(familyId).run();
+        await env.DB.prepare(`UPDATE asaas_family_subscriptions SET status='canceled',updated_at=CURRENT_TIMESTAMP WHERE family_id=? AND cancel_at_period_end=1 AND next_due_date IS NOT NULL AND datetime(next_due_date)<=datetime('now')`).bind(familyId).run();
+        let subscription = await env.DB.prepare(`SELECT family_id,plan_code,status,provider_checkout_id,provider_customer_id,provider_subscription_id,next_due_date,cancel_at_period_end,created_at,updated_at FROM asaas_family_subscriptions WHERE family_id=? LIMIT 1`).bind(familyId).first();
+        if (subscription && !subscription.provider_subscription_id) {
+          subscription = await reconcileAsaasSubscription(subscription).catch(() => subscription);
+        }
+        if (subscription?.provider_subscription_id) {
+          const paidUntil = await asaasPaidThrough(subscription.provider_subscription_id,subscription.plan_code).catch(() => null);
+          if (paidUntil && paidUntil !== subscription.next_due_date) {
+            await env.DB.prepare(`UPDATE asaas_family_subscriptions SET next_due_date=?,updated_at=CURRENT_TIMESTAMP WHERE family_id=?`).bind(paidUntil,familyId).run();
+            subscription = {...subscription,next_due_date:paidUntil};
+          }
+        }
+        const checkout = await env.DB.prepare(`SELECT status,plan_code,provider_checkout_id,created_at FROM asaas_checkout_sessions WHERE family_id=? ORDER BY created_at DESC LIMIT 1`).bind(familyId).first();
+        const checkoutData = checkout ? {...checkout,checkout_url:(asaasBaseUrl().includes("sandbox") ? `https://sandbox.asaas.com/checkoutSession/show/${encodeURIComponent(checkout.provider_checkout_id)}` : `https://asaas.com/checkoutSession/show/${encodeURIComponent(checkout.provider_checkout_id)}`)} : null;
+        return json({ok:true,environment:asaasBaseUrl().includes("sandbox")?"sandbox":"production",grant:grant || null,subscription:subscription || null,checkout:checkoutData});
+      }
+
+      if (url.pathname === "/payments/asaas/checkout" && request.method === "POST") {
+        const body = await request.json().catch(() => ({})), familyId = String(body.family_id || "").trim(), plan = asaasPlan(String(body.plan || ""));
+        if (!familyId || !plan) return json({ok:false,error:"Família e plano válido são obrigatórios"},400);
+        await requireFamilyAdmin(user.id,familyId);
+        const grant = await env.DB.prepare(`SELECT id FROM family_access_grants WHERE family_id=? AND active=1 AND (ends_at IS NULL OR datetime(ends_at)>datetime('now')) LIMIT 1`).bind(familyId).first();
+        if (grant) return json({ok:false,error:"Esta família já possui acesso gratuito autorizado"},409);
+        const active = await env.DB.prepare(`SELECT status FROM asaas_family_subscriptions WHERE family_id=? AND (status IN ('active','past_due') OR (cancel_at_period_end=1 AND next_due_date IS NOT NULL AND datetime(next_due_date)>datetime('now'))) LIMIT 1`).bind(familyId).first();
+        if (active) return json({ok:false,error:"Esta família já possui uma assinatura"},409);
+        const now = new Date(Date.now()+65*60000).toISOString().slice(0,19).replace("T"," ");
+        const callback = {successUrl:"https://app.meudiariodeestudos.com.br/?asaas=success",cancelUrl:"https://app.meudiariodeestudos.com.br/?asaas=cancel",expiredUrl:"https://app.meudiariodeestudos.com.br/?asaas=expired"};
+        const itemName = plan.code === "yearly" ? "Diario de Estudos - Anual" : "Diario de Estudos - Mensal";
+        const checkout = await asaasFetch("/checkouts",{method:"POST",body:JSON.stringify({billingTypes:["CREDIT_CARD"],chargeTypes:["RECURRENT"],minutesToExpire:60,externalReference:familyId,callback,items:[{name:itemName,description:"Assinatura familiar do Diario de Estudos",quantity:1,value:plan.value}],subscription:{cycle:plan.cycle,nextDueDate:now}})});
+        const checkoutId = String(checkout.id || ""); if (!checkoutId) throw new Error("O Asaas não retornou o ID do checkout");
+        const checkoutUrl = String(checkout.link || (asaasBaseUrl().includes("sandbox") ? `https://sandbox.asaas.com/checkoutSession/show/${encodeURIComponent(checkoutId)}` : `https://asaas.com/checkoutSession/show/${encodeURIComponent(checkoutId)}`));
+        await env.DB.prepare(`INSERT INTO asaas_checkout_sessions (id,family_id,user_id,plan_code,amount,cycle,provider_checkout_id,status) VALUES (?,?,?,?,?,?,?,'pending')`).bind(newId("ach"),familyId,user.id,plan.code,plan.value,plan.cycle,checkoutId).run();
+        return json({ok:true,checkout_id:checkoutId,checkout_url:checkoutUrl,environment:asaasBaseUrl().includes("sandbox")?"sandbox":"production"});
+      }
+
+      if (url.pathname === "/payments/asaas/cancel" && request.method === "POST") {
+        const body = await request.json().catch(() => ({})), familyId = String(body.family_id || "").trim();
+        await requireFamilyAdmin(user.id,familyId);
+        let subscription = await env.DB.prepare(`SELECT family_id,plan_code,provider_checkout_id,provider_customer_id,provider_subscription_id,next_due_date,CASE WHEN next_due_date IS NOT NULL AND datetime(next_due_date)>datetime('now') THEN 1 ELSE 0 END AS access_valid FROM asaas_family_subscriptions WHERE family_id=? AND status IN ('active','past_due') LIMIT 1`).bind(familyId).first();
+        if (subscription && !subscription.provider_subscription_id) {
+          await reconcileAsaasSubscription(subscription);
+          subscription = await env.DB.prepare(`SELECT family_id,plan_code,provider_checkout_id,provider_customer_id,provider_subscription_id,next_due_date,CASE WHEN next_due_date IS NOT NULL AND datetime(next_due_date)>datetime('now') THEN 1 ELSE 0 END AS access_valid FROM asaas_family_subscriptions WHERE family_id=? AND status IN ('active','past_due') LIMIT 1`).bind(familyId).first();
+        }
+        if (!subscription?.provider_subscription_id) return json({ok:false,error:"A assinatura ainda não foi vinculada pelo webhook. Atualize a situação em alguns instantes."},409);
+        const paidUntil = await asaasPaidThrough(subscription.provider_subscription_id,subscription.plan_code).catch(() => null);
+        if (paidUntil) {
+          subscription.next_due_date = paidUntil;
+          subscription.access_valid = new Date(`${paidUntil}T23:59:59Z`).getTime() > Date.now() ? 1 : 0;
+          await env.DB.prepare(`UPDATE asaas_family_subscriptions SET next_due_date=?,updated_at=CURRENT_TIMESTAMP WHERE family_id=?`).bind(paidUntil,familyId).run();
+        }
+        await asaasFetch(`/subscriptions/${encodeURIComponent(subscription.provider_subscription_id)}`,{method:"DELETE"});
+        const keepsAccess = Number(subscription.access_valid || 0) === 1;
+        await env.DB.prepare(`UPDATE asaas_family_subscriptions SET status=?,cancel_at_period_end=1,canceled_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE family_id=?`).bind(keepsAccess ? "active" : "canceled",familyId).run();
+        return json({ok:true,access_until:keepsAccess ? subscription.next_due_date : null});
+      }
+
+      if (url.pathname === "/admin/access-grants" && request.method === "GET") {
+        requireGlobalAdmin(user);
+        const families = await env.DB.prepare(`
+          SELECT f.id,f.name,
+            (SELECT grant_type FROM family_access_grants g WHERE g.family_id=f.id AND g.active=1 AND (g.ends_at IS NULL OR datetime(g.ends_at)>datetime('now')) ORDER BY g.created_at DESC LIMIT 1) AS grant_type,
+            (SELECT reason FROM family_access_grants g WHERE g.family_id=f.id AND g.active=1 AND (g.ends_at IS NULL OR datetime(g.ends_at)>datetime('now')) ORDER BY g.created_at DESC LIMIT 1) AS grant_reason
+          FROM families f ORDER BY f.name
+        `).all();
+        return json({ok:true,families:families.results || []});
+      }
+
+      if (url.pathname === "/admin/access-grants" && request.method === "POST") {
+        requireGlobalAdmin(user);
+        const body = await request.json().catch(() => ({}));
+        const familyId = String(body.family_id || "").trim();
+        const grantType = String(body.grant_type || "").trim();
+        const reason = String(body.reason || "").trim();
+        if (!familyId || !["beta_tester","social","partnership","courtesy"].includes(grantType) || !reason) return json({ok:false,error:"Família, tipo e motivo são obrigatórios"},400);
+        await env.DB.prepare(`UPDATE family_access_grants SET active=0,updated_at=CURRENT_TIMESTAMP WHERE family_id=? AND active=1`).bind(familyId).run();
+        await env.DB.prepare(`INSERT INTO family_access_grants (id,family_id,grant_type,reason,ends_at,created_by_user_id) VALUES (?,?,?,?,?,?)`).bind(newId("grt"),familyId,grantType,reason,body.ends_at || null,user.id).run();
+        return json({ok:true});
+      }
+
+      if (url.pathname === "/admin/access-grants/revoke" && request.method === "POST") {
+        requireGlobalAdmin(user);
+        const body = await request.json().catch(() => ({}));
+        await env.DB.prepare(`UPDATE family_access_grants SET active=0,updated_at=CURRENT_TIMESTAMP WHERE family_id=? AND active=1`).bind(String(body.family_id || "")).run();
+        return json({ok:true});
+      }
+
+      if (url.pathname === "/admin/allowed-signups" && request.method === "GET") {
+        requireGlobalAdmin(user);
+        const result = await env.DB.prepare(`SELECT email,note,created_by,created_at FROM allowed_signups ORDER BY created_at DESC`).all();
+        return json({ok:true,emails:result.results || []});
+      }
+
+      if (url.pathname === "/admin/allowed-signups" && request.method === "POST") {
+        requireGlobalAdmin(user);
+        const body = await request.json().catch(() => ({}));
+        const email = normalizeEmail(body.email), note = String(body.note || "").trim();
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ok:false,error:"Informe um e-mail válido"},400);
+        await env.DB.prepare(`INSERT INTO allowed_signups(email,note,created_by) VALUES(?,?,?) ON CONFLICT(email) DO UPDATE SET note=excluded.note`).bind(email,note,user.id).run();
+        return json({ok:true,email});
+      }
+
+      if (url.pathname === "/admin/allowed-signups/remove" && request.method === "POST") {
+        requireGlobalAdmin(user);
+        const body = await request.json().catch(() => ({})), email = normalizeEmail(body.email);
+        if (!email) return json({ok:false,error:"E-mail é obrigatório"},400);
+        await env.DB.prepare(`DELETE FROM allowed_signups WHERE email=?`).bind(email).run();
+        return json({ok:true,email});
+      }
 
       // =========================================================
       // ME
@@ -382,6 +707,12 @@ function globalAdminEmails() {
             },
             400
           );
+        }
+
+        const alreadyMember = await env.DB.prepare(`SELECT 1 FROM family_members WHERE user_id=? LIMIT 1`).bind(user.id).first();
+        if (!alreadyMember) {
+          const allowed = await env.DB.prepare(`SELECT 1 FROM allowed_signups WHERE email=? LIMIT 1`).bind(normalizeEmail(user.email)).first();
+          if (!allowed) return json({ok:false,error:"SIGNUP_NOT_ALLOWED"},403);
         }
 
         const familyId = newId("fam");
@@ -1705,22 +2036,41 @@ function globalAdminEmails() {
       const EMBEDDING_MODEL = "gemini-embedding-2";
       const EMBEDDING_DIMENSIONS = 768;
 
-      async function createEmbedding(text, kind="document") {
+      async function createEmbedding(text, kind="document", tracking=null) {
         const prefix = kind === "query"
           ? "task: search result | query: "
           : "title: Habilidade BNCC | text: ";
-        const r = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${EMBEDDING_MODEL}:embedContent`,
-          {
-            method: "POST",
-            headers: {"Content-Type":"application/json","x-goog-api-key":env.GEMINI_API_KEY},
-            body: JSON.stringify({
-              content:{parts:[{text:prefix + String(text||"").slice(0,5000)}]},
-              output_dimensionality: EMBEDDING_DIMENSIONS
-            })
+        const inputText=prefix + String(text||"").slice(0,5000);
+        const embeddingController=new AbortController();
+        const embeddingTimer=setTimeout(()=>embeddingController.abort(),20000);
+        let r;
+        try{
+          r = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${EMBEDDING_MODEL}:embedContent`,
+            {
+              method: "POST",
+              headers: {"Content-Type":"application/json","x-goog-api-key":env.GEMINI_API_KEY},
+              body: JSON.stringify({
+                content:{parts:[{text:inputText}]},
+                output_dimensionality: EMBEDDING_DIMENSIONS
+              }),
+              signal:embeddingController.signal
+            }
+          );
+        }catch(e){
+          if(e?.name==="AbortError"&&tracking){
+            await recordAiUsage({...tracking,userId:user.id,model:EMBEDDING_MODEL,usage:{},tokenCountSource:"provider",status:"timeout",providerStatus:null});
           }
-        );
+          if(e?.name==="AbortError")throw Object.assign(new Error("O embedding demorou mais que o esperado"),{code:"EMBEDDING_TIMEOUT",aiStage:"semantic_search"});
+          throw e;
+        }finally{clearTimeout(embeddingTimer)}
         const data=await r.json().catch(()=>({}));
+        if(tracking){
+          const providerUsage=data?.usageMetadata||{};
+          const providerTokens=aiUsageNumber(providerUsage,"promptTokenCount","prompt_tokens","totalTokenCount","total_tokens");
+          const usage=providerTokens?providerUsage:{prompt_tokens:Math.max(1,Math.ceil(inputText.length/4)),total_tokens:Math.max(1,Math.ceil(inputText.length/4))};
+          await recordAiUsage({...tracking,userId:user.id,model:EMBEDDING_MODEL,usage,tokenCountSource:providerTokens?"provider":"estimated_chars",status:r.ok?"success":"provider_error",providerStatus:r.status});
+        }
         if(!r.ok){
           const providerMessage=String(data?.error?.message||data?.message||`HTTP ${r.status}`).replace(/\s+/g," ").slice(0,240);
           const err = Object.assign(
@@ -1829,8 +2179,9 @@ function globalAdminEmails() {
             .bind(bookId,title,JSON.stringify(authors),String(body.publisher||"").trim(),isbn13,isbn10,String(body.cover_data||"").trim(),"pending",familyId,user.id).run();
         }
         const familyBookId=newId("fbook");
-        await env.DB.prepare(`INSERT INTO family_books(id,family_id,child_id,source,community_book_id,status,started_at,created_at,updated_at) VALUES(?,?,?,?,?,'Lendo',?,datetime('now'),datetime('now'))`)
-          .bind(familyBookId,familyId,childId,"community",bookId,String(body.started_at||new Date().toISOString().slice(0,10))).run();
+        const readingStatus=["Planejado","Lendo"].includes(String(body.status||""))?String(body.status):"Lendo";
+        await env.DB.prepare(`INSERT INTO family_books(id,family_id,child_id,source,community_book_id,status,started_at,target_finish_at,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,datetime('now'),datetime('now'))`)
+          .bind(familyBookId,familyId,childId,"community",bookId,readingStatus,String(body.started_at||new Date().toISOString().slice(0,10)),String(body.target_finish_at||"")||null).run();
         return json({ok:true,community_book_id:bookId,family_book_id:familyBookId,catalog_status:existing?"approved":"pending"});
       }
 
@@ -1873,8 +2224,8 @@ function globalAdminEmails() {
               id,family_id,child_id,source,google_volume_id,community_book_id,
               title_snapshot,authors_json_snapshot,publisher_snapshot,published_date_snapshot,
               isbn13_snapshot,isbn10_snapshot,page_count_snapshot,categories_json_snapshot,
-              language_snapshot,description_snapshot,cover_url_snapshot,status,started_at,created_at,updated_at
-            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'Lendo',?,datetime('now'),datetime('now'))
+              language_snapshot,description_snapshot,cover_url_snapshot,status,started_at,target_finish_at,created_at,updated_at
+            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'),datetime('now'))
           `).bind(
             id,familyId,childId,source,
             String(body.google_volume_id||""),
@@ -1890,7 +2241,9 @@ function globalAdminEmails() {
             String(body.language||""),
             String(body.description||""),
             String(body.thumbnail||""),
-            String(body.started_at||new Date().toISOString().slice(0,10))
+            ["Planejado","Lendo"].includes(String(body.status||""))?String(body.status):"Lendo",
+            String(body.started_at||new Date().toISOString().slice(0,10)),
+            String(body.target_finish_at||"")||null
           ).run();
 
           return json({ok:true,id});
@@ -1914,7 +2267,7 @@ function globalAdminEmails() {
         `).bind(familyId,childId).all();
         const books=(rs.results||[]).map(b=>{
           const community=!!b.community_book_id;
-          return {backend:true,id:b.id,child_id:b.child_id,source:b.source,google_volume_id:b.google_volume_id||"",community_book_id:b.community_book_id||"",title:community?(b.cb_title||b.title_snapshot||""):(b.title_snapshot||""),authors:JSON.parse((community?b.cb_authors:b.authors_json_snapshot)||"[]"),publisher:(community?b.cb_publisher:b.publisher_snapshot)||"",published_date:(community?b.cb_published_date:b.published_date_snapshot)||"",isbn13:(community?b.cb_isbn13:b.isbn13_snapshot)||"",isbn10:(community?b.cb_isbn10:b.isbn10_snapshot)||"",page_count:(community?b.cb_page_count:b.page_count_snapshot)||null,categories:JSON.parse((community?b.cb_categories:b.categories_json_snapshot)||"[]"),language:(community?b.cb_language:b.language_snapshot)||"",description:(community?b.cb_description:b.description_snapshot)||"",thumbnail:(community?b.cb_cover:b.cover_url_snapshot)||"",catalog_status:b.catalog_status||"",status:b.status||"Lendo",started_at:b.started_at||"",finished_at:b.finished_at||""}
+          return {backend:true,id:b.id,child_id:b.child_id,source:b.source,google_volume_id:b.google_volume_id||"",community_book_id:b.community_book_id||"",title:community?(b.cb_title||b.title_snapshot||""):(b.title_snapshot||""),authors:JSON.parse((community?b.cb_authors:b.authors_json_snapshot)||"[]"),publisher:(community?b.cb_publisher:b.publisher_snapshot)||"",published_date:(community?b.cb_published_date:b.published_date_snapshot)||"",isbn13:(community?b.cb_isbn13:b.isbn13_snapshot)||"",isbn10:(community?b.cb_isbn10:b.isbn10_snapshot)||"",page_count:(community?b.cb_page_count:b.page_count_snapshot)||null,categories:JSON.parse((community?b.cb_categories:b.categories_json_snapshot)||"[]"),language:(community?b.cb_language:b.language_snapshot)||"",description:(community?b.cb_description:b.description_snapshot)||"",thumbnail:(community?b.cb_cover:b.cover_url_snapshot)||"",catalog_status:b.catalog_status||"",status:b.status||"Lendo",started_at:b.started_at||"",target_finish_at:b.target_finish_at||"",finished_at:b.finished_at||"",completion_activity_id:b.completion_activity_id||""}
         });
         return json({ok:true,books});
       }
@@ -1928,17 +2281,21 @@ function globalAdminEmails() {
         const status=body.status!==undefined?String(body.status||"").trim():null;
         const startedAt=body.started_at!==undefined?String(body.started_at||"").trim():null;
         const finishedAt=body.finished_at!==undefined?String(body.finished_at||"").trim():null;
-        if(status!==null&&!["Lendo","Concluído"].includes(status))return json({ok:false,error:"Status inválido"},400);
+        const targetFinishAt=body.target_finish_at!==undefined?String(body.target_finish_at||"").trim():null;
+        const completionActivityId=body.completion_activity_id!==undefined?String(body.completion_activity_id||"").trim():null;
+        if(status!==null&&!["Planejado","Lendo","Concluído"].includes(status))return json({ok:false,error:"Status inválido"},400);
         if(startedAt!==null&&startedAt&&!/^\d{4}-\d{2}-\d{2}$/.test(startedAt))return json({ok:false,error:"Data de início inválida"},400);
         if(finishedAt!==null&&finishedAt&&!/^\d{4}-\d{2}-\d{2}$/.test(finishedAt))return json({ok:false,error:"Data de conclusão inválida"},400);
+        if(targetFinishAt!==null&&targetFinishAt&&!/^\d{4}-\d{2}-\d{2}$/.test(targetFinishAt))return json({ok:false,error:"Previsão de conclusão inválida"},400);
         const nextStatus=status??existing.status;
         const nextStarted=startedAt!==null?(startedAt||null):existing.started_at;
         let nextFinished=finishedAt!==null?(finishedAt||null):existing.finished_at;
         if(status==="Concluído"&&finishedAt===null&&!nextFinished)nextFinished=new Date().toISOString().slice(0,10);
         if(status==="Lendo"&&finishedAt===null)nextFinished=null;
-        await env.DB.prepare(`UPDATE family_books SET status=?,started_at=?,finished_at=?,updated_at=datetime('now') WHERE id=?`)
-          .bind(nextStatus,nextStarted,nextFinished,id).run();
-        return json({ok:true,status:nextStatus,started_at:nextStarted,finished_at:nextFinished});
+        const nextTarget=targetFinishAt!==null?(targetFinishAt||null):existing.target_finish_at,nextCompletionId=completionActivityId!==null?(completionActivityId||null):existing.completion_activity_id;
+        await env.DB.prepare(`UPDATE family_books SET status=?,started_at=?,target_finish_at=?,finished_at=?,completion_activity_id=?,updated_at=datetime('now') WHERE id=?`)
+          .bind(nextStatus,nextStarted,nextTarget,nextFinished,nextCompletionId,id).run();
+        return json({ok:true,status:nextStatus,started_at:nextStarted,target_finish_at:nextTarget,finished_at:nextFinished,completion_activity_id:nextCompletionId});
       }
 
       if(familyBookMatch&&request.method==="DELETE"){
@@ -2058,6 +2415,56 @@ function globalAdminEmails() {
         }});
       }
 
+      // ADMINISTRAÇÃO — CONSUMO DE IA POR FAMÍLIA
+      if(url.pathname==="/admin/ai-usage"&&request.method==="GET"){
+        requireGlobalAdmin(user);
+        const today=new Date().toISOString().slice(0,10);
+        const monthStart=today.slice(0,8)+"01";
+        const from=/^\d{4}-\d{2}-\d{2}$/.test(String(url.searchParams.get("from")||""))?String(url.searchParams.get("from")):monthStart;
+        const to=/^\d{4}-\d{2}-\d{2}$/.test(String(url.searchParams.get("to")||""))?String(url.searchParams.get("to")):today;
+        const familyId=String(url.searchParams.get("family_id")||"").trim();
+        let where=`u.created_at>=? AND u.created_at<datetime(?,'+1 day')`,params=[from,to];
+        if(familyId){where+=` AND u.family_id=?`;params.push(familyId)}
+        const familyRows=await env.DB.prepare(`
+          SELECT u.family_id,f.name AS family_name,
+            COUNT(DISTINCT u.request_id) AS user_requests,
+            COUNT(*) AS provider_calls,
+            SUM(CASE WHEN u.status='success' THEN 1 ELSE 0 END) AS successful_calls,
+            SUM(u.prompt_tokens) AS prompt_tokens,SUM(u.output_tokens) AS output_tokens,
+            SUM(u.thoughts_tokens) AS thoughts_tokens,SUM(u.total_tokens) AS total_tokens,
+            SUM(u.estimated_input_cost_usd_micros) AS estimated_input_cost_usd_micros,
+            SUM(u.estimated_output_cost_usd_micros) AS estimated_output_cost_usd_micros,
+            SUM(u.estimated_cost_usd_micros) AS estimated_cost_usd_micros,
+            MAX(u.created_at) AS last_used_at
+          FROM ai_usage_events u JOIN families f ON f.id=u.family_id
+          WHERE ${where}
+          GROUP BY u.family_id,f.name ORDER BY total_tokens DESC,f.name
+        `).bind(...params).all();
+        const featureRows=await env.DB.prepare(`
+          SELECT u.family_id,u.feature,COUNT(DISTINCT u.request_id) AS user_requests,COUNT(*) AS provider_calls,
+            SUM(u.prompt_tokens) AS prompt_tokens,SUM(u.output_tokens) AS output_tokens,
+            SUM(u.thoughts_tokens) AS thoughts_tokens,SUM(u.total_tokens) AS total_tokens,
+            SUM(u.estimated_input_cost_usd_micros) AS estimated_input_cost_usd_micros,
+            SUM(u.estimated_output_cost_usd_micros) AS estimated_output_cost_usd_micros,
+            SUM(u.estimated_cost_usd_micros) AS estimated_cost_usd_micros
+          FROM ai_usage_events u WHERE ${where}
+          GROUP BY u.family_id,u.feature ORDER BY u.family_id,total_tokens DESC
+        `).bind(...params).all();
+        const modelRows=await env.DB.prepare(`
+          SELECT u.family_id,u.model,u.operation,u.token_count_source,
+            COUNT(*) AS provider_calls,SUM(u.prompt_tokens) AS prompt_tokens,SUM(u.output_tokens) AS output_tokens,
+            SUM(u.thoughts_tokens) AS thoughts_tokens,SUM(u.total_tokens) AS total_tokens,
+            SUM(u.estimated_input_cost_usd_micros) AS estimated_input_cost_usd_micros,
+            SUM(u.estimated_output_cost_usd_micros) AS estimated_output_cost_usd_micros,
+            SUM(u.estimated_cost_usd_micros) AS estimated_cost_usd_micros
+          FROM ai_usage_events u WHERE ${where}
+          GROUP BY u.family_id,u.model,u.operation,u.token_count_source ORDER BY u.family_id,u.model,u.operation
+        `).bind(...params).all();
+        const totals=(familyRows.results||[]).reduce((a,x)=>({families:a.families+1,user_requests:a.user_requests+Number(x.user_requests||0),provider_calls:a.provider_calls+Number(x.provider_calls||0),prompt_tokens:a.prompt_tokens+Number(x.prompt_tokens||0),output_tokens:a.output_tokens+Number(x.output_tokens||0),thoughts_tokens:a.thoughts_tokens+Number(x.thoughts_tokens||0),total_tokens:a.total_tokens+Number(x.total_tokens||0),estimated_input_cost_usd_micros:a.estimated_input_cost_usd_micros+Number(x.estimated_input_cost_usd_micros||0),estimated_output_cost_usd_micros:a.estimated_output_cost_usd_micros+Number(x.estimated_output_cost_usd_micros||0),estimated_cost_usd_micros:a.estimated_cost_usd_micros+Number(x.estimated_cost_usd_micros||0)}),{families:0,user_requests:0,provider_calls:0,prompt_tokens:0,output_tokens:0,thoughts_tokens:0,total_tokens:0,estimated_input_cost_usd_micros:0,estimated_output_cost_usd_micros:0,estimated_cost_usd_micros:0});
+        const configuredRates=aiModelRates("gemini-3.5-flash-lite");
+        return json({ok:true,from,to,totals,families:familyRows.results||[],features:featureRows.results||[],models:modelRows.results||[],pricing_configured:configuredRates.input>0||configuredRates.output>0,pricing_basis:"paid_standard_projection"});
+      }
+
       // GOOGLE BOOKS - pesquisa pública de volumes
       if(url.pathname==="/books/search"&&request.method==="GET"){
         if(!env.GOOGLE_BOOKS_API_KEY)return json({ok:false,error:"GOOGLE_BOOKS_API_KEY não configurada"},500);
@@ -2068,7 +2475,7 @@ function globalAdminEmails() {
         endpoint.searchParams.set("printType","books");
         endpoint.searchParams.set("orderBy","relevance");
         endpoint.searchParams.set("maxResults","8");
-        endpoint.searchParams.set("langRestrict","pt");
+        if(!/^isbn:/i.test(q))endpoint.searchParams.set("langRestrict","pt");
         endpoint.searchParams.set("key",env.GOOGLE_BOOKS_API_KEY);
         const r=await fetch(endpoint.toString(),{headers:{"Accept":"application/json"}});
         const raw=await r.json();
@@ -2090,9 +2497,11 @@ function globalAdminEmails() {
         if(!childId||!activities.length)return json({ok:false,error:"Criança e atividades são obrigatórias"},400);
         const child=await env.DB.prepare(`SELECT id,family_id,active FROM children WHERE id=? LIMIT 1`).bind(childId).first();
         if(!child)return json({ok:false,error:"Criança não encontrada"},404);await requireFamilyMember(user.id,child.family_id);if(!child.active)return json({ok:false,error:"Criança arquivada"},400);
+        const aiRequestId=newId("air");
         const lines=activities.map((x,i)=>[`${i+1}. ${String(x.date||"")} | ${String(x.component||"Sem componente")} | ${String(x.status||"Sem avaliação")}`,`Atividade: ${String(x.activity||"").replace(/\s+/g," ").slice(0,500)}`,x.bncc_code?`BNCC: ${String(x.bncc_code)} — ${String(x.bncc_skill||"").replace(/\s+/g," ").slice(0,500)}`:"",x.notes?`Observações: ${String(x.notes).replace(/\s+/g," ").slice(0,350)}`:""].filter(Boolean).join("\n")).join("\n\n");
         const prompt=["Você cria um resumo breve de um relatório familiar de aprendizagem.",`Criança: ${childName||"não informado"}`,referenceStage?`Ano/série de referência: ${referenceStage}`:"",period?`Período: ${period}`:"","REGRAS:","Use SOMENTE fatos presentes nos registros.","Não invente progresso, competências, preferências ou conclusões.","Não faça diagnóstico psicológico, clínico ou pedagógico.","Não compare a criança com outras crianças nem diga que está adiantada ou atrasada.","Não transforme status de avaliação em julgamento geral sobre a criança.","Pode identificar temas, componentes e experiências que aparecem repetidamente.","Mencione BNCC somente quando estiver explicitamente presente.","Escreva em português do Brasil, tom acolhedor e objetivo.","Produza 2 ou 3 parágrafos curtos, sem título, listas ou markdown.","REGISTROS:",lines].filter(Boolean).join("\n");
         const gr=await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":env.GEMINI_API_KEY},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.2,maxOutputTokens:420}})}),gemini=await gr.json();
+        await recordAiUsage({userId:user.id,familyId:child.family_id,childId,requestId:aiRequestId,feature:"report_summary",operation:"generate_summary",model:"gemini-3.5-flash-lite",usage:gemini?.usageMetadata||{},status:gr.ok?"success":"provider_error",providerStatus:gr.status});
         if(!gr.ok)return json({ok:false,error:"Não foi possível gerar o resumo da IA",provider_status:gr.status},502);
         const summary=String(gemini?.candidates?.[0]?.content?.parts?.[0]?.text||"").trim();if(!summary)return json({ok:false,error:"A IA não retornou um resumo"},502);
         return json({ok:true,summary,model:"gemini-3.5-flash-lite"});
@@ -2108,6 +2517,7 @@ function globalAdminEmails() {
         if(!env.GEMINI_API_KEY)return json({ok:false,error:"GEMINI_API_KEY não configurada"},500);
         const body=await request.json().catch(()=>({}));
         const childId=String(body.child_id||"").trim(),activity=String(body.activity||"").trim();
+        const usageFeature=body.source==="history_batch"?"history_batch_classification":"analyze_experience";
         const planning=body.planning&&typeof body.planning==="object"?body.planning:{};
         if(!childId||activity.length<8)return json({ok:false,error:"Conte um pouco mais sobre o que vocês fizeram ou aprenderam"},400);
         const child=await env.DB.prepare(`SELECT id,family_id,reference_stage,active FROM children WHERE id=? LIMIT 1`).bind(childId).first();
@@ -2115,27 +2525,34 @@ function globalAdminEmails() {
         await requireFamilyMember(user.id,child.family_id);
         if(!child.active)return json({ok:false,error:"Criança arquivada"},400);
         const schoolYear=String(child.reference_stage||"").trim();
+        const aiRequestId=newId("air");
         if(!schoolYear)return json({ok:false,error:"Ano/série da criança não está cadastrado"},400);
 
-        const abortFetch=async(url,options={},ms=9000)=>{
+        const abortFetch=async(url,options={},ms=20000)=>{
           const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),ms);
           try{return await fetch(url,{...options,signal:ctl.signal})}finally{clearTimeout(timer)}
         };
-        const geminiJson=async(prompt,schema,maxOutputTokens=220)=>{
+        const geminiJson=async(prompt,schema,maxOutputTokens=220,operation="generate_json")=>{
           let last=null;
           for(let attempt=0;attempt<2;attempt++){
             try{
               const r=await abortFetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",{
                 method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":env.GEMINI_API_KEY},
                 body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0,maxOutputTokens,responseMimeType:"application/json",responseSchema:schema}})
-              },9000);
+              },20000);
               const data=await r.json().catch(()=>({}));
+              await recordAiUsage({userId:user.id,familyId:child.family_id,childId,requestId:aiRequestId,feature:usageFeature,operation,model:"gemini-3.5-flash-lite",usage:data?.usageMetadata||{},status:r.ok?"success":"provider_error",providerStatus:r.status});
               if(!r.ok){last=new Error(`Gemini ${r.status}`);if(r.status<500&&r.status!==429)break;continue}
               const text=String(data?.candidates?.[0]?.content?.parts?.[0]?.text||"").trim();
               return {value:JSON.parse(text),usage:data?.usageMetadata||{},attempts:attempt+1};
-            }catch(e){last=e}
+            }catch(e){
+              last=e;
+              if(e?.name==="AbortError")await recordAiUsage({userId:user.id,familyId:child.family_id,childId,requestId:aiRequestId,feature:usageFeature,operation,model:"gemini-3.5-flash-lite",usage:{},tokenCountSource:"provider",status:"timeout",providerStatus:null});
+            }
           }
-          throw last||new Error("A análise demorou mais que o esperado");
+          const stageLabel=operation==="classify_experience"?"classificação da experiência":operation==="select_bncc"?"seleção de habilidades BNCC":"consulta à IA";
+          if(last?.name==="AbortError")throw Object.assign(new Error(`A etapa de ${stageLabel} demorou mais que o esperado`),{code:"AI_STAGE_TIMEOUT",aiStage:operation});
+          throw Object.assign(new Error(`Não foi possível concluir a etapa de ${stageLabel}: ${String(last?.message||"falha temporária")}`),{code:"AI_STAGE_ERROR",aiStage:operation,cause:last});
         };
         const norm=v=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
         const yearDigits=(schoolYear.match(/\d+/)||[""])[0];
@@ -2175,7 +2592,7 @@ LISTA FECHADA:
 ${options.map((x,i)=>`${i+1}. ${x.name} — ${x.area}`).join("\n")}
 Retorne somente IDs da lista. relevance serve apenas para ordenação (1-100), não representa certeza.`;
         const compSchema={type:"OBJECT",properties:{experience:{type:"OBJECT",properties:{kind:{type:"STRING",enum:["curriculum","complementary","indeterminate"]},complementary_activity:{type:"STRING"},evidence_level:{type:"STRING",enum:["insufficient_for_curriculum","sufficient","indeterminate"]},reason:{type:"STRING"}},required:["kind","complementary_activity","evidence_level","reason"]},components:{type:"ARRAY",maxItems:3,items:{type:"OBJECT",properties:{id:{type:"INTEGER"},relevance:{type:"INTEGER"}},required:["id","relevance"]}}},required:["experience","components"]};
-        const compResult=await geminiJson(compPrompt,compSchema,220);
+        const compResult=await geminiJson(compPrompt,compSchema,220,"classify_experience");
         const rawExperience=compResult.value?.experience||{},kind=["curriculum","complementary","indeterminate"].includes(rawExperience.kind)?rawExperience.kind:"indeterminate",evidenceLevel=["insufficient_for_curriculum","sufficient","indeterminate"].includes(rawExperience.evidence_level)?rawExperience.evidence_level:"indeterminate";
         const experience={kind,complementary_activity:kind==="complementary"?String(rawExperience.complementary_activity||"").trim().slice(0,120):"",evidence_level:evidenceLevel,reason:String(rawExperience.reason||"").trim().slice(0,300)};
         const components=[],usedComp=new Set();
@@ -2185,7 +2602,7 @@ Retorne somente IDs da lista. relevance serve apenas para ordenação (1-100), n
 
         // Um único embedding do relato, reutilizado em todos os componentes e competências.
         let qvec=null,retrievalMode="embedding";
-        try{qvec=await createEmbedding(activity,"query")}catch(e){retrievalMode="textual_fallback"}
+        try{qvec=await createEmbedding(activity,"query",{familyId:child.family_id,childId,requestId:aiRequestId,feature:usageFeature,operation:"semantic_search"})}catch(e){retrievalMode="textual_fallback"}
 
         const semanticScores={},skillCandidates=[];
         for(const comp of components){
@@ -2222,7 +2639,7 @@ COMPETÊNCIAS:
 ${competencyLines.join("\n")}
 Escolha até 6 habilidades no total. Tente contemplar cada componente genuinamente relevante, mas nunca force habilidade fraca. Escolha até 3 competências claramente relacionadas.`;
         const selectSchema={type:"OBJECT",properties:{skills:{type:"ARRAY",maxItems:6,items:{type:"STRING"}},competencies:{type:"ARRAY",maxItems:3,items:{type:"STRING"}}},required:["skills","competencies"]};
-        const selected=await geminiJson(selectPrompt,selectSchema,180);
+        const selected=await geminiJson(selectPrompt,selectSchema,180,"select_bncc");
         const parseIds=(arr,prefix,max)=>[...new Set((Array.isArray(arr)?arr:[]).map(x=>String(x).trim().toUpperCase()).filter(x=>new RegExp(`^${prefix}\\d+$`).test(x)).map(x=>Number(x.slice(1))).filter(n=>n>=1&&n<=max))];
         const hi=parseIds(selected.value?.skills,"H",skillCandidates.length),ci=parseIds(selected.value?.competencies,"C",cleanCompetencies.length);
         const skills=hi.map((n,i)=>({rank:i+1,semantic_similarity:semanticScores[skillCandidates[n-1].code]??null,...skillCandidates[n-1]}));
@@ -2987,7 +3404,7 @@ Sem explicações.`;
         GLOBAL_ADMIN_REQUIRED: [
           403,
           "Somente administradores do Diário de Estudos podem validar materiais"
-        ]
+        ],
       };
 
       if (map[error.message]) {
@@ -2997,7 +3414,9 @@ Sem explicações.`;
         return json(
           {
             ok: false,
-            error: message
+            error: message,
+            ...(error.providerDetail ? {detail:String(error.providerDetail)} : {}),
+            ...(error.providerStatus ? {provider_status:error.providerStatus} : {})
           },
           status
         );

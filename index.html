@@ -1016,7 +1016,7 @@ body.app-authenticated main{padding-bottom:0}
     <img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true">
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · famílias convidadas · v11.5 PWA</p>
+  <p>Homeschooling alinhado à BNCC · famílias convidadas · v11.6 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -1092,6 +1092,14 @@ body.app-authenticated main{padding-bottom:0}
     <div id="onboardingStatus" class="meta" style="margin-top:10px"></div>
   </div>
 
+  <div id="signupWaitlistGate" class="card onboarding-gate hidden">
+    <div class="login-kicker">Acesso por convite</div>
+    <h2>Estamos em fase de convites</h2>
+    <p>O Diário de Estudos ainda está sendo liberado para um grupo pequeno de famílias.</p>
+    <div class="notice"><b>Seu login Google funcionou normalmente.</b><div class="meta" style="margin-top:5px">O e-mail <b id="signupWaitlistEmail"></b> ainda não está autorizado a criar uma família. Quando o acesso for liberado, basta entrar novamente com esta mesma conta.</div></div>
+    <button class="btn" type="button" style="margin-top:14px" onclick="googleLogout()">Entrar com outra conta</button>
+  </div>
+
   <div id="protectedApp" class="hidden">
     <div class="nav-wrap no-print">
       <nav class="nav-tabs">
@@ -1122,16 +1130,7 @@ body.app-authenticated main{padding-bottom:0}
 <div class="meta" style="margin-top:4px">Registre o que vocês pretendem fazer. Componente e BNCC serão definidos depois, a partir do que realmente aconteceu.</div>
 </div>
       <div class="card">
-        <div class="toolbar" style="justify-content:space-between"><div><h2 style="margin-bottom:3px">Planejar</h2><div class="meta">Veja primeiro o que precisa de atenção. Crie um novo planejamento só quando precisar.</div></div><div class="toolbar"><button class="btn" type="button" onclick="openCalendarImport()">📅 Importar do calendário</button><button class="btn success" onclick="openNewPlanForm()">+ Planejar atividade</button></div></div>
-      </div>
-      <div id="calendarImportCard" class="card hidden">
-        <div class="toolbar" style="justify-content:space-between">
-          <div><h3 style="margin-bottom:3px">📅 Eventos do calendário</h3><div class="meta">Escolha primeiro quais agendas deseja consultar. Só entra no Diário o evento que você importar.</div></div>
-          <button class="btn small" type="button" onclick="closeCalendarImport()">Fechar</button>
-        </div>
-        <div id="calendarSourcePicker"></div>
-        <div id="calendarImportStatus" class="meta" style="margin:10px 0">Carregando agendas…</div>
-        <div id="calendarImportList"></div>
+        <div class="toolbar" style="justify-content:space-between"><div><h2 style="margin-bottom:3px">Planejar</h2><div class="meta">Veja primeiro o que precisa de atenção. Crie um novo planejamento só quando precisar.</div></div><div class="toolbar"><button class="btn success" onclick="openNewPlanForm()">+ Planejar atividade</button></div></div>
       </div>
 
       <div id="planFormCard" class="card hidden"><h3 id="planFormTitle">Novo planejamento</h3><div class="grid">
@@ -1526,8 +1525,8 @@ body.app-authenticated main{padding-bottom:0}
           <p>Ao solicitar um <b>resumo de relatório</b>, são enviados os registros incluídos no período e nos filtros escolhidos pela família, com os campos necessários para produzir aquela síntese. O resumo gerado fica salvo nos dados compartilhados da família e pode ser atualizado por ela.</p>
 
           <h3 style="margin-top:18px">📅 Google Calendar</h3>
-          <p>Quando a família conecta o Calendar, escolhe quais agendas de origem deseja consultar. O Diário lê os eventos dessas agendas para apresentar opções de importação; os compromissos não são transformados automaticamente em registros.</p>
-          <p>Ao importar, o Diário cria uma cópia em um calendário separado chamado <b>“Diário de Estudos”</b> e guarda a referência do evento original para detectar alterações. O aplicativo nunca altera nem exclui o evento original; exclusão e atualização atingem somente a cópia criada pelo Diário.</p>
+          <p>Quando a família conecta o Calendar, o Diário cria e utiliza somente uma agenda separada chamada <b>“Diário de Estudos”</b> para os planejamentos enviados pelo próprio aplicativo.</p>
+          <p>O aplicativo não solicita acesso para consultar a lista de calendários pessoais nem para ler eventos criados fora dessa agenda. Atualizações e exclusões feitas pelo Diário ficam restritas aos eventos que ele próprio criou.</p>
 
           <h3 style="margin-top:18px">📚 Livros e leituras</h3>
           <p>Ao pesquisar um livro, o título informado pode ser consultado no Google Books e no catálogo comunitário do Diário. Um resultado pode ser vinculado à biblioteca da família; se não for adequado, a família continua podendo fazer um cadastro manual.</p>
@@ -1692,7 +1691,7 @@ body.app-authenticated main{padding-bottom:0}
       <div><b>📅 Google Calendar</b><div id="calendarIntegrationStatus" class="meta" style="margin-top:3px">Verificando integração…</div></div>
       <div class="toolbar"><button class="btn small" type="button" onclick="reauthorizeGoogleCalendar()">Reautorizar</button><button id="calendarIntegrationBtn" class="btn small" type="button" onclick="setupDiaryCalendar()">Conectar</button></div>
     </div>
-    <div class="meta" style="margin-top:8px">Você escolhe quais eventos pessoais importar. Planejamentos enviados pelo Diário ficam em um calendário separado.</div>
+    <div class="meta" style="margin-top:8px">Planejamentos podem ser enviados para um calendário separado chamado “Diário de Estudos”. O app não acessa seus outros calendários.</div>
   </div>
 
 <h3>Conta Google</h3>
@@ -1701,7 +1700,7 @@ body.app-authenticated main{padding-bottom:0}
 
 
 
-<details class="tech-details"><summary>Diagnóstico técnico do beta</summary><div class="drive-folder-card" style="margin-top:8px"><div id="backendDetails" class="meta">Aguardando backend.</div><div id="backendFamilyInfo" class="meta" style="margin-top:6px"></div><div id="backendFamilyChooser" class="hidden"></div><div class="toolbar" style="margin-top:8px"><button class="btn small" onclick="testBackendConnection()">Testar backend</button><button id="syncFamilyBtn" class="btn small hidden" onclick="syncFamilyFromBackend(true)">Atualizar família</button><button id="linkFamilyBtn" class="btn small hidden" onclick="linkCurrentFamilyToBackend()">Vincular família local</button></div><hr style="margin:12px 0"><div class="meta">OAuth: Drive por arquivo/pasta (`drive.file`) + dados privados do app (`drive.appdata`) + Calendar com leitura de eventos para importação e escrita restrita ao calendário criado pelo Diário.</div><hr style="margin:10px 0"><div class="meta">Ferramentas temporárias do beta</div><button class="btn danger small" style="margin-top:8px" onclick="resetLocalBetaData()">Apagar dados locais deste dispositivo</button></div></details>
+<details class="tech-details"><summary>Diagnóstico técnico do beta</summary><div class="drive-folder-card" style="margin-top:8px"><div id="backendDetails" class="meta">Aguardando backend.</div><div id="backendFamilyInfo" class="meta" style="margin-top:6px"></div><div id="backendFamilyChooser" class="hidden"></div><div class="toolbar" style="margin-top:8px"><button class="btn small" onclick="testBackendConnection()">Testar backend</button><button id="syncFamilyBtn" class="btn small hidden" onclick="syncFamilyFromBackend(true)">Atualizar família</button><button id="linkFamilyBtn" class="btn small hidden" onclick="linkCurrentFamilyToBackend()">Vincular família local</button></div><hr style="margin:12px 0"><div class="meta">OAuth: Drive por arquivo/pasta (`drive.file`) + dados privados do app (`drive.appdata`) + escrita restrita ao calendário criado pelo Diário (`calendar.app.created`). O app não lê calendários pessoais.</div><hr style="margin:10px 0"><div class="meta">Ferramentas temporárias do beta</div><button class="btn danger small" style="margin-top:8px" onclick="resetLocalBetaData()">Apagar dados locais deste dispositivo</button></div></details>
 
 </div></section>
 
@@ -1714,6 +1713,13 @@ body.app-authenticated main{padding-bottom:0}
   <div class="toolbar" style="margin-top:8px"><button class="btn small" type="button" onclick="loadAdminAccessGrants()">Atualizar lista</button></div><hr>
   <div class="grid"><div class="full"><label class="field">Família</label><select id="adminAccessGrantFamily"></select></div><div><label class="field">Tipo de acesso</label><select id="adminAccessGrantType"><option value="beta_tester">Beta tester</option><option value="social">Acesso social</option><option value="partnership">Parceria</option><option value="courtesy">Cortesia</option></select></div><div><label class="field">Válido até (opcional)</label><input id="adminAccessGrantEnds" type="date"></div><div class="full"><label class="field">Motivo</label><input id="adminAccessGrantReason" placeholder="Ex.: família participante do beta inicial"></div></div>
   <div class="toolbar" style="margin-top:8px"><button class="btn success small" type="button" onclick="grantFamilyAccess()">Liberar acesso</button><button class="btn danger small" type="button" onclick="revokeFamilyAccess()">Remover gratuidade</button></div><div id="adminAccessGrantFamilies" class="meta" style="margin-top:12px">Carregando famílias…</div>
+</div></details>
+
+<details class="tech-details" open><summary>Famílias autorizadas a se cadastrar</summary><div class="drive-folder-card" style="margin-top:8px">
+  <div class="notice"><b>Lista de convites</b><div class="meta" style="margin-top:4px;color:#5F5B50">Somente estes e-mails conseguem criar uma família nova. Contas que já pertencem a uma família não são bloqueadas.</div></div>
+  <div class="grid" style="margin-top:10px"><div><label class="field">E-mail</label><input id="adminAllowedEmailInput" type="email" placeholder="email@exemplo.com"></div><div><label class="field">Nota (opcional)</label><input id="adminAllowedEmailNote" placeholder="Ex.: Família Silva"></div></div>
+  <div class="toolbar" style="margin-top:8px"><button class="btn success small" type="button" onclick="addAllowedSignup()">+ Adicionar e-mail</button><button class="btn small" type="button" onclick="loadAllowedSignups()">Atualizar lista</button></div>
+  <div id="adminAllowedSignupsList" style="margin-top:12px">Carregando e-mails…</div>
 </div></details>
 
 <details class="tech-details" open><summary>🤖 Consumo de IA por família</summary><div class="drive-folder-card" style="margin-top:8px">
@@ -1760,7 +1766,7 @@ body.app-authenticated main{padding-bottom:0}
 
 <script>
 const GOOGLE_CLIENT_ID = "629410527657-f5b9r4o0jvcvf0517oracmhpvhsj19pn.apps.googleusercontent.com";
-const GOOGLE_SCOPES = "openid email profile https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/calendar.calendarlist.readonly";
+const GOOGLE_SCOPES = "openid email profile https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/calendar.app.created";
 const GOOGLE_PICKER_APP_ID = "629410527657";
 const GOOGLE_PICKER_API_KEY = "AIzaSyDyKazsHTfiqb5mQuTK14FsBq8AIafWNy4";
 let googlePickerReady = false;
@@ -1997,7 +2003,7 @@ function showPage(name){
  document.querySelectorAll(".nav-tab").forEach(x=>x.classList.toggle("active",x.dataset.page===name));
  if(name==="inicio"){renderDashboard()}
  if(name==="registro")renderRecordPage();
- if(name==="planejamento"){renderPlans();refreshCalendarIntegrationUI();checkImportedCalendarChanges();} if(name==="mais"){refreshCalendarIntegrationUI();checkAdminPendingValidations(false);refreshAsaasBilling();} if(name==="administracao"){updateAdminValidationNotificationStatus();loadAdminAccessGrants();loadAdminAiUsage();loadPendingCommunityBooks();loadPendingMaterials();}
+ if(name==="planejamento"){renderPlans();refreshCalendarIntegrationUI();} if(name==="mais"){refreshCalendarIntegrationUI();checkAdminPendingValidations(false);refreshAsaasBilling();} if(name==="administracao"){updateAdminValidationNotificationStatus();loadAdminAccessGrants();loadAllowedSignups();loadAdminAiUsage();loadPendingCommunityBooks();loadPendingMaterials();}
  if(name==="relatorios")renderReportPage();
  if(name==="historico"){renderHistoryBrowser();renderHistoryBatchRows();refreshHistoryActivityOptions();}
  if(name==="leituras"){renderReadingPage();}
@@ -2254,7 +2260,13 @@ function renderSimpleFamilySummary(){
  if(editBtn)editBtn.classList.toggle("hidden",fam.role!=="admin");
  const canEdit=fam.role==="admin";if(addBtn)addBtn.classList.toggle("hidden",!canEdit);if(addBox)addBox.classList.toggle("hidden",!canEdit);
 }
-let onboardingRows=[];
+let onboardingRows=[],signupCreationBlocked=false;
+function signupNotAllowed(error){return error?.status===403&&error?.payload?.error==="SIGNUP_NOT_ALLOWED"}
+function showWaitlistScreen(){
+  signupCreationBlocked=true;
+  const email=$('signupWaitlistEmail');if(email)email.textContent=backendProfile?.user?.email||googleUser?.email||"esta conta";
+  $('onboardingGate')?.classList.add('hidden');$('signupWaitlistGate')?.classList.remove('hidden');$('protectedApp')?.classList.add('hidden');
+}
 function needsOnboarding(){
   if(!googleAccessToken||!backendProfile?.user)return false;
   const families=backendProfile.families||[];
@@ -2288,8 +2300,9 @@ function renderOnboardingChildren(){
 }
 function refreshOnboardingUI(){
   const gate=$("onboardingGate");if(!gate)return;
-  const show=needsOnboarding();
+  const show=needsOnboarding()&&!signupCreationBlocked;
   gate.classList.toggle("hidden",!show);
+  $("signupWaitlistGate")?.classList.toggle("hidden",!signupCreationBlocked);
   if(!show)return;
   const fam=backendFamilyFromProfile();
   const name=$("onboardingFamilyName");
@@ -2335,7 +2348,7 @@ async function finishOnboarding(){
     if(status)status.textContent="Tudo pronto.";
     updateAuthUI();renderAll();showPage("inicio");
     setCloudStatus("ok","Diário pronto para usar");
-  }catch(e){console.error(e);if(status)status.textContent="Não foi possível concluir a configuração.";alert("Não foi possível preparar o Diário: "+(e.message||e))}
+  }catch(e){console.error(e);if(signupNotAllowed(e)){if(status)status.textContent="";showWaitlistScreen();return}if(status)status.textContent="Não foi possível concluir a configuração.";alert("Não foi possível preparar o Diário: "+(e.message||e))}
   finally{if(btn){btn.disabled=false;btn.textContent=backendFamilyFromProfile()?"Cadastrar e começar":"Criar e começar"}}
 }
 
@@ -2347,7 +2360,7 @@ async function createCleanBackendFamily(){
   localStorage.setItem(ACTIVE_BACKEND_FAMILY_KEY,id);setBackendFamilyId(id);
   state.family={name,social:"",updatedAt:now(),responsibles:[],children:[]};state.entries={};state.plans=[];state.tombstones={children:[],entries:[],plans:[]};activeChildId=null;setBackendChildMap({});saveLocal();
   await refreshBackendProfile();await loadBackendFamilyData();await syncFamilyFromBackend(false);renderAll();alert("Família criada. Esta conta é o Administrador. Agora cadastre as crianças.");
- }catch(e){alert("Não foi possível criar a família: "+e.message)}
+ }catch(e){if(signupNotAllowed(e)){showWaitlistScreen();return}alert("Não foi possível criar a família: "+e.message)}
 }
 async function resetLocalBetaData(){
  if(!confirm("Apagar deste navegador as crianças, registros e planejamentos antigos do beta?\n\nA família do backend e o Drive não serão apagados."))return;
@@ -2609,6 +2622,7 @@ async function linkCurrentFamilyToBackend(){
     }
   }catch(e){
     console.error(e);
+    if(signupNotAllowed(e)){showWaitlistScreen();return}
     setBackendStatus(e.message||"erro ao vincular família",false);
     alert("Não foi possível vincular a família: "+(e.message||"erro desconhecido"));
   }finally{
@@ -3739,6 +3753,22 @@ async function revokeFamilyAccess(){
  try{await backendFetch("/admin/access-grants/revoke",{method:"POST",body:JSON.stringify({family_id})});loadAdminAccessGrants()}catch(e){alert("Não foi possível remover: "+e.message)}
 }
 
+async function loadAllowedSignups(){
+ const box=$("adminAllowedSignupsList");if(!isGlobalDiaryAdmin||!box)return;
+ try{
+  const data=await backendFetch("/admin/allowed-signups"),emails=data.emails||[];
+  box.innerHTML=emails.map(item=>`<div class="duplicate-card" style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:7px"><div><b>${esc(item.email)}</b>${item.note?`<div class="meta">${esc(item.note)}</div>`:""}<div class="meta">Adicionado em ${esc(fmtDate(String(item.created_at||"").slice(0,10)))}</div></div><button class="btn danger small" type="button" onclick="removeAllowedSignup(decodeURIComponent('${encodeURIComponent(item.email)}'))">Remover</button></div>`).join("")||'<div class="meta">Nenhum e-mail cadastrado ainda.</div>';
+ }catch(e){box.textContent="Não foi possível carregar: "+e.message}
+}
+async function addAllowedSignup(){
+ const email=$("adminAllowedEmailInput")?.value.trim(),note=$("adminAllowedEmailNote")?.value.trim();if(!email)return alert("Informe o e-mail.");
+ try{await backendFetch("/admin/allowed-signups",{method:"POST",body:JSON.stringify({email,note})});$("adminAllowedEmailInput").value="";$("adminAllowedEmailNote").value="";loadAllowedSignups()}catch(e){alert("Não foi possível autorizar: "+e.message)}
+}
+async function removeAllowedSignup(email){
+ if(!confirm(`Remover ${email} da lista de novos cadastros?`))return;
+ try{await backendFetch("/admin/allowed-signups/remove",{method:"POST",body:JSON.stringify({email})});loadAllowedSignups()}catch(e){alert("Não foi possível remover: "+e.message)}
+}
+
 async function connectBackend(){
   if(!googleAccessToken){
     backendProfile=null;
@@ -3860,17 +3890,19 @@ function finishAuthBoot(){
 }
 function updateAuthUI(){
  const onlineAuth=!!(googleAccessToken&&googleUser);
+ if(!onlineAuth)signupCreationBlocked=false;
  const offlineAuth=!onlineAuth&&offlineSessionAvailable();
  const canUseApp=onlineAuth||offlineAuth;
  const backendPending=onlineAuth&&!backendProfile;
- const onboarding=onlineAuth&&!!backendProfile?.user&&needsOnboarding();
+ const onboarding=onlineAuth&&!!backendProfile?.user&&needsOnboarding()&&!signupCreationBlocked;
 
  $("googleLoginBtn")?.classList.toggle("hidden",onlineAuth);
  $("syncNowBtn")?.classList.toggle("hidden",!onlineAuth);
  $("googleLogoutBtn")?.classList.toggle("hidden",!onlineAuth);
  $("loginGate")?.classList.toggle("hidden",canUseApp);
  $("onboardingGate")?.classList.toggle("hidden",!onboarding);
- $("protectedApp")?.classList.toggle("hidden",!canUseApp||backendPending||onboarding);
+ $("signupWaitlistGate")?.classList.toggle("hidden",!signupCreationBlocked);
+ $("protectedApp")?.classList.toggle("hidden",!canUseApp||backendPending||onboarding||signupCreationBlocked);
  $("headerCloud")?.classList.toggle("hidden",!canUseApp);
  $("headerSyncBtn")?.classList.toggle("hidden",!onlineAuth);
  document.body.classList.toggle("app-authenticated",canUseApp);
@@ -6868,7 +6900,7 @@ function renderPlanViewChildren(){
 function renderPlans(){
  let box=$("plansList");if(!box)return;renderPlanViewChildren();let childId=planViewChildFilter==="all"?"":planViewChildFilter,td=today();
  let l=state.plans.filter(x=>!x.completedAt&&(!childId||planIncludesChild(x,childId))&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
- const card=p=>{const names=planChildNames(p),progress=planOccurrenceProgress(p),status=planChildIds(p).map(id=>{const name=state.family.children.find(c=>c.id===id)?.name||"Criança",done=progress[id]?.status==="completed";return `<span class="reading-status" style="margin-right:5px">${done?"✓":"○"} ${esc(name)}</span>`}).join("");return `<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':(p.nextDate||p.date)===td?'is-today':''}" data-plan-id="${esc(p.id)}"><div class="plan-date">${fmtDate(p.nextDate||p.date)} · ${esc(names.join(", "))}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div style="margin-top:5px">${status}</div>`:""}${p.component?`<div class="skill">${esc(p.component)}</div>`:''}${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}${p.materialName?`<div class="meta" style="margin-top:4px">📘 ${esc(p.materialName)}</div>`:""}${p.notes?`<div class="obs">${esc(p.notes)}</div>`:''}${p.calendarEventId?`<div class="meta" style="margin-top:4px">📅 No Google Calendar${p.importedCalendarEventId?" · cópia de "+esc(p.importedCalendarName||"agenda pessoal"):""}</div>`:p.importedCalendarEventId?`<div class="meta" style="margin-top:4px">📅 Importado do seu calendário · cópia pendente</div>`:""}${p.importedCalendarChanged?`<div class="notice" style="margin-top:8px"><b>⚠ Evento original atualizado</b><br><button class="btn small primary" style="margin-top:7px" type="button" onclick="updateImportedCalendarCopy('${p.id}')">Atualizar cópia</button></div>`:""}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">+ Registrar atividade</button><button class="btn small" onclick="editPlan('${p.id}')">Editar</button>${p.recurrence!=='none'?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular / próxima</button>`:''}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`};
+ const card=p=>{const names=planChildNames(p),progress=planOccurrenceProgress(p),status=planChildIds(p).map(id=>{const name=state.family.children.find(c=>c.id===id)?.name||"Criança",done=progress[id]?.status==="completed";return `<span class="reading-status" style="margin-right:5px">${done?"✓":"○"} ${esc(name)}</span>`}).join("");return `<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':(p.nextDate||p.date)===td?'is-today':''}" data-plan-id="${esc(p.id)}"><div class="plan-date">${fmtDate(p.nextDate||p.date)} · ${esc(names.join(", "))}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div style="margin-top:5px">${status}</div>`:""}${p.component?`<div class="skill">${esc(p.component)}</div>`:''}${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}${p.materialName?`<div class="meta" style="margin-top:4px">📘 ${esc(p.materialName)}</div>`:""}${p.notes?`<div class="obs">${esc(p.notes)}</div>`:''}${p.calendarEventId?`<div class="meta" style="margin-top:4px">📅 No Google Calendar${p.importedCalendarEventId?" · cópia preservada do beta":""}</div>`:p.importedCalendarEventId?`<div class="meta" style="margin-top:4px">📅 Planejamento importado durante o beta</div>`:""}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">+ Registrar atividade</button><button class="btn small" onclick="editPlan('${p.id}')">Editar</button>${p.recurrence!=='none'?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular / próxima</button>`:''}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`};
  const late=l.filter(p=>(p.nextDate||p.date)<td),now=l.filter(p=>(p.nextDate||p.date)===td),future=l.filter(p=>(p.nextDate||p.date)>td);
  box.innerHTML=`${late.length?`<div class="plan-section-title">Atrasadas · ${late.length}</div>${late.map(card).join('')}`:''}<div class="plan-section-title">Hoje · ${now.length}</div>${now.map(card).join('')||"<div class='notice'>Nada planejado para hoje.</div>"}${future.length?`<div class="plan-section-title">Próximos dias · ${future.length}</div>${future.map(card).join('')}`:''}`;
  queueSavedPlanningWeatherRefresh();refreshPlannedReadingsAgenda();
@@ -7726,7 +7758,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "11.5";
+const APP_VERSION = "11.6";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
