@@ -1138,6 +1138,16 @@ header .brand-motto{display:none!important}
  .header-message{font-size:7px}
 }
 
+/* v11.14 — remoção final dos tons verdes nas telas de leitura e planejamento */
+#page-leituras .report-child-picker{background:#F4E8DE!important;border-color:#E3CFC1!important}
+#page-leituras .report-child-picker .child,#page-leituras .child-selector .child,#page-leituras .child-tabs .child{background:#FFFCF7!important;border-color:#D8C2B4!important;color:#6B2737!important}
+#page-leituras .report-child-picker .child.active,#page-leituras .child-selector .child.active,#page-leituras .child-tabs .child.active{background:#441015!important;border-color:#441015!important;color:#fff!important}
+#page-leituras .book-cover,#page-leituras .book-cover-placeholder{background:#F1E7DD!important}
+#page-leituras .book-meta,#page-leituras .field-help,#page-leituras .meta{color:#756B63!important}
+#page-planejamento .reading-status{background:#F2E3DA!important;color:#6B2737!important;border-color:#E3CFC1!important}
+#page-planejamento .child-selector .child,#page-planejamento .child-tabs .child{background:#FFFCF7!important;border-color:#D8C2B4!important;color:#6B2737!important}
+#page-planejamento .child-selector .child.active,#page-planejamento .child-tabs .child.active{background:#441015!important;border-color:#441015!important;color:#fff!important}
+#page-planejamento .meta,#page-planejamento .skill,#page-planejamento .obs,#page-planejamento .plan-date{color:#756B63!important}
 </style>
 </head>
 <body class="auth-checking">
@@ -7897,7 +7907,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "11.13";
+const APP_VERSION = "11.14";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
@@ -8142,4 +8152,3 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 </body>
 </html>
-
