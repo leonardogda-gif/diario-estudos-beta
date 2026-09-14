@@ -1051,35 +1051,40 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
  .nav-tab.active{border-top-color:#441015;color:#441015;background:#F5E9DF}
 }
 
+
+/* v11.11 — composição fiel ao mockup, sem alterar regras de negócio */
+header{max-width:1000px;margin:14px auto 18px;border-radius:28px;padding:18px 22px;background:linear-gradient(135deg,#641524,#441015);text-align:left}
+.header-branding{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}header .brand{margin:0;max-width:none;align-items:flex-start}
+header .brand::after,header>p,header>p::after{content:none!important;display:none!important}.brand-copy{padding-top:2px}.brand .brand-logo{width:76px;height:92px;margin:-4px 2px -10px -5px}
+header h1{font-size:30px;line-height:1.08}.brand-motto{display:block!important;margin:6px 0 0!important;color:#E8D8CA!important;font-family:"Fraunces",Georgia,serif;font-size:13px!important;letter-spacing:.12em;line-height:1.35}
+.header-right{display:flex;min-height:92px;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:12px}.header-message{color:#DDBA78;text-align:right;text-transform:uppercase;letter-spacing:.20em;font-size:8px;line-height:1.55}.header-message span,.header-message b{display:block}
+.header-cloud{position:static;display:flex;align-items:center;gap:7px;background:transparent;border:1px solid #DDBA78;border-radius:13px;padding:5px 7px 5px 11px;box-shadow:none;color:#EACB91}.header-cloud-main{background:transparent!important;padding:0!important}.header-cloud-icon{font-size:18px;color:#DDBA78}.header-cloud .sync-dot{display:none}.header-cloud-text{color:#EACB91}.header-cloud-actions .btn{background:transparent;color:#EACB91;border-left:1px solid rgba(221,186,120,.45);border-radius:0;min-height:27px;padding:3px 7px}.header-cloud-details{right:max(16px,calc((100vw - 1000px)/2 + 16px));top:118px}
+.today-hero-card{padding:22px}.today-hero-layout{display:grid;grid-template-columns:minmax(0,1fr) 210px;gap:20px;align-items:start}.today-copy>.grid{grid-template-columns:1fr}.today-copy>.grid>div:last-child{margin-top:14px}.today-hero-card h2{font-size:48px!important;color:#441015;line-height:1;margin:5px 0 8px!important}
+.today-quote{display:flex;justify-content:center;align-items:center;gap:4px;color:#8A4B3E;font-family:"Fraunces",Georgia,serif;font-style:italic;font-size:17px;line-height:1.3}.today-quote svg{width:72px;height:120px;overflow:visible}.today-quote svg path:first-child{fill:none;stroke:#C69A55;stroke-width:4;stroke-linecap:round}.today-quote svg path:not(:first-child){fill:#C69A55}
+.mockup-actions{display:grid!important;grid-template-columns:1fr!important;gap:10px!important;margin:0 4px 14px!important}.mockup-actions::before{display:none!important;content:none!important}.mockup-actions .btn{width:100%;min-height:64px!important;border-radius:16px!important;padding:10px 20px!important;font-family:"Fraunces",Georgia,serif;font-size:22px!important;justify-content:flex-start}.mockup-actions .btn:first-child{background:linear-gradient(135deg,#641524,#441015)!important}.mockup-actions .btn:last-child{background:#F5E9DF!important;color:#441015!important;border:1.5px solid #6B2737!important}.mockup-plus{font-family:"Work Sans",sans-serif;font-size:35px;font-weight:400;margin-right:14px}.mockup-arrow{font-family:"Work Sans",sans-serif;font-size:38px;font-weight:400;margin-left:auto}
+.section-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}.section-heading h3{margin:0;color:#441015;font-size:20px}.section-link{border:0;background:transparent;color:#6B2737;font-family:"Fraunces",Georgia,serif;font-size:13px;cursor:pointer;padding:5px}.section-book-icon{font-family:"Work Sans",sans-serif;font-weight:400}.routine-reading{padding:16px 18px}.routine-reading .routine-reading-row{display:grid;grid-template-columns:145px minmax(0,1fr);gap:18px;padding:12px;margin-top:12px}.routine-reading-row img,.routine-cover-placeholder{width:145px;height:205px;border-radius:9px;object-fit:cover}.routine-cover-placeholder{display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#441015,#8A4B3E);font-size:42px}.routine-reading-content{padding:10px 0}.routine-reading-content>b{font-family:"Fraunces",Georgia,serif;font-size:20px;color:#2E2522}.routine-author{font-size:13px;margin-top:5px}.routine-date{font-size:12px;margin-top:24px}.routine-actions{margin-top:19px!important;gap:10px}.routine-actions .btn{min-height:48px;padding:8px 15px;font-family:"Fraunces",Georgia,serif;font-size:14px}.routine-actions .btn.success{background:#B86B52!important}.today-plans-card{padding:17px 18px}.today-plans-card>.notice{margin-top:12px}.today-plans-card .plan-card{margin-top:12px}
+@media(max-width:650px){header{margin:8px 10px 14px;border-radius:24px;padding:14px 14px 13px}.brand .brand-logo{width:56px;height:70px;margin:-2px 0 -7px -4px}header h1{font-size:24px}.brand-motto{font-size:10px!important;letter-spacing:.07em}.header-right{min-height:70px;gap:6px}.header-message{font-size:6.5px;letter-spacing:.12em}.header-cloud{padding:3px 4px 3px 7px;border-radius:10px}.header-cloud-icon{font-size:14px}.header-cloud-text{font-size:10px}.header-cloud-actions .btn{min-height:23px;padding:2px 5px}.header-cloud-details{top:104px;right:12px}.today-hero-card{padding:18px}.today-hero-layout{grid-template-columns:1fr 126px;gap:8px}.today-copy>.grid>div:last-child{grid-column:1/-1;margin-top:8px}.today-hero-card h2{font-size:42px!important}.today-quote{font-size:12px}.today-quote svg{width:48px;height:86px}.mockup-actions{margin-left:0!important;margin-right:0!important}.mockup-actions .btn{min-height:58px!important;font-size:19px!important}.mockup-plus{font-size:29px;margin-right:9px}.mockup-arrow{font-size:31px}.routine-reading .routine-reading-row{grid-template-columns:84px minmax(0,1fr);gap:11px}.routine-reading-row img,.routine-cover-placeholder{width:84px;height:120px}.routine-reading-content{padding:2px 0}.routine-reading-content>b{font-size:16px}.routine-date{margin-top:10px}.routine-actions{margin-top:10px!important}.routine-actions .btn{min-height:38px;padding:6px 9px;font-size:12px}}
+
 </style>
 </head>
 <body class="auth-checking">
 <header>
-  <div class="brand">
-    <img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true">
-    <h1>Diário de Estudos</h1>
-  </div>
-  <p>Homeschooling alinhado à BNCC · famílias convidadas · v11.10 PWA</p>
-
-  <div id="headerCloud" class="header-cloud hidden no-print">
-    <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
-      <span id="headerSyncDot" class="sync-dot"></span>
-      <span id="headerCloudText" class="header-cloud-text">Aguardando login</span>
+  <div class="header-branding">
+    <div class="brand">
+      <img class="brand-logo" src="./logo-diario-marsala.svg" alt="" aria-hidden="true">
+      <div class="brand-copy"><h1>Diário de Estudos</h1><p class="brand-motto">Disciplina hoje,<br>conquistas amanhã.</p></div>
     </div>
-    <div class="header-cloud-actions">
-      <button id="headerSyncBtn" class="btn hidden" onclick="event.stopPropagation();syncWithDrive({manual:true})" title="Sincronizar agora">↻</button>
+    <div class="header-right">
+      <div id="headerCloud" class="header-cloud hidden no-print">
+        <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização"><span class="header-cloud-icon" aria-hidden="true">☁</span><span id="headerSyncDot" class="sync-dot"></span><span id="headerCloudText" class="header-cloud-text">Aguardando login</span></div>
+        <div class="header-cloud-actions"><button id="headerSyncBtn" class="btn hidden" onclick="event.stopPropagation();syncWithDrive({manual:true})" title="Sincronizar agora">↻</button></div>
+      </div>
+      <div class="header-message"><span>Pequenos passos</span><b>Grandes futuros</b></div>
     </div>
   </div>
   <div id="headerCloudDetails" class="header-cloud-details hidden no-print">
-    <div class="cloud-title">Google Drive</div>
-    <div id="headerCloudStatus" class="cloud-status">Aguardando login</div>
-    <div id="headerCloudUser" class="cloud-user"></div>
-    <div id="headerBackendStatus" class="cloud-user"></div>
-    <div class="toolbar">
-      <button class="btn" onclick="syncWithDrive({manual:true});toggleHeaderCloudDetails(false)">Sincronizar agora</button>
-      <button class="btn" onclick="showPage('configuracoes');toggleHeaderCloudDetails(false)">Configurações</button>
-      <button class="btn danger" onclick="googleLogout();toggleHeaderCloudDetails(false)">Sair</button>
-    </div>
+    <div class="cloud-title">Google Drive</div><div id="headerCloudStatus" class="cloud-status">Aguardando login</div><div id="headerCloudUser" class="cloud-user"></div><div id="headerBackendStatus" class="cloud-user"></div>
+    <div class="toolbar"><button class="btn" onclick="syncWithDrive({manual:true});toggleHeaderCloudDetails(false)">Sincronizar agora</button><button class="btn" onclick="showPage('configuracoes');toggleHeaderCloudDetails(false)">Configurações</button><button class="btn danger" onclick="googleLogout();toggleHeaderCloudDetails(false)">Sair</button></div>
   </div>
 </header>
 
@@ -4948,10 +4953,10 @@ function renderDashboard(){
  const due=state.plans.filter(x=>planPendingForChild(x,child.id)&&!x.completedAt&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
  const todayPlans=due.filter(p=>(p.nextDate||p.date)===td),latePlans=due.filter(p=>(p.nextDate||p.date)<td),futurePlans=due.filter(p=>(p.nextDate||p.date)>td).slice(0,3);
  const planHtml=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div class="meta">👨‍👩‍👧‍👦 Planejamento compartilhado: ${esc(planChildNames(p).join(", "))}</div>`:""}<div class="meta">${esc(p.component||'')}</div>${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="attention-actions"><button class="btn success attention-primary" onclick="startPlan('${p.id}','${child.id}')">✓ Concluir e registrar</button><button class="btn small" onclick="showPage('planejamento');editPlan('${p.id}')">Editar</button>${(p.nextDate||p.date)<td?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Reagendar próxima</button>`:''}</div></div>`;
- box.innerHTML=`<div class="card"><div class="grid" style="align-items:end"><div>${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje</h2><div class="meta">${fmtDate(td)}</div></div><div><label class="field">Criança</label><select onchange="selectChild(this.value);showPage('inicio')">${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===child.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div></div>
- <div class="daily-actions"><button class="btn success daily-primary" onclick="openTodayRecord()">+ Registrar atividade</button><button class="btn success daily-primary" onclick="showPage('planejamento');openNewPlanForm()">+ Planejar atividade</button></div></div><div id="todayActiveReading"></div>
+ box.innerHTML=`<div class="card today-hero-card"><div class="today-hero-layout"><div class="today-copy"><div class="grid" style="align-items:end"><div>${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje</h2><div class="meta">${fmtDate(td)}</div></div><div><label class="field">Criança</label><select onchange="selectChild(this.value);showPage('inicio')">${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===child.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div></div>
+ </div></div><div class="today-quote"><svg viewBox="0 0 90 150" aria-hidden="true"><path d="M43 141C62 106 64 68 59 13"/><path d="M58 35C35 28 22 37 17 56 37 62 51 55 58 35ZM61 63C79 53 88 59 89 76 74 84 64 79 61 63ZM54 88C34 82 21 91 18 109 36 113 49 105 54 88ZM48 114C66 106 78 113 80 129 64 135 53 130 48 114Z"/></svg><span>Educação<br>constrói<br>amanhãs mais<br>livres.</span></div></div></div><div class="daily-actions mockup-actions"><button class="btn success daily-primary" onclick="openTodayRecord()"><span class="mockup-plus">＋</span><span>Registrar atividade</span><span class="mockup-arrow">›</span></button><button class="btn daily-secondary" onclick="showPage('planejamento');openNewPlanForm()"><span class="mockup-plus">＋</span><span>Planejar atividade</span><span class="mockup-arrow">›</span></button></div><div id="todayActiveReading"></div>
  ${latePlans.length?`<div class="card"><h3>Precisa de atenção</h3><div class="meta">Atividades planejadas que ficaram para trás.</div>${latePlans.map(planHtml).join('')}</div>`:''}
- <div class="card"><h3>Para hoje</h3>${todayPlans.map(planHtml).join('')||"<div class='notice'>Nada planejado para hoje. Você pode registrar uma atividade que aconteceu sem planejamento.</div>"}</div>
+ <div class="card today-plans-card"><div class="section-heading"><h3>Planejado para hoje</h3><button class="section-link" type="button" onclick="showPage('planejamento')">Ver todos ›</button></div>${todayPlans.map(planHtml).join('')||"<div class='notice'>Nada planejado para hoje. Você pode registrar uma atividade que aconteceu sem planejamento.</div>"}</div>
  ${futurePlans.length?`<div class="card"><h3>Próximos dias</h3>${futurePlans.map(p=>`<div class="plan-card record-clickable" onclick="openPlanFromDashboard('${p.id}')"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${p.place?`<div class="meta">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="entry-actions"><button class="btn success small" type="button" onclick="event.stopPropagation();startPlan('${p.id}')">+ Registrar atividade</button><button class="btn small" type="button" onclick="event.stopPropagation();openPlanFromDashboard('${p.id}')">Visualizar planejamento</button></div></div>`).join('')}<button class="btn" onclick="showPage('planejamento')">Ver todos os planejamentos</button></div>`:''}`;
  renderTodayReadingsFromCache(child.id);queueSavedPlanningWeatherRefresh();refreshTodayReadings(child.id);
 }
@@ -7017,7 +7022,7 @@ async function readingBooksForChild(childId){
 }
 function todayReadingsMarkup(books){
  const active=(books||[]).filter(b=>b.status==="Lendo");
- return active.length?`<div class="card routine-reading"><h3>Leituras em andamento</h3>${active.map(b=>`<div class="routine-reading-row">${b.thumbnail?`<img src="${esc(b.thumbnail)}" alt="">`:""}<div><b>${esc(b.title||"Livro")}</b><div class="meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.started_at?` · iniciado em ${esc(fmtDate(b.started_at))}`:""}</div>${b.target_finish_at?`<div class="meta">Previsão: ${esc(fmtDate(b.target_finish_at))}</div>`:""}<div class="toolbar" style="margin-top:7px"><button class="btn small" onclick="openReadingBook('${b.id}')">Abrir leitura</button><button class="btn success small" onclick="completeBookAndRegister('${b.id}')">Concluir livro</button></div></div></div>`).join("")}</div>`:"";
+ return active.length?`<div class="card routine-reading"><div class="section-heading"><h3><span class="section-book-icon" aria-hidden="true">▤</span> Leituras em andamento</h3><button class="section-link" type="button" onclick="showPage('leituras')">Ver todas ›</button></div>${active.map(b=>`<div class="routine-reading-row">${b.thumbnail?`<img src="${esc(b.thumbnail)}" alt="Capa de ${esc(b.title||"livro")}">`:`<div class="routine-cover-placeholder" aria-hidden="true">📖</div>`}<div class="routine-reading-content"><b>${esc(b.title||"Livro")}</b><div class="meta routine-author">${esc((b.authors||[]).join(", ")||"Autor não informado")}</div>${b.started_at?`<div class="meta routine-date">▣ Iniciado em ${esc(fmtDate(b.started_at))}</div>`:""}${b.target_finish_at?`<div class="meta">Previsão: ${esc(fmtDate(b.target_finish_at))}</div>`:""}<div class="toolbar routine-actions"><button class="btn small" onclick="openReadingBook('${b.id}')"><span aria-hidden="true">▤</span> Abrir leitura</button><button class="btn success small" onclick="completeBookAndRegister('${b.id}')"><span aria-hidden="true">✓</span> Concluir livro</button></div></div></div>`).join("")}</div>`:"";
 }
 function renderTodayReadingsFromCache(childId){
  const box=$("todayActiveReading");if(!box||!childId)return;
@@ -7819,7 +7824,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "11.10";
+const APP_VERSION = "11.11";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
