@@ -1,4 +1,4 @@
-const CACHE_NAME = "diario-estudos-v11.12";
+const CACHE_NAME = "diario-estudos-v11.13";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -66,3 +66,4 @@ self.addEventListener("fetch", event => {
     }))
   );
 });
+
