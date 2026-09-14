@@ -1016,7 +1016,7 @@ body.app-authenticated main{padding-bottom:0}
     <img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true">
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · famílias convidadas · v11.6 PWA</p>
+  <p>Homeschooling alinhado à BNCC · famílias convidadas · v11.8 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -3981,7 +3981,9 @@ function googleLogin(){
   if(localStorage.getItem(REMEMBER_GOOGLE_KEY) === null){
     localStorage.setItem(REMEMBER_GOOGLE_KEY,"1");
   }
-  googleTokenClient.requestAccessToken({prompt:"consent",include_granted_scopes:false});
+  // O Google mostra consentimento automaticamente quando ele é necessário.
+  // Não forçar "consent" evita repetir as telas para contas já autorizadas.
+  googleTokenClient.requestAccessToken({prompt:"",include_granted_scopes:false});
 }
 
 function tryAutomaticGoogleReconnect(){
@@ -4903,7 +4905,7 @@ function renderDashboard(){
  ${latePlans.length?`<div class="card"><h3>Precisa de atenção</h3><div class="meta">Atividades planejadas que ficaram para trás.</div>${latePlans.map(planHtml).join('')}</div>`:''}
  <div class="card"><h3>Para hoje</h3>${todayPlans.map(planHtml).join('')||"<div class='notice'>Nada planejado para hoje. Você pode registrar uma atividade que aconteceu sem planejamento.</div>"}</div>
  ${futurePlans.length?`<div class="card"><h3>Próximos dias</h3>${futurePlans.map(p=>`<div class="plan-card record-clickable" onclick="openPlanFromDashboard('${p.id}')"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${p.place?`<div class="meta">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="entry-actions"><button class="btn success small" type="button" onclick="event.stopPropagation();startPlan('${p.id}')">+ Registrar atividade</button><button class="btn small" type="button" onclick="event.stopPropagation();openPlanFromDashboard('${p.id}')">Visualizar planejamento</button></div></div>`).join('')}<button class="btn" onclick="showPage('planejamento')">Ver todos os planejamentos</button></div>`:''}`;
- queueSavedPlanningWeatherRefresh();refreshTodayReadings(child.id);
+ renderTodayReadingsFromCache(child.id);queueSavedPlanningWeatherRefresh();refreshTodayReadings(child.id);
 }
 function openTodayRecord(){recordFormOpen=true;editing=null;showPage('registro');renderRecordPage()}
 function openPlanFromDashboard(id){
@@ -6965,9 +6967,20 @@ async function readingBooksForChild(childId){
  if(fam?.id&&backendChild){try{const data=await backendFetch(`/family-books?family_id=${encodeURIComponent(fam.id)}&child_id=${encodeURIComponent(backendChild)}`);books=Array.isArray(data?.books)?data.books:[]}catch(e){console.warn("Leituras da rotina:",e)}}
  if(books===null)books=getReadingLibrary().filter(b=>b.childId===childId);window.readingBooksByChild[childId]=books;return books;
 }
+function todayReadingsMarkup(books){
+ const active=(books||[]).filter(b=>b.status==="Lendo");
+ return active.length?`<div class="card routine-reading"><h3>Leituras em andamento</h3><div class="meta">Livros que fazem parte da rotina desta criança, sem cobrança de atraso.</div>${active.map(b=>`<div class="routine-reading-row">${b.thumbnail?`<img src="${esc(b.thumbnail)}" alt="">`:""}<div><b>${esc(b.title||"Livro")}</b><div class="meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.started_at?` · iniciado em ${esc(fmtDate(b.started_at))}`:""}</div>${b.target_finish_at?`<div class="meta">Previsão: ${esc(fmtDate(b.target_finish_at))}</div>`:""}<div class="toolbar" style="margin-top:7px"><button class="btn small" onclick="openReadingBook('${b.id}')">Abrir leitura</button><button class="btn success small" onclick="completeBookAndRegister('${b.id}')">Concluir livro</button></div></div></div>`).join("")}</div>`:"";
+}
+function renderTodayReadingsFromCache(childId){
+ const box=$("todayActiveReading");if(!box||!childId)return;
+ const cached=window.readingBooksByChild?.[childId];if(!Array.isArray(cached))return;
+ const html=todayReadingsMarkup(cached);if(box.innerHTML!==html)box.innerHTML=html;
+}
+let todayReadingsRequestSeq=0;
 async function refreshTodayReadings(childId){
- const box=$("todayActiveReading");if(!box||!childId)return;const books=(await readingBooksForChild(childId)).filter(b=>b.status==="Lendo");if(!$("todayActiveReading"))return;
- box.innerHTML=books.length?`<div class="card routine-reading"><h3>Leituras em andamento</h3><div class="meta">Livros que fazem parte da rotina desta criança, sem cobrança de atraso.</div>${books.map(b=>`<div class="routine-reading-row">${b.thumbnail?`<img src="${esc(b.thumbnail)}" alt="">`:""}<div><b>${esc(b.title||"Livro")}</b><div class="meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.started_at?` · iniciado em ${esc(fmtDate(b.started_at))}`:""}</div>${b.target_finish_at?`<div class="meta">Previsão: ${esc(fmtDate(b.target_finish_at))}</div>`:""}<div class="toolbar" style="margin-top:7px"><button class="btn small" onclick="openReadingBook('${b.id}')">Abrir leitura</button><button class="btn success small" onclick="completeBookAndRegister('${b.id}')">Concluir livro</button></div></div></div>`).join("")}</div>`:"";
+ const requestSeq=++todayReadingsRequestSeq;if(!$("todayActiveReading")||!childId)return;
+ const books=await readingBooksForChild(childId);if(requestSeq!==todayReadingsRequestSeq||activeChildId!==childId)return;
+ const box=$("todayActiveReading");if(!box)return;const html=todayReadingsMarkup(books);if(box.innerHTML!==html)box.innerHTML=html;
 }
 async function refreshPlannedReadingsAgenda(){
  const box=$("plannedReadingsAgenda");if(!box)return;const kids=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan),visible=planViewChildFilter==="all"?kids:kids.filter(c=>c.id===planViewChildFilter);const lists=await Promise.all(visible.map(async child=>({child,books:(await readingBooksForChild(child.id)).filter(b=>b.status==="Planejado")})));if(!$("plannedReadingsAgenda"))return;const items=lists.flatMap(({child,books})=>books.map(book=>({child,book}))).sort((a,b)=>String(a.book.started_at||"").localeCompare(String(b.book.started_at||"")));
@@ -7758,7 +7771,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "11.6";
+const APP_VERSION = "11.8";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
