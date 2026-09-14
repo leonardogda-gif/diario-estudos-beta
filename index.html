@@ -1064,6 +1064,29 @@ header h1{font-size:30px;line-height:1.08}.brand-motto{display:block!important;m
 .section-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}.section-heading h3{margin:0;color:#441015;font-size:20px}.section-link{border:0;background:transparent;color:#6B2737;font-family:"Fraunces",Georgia,serif;font-size:13px;cursor:pointer;padding:5px}.section-book-icon{font-family:"Work Sans",sans-serif;font-weight:400}.routine-reading{padding:16px 18px}.routine-reading .routine-reading-row{display:grid;grid-template-columns:145px minmax(0,1fr);gap:18px;padding:12px;margin-top:12px}.routine-reading-row img,.routine-cover-placeholder{width:145px;height:205px;border-radius:9px;object-fit:cover}.routine-cover-placeholder{display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#441015,#8A4B3E);font-size:42px}.routine-reading-content{padding:10px 0}.routine-reading-content>b{font-family:"Fraunces",Georgia,serif;font-size:20px;color:#2E2522}.routine-author{font-size:13px;margin-top:5px}.routine-date{font-size:12px;margin-top:24px}.routine-actions{margin-top:19px!important;gap:10px}.routine-actions .btn{min-height:48px;padding:8px 15px;font-family:"Fraunces",Georgia,serif;font-size:14px}.routine-actions .btn.success{background:#B86B52!important}.today-plans-card{padding:17px 18px}.today-plans-card>.notice{margin-top:12px}.today-plans-card .plan-card{margin-top:12px}
 @media(max-width:650px){header{margin:8px 10px 14px;border-radius:24px;padding:14px 14px 13px}.brand .brand-logo{width:56px;height:70px;margin:-2px 0 -7px -4px}header h1{font-size:24px}.brand-motto{font-size:10px!important;letter-spacing:.07em}.header-right{min-height:70px;gap:6px}.header-message{font-size:6.5px;letter-spacing:.12em}.header-cloud{padding:3px 4px 3px 7px;border-radius:10px}.header-cloud-icon{font-size:14px}.header-cloud-text{font-size:10px}.header-cloud-actions .btn{min-height:23px;padding:2px 5px}.header-cloud-details{top:104px;right:12px}.today-hero-card{padding:18px}.today-copy>.grid>div:last-child{grid-column:1/-1;margin-top:8px}.today-hero-card h2{font-size:42px!important}.mockup-actions{margin-left:0!important;margin-right:0!important}.mockup-actions .btn{min-height:58px!important;font-size:19px!important}.mockup-plus{font-size:29px;margin-right:9px}.mockup-arrow{font-size:31px}.routine-reading .routine-reading-row{grid-template-columns:84px minmax(0,1fr);gap:11px}.routine-reading-row img,.routine-cover-placeholder{width:84px;height:120px}.routine-reading-content{padding:2px 0}.routine-reading-content>b{font-size:16px}.routine-date{margin-top:10px}.routine-actions{margin-top:10px!important}.routine-actions .btn{min-height:38px;padding:6px 9px;font-size:12px}}
 
+
+/* v11.12 — refinamentos de proporção e paleta */
+.today-copy>.grid>div:last-child.today-child-select{margin-top:20px}
+.today-child-select select{min-height:48px;padding:9px 13px;font-size:15px}
+.mockup-actions{gap:8px!important;margin-bottom:12px!important}
+.mockup-actions .btn{min-height:46px!important;max-height:48px;padding:7px 15px!important;border-radius:12px!important;font-family:"Work Sans",Arial,sans-serif;font-size:15px!important;font-weight:750;letter-spacing:0}
+.mockup-plus{font-size:22px!important;margin-right:7px!important}.mockup-arrow{font-size:24px!important}
+#page-mais .card{border-color:#E8D8CA;background:#FFFCF7}
+#page-mais .billing-card{background:#F8EFE7;border-color:#D8C2B4}
+#page-mais .billing-plan{background:#FFFCF7;border-color:#D8C2B4}
+#page-mais .billing-plan.recommended{border-color:#B86B52;box-shadow:0 0 0 2px rgba(184,107,82,.13)}
+#page-mais .billing-recommended{color:#6B2737}
+#page-mais .btn,#page-mais .btn.success,#page-mais .btn.primary{background:#EFE4D8!important;color:#441015!important;border-color:#D8C2B4!important}
+#page-mais .billing-plan .btn.success,#page-mais .billing-plan .btn.primary{background:#6B2737!important;color:#fff!important;border-color:#6B2737!important}
+#page-mais .status-pill,#page-mais .calendar-status-button{background:#F2E3DA!important;color:#6B2737!important}
+#page-mais .more-group-title,#page-mais h2,#page-mais h3{color:#441015}
+@media(max-width:650px){
+ .today-copy>.grid>div:last-child.today-child-select{margin-top:14px}
+ .today-child-select select{min-height:46px;font-size:14px}
+ .mockup-actions .btn{min-height:44px!important;max-height:46px;font-size:14px!important;padding:6px 13px!important}
+ .mockup-plus{font-size:20px!important}.mockup-arrow{font-size:22px!important}
+}
+
 </style>
 </head>
 <body class="auth-checking">
@@ -4952,7 +4975,7 @@ function renderDashboard(){
  const due=state.plans.filter(x=>planPendingForChild(x,child.id)&&!x.completedAt&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
  const todayPlans=due.filter(p=>(p.nextDate||p.date)===td),latePlans=due.filter(p=>(p.nextDate||p.date)<td),futurePlans=due.filter(p=>(p.nextDate||p.date)>td).slice(0,3);
  const planHtml=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div class="meta">👨‍👩‍👧‍👦 Planejamento compartilhado: ${esc(planChildNames(p).join(", "))}</div>`:""}<div class="meta">${esc(p.component||'')}</div>${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="attention-actions"><button class="btn success attention-primary" onclick="startPlan('${p.id}','${child.id}')">✓ Concluir e registrar</button><button class="btn small" onclick="showPage('planejamento');editPlan('${p.id}')">Editar</button>${(p.nextDate||p.date)<td?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Reagendar próxima</button>`:''}</div></div>`;
- box.innerHTML=`<div class="card today-hero-card"><div class="today-hero-layout"><div class="today-copy"><div class="grid" style="align-items:end"><div>${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje</h2><div class="meta">${fmtDate(td)}</div></div><div><label class="field">Criança</label><select onchange="selectChild(this.value);showPage('inicio')">${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===child.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div></div>
+ box.innerHTML=`<div class="card today-hero-card"><div class="today-hero-layout"><div class="today-copy"><div class="grid" style="align-items:end"><div>${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje</h2><div class="meta">${fmtDate(td)}</div></div><div class="today-child-select"><select aria-label="Selecionar criança" onchange="selectChild(this.value);showPage('inicio')">${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===child.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div></div>
  </div></div></div></div><div class="daily-actions mockup-actions"><button class="btn success daily-primary" onclick="openTodayRecord()"><span class="mockup-plus">＋</span><span>Registrar atividade</span><span class="mockup-arrow">›</span></button><button class="btn daily-secondary" onclick="showPage('planejamento');openNewPlanForm()"><span class="mockup-plus">＋</span><span>Planejar atividade</span><span class="mockup-arrow">›</span></button></div><div id="todayActiveReading"></div>
  ${latePlans.length?`<div class="card"><h3>Precisa de atenção</h3><div class="meta">Atividades planejadas que ficaram para trás.</div>${latePlans.map(planHtml).join('')}</div>`:''}
  <div class="card today-plans-card"><div class="section-heading"><h3>Planejado para hoje</h3><button class="section-link" type="button" onclick="showPage('planejamento')">Ver todos ›</button></div>${todayPlans.map(planHtml).join('')||"<div class='notice'>Nada planejado para hoje. Você pode registrar uma atividade que aconteceu sem planejamento.</div>"}</div>
@@ -7823,7 +7846,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "11.11";
+const APP_VERSION = "11.12";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
