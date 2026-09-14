@@ -1178,6 +1178,20 @@ header .brand-motto{display:none!important}
  .routine-actions{gap:5px!important;margin-top:auto!important}
  .routine-actions .btn{min-height:35px!important;padding:5px 5px!important;font-size:10.5px!important;gap:3px!important}
 }
+/* v11.16 — formulários quentes e leitura mais compacta */
+.today-child-select::before{display:none!important;content:none!important}.today-child-select select{padding-left:16px!important}
+.reading-child-picker{padding:0!important;background:transparent!important;border:0!important}.reading-child-picker select{min-height:52px;padding:10px 16px!important;background:#F4E8DE!important;border:1px solid #E3CFC1!important;color:#2E2522!important;font-weight:650}
+#page-registro,#page-planejamento{--clean-green:#6B2737;--clean-green-soft:#F2E3DA;--clean-blue-soft:#F4E8DE}
+#page-registro .required-pill,#page-planejamento .required-pill{background:#F2E3DA!important;color:#6B2737!important}#page-registro .optional-pill,#page-planejamento .optional-pill{background:#F4E8DE!important;color:#75534C!important}
+#page-registro .btn.primary,#page-registro .btn.success,#page-registro .btn.action-primary,#page-planejamento .btn.primary,#page-planejamento .btn.success,#page-planejamento .btn.action-primary{background:#6B2737!important;border-color:#6B2737!important;color:#fff!important}
+#page-registro input[type="checkbox"],#page-registro input[type="radio"],#page-planejamento input[type="checkbox"],#page-planejamento input[type="radio"]{accent-color:#6B2737!important}
+#page-registro .status-pill,#page-registro .preview-chip,#page-registro .ai-semantic-match,#page-registro .component-relevance,#page-planejamento .status-pill,#page-planejamento .preview-chip{background:#F2E3DA!important;border-color:#E3CFC1!important;color:#6B2737!important}
+#page-registro .switch.on,#page-planejamento .switch.on{background:#6B2737!important}#page-registro .notice,#page-planejamento .notice,#page-registro .advanced-options,#page-planejamento .advanced-options{background:#F5EDE3!important;border-color:#E5D3C7!important}
+.reading-card{position:relative;grid-template-columns:76px minmax(0,1fr)!important;padding:13px!important;gap:14px!important}.reading-card .book-cover,.reading-card .book-cover-placeholder{width:76px!important;height:108px!important}
+.reading-delete-x{position:absolute;top:7px;right:8px;z-index:2;width:30px;height:30px;border:0;background:transparent;color:#8B3843;font-size:25px;line-height:1;border-radius:50%;cursor:pointer;padding:0}.reading-delete-x:hover,.reading-delete-x:focus-visible{background:#F2DFD8}
+.reading-card>div:last-child{min-width:0;padding-right:20px}.reading-actions{display:flex!important;flex-wrap:nowrap!important;gap:7px!important;width:100%}.reading-actions .btn{flex:1 1 0;min-width:0;white-space:normal;padding-left:7px!important;padding-right:7px!important}
+.routine-reading .section-heading h3{font-size:18px!important;white-space:nowrap}.routine-reading .section-book-icon{display:none!important}
+@media(max-width:650px){.reading-card{grid-template-columns:82px minmax(0,1fr)!important;gap:11px!important;padding:11px!important}.reading-card .book-cover,.reading-card .book-cover-placeholder{width:82px!important;height:116px!important}.reading-actions{gap:5px!important}.reading-actions .btn{font-size:10.5px!important;line-height:1.15;min-height:38px!important;padding:5px 4px!important}.routine-reading .section-heading h3{font-size:16px!important;letter-spacing:-.02em}}
 </style>
 </head>
 <body class="auth-checking">
@@ -1339,12 +1353,11 @@ header .brand-motto{display:none!important}
     
 <section id="page-leituras" class="page">
   <div class="card">
-    <div class="title-with-icon" style="margin-top:12px"><span class="title-icon-box" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H11v17H7.5A3.5 3.5 0 0 0 4 22zM20 5.5A3.5 3.5 0 0 0 16.5 2H13v17h3.5A3.5 3.5 0 0 1 20 22z"/></svg></span><h2>Leituras</h2></div>
+    <div class="title-with-icon" style="margin-top:12px"><h2>Leituras</h2></div>
     <div class="field-help">Planeje as próximas leituras e acompanhe os livros concluídos por cada criança.</div>
 
-    <div class="report-child-picker" style="margin-top:14px">
-      <div class="meta" style="margin-bottom:7px">Criança</div>
-      <div id="readingChildButtons" class="child-tabs child-selector"></div>
+    <div class="report-child-picker reading-child-picker" style="margin-top:14px">
+      <select id="readingChildButtons" aria-label="Selecionar criança" onchange="selectReadingChild(this.value)"></select>
     </div>
 
     <div id="readingCurrent"></div>
@@ -7118,7 +7131,7 @@ function renderReadingChildButtons(){
  const kids=(state.family.children||[]).filter(c=>!c.archived&&!c.legacyOrphan),sel=readingChildId();
  if(!kids.some(c=>c.id===sel)&&kids[0])window.readingActiveChildId=kids[0].id;
  const current=readingChildId();
- box.innerHTML=kids.map(c=>`<button type="button" class="child ${c.id===current?"active":""}" onclick="selectReadingChild('${c.id}')">${esc(c.name)}</button>`).join("")
+ box.innerHTML=kids.map(c=>`<option value="${esc(c.id)}" ${c.id===current?"selected":""}>${esc(c.name)}</option>`).join("")
 }
 async function loadReadingLibraryFromBackend(){
  const fam=currentBackendFamily(),localChild=readingChildId(),backendChild=localToBackendChildId(localChild);
@@ -7158,11 +7171,12 @@ function renderReadingCards(books){
  books.slice().sort((a,b)=>(order[a.status]??9)-(order[b.status]??9)||String(a.started_at||"").localeCompare(String(b.started_at||""))).forEach(b=>(groups[b.status]||groups.Lendo).push(b));
  const card=b=>`
   <div class="reading-card" data-reading-book-id="${esc(b.id)}">
+   <button class="reading-delete-x" type="button" aria-label="Excluir ${esc(b.title||'livro')}" title="Excluir leitura" onclick="deleteFamilyBookReading('${b.id}')">×</button>
    ${b.thumbnail?`<img class="book-cover" src="${esc(b.thumbnail)}" alt="">`:`<div class="book-cover-placeholder">📖</div>`}
    <div><div class="book-title">${esc(b.title)}</div><div class="book-meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.publisher?" · "+esc(b.publisher):""}</div>
    <div style="margin-top:6px"><span class="reading-status">${esc(b.status||"Lendo")}</span>${b.catalog_status==="pending"?` <span class="reading-status">Aguardando validação</span>`:""}</div>
    <div class="book-reading-dates">${b.status==="Planejado"&&b.started_at?`<span>Início previsto: <b>${fmtDate(b.started_at)}</b></span>`:b.started_at?`<span>Início: <b>${fmtDate(b.started_at)}</b></span>`:""}${b.target_finish_at?`<span>Previsão: <b>${fmtDate(b.target_finish_at)}</b></span>`:""}${b.finished_at?`<span>Conclusão: <b>${fmtDate(b.finished_at)}</b></span>`:""}</div>
-   <div class="reading-actions">${b.status==="Planejado"?`<button class="btn small" type="button" onclick="startPlannedBook('${b.id}')">Iniciar leitura</button>`:b.status==="Lendo"?`<button class="btn small success reading-primary" type="button" onclick="completeBookAndRegister('${b.id}')">Concluir e registrar leitura</button>`:`<button class="btn small" type="button" onclick="reopenCompletedBook('${b.id}')">Reabrir leitura</button>`}<button class="btn small" type="button" onclick="editFamilyBookReading('${b.id}')">Editar planejamento</button><button class="btn danger small" type="button" onclick="deleteFamilyBookReading('${b.id}')">Excluir</button></div>
+   <div class="reading-actions">${b.status==="Planejado"?`<button class="btn small" type="button" onclick="startPlannedBook('${b.id}')">Iniciar leitura</button>`:b.status==="Lendo"?`<button class="btn small success reading-primary" type="button" onclick="completeBookAndRegister('${b.id}')">Concluir e registrar</button>`:`<button class="btn small" type="button" onclick="reopenCompletedBook('${b.id}')">Reabrir leitura</button>`}<button class="btn small" type="button" onclick="editFamilyBookReading('${b.id}')">Editar planejamento</button></div>
    </div>
   </div>`;
  const section=(title,list,open=true)=>list.length?`<div class="reading-section"><h3>${title} · ${list.length}</h3><div class="reading-list">${list.map(card).join("")}</div></div>`:"";
@@ -7937,7 +7951,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "11.15";
+const APP_VERSION = "11.16";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
