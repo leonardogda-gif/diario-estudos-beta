@@ -1,0 +1,43 @@
+DIÁRIO DE ESTUDOS v11.5 — LEITURAS PLANEJADAS
+
+Esta versão altera banco, Worker e aplicativo. Publique exatamente nesta ordem:
+
+1. BANCO D1 — EXECUTAR UMA ÚNICA VEZ
+   Arquivo: d1-leituras-planejadas-v11_5.sql
+
+   O script adiciona à tabela family_books:
+   - target_finish_at: previsão opcional de conclusão;
+   - completion_activity_id: vínculo com o registro criado ao concluir o livro.
+
+   Não execute o script novamente depois de aplicado, pois ALTER TABLE acusará
+   que as colunas já existem.
+
+2. CLOUDFLARE WORKER
+   Publique worker.js (versão de saúde 0.39-beta).
+
+3. GITHUB PAGES / APP
+   Publique:
+   - index.html
+   - sw.js
+   - version.json
+
+O QUE MUDA
+
+- Hoje exibe apenas “Registrar atividade” e “Planejar atividade”.
+- Livros em leitura aparecem em Hoje como rotina, sem se tornarem atrasados.
+- Uma leitura pode ser criada como “Planejado” ou “Lendo”.
+- Leituras planejadas aparecem também na agenda de Planejar.
+- A tela Leituras deixa de pedir registros diários de momentos de leitura.
+- Ao concluir o livro, o app cria um único registro de atividade complementar
+  no Histórico, sem classificação BNCC automática.
+- Reabrir o livro preserva o registro histórico da conclusão anterior.
+- Relatórios continuam permitindo filtrar livros concluídos, sem o antigo
+  filtro de registros diários de leitura.
+
+VERIFICAÇÃO RÁPIDA APÓS PUBLICAR
+
+1. Planeje um livro com data futura e confirme que aparece em Planejar.
+2. Inicie a leitura e confirme que aparece em Hoje e não em “Precisa de atenção”.
+3. Conclua o livro e confirme que aparece uma vez no Histórico como
+   “Leitura concluída — Título do livro”.
+4. Reabra e conclua novamente; confirme que o registro não foi duplicado.

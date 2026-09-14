@@ -959,6 +959,9 @@ input[type="checkbox"],input[type="radio"]{accent-color:#7FA574}
 .daily-actions .daily-secondary,.daily-actions .daily-tertiary{background:#E9E4D8;color:#292922;border:1px solid #E9E4D8;font-weight:700}
 .attention-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.attention-actions .attention-primary{grid-column:1/-1;width:100%;min-height:44px}.attention-actions .btn:not(.attention-primary){width:100%}
 .reading-actions .reading-primary{background:#7FA574;color:#fff;border-color:#7FA574;font-weight:800}
+.reading-section{margin-top:18px}.reading-section>h3{margin-bottom:8px}.reading-plan-fields{padding:10px;border:1px solid #E2DCCD;border-radius:12px;background:#F8F5ED}
+.routine-reading .routine-reading-row{display:grid;grid-template-columns:auto 1fr;gap:11px;padding:11px 0;border-top:1px solid #E8E1D2}.routine-reading .routine-reading-row:first-of-type{margin-top:9px}.routine-reading-row img{width:48px;height:68px;object-fit:cover;border-radius:6px}
+.reading-plan-card{border-left:4px solid #7FA574}
 .billing-plan.recommended{border-color:#9DB795;box-shadow:0 0 0 2px rgba(127,165,116,.12)}.billing-recommended{font-size:11px;font-weight:800;color:#365847}
 .environment-test{margin-top:9px;padding:7px 9px;border-radius:9px;background:#FFF5D9;color:#6A541E;font-size:11px;font-weight:700}
 .calendar-status-button{pointer-events:none;border-radius:999px!important;min-height:25px!important;padding:4px 9px!important;background:#E7EFE9!important;color:#365847!important;border:0!important;font-size:11px!important}
@@ -1013,7 +1016,7 @@ body.app-authenticated main{padding-bottom:0}
     <img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true">
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · famílias convidadas · v11.4 PWA</p>
+  <p>Homeschooling alinhado à BNCC · famílias convidadas · v11.5 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -1170,14 +1173,14 @@ body.app-authenticated main{padding-bottom:0}
           <div style="margin-top:8px"><label class="field">Repetir até (opcional)</label><input id="planEndDate" type="date"></div>
         </div>
       </div><div class="toolbar" style="margin-top:10px"><button id="planSaveBtn" class="btn success" onclick="addPlan()">Salvar planejamento</button><button class="btn" onclick="cancelPlanEdit()">Cancelar</button></div></div>
-      <div class="card"><div class="toolbar" style="justify-content:space-between;align-items:flex-end"><div><h3 style="margin-bottom:3px">Agenda da família</h3><div class="meta">Veja tudo junto ou filtre por criança.</div></div></div><div id="planViewChildren" class="child-tabs child-selector" style="margin:12px 0"></div><div id="plansList"></div></div>
+      <div class="card"><div class="toolbar" style="justify-content:space-between;align-items:flex-end"><div><h3 style="margin-bottom:3px">Agenda da família</h3><div class="meta">Veja tudo junto ou filtre por criança.</div></div></div><div id="planViewChildren" class="child-tabs child-selector" style="margin:12px 0"></div><div id="plannedReadingsAgenda"></div><div id="plansList"></div></div>
     </section>
 
     
 <section id="page-leituras" class="page">
   <div class="card">
     <div class="title-with-icon" style="margin-top:12px"><span class="title-icon-box" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H11v17H7.5A3.5 3.5 0 0 0 4 22zM20 5.5A3.5 3.5 0 0 0 16.5 2H13v17h3.5A3.5 3.5 0 0 1 20 22z"/></svg></span><h2>Leituras</h2></div>
-    <div class="field-help">Cadastre os livros uma vez e registre cada momento de leitura como uma experiência da criança.</div>
+    <div class="field-help">Planeje as próximas leituras e acompanhe os livros concluídos por cada criança.</div>
 
     <div class="report-child-picker" style="margin-top:14px">
       <div class="meta" style="margin-bottom:7px">Criança</div>
@@ -1186,7 +1189,7 @@ body.app-authenticated main{padding-bottom:0}
 
     <div id="readingCurrent"></div>
 
-    <button class="btn primary" type="button" onclick="openBookSearch()">+ Adicionar livro</button>
+    <button class="btn primary" type="button" onclick="openBookSearch()">+ Planejar nova leitura</button>
 
     <div id="bookSearchPanel" class="book-search-panel hidden">
       <div class="book-search-head">
@@ -1195,6 +1198,11 @@ body.app-authenticated main{padding-bottom:0}
       </div>
       <div class="book-search-row book-search-auto">
         <input id="bookSearchQuery" placeholder="Ex.: O Pequeno Príncipe" oninput="scheduleBookSearch()" autocomplete="off">
+      </div>
+      <div class="grid reading-plan-fields" style="margin-top:10px">
+        <div><label class="field">Situação inicial</label><select id="readingPlanStatus" onchange="syncReadingPlanFields()"><option value="Lendo">Começar agora</option><option value="Planejado">Planejar para depois</option></select></div>
+        <div><label class="field">Início previsto</label><input id="readingPlanStart" type="date"></div>
+        <div><label class="field">Previsão de conclusão <span class="field-pill optional-pill">Opcional</span></label><input id="readingPlanTarget" type="date"></div>
       </div>
       <div class="book-barcode-actions">
         <button id="bookBarcodeButton" class="btn" type="button" onclick="openBookBarcodeScanner()">📷 Ler código de barras</button>
@@ -1225,7 +1233,6 @@ body.app-authenticated main{padding-bottom:0}
           <div><label class="field">Autor <span class="field-pill optional-pill">Opcional</span></label><input id="manualBookAuthor"></div>
           <div><label class="field">Editora <span class="field-pill optional-pill">Opcional</span></label><input id="manualBookPublisher"></div>
           <div><label class="field">ISBN <span class="field-pill optional-pill">Opcional</span></label><input id="manualBookIsbn"></div>
-          <div><label class="field">Início da leitura <span class="field-pill optional-pill">Opcional</span></label><input id="manualBookStartedAt" type="date"></div>
           <div class="full"><label class="field">Foto da capa <span class="field-pill optional-pill">Opcional</span></label><input id="manualBookCover" type="file" accept="image/*" onchange="previewManualBookCover(event)"><div id="manualBookCoverPreview" style="margin-top:7px"></div><div class="field-help">Se enviada, a capa poderá ser revisada pela moderação antes de aparecer para outras famílias.</div></div>
         </div>
         <button class="btn primary" type="button" onclick="addManualBook()">Adicionar livro</button>
@@ -1248,7 +1255,7 @@ body.app-authenticated main{padding-bottom:0}
         <div><label class="field">De</label><input id="reportFrom" type="date" onchange="renderReportPage()"></div>
         <div><label class="field">Até</label><input id="reportTo" type="date" onchange="renderReportPage()"></div>
         <div><label class="field">Avaliação</label><select id="reportStatus" onchange="renderReportPage()"><option value="">Todos</option><option>Precisa de revisão</option><option>Em progresso</option><option>Dominado</option></select></div>
-        <div><label class="field">Leituras</label><select id="reportReading" onchange="renderReportPage()"><option value="">Todos</option><option value="reading_records">Registros de leitura</option><option value="completed_books">Livros concluídos</option></select></div><div><label class="field">Tipo</label><select id="reportType" onchange="renderReportPage()"><option value="">Todos</option><option value="bncc">BNCC</option><option value="complementar">Complementar</option></select></div>
+        <div><label class="field">Leituras</label><select id="reportReading" onchange="renderReportPage()"><option value="">Todos</option><option value="completed_books">Livros concluídos</option></select></div><div><label class="field">Tipo</label><select id="reportType" onchange="renderReportPage()"><option value="">Todos</option><option value="bncc">BNCC</option><option value="complementar">Complementar</option></select></div>
         <div><label class="field clean-label">Componente <span class="field-pill optional-pill">Opcional</span></label><select id="reportComponent" onchange="renderReportPage()"><option value="">Todos</option></select></div>
       </div></details>
       <div id="reportContent"></div>
@@ -4860,11 +4867,11 @@ function renderDashboard(){
  const todayPlans=due.filter(p=>(p.nextDate||p.date)===td),latePlans=due.filter(p=>(p.nextDate||p.date)<td),futurePlans=due.filter(p=>(p.nextDate||p.date)>td).slice(0,3);
  const planHtml=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div class="meta">👨‍👩‍👧‍👦 Planejamento compartilhado: ${esc(planChildNames(p).join(", "))}</div>`:""}<div class="meta">${esc(p.component||'')}</div>${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="attention-actions"><button class="btn success attention-primary" onclick="startPlan('${p.id}','${child.id}')">✓ Concluir e registrar</button><button class="btn small" onclick="showPage('planejamento');editPlan('${p.id}')">Editar</button>${(p.nextDate||p.date)<td?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Reagendar próxima</button>`:''}</div></div>`;
  box.innerHTML=`<div class="card"><div class="grid" style="align-items:end"><div>${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje</h2><div class="meta">${fmtDate(td)}</div></div><div><label class="field">Criança</label><select onchange="selectChild(this.value);showPage('inicio')">${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===child.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div></div>
- <div class="daily-actions"><button class="btn success daily-primary" onclick="openTodayRecord()">+ Registrar atividade</button><button class="btn daily-secondary" onclick="showPage('planejamento')">📅 Planejamento</button><button class="btn daily-tertiary" onclick="showPage('planejamento');openNewPlanForm()">+ Novo plano</button></div></div>
+ <div class="daily-actions"><button class="btn success daily-primary" onclick="openTodayRecord()">+ Registrar atividade</button><button class="btn success daily-primary" onclick="showPage('planejamento');openNewPlanForm()">+ Planejar atividade</button></div></div><div id="todayActiveReading"></div>
  ${latePlans.length?`<div class="card"><h3>Precisa de atenção</h3><div class="meta">Atividades planejadas que ficaram para trás.</div>${latePlans.map(planHtml).join('')}</div>`:''}
  <div class="card"><h3>Para hoje</h3>${todayPlans.map(planHtml).join('')||"<div class='notice'>Nada planejado para hoje. Você pode registrar uma atividade que aconteceu sem planejamento.</div>"}</div>
  ${futurePlans.length?`<div class="card"><h3>Próximos dias</h3>${futurePlans.map(p=>`<div class="plan-card record-clickable" onclick="openPlanFromDashboard('${p.id}')"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${p.place?`<div class="meta">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="entry-actions"><button class="btn success small" type="button" onclick="event.stopPropagation();startPlan('${p.id}')">+ Registrar atividade</button><button class="btn small" type="button" onclick="event.stopPropagation();openPlanFromDashboard('${p.id}')">Visualizar planejamento</button></div></div>`).join('')}<button class="btn" onclick="showPage('planejamento')">Ver todos os planejamentos</button></div>`:''}`;
- queueSavedPlanningWeatherRefresh();
+ queueSavedPlanningWeatherRefresh();refreshTodayReadings(child.id);
 }
 function openTodayRecord(){recordFormOpen=true;editing=null;showPage('registro');renderRecordPage()}
 function openPlanFromDashboard(id){
@@ -6864,7 +6871,7 @@ function renderPlans(){
  const card=p=>{const names=planChildNames(p),progress=planOccurrenceProgress(p),status=planChildIds(p).map(id=>{const name=state.family.children.find(c=>c.id===id)?.name||"Criança",done=progress[id]?.status==="completed";return `<span class="reading-status" style="margin-right:5px">${done?"✓":"○"} ${esc(name)}</span>`}).join("");return `<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':(p.nextDate||p.date)===td?'is-today':''}" data-plan-id="${esc(p.id)}"><div class="plan-date">${fmtDate(p.nextDate||p.date)} · ${esc(names.join(", "))}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div style="margin-top:5px">${status}</div>`:""}${p.component?`<div class="skill">${esc(p.component)}</div>`:''}${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}${p.materialName?`<div class="meta" style="margin-top:4px">📘 ${esc(p.materialName)}</div>`:""}${p.notes?`<div class="obs">${esc(p.notes)}</div>`:''}${p.calendarEventId?`<div class="meta" style="margin-top:4px">📅 No Google Calendar${p.importedCalendarEventId?" · cópia de "+esc(p.importedCalendarName||"agenda pessoal"):""}</div>`:p.importedCalendarEventId?`<div class="meta" style="margin-top:4px">📅 Importado do seu calendário · cópia pendente</div>`:""}${p.importedCalendarChanged?`<div class="notice" style="margin-top:8px"><b>⚠ Evento original atualizado</b><br><button class="btn small primary" style="margin-top:7px" type="button" onclick="updateImportedCalendarCopy('${p.id}')">Atualizar cópia</button></div>`:""}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">+ Registrar atividade</button><button class="btn small" onclick="editPlan('${p.id}')">Editar</button>${p.recurrence!=='none'?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular / próxima</button>`:''}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`};
  const late=l.filter(p=>(p.nextDate||p.date)<td),now=l.filter(p=>(p.nextDate||p.date)===td),future=l.filter(p=>(p.nextDate||p.date)>td);
  box.innerHTML=`${late.length?`<div class="plan-section-title">Atrasadas · ${late.length}</div>${late.map(card).join('')}`:''}<div class="plan-section-title">Hoje · ${now.length}</div>${now.map(card).join('')||"<div class='notice'>Nada planejado para hoje.</div>"}${future.length?`<div class="plan-section-title">Próximos dias · ${future.length}</div>${future.map(card).join('')}`:''}`;
- queueSavedPlanningWeatherRefresh();
+ queueSavedPlanningWeatherRefresh();refreshPlannedReadingsAgenda();
 }
 function closePlanParticipantChooser(){$("planParticipantChooser")?.remove()}
 function openPlanParticipantChooser(plan){
@@ -6903,6 +6910,7 @@ const READING_LIBRARY_KEY="diario_reading_library_v1";
 let manualBookCoverData="";
 function getReadingLibrary(){try{return JSON.parse(localStorage.getItem(READING_LIBRARY_KEY)||"[]")||[]}catch(e){return []}}
 function saveReadingLibrary(v){localStorage.setItem(READING_LIBRARY_KEY,JSON.stringify(v||[]))}
+window.readingBooksByChild=window.readingBooksByChild||{};
 function readingChildId(){return window.readingActiveChildId||activeChildId}
 function selectReadingChild(id){window.readingActiveChildId=id;renderReadingPage()}
 function renderReadingChildButtons(){
@@ -6920,27 +6928,46 @@ async function loadReadingLibraryFromBackend(){
    return Array.isArray(data?.books)?data.books:[];
  }catch(e){console.warn("Biblioteca compartilhada:",e);return null}
 }
+async function readingBooksForChild(childId){
+ const fam=currentBackendFamily(),backendChild=localToBackendChildId(childId);let books=null;
+ if(fam?.id&&backendChild){try{const data=await backendFetch(`/family-books?family_id=${encodeURIComponent(fam.id)}&child_id=${encodeURIComponent(backendChild)}`);books=Array.isArray(data?.books)?data.books:[]}catch(e){console.warn("Leituras da rotina:",e)}}
+ if(books===null)books=getReadingLibrary().filter(b=>b.childId===childId);window.readingBooksByChild[childId]=books;return books;
+}
+async function refreshTodayReadings(childId){
+ const box=$("todayActiveReading");if(!box||!childId)return;const books=(await readingBooksForChild(childId)).filter(b=>b.status==="Lendo");if(!$("todayActiveReading"))return;
+ box.innerHTML=books.length?`<div class="card routine-reading"><h3>Leituras em andamento</h3><div class="meta">Livros que fazem parte da rotina desta criança, sem cobrança de atraso.</div>${books.map(b=>`<div class="routine-reading-row">${b.thumbnail?`<img src="${esc(b.thumbnail)}" alt="">`:""}<div><b>${esc(b.title||"Livro")}</b><div class="meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.started_at?` · iniciado em ${esc(fmtDate(b.started_at))}`:""}</div>${b.target_finish_at?`<div class="meta">Previsão: ${esc(fmtDate(b.target_finish_at))}</div>`:""}<div class="toolbar" style="margin-top:7px"><button class="btn small" onclick="openReadingBook('${b.id}')">Abrir leitura</button><button class="btn success small" onclick="completeBookAndRegister('${b.id}')">Concluir livro</button></div></div></div>`).join("")}</div>`:"";
+}
+async function refreshPlannedReadingsAgenda(){
+ const box=$("plannedReadingsAgenda");if(!box)return;const kids=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan),visible=planViewChildFilter==="all"?kids:kids.filter(c=>c.id===planViewChildFilter);const lists=await Promise.all(visible.map(async child=>({child,books:(await readingBooksForChild(child.id)).filter(b=>b.status==="Planejado")})));if(!$("plannedReadingsAgenda"))return;const items=lists.flatMap(({child,books})=>books.map(book=>({child,book}))).sort((a,b)=>String(a.book.started_at||"").localeCompare(String(b.book.started_at||"")));
+ box.innerHTML=items.length?`<div class="plan-section-title">Leituras planejadas · ${items.length}</div>${items.map(({child,book})=>`<div class="plan-card reading-plan-card"><div class="plan-date">${book.started_at?fmtDate(book.started_at):"Sem data"} · ${esc(child.name)}</div><div class="entry-title">${esc(book.title||"Livro")}</div><div class="meta">Leitura planejada${book.target_finish_at?` · previsão de conclusão ${esc(fmtDate(book.target_finish_at))}`:""}</div><div class="entry-actions"><button class="btn success small" onclick="startPlannedBook('${book.id}')">Iniciar leitura</button><button class="btn small" onclick="openReadingBook('${book.id}')">Abrir em Leituras</button></div></div>`).join("")}`:"";
+}
 function renderReadingCards(books){
  const box=$("readingCurrent");if(!box)return;
- box.innerHTML=books.length?`<div class="reading-list">${books.map(b=>`
-  <div class="reading-card">
+ const order={"Lendo":0,"Planejado":1,"Concluído":2},groups={"Lendo":[],"Planejado":[],"Concluído":[]};
+ books.slice().sort((a,b)=>(order[a.status]??9)-(order[b.status]??9)||String(a.started_at||"").localeCompare(String(b.started_at||""))).forEach(b=>(groups[b.status]||groups.Lendo).push(b));
+ const card=b=>`
+  <div class="reading-card" data-reading-book-id="${esc(b.id)}">
    ${b.thumbnail?`<img class="book-cover" src="${esc(b.thumbnail)}" alt="">`:`<div class="book-cover-placeholder">📖</div>`}
    <div><div class="book-title">${esc(b.title)}</div><div class="book-meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.publisher?" · "+esc(b.publisher):""}</div>
    <div style="margin-top:6px"><span class="reading-status">${esc(b.status||"Lendo")}</span>${b.catalog_status==="pending"?` <span class="reading-status">Aguardando validação</span>`:""}</div>
-   <div class="book-reading-dates">${b.started_at?`<span>Início: <b>${fmtDate(b.started_at)}</b></span>`:""}${b.finished_at?`<span>Conclusão: <b>${fmtDate(b.finished_at)}</b></span>`:""}</div>
-   <div class="reading-actions"><button class="btn small success reading-primary" type="button" onclick="startReadingMoment('${b.id}')">+ Registrar momento de leitura</button><button class="btn small" type="button" onclick="editFamilyBookReading('${b.id}')">Editar leitura</button><button class="btn small" type="button" onclick="toggleBookFinished('${b.id}')">${b.status==="Concluído"?"Reabrir leitura":"Concluir livro"}</button><button class="btn danger small" type="button" onclick="deleteFamilyBookReading('${b.id}')">Excluir</button></div>
+   <div class="book-reading-dates">${b.status==="Planejado"&&b.started_at?`<span>Início previsto: <b>${fmtDate(b.started_at)}</b></span>`:b.started_at?`<span>Início: <b>${fmtDate(b.started_at)}</b></span>`:""}${b.target_finish_at?`<span>Previsão: <b>${fmtDate(b.target_finish_at)}</b></span>`:""}${b.finished_at?`<span>Conclusão: <b>${fmtDate(b.finished_at)}</b></span>`:""}</div>
+   <div class="reading-actions">${b.status==="Planejado"?`<button class="btn small" type="button" onclick="startPlannedBook('${b.id}')">Iniciar leitura</button>`:b.status==="Lendo"?`<button class="btn small success reading-primary" type="button" onclick="completeBookAndRegister('${b.id}')">Concluir e registrar leitura</button>`:`<button class="btn small" type="button" onclick="reopenCompletedBook('${b.id}')">Reabrir leitura</button>`}<button class="btn small" type="button" onclick="editFamilyBookReading('${b.id}')">Editar planejamento</button><button class="btn danger small" type="button" onclick="deleteFamilyBookReading('${b.id}')">Excluir</button></div>
    </div>
-  </div>`).join("")}</div>`:`<div class="notice" style="margin:14px 0">Nenhum livro cadastrado para esta criança ainda.</div>`
+  </div>`;
+ const section=(title,list,open=true)=>list.length?`<div class="reading-section"><h3>${title} · ${list.length}</h3><div class="reading-list">${list.map(card).join("")}</div></div>`:"";
+ box.innerHTML=books.length?section("Lendo agora",groups.Lendo)+section("Próximas leituras",groups.Planejado)+section("Concluídos",groups["Concluído"]):`<div class="notice" style="margin:14px 0">Nenhuma leitura planejada para esta criança ainda.</div>`
 }
 async function renderReadingPage(){
  renderReadingChildButtons();
  const box=$("readingCurrent");if(!box)return;
  box.innerHTML='<div class="meta" style="margin:14px 0">Carregando biblioteca…</div>';
  const remote=await loadReadingLibraryFromBackend();
- if(remote!==null){window.currentReadingBooks=remote;renderReadingCards(remote);return}
- const local=getReadingLibrary().filter(b=>b.childId===readingChildId());window.currentReadingBooks=local;renderReadingCards(local)
+ if(remote!==null){window.currentReadingBooks=remote;window.readingBooksByChild[readingChildId()]=remote;renderReadingCards(remote);return}
+ const local=getReadingLibrary().filter(b=>b.childId===readingChildId());window.currentReadingBooks=local;window.readingBooksByChild[readingChildId()]=local;renderReadingCards(local)
 }
-function openBookSearch(){$("bookSearchPanel")?.classList.remove("hidden");$("bookSearchQuery")?.focus()}
+function openBookSearch(){const start=$("readingPlanStart");if(start&&!start.value)start.value=today();$("bookSearchPanel")?.classList.remove("hidden");$("bookSearchQuery")?.focus()}
+function syncReadingPlanFields(){const status=$("readingPlanStatus")?.value||"Lendo",start=$("readingPlanStart");if(start&&!start.value)start.value=today();if(status==="Lendo"&&start&&start.value>today())start.value=today()}
+function readingPlanValues(){const status=$("readingPlanStatus")?.value||"Lendo",started_at=$("readingPlanStart")?.value||today(),target_finish_at=$("readingPlanTarget")?.value||"";if(target_finish_at&&target_finish_at<started_at)throw new Error("A previsão de conclusão não pode ser anterior ao início.");return {status,started_at,target_finish_at}}
 function closeBookSearch(){closeBookBarcodeScanner();$("bookSearchPanel")?.classList.add("hidden")}
 function bookQueryIsbn(){const q=String($("bookSearchQuery")?.value||"").replace(/[^0-9X]/gi,"").toUpperCase();return q.length===10||q.length===13?q:""}
 function toggleManualBookForm(){const box=$("manualBookBox");if(!box)return;const opening=box.classList.contains("hidden");box.classList.toggle("hidden",!opening);if(opening){const isbn=bookQueryIsbn(),title=$("manualBookTitle");if(isbn){if($("manualBookIsbn"))$("manualBookIsbn").value=isbn}else if(title&&!title.value)title.value=String($("bookSearchQuery")?.value||"").trim();title?.focus()}}
@@ -7074,15 +7101,16 @@ async function searchGoogleBooks(){
 async function addLibrarySearchBook(i){
  const b=(window.lastGoogleBookResults||[])[i];if(!b)return;
  if(b.alreadyAdded)return alert("Este livro já está na biblioteca desta criança.");
+ let plan;try{plan=readingPlanValues()}catch(e){return alert(e.message)}
  const fam=currentBackendFamily(),backendChild=localToBackendChildId(readingChildId());
  if(fam?.id&&backendChild){
   try{
-   await backendFetch("/family-books",{method:"POST",body:JSON.stringify({family_id:fam.id,child_id:backendChild,source:b.community_book_id?"community":"google_books",google_volume_id:b.google_volume_id||"",community_book_id:b.community_book_id||"",title:b.title||"",authors:b.authors||[],publisher:b.publisher||"",published_date:b.published_date||"",isbn13:b.isbn13||"",isbn10:b.isbn10||"",page_count:b.page_count||null,categories:b.categories||[],language:b.language||"",description:b.description||"",thumbnail:b.thumbnail||"",started_at:today()})});
+   await backendFetch("/family-books",{method:"POST",body:JSON.stringify({family_id:fam.id,child_id:backendChild,source:b.community_book_id?"community":"google_books",google_volume_id:b.google_volume_id||"",community_book_id:b.community_book_id||"",title:b.title||"",authors:b.authors||[],publisher:b.publisher||"",published_date:b.published_date||"",isbn13:b.isbn13||"",isbn10:b.isbn10||"",page_count:b.page_count||null,categories:b.categories||[],language:b.language||"",description:b.description||"",thumbnail:b.thumbnail||"",...plan})});
    closeBookSearch();await renderReadingPage();return;
   }catch(e){return alert("Não foi possível adicionar o livro: "+(e.message||e))}
  }
  // fallback local if family is not synchronized
- const books=getReadingLibrary();books.push({id:"book_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),childId:readingChildId(),source:b.source||"google_books",googleVolumeId:b.google_volume_id||"",communityBookId:b.community_book_id||"",title:b.title||"",authors:b.authors||[],publisher:b.publisher||"",publishedDate:b.published_date||"",isbn13:b.isbn13||"",isbn10:b.isbn10||"",pageCount:b.page_count||null,categories:b.categories||[],language:b.language||"",description:b.description||"",thumbnail:b.thumbnail||"",status:"Lendo",started_at:today(),finished_at:"",addedAt:new Date().toISOString()});saveReadingLibrary(books);closeBookSearch();renderReadingPage()
+ const books=getReadingLibrary();books.push({id:"book_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),childId:readingChildId(),source:b.source||"google_books",googleVolumeId:b.google_volume_id||"",communityBookId:b.community_book_id||"",title:b.title||"",authors:b.authors||[],publisher:b.publisher||"",publishedDate:b.published_date||"",isbn13:b.isbn13||"",isbn10:b.isbn10||"",pageCount:b.page_count||null,categories:b.categories||[],language:b.language||"",description:b.description||"",thumbnail:b.thumbnail||"",...plan,finished_at:"",addedAt:new Date().toISOString()});saveReadingLibrary(books);closeBookSearch();renderReadingPage()
 }
 function addGoogleBook(i){return addLibrarySearchBook(i)}
 function previewManualBookCover(event){
@@ -7093,14 +7121,14 @@ function previewManualBookCover(event){
 async function addManualBook(){
  const title=String($("manualBookTitle")?.value||"").trim();if(!title)return alert("Informe o título.");
  const author=String($("manualBookAuthor")?.value||"").trim(),publisher=String($("manualBookPublisher")?.value||"").trim(),isbn=String($("manualBookIsbn")?.value||"").trim();
- const fam=currentBackendFamily(),backendChild=localToBackendChildId(readingChildId());
+ let plan;try{plan=readingPlanValues()}catch(e){return alert(e.message)}const fam=currentBackendFamily(),backendChild=localToBackendChildId(readingChildId());
  if(fam?.id&&backendChild){
    try{
-     await backendFetch("/community-books",{method:"POST",body:JSON.stringify({family_id:fam.id,child_id:backendChild,title,authors:author?[author]:[],publisher,isbn13:isbn,cover_data:manualBookCoverData||"",started_at:$("manualBookStartedAt")?.value||today()})});
+     await backendFetch("/community-books",{method:"POST",body:JSON.stringify({family_id:fam.id,child_id:backendChild,title,authors:author?[author]:[],publisher,isbn13:isbn,cover_data:manualBookCoverData||"",...plan})});
      manualBookCoverData="";closeBookSearch();await renderReadingPage();alert("Livro adicionado. O cadastro ficará disponível para outras famílias após a validação.");return;
    }catch(e){return alert("Não foi possível cadastrar o livro: "+(e.message||e))}
  }
- const books=getReadingLibrary();books.push({id:"book_"+Date.now(),childId:readingChildId(),source:"manual",title,authors:author?[author]:[],publisher,isbn13:isbn,thumbnail:manualBookCoverData||"",status:"Lendo",catalog_status:"pending",started_at:$("manualBookStartedAt")?.value||today(),finished_at:"",addedAt:new Date().toISOString()});saveReadingLibrary(books);manualBookCoverData="";closeBookSearch();renderReadingPage()
+ const books=getReadingLibrary();books.push({id:"book_"+Date.now(),childId:readingChildId(),source:"manual",title,authors:author?[author]:[],publisher,isbn13:isbn,thumbnail:manualBookCoverData||"",catalog_status:"pending",...plan,finished_at:"",addedAt:new Date().toISOString()});saveReadingLibrary(books);manualBookCoverData="";closeBookSearch();renderReadingPage()
 }
 async function setBookStartDate(id){
  const b=(window.currentReadingBooks||[]).find(x=>x.id===id)||getReadingLibrary().find(x=>x.id===id);if(!b)return;
@@ -7111,36 +7139,45 @@ async function setBookStartDate(id){
  }
  const books=getReadingLibrary(),local=books.find(x=>x.id===id);if(!local)return;local.started_at=chosen;saveReadingLibrary(books);renderReadingPage()
 }
-async function toggleBookFinished(id){
- const b=(window.currentReadingBooks||[]).find(x=>x.id===id)||getReadingLibrary().find(x=>x.id===id);if(!b)return;
- const nextStatus=b.status==="Concluído"?"Lendo":"Concluído",finished=nextStatus==="Concluído"?today():"";
- if(b.backend){
-  try{await backendFetch(`/family-books/${encodeURIComponent(id)}`,{method:"PATCH",body:JSON.stringify({status:nextStatus,finished_at:finished})});await renderReadingPage();return}catch(e){return alert("Não foi possível atualizar: "+(e.message||e))}
- }
- const books=getReadingLibrary(),local=books.find(x=>x.id===id);if(!local)return;local.status=nextStatus;local.finished_at=finished;local.finishedAt=finished;saveReadingLibrary(books);renderReadingPage()
+function readingBookById(id){return (window.currentReadingBooks||[]).find(x=>x.id===id)||Object.values(window.readingBooksByChild||{}).flat().find(x=>x.id===id)||getReadingLibrary().find(x=>x.id===id)}
+async function patchReadingBook(book,changes){
+ if(book.backend){await backendFetch(`/family-books/${encodeURIComponent(book.id)}`,{method:"PATCH",body:JSON.stringify(changes)})}
+ else{const books=getReadingLibrary(),local=books.find(x=>x.id===book.id);if(!local)throw new Error("Livro não encontrado");Object.assign(local,changes);saveReadingLibrary(books)}
+ Object.assign(book,changes);
+}
+async function startPlannedBook(id){
+ const b=readingBookById(id);if(!b)return;const start=prompt("Data de início da leitura (AAAA-MM-DD):",b.started_at||today());if(start===null)return;if(!/^\d{4}-\d{2}-\d{2}$/.test(start))return alert("Use o formato AAAA-MM-DD.");
+ try{await patchReadingBook(b,{status:"Lendo",started_at:start,finished_at:""});await renderReadingPage();renderDashboard();renderPlans()}catch(e){alert("Não foi possível iniciar a leitura: "+(e.message||e))}
+}
+function readingCompletionEntry(book,childId){return (state.entries[childId]||[]).find(entry=>entry.readingCompletionBookId===book.id||(entry.materialId===`reading:${book.id}`&&String(entry.atividade||"").startsWith("Leitura concluída")))}
+function createOrUpdateReadingCompletion(book,finishedAt,notes){
+ const childId=book.childId&&state.family.children.some(c=>c.id===book.childId)?book.childId:(backendToLocalChildId(book.child_id)||readingChildId());state.entries[childId]??=[];
+ let entry=readingCompletionEntry(book,childId),id=entry?.id||uid();
+ const period=book.started_at?`Leitura realizada de ${fmtDate(book.started_at)} a ${fmtDate(finishedAt)}.`:"";
+ const author=(book.authors||[]).join(", "),details=[period,author?`Autor: ${author}.`:"",book.publisher?`Editora: ${book.publisher}.`:"",notes].filter(Boolean).join(" ");
+ const data={id,childId,date:finishedAt,type:"complementar",complementaryActivityName:"Leitura",area:"",componente:"",codigo:"",habilidade:"",materialId:`reading:${book.id}`,materialName:book.title||"Livro",materialPublisher:book.publisher||"",atividade:`Leitura concluída — ${book.title||"Livro"}`,observacoes:details,status:"",foto:"",photos:[],audio:"",readingCompletionBookId:book.id,createdAt:entry?.createdAt||now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||""};
+ if(entry)Object.assign(entry,data);else state.entries[childId].push(data);saveLocal();return id;
+}
+async function completeBookAndRegister(id){
+ const b=readingBookById(id);if(!b)return;const finished=prompt("Data de conclusão (AAAA-MM-DD):",b.finished_at||today());if(finished===null)return;if(!/^\d{4}-\d{2}-\d{2}$/.test(finished))return alert("Use o formato AAAA-MM-DD.");const notes=prompt("Observação sobre a leitura (opcional):","");if(notes===null)return;
+ const entryId=createOrUpdateReadingCompletion(b,finished,String(notes||"").trim());
+ try{await patchReadingBook(b,{status:"Concluído",finished_at:finished,completion_activity_id:entryId});await renderReadingPage();renderDashboard();renderPlans();alert("Livro concluído e registrado no Histórico.")}catch(e){alert("O registro foi salvo, mas não foi possível atualizar o livro: "+(e.message||e))}
+}
+async function reopenCompletedBook(id){
+ const b=readingBookById(id);if(!b||!confirm("Reabrir esta leitura? O registro da conclusão já realizada será preservado no Histórico."))return;
+ try{await patchReadingBook(b,{status:"Lendo",finished_at:""});await renderReadingPage();renderDashboard();renderPlans()}catch(e){alert("Não foi possível reabrir: "+(e.message||e))}
 }
 async function editFamilyBookReading(id){
- const b=(window.currentReadingBooks||[]).find(x=>x.id===id)||getReadingLibrary().find(x=>x.id===id);if(!b)return;
- const started=prompt("Data de início da leitura (AAAA-MM-DD):",b.started_at||today());if(started===null)return;if(started&&!/^\d{4}-\d{2}-\d{2}$/.test(started))return alert("Use o formato AAAA-MM-DD.");
- const completed=confirm("Este livro está concluído?\n\nOK = Concluído\nCancelar = Lendo"),status=completed?"Concluído":"Lendo";let finished="";
- if(completed){finished=prompt("Data de conclusão (AAAA-MM-DD):",b.finished_at||today());if(finished===null)return;if(finished&&!/^\d{4}-\d{2}-\d{2}$/.test(finished))return alert("Use o formato AAAA-MM-DD.")}
- if(b.backend){try{await backendFetch(`/family-books/${encodeURIComponent(id)}`,{method:"PATCH",body:JSON.stringify({started_at:started,status,finished_at:finished})});await renderReadingPage();return}catch(e){return alert("Não foi possível editar a leitura: "+(e.message||e))}}
- const books=getReadingLibrary(),local=books.find(x=>x.id===id);if(!local)return;local.started_at=started;local.status=status;local.finished_at=finished;local.finishedAt=finished;saveReadingLibrary(books);renderReadingPage();
+ const b=readingBookById(id);if(!b)return;const started=prompt(b.status==="Planejado"?"Data prevista para iniciar (AAAA-MM-DD):":"Data de início (AAAA-MM-DD):",b.started_at||today());if(started===null)return;if(!/^\d{4}-\d{2}-\d{2}$/.test(started))return alert("Use o formato AAAA-MM-DD.");const target=prompt("Previsão de conclusão (AAAA-MM-DD, opcional):",b.target_finish_at||"");if(target===null)return;if(target&&!/^\d{4}-\d{2}-\d{2}$/.test(target))return alert("Use o formato AAAA-MM-DD.");if(target&&target<started)return alert("A previsão não pode ser anterior ao início.");
+ try{await patchReadingBook(b,{started_at:started,target_finish_at:target});await renderReadingPage();renderDashboard();renderPlans()}catch(e){alert("Não foi possível editar a leitura: "+(e.message||e))}
 }
 async function deleteFamilyBookReading(id){
  const b=(window.currentReadingBooks||[]).find(x=>x.id===id)||getReadingLibrary().find(x=>x.id===id);if(!b)return;
- if(!confirm(`Excluir “${b.title||"este livro"}” das leituras desta criança?\n\nO livro continuará no catálogo e os momentos de leitura já registrados no Diário serão preservados.`))return;
+ if(!confirm(`Excluir “${b.title||"este livro"}” das leituras desta criança?\n\nO livro continuará no catálogo e o registro de conclusão, se existir, será preservado no Histórico.`))return;
  if(b.backend){try{await backendFetch(`/family-books/${encodeURIComponent(id)}`,{method:"DELETE"});await renderReadingPage();return}catch(e){return alert("Não foi possível excluir a leitura: "+(e.message||e))}}
  saveReadingLibrary(getReadingLibrary().filter(x=>x.id!==id));renderReadingPage();
 }
-function startReadingMoment(id){
- const b=(window.currentReadingBooks||[]).find(x=>x.id===id)||getReadingLibrary().find(x=>x.id===id);if(!b)return;
- const localChild=b.childId&&state.family.children.some(c=>c.id===b.childId)?b.childId:(backendToLocalChildId(b.child_id)||readingChildId());
- activeChildId=localChild;editing=null;recordFormOpen=true;photoData="";photosData=[];audioData="";photoTakenAt="";photoDateSource="";
- clearRecordDraft(activeChildId);
- const draft={version:1,childId:activeChildId,mode:"new",editingId:"",savedAt:now(),date:today(),type:"bncc",search:"",scope:"referencia",complementaryId:"",area:"",componente:"",codigo:"",habilidade:"",materialId:b.community_book_id?`communitybook:${b.community_book_id}`:(b.google_volume_id?`googlebook:${b.google_volume_id}`:`reading:${b.id}`),materialName:b.title||"",materialPublisher:b.publisher||"",materialBnccSkills:[],atividade:`Leitura — ${b.title||"Livro"}`,observacoes:"",status:"",photoData:"",photoTakenAt:"",photoDateSource:""};
- localStorage.setItem(recordDraftKey(activeChildId),JSON.stringify(draft));showPage("registro")
-}
+function openReadingBook(id){const b=readingBookById(id);if(!b)return;const localChild=b.childId||backendToLocalChildId(b.child_id);if(localChild)window.readingActiveChildId=localChild;showPage("leituras");setTimeout(()=>document.querySelector(`[data-reading-book-id="${CSS.escape(id)}"]`)?.scrollIntoView({behavior:"smooth",block:"center"}),80)}
 
 function learningTopCounts(rows,keyFn){
  const m={};
@@ -7689,7 +7726,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "11.4";
+const APP_VERSION = "11.5";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
