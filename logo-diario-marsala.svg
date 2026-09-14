@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+<title id="title">Diário de Estudos</title>
+<desc id="desc">Caderno creme com ramo dourado</desc>
+<defs>
+ <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFF9EF"/><stop offset="1" stop-color="#E8D8CA"/></linearGradient>
+ <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#DDBA78"/><stop offset="1" stop-color="#A86A32"/></linearGradient>
+ <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="8" dy="12" stdDeviation="12" flood-color="#26070B" flood-opacity=".28"/></filter>
+</defs>
+<g filter="url(#shadow)" transform="rotate(-7 256 256)">
+ <rect x="104" y="62" width="310" height="390" rx="28" fill="#6B2737"/>
+ <rect x="86" y="47" width="310" height="390" rx="28" fill="url(#paper)" stroke="#C69A55" stroke-width="8"/>
+ <path d="M128 47v390" stroke="#C69A55" stroke-width="7" opacity=".72"/>
+ <g fill="none" stroke="#C69A55" stroke-width="12" stroke-linecap="round">
+  <path d="M71 102h49M67 158h53M64 214h56M62 270h58M64 326h56M69 382h51"/>
+ </g>
+ <path d="M244 326c34-47 43-103 42-167" fill="none" stroke="url(#gold)" stroke-width="10" stroke-linecap="round"/>
+ <g fill="url(#gold)">
+  <path d="M282 185c-39-17-63-3-75 30 36 12 62 2 75-30Z"/>
+  <path d="M287 226c38-22 66-14 82 17-33 20-62 14-82-17Z"/>
+  <path d="M268 266c-37-15-63-2-74 31 34 12 61 2 74-31Z"/>
+  <path d="M252 310c36-17 62-7 76 24-32 16-59 8-76-24Z"/>
+  <path d="M287 166c10-42 32-57 65-51-7 37-28 55-65 51Z"/>
+ </g>
+ <path d="M207 356h140" stroke="#B86B52" stroke-width="8" stroke-linecap="round"/>
+</g>
+</svg>
