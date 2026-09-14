@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#17332A">
+<meta name="theme-color" content="#441015">
 <title>Diário de Estudos</title>
 
 <link rel="manifest" href="./manifest.json">
@@ -1008,6 +1008,49 @@ body.app-authenticated main{padding-bottom:0}
  .print-books{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.print-books>div{display:grid;grid-template-columns:auto 1fr;gap:8px;border:1px solid #DDE2DE;border-radius:7px;padding:7px;break-inside:avoid}.print-books img{width:28px;height:40px;object-fit:cover;border-radius:3px}.print-books p{font-size:8pt;color:#626A64;margin:2px 0}
  .print-doc-footer{margin-top:24px;padding-top:8px;border-top:1px solid #C9D2CC;color:#747B76;text-align:center;font-size:8pt}
 }
+
+/* v11.10 — camada exclusivamente visual: identidade marsala */
+:root{--marsala:#441015;--wine:#6B2737;--terracotta:#B86B52;--cream:#FBF5EC;--rose-beige:#E8D8CA;--aged-gold:#C69A55;--warm-charcoal:#2E2522}
+body{background:var(--cream);color:var(--warm-charcoal)}
+header{background:linear-gradient(135deg,#441015 0%,#651927 58%,#441015 100%);box-shadow:0 5px 22px rgba(68,16,21,.20);padding-top:17px;padding-bottom:16px}
+header .brand{max-width:920px;margin:0 auto;justify-content:flex-start}
+header h1{color:#FFF9F1;font-size:29px}
+header .brand::after{content:"PEQUENOS PASSOS\A GRANDES FUTUROS";white-space:pre;margin-left:auto;color:#DDBA78;text-align:right;font-size:9px;font-weight:600;letter-spacing:.20em;line-height:1.55}
+header>p{display:block;color:#E8D8CA;font-family:"Fraunces",Georgia,serif;font-size:12px;letter-spacing:.09em}
+header>p{font-size:0}header>p::after{content:"Disciplina hoje, conquistas amanhã.";font-size:12px}
+.card{background:#FFFCF7;border-color:#E8D8CA;border-radius:18px;box-shadow:0 4px 16px rgba(68,16,21,.075)}
+.btn{background:#EFE4D8;color:#441015;border-radius:11px}
+.btn.primary,.btn.success,.btn.action-primary,.reading-actions .reading-primary{background:#6B2737;color:#fff;border-color:#6B2737}
+.btn.dark{background:#441015;color:#fff}.btn.danger{background:#F2DFD8;color:#7A2932;border-color:#D8B3AB}
+input,select,textarea{background:#FFFCF7;border-color:#D8C2B4;color:#2E2522;border-radius:11px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline-color:#B86B52}
+.nav-wrap{background:#FFFCF7}.nav-tab.active{color:#441015;background:#F4EAE0;border-bottom-color:#441015}
+.sync-dot.online{background:#C69A55}.sync-dot.busy{background:#B86B52}
+.child-selector .child.active,.child-tabs .child.active,.onboarding-step.active{background:#441015;border-color:#441015}
+.title-icon-box{background:#F1E4D8;color:#441015}.status-pill,.calendar-status-button{background:#F2E3DA!important;color:#6B2737!important}
+#dashboard>.card:first-child{border-color:#E3CFC1;padding:20px}
+#dashboard>.card:first-child h2{color:#441015;font-size:34px;line-height:1;margin-top:5px}
+#dashboard>.card:first-child .daily-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+#dashboard>.card:first-child .daily-actions::before{content:"Educação constrói amanhãs mais livres.";grid-column:1/-1;color:#8A4B3E;border-left:2px solid #C69A55;padding:3px 0 3px 12px;font-family:"Fraunces",Georgia,serif;font-style:italic;font-size:16px}
+#dashboard>.card:first-child .daily-actions .btn{width:100%;min-height:52px;font-size:14px}
+#dashboard>.card:first-child .daily-actions .btn:first-of-type{background:linear-gradient(135deg,#441015,#6B2737);border:1px solid #441015}
+#dashboard>.card:first-child .daily-actions .btn:last-of-type{background:#F4E8DE;color:#441015;border:1px solid #6B2737}
+.routine-reading{border-color:#E3CFC1}.routine-reading>h3{color:#441015;font-size:18px}
+.routine-reading .routine-reading-row{background:#FFFAF4;border:1px solid #EADCCF;border-radius:13px;padding:12px;margin-top:10px}
+.routine-reading-row img{width:62px;height:88px;border-radius:8px;box-shadow:0 3px 8px rgba(68,16,21,.18)}
+.routine-reading .btn.success{background:#B86B52;border-color:#B86B52}
+.plan-card{border-color:#E5D3C7;background:#FFFCF7}.plan-card.is-today{border-left:4px solid #B86B52}.plan-card.is-late{border-left:4px solid #8B3843}
+.reading-plan-card{border-left-color:#B86B52}.badge{background:#EFE1D4;color:#6B2737}
+@media(max-width:650px){
+ header{padding:13px 14px}.brand .brand-logo{width:42px;height:42px}header h1{font-size:24px}
+ header .brand::after{font-size:7px;letter-spacing:.11em}header>p{display:block!important;margin-top:5px}
+ #dashboard>.card:first-child{padding:16px}
+ #dashboard>.card:first-child .daily-actions{grid-template-columns:1fr}
+ #dashboard>.card:first-child .daily-actions::before{font-size:14px}
+ .nav-wrap{border-top-color:#D8C2B4;box-shadow:0 -5px 24px rgba(68,16,21,.15)}
+ .nav-tab.active{border-top-color:#441015;color:#441015;background:#F5E9DF}
+}
+
 </style>
 </head>
 <body class="auth-checking">
@@ -1016,7 +1059,7 @@ body.app-authenticated main{padding-bottom:0}
     <img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true">
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · famílias convidadas · v11.9 PWA</p>
+  <p>Homeschooling alinhado à BNCC · famílias convidadas · v11.10 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -7776,7 +7819,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "11.9";
+const APP_VERSION = "11.10";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
