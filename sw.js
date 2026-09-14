@@ -1,10 +1,11 @@
-const CACHE_NAME = "diario-estudos-v11.10";
+const CACHE_NAME = "diario-estudos-v11.11";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./manifest.json",
   "./version.json",
   "./logo-diario.png",
+  "./logo-diario-marsala.svg",
   "./vendor/zxing-browser.min.js",
   "./vendor/ZXING-LICENSE.txt",
   "./icons/icon-192.png",
