@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#441015">
+<meta name="theme-color" content="#17332A">
 <title>Diário de Estudos</title>
 
 <link rel="manifest" href="./manifest.json">
@@ -18,6 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,650;9..144,750&family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js"></script>
 <script src="./vendor/zxing-browser.min.js"></script>
 <style>
 *{box-sizing:border-box}
@@ -1007,52 +1008,15 @@ body.app-authenticated main{padding-bottom:0}
  .print-books{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.print-books>div{display:grid;grid-template-columns:auto 1fr;gap:8px;border:1px solid #DDE2DE;border-radius:7px;padding:7px;break-inside:avoid}.print-books img{width:28px;height:40px;object-fit:cover;border-radius:3px}.print-books p{font-size:8pt;color:#626A64;margin:2px 0}
  .print-doc-footer{margin-top:24px;padding-top:8px;border-top:1px solid #C9D2CC;color:#747B76;text-align:center;font-size:8pt}
 }
-
-/* v12.0 — identidade marsala quente */
-:root{--marsala:#441015;--wine:#6B2737;--terracotta:#B86B52;--cream:#FBF5EC;--rose-beige:#E8D8CA;--aged-gold:#C69A55;--warm-charcoal:#2E2522}
-body{background:var(--cream);color:var(--warm-charcoal)}
-header{background:linear-gradient(135deg,#441015 0%,#651927 58%,#441015 100%);padding:18px max(18px,calc((100vw - 1000px)/2 + 18px));text-align:left;box-shadow:0 5px 22px rgba(68,16,21,.2)}
-.header-branding{max-width:1000px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:22px}
-header .brand{justify-content:flex-start}.brand-copy{min-width:0}header h1{font-size:30px;color:#FFF9F1;line-height:1.05}
-header .brand-motto{display:block;margin:5px 0 0;color:#E8D8CA;font-family:"Fraunces",Georgia,serif;font-size:13px;letter-spacing:.11em}
-.header-message{color:#DDBA78;text-align:right;text-transform:uppercase;letter-spacing:.22em;font-size:9px;line-height:1.55;white-space:nowrap}
-.header-message span,.header-message b{display:block}.header-message b{font-weight:600}
-.app-version-line{max-width:1000px;margin:7px auto 0!important;color:#D9C2B5!important;font-size:10px!important}
-.card{background:#FFFCF7;border-color:#E8D8CA;box-shadow:0 4px 16px rgba(68,16,21,.075);border-radius:18px}
-.btn{background:#EFE4D8;color:#441015;border-radius:11px}.btn.primary,.btn.success,.btn.action-primary,.reading-actions .reading-primary{background:#6B2737;color:#fff;border-color:#6B2737}
-.btn.dark{background:#441015}.btn.danger{background:#F2DFD8;color:#7A2932;border-color:#D8B3AB}
-input,select,textarea{background:#FFFCF7;border-color:#D8C2B4;color:#2E2522;border-radius:11px}
-button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline-color:#B86B52}
-.nav-wrap{background:#FFFCF7}.nav-tab.active{color:#441015;background:#F4EAE0;border-bottom-color:#441015}
-.sync-dot.online{background:#C69A55}.sync-dot.busy{background:#B86B52}
-.child-selector .child.active,.child-tabs .child.active,.onboarding-step.active{background:#441015;border-color:#441015}
-.title-icon-box{background:#F1E4D8;color:#441015}.status-pill,.calendar-status-button{background:#F2E3DA!important;color:#6B2737!important}
-.today-hero{padding:20px}.today-hero-grid{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:22px;align-items:center}
-.today-hero h2{font-size:35px;color:#441015;line-height:1;margin-top:5px!important}
-.today-inspiration{border-left:2px solid #C69A55;padding-left:16px;color:#8A4B3E;font-family:"Fraunces",Georgia,serif;font-style:italic;font-size:17px;line-height:1.35}
-.today-inspiration span,.today-inspiration b{display:block}.today-inspiration b{font-weight:650}
-.daily-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
-.daily-actions .daily-primary,.daily-actions .daily-secondary{min-height:52px;width:100%;padding:12px 17px;font-size:14px;border-radius:13px}
-.daily-actions .daily-primary{background:linear-gradient(135deg,#441015,#6B2737);color:#fff;border:1px solid #441015}
-.daily-actions .daily-secondary{background:#F4E8DE;color:#441015;border:1px solid #6B2737}
-.action-plus{font-size:21px;font-weight:400}.action-arrow{margin-left:auto;font-size:27px;line-height:1}
-.routine-reading{border-color:#E3CFC1}.routine-reading>h3{display:flex;align-items:center;gap:8px;color:#441015;font-size:18px}.routine-reading>h3:before{content:"◫";font-family:Arial,sans-serif;color:#6B2737}
-.routine-reading .routine-reading-row{background:#FFFAF4;border:1px solid #EADCCF;border-radius:13px;padding:12px;margin-top:10px}
-.routine-reading-row img{width:62px;height:88px;border-radius:8px;box-shadow:0 3px 8px rgba(68,16,21,.18)}
-.routine-reading .btn.success{background:#B86B52;border-color:#B86B52}
-.today-plans-card h3{color:#441015}.plan-card{border-color:#E5D3C7;background:#FFFCF7}.plan-card.is-today{border-left:4px solid #B86B52}.plan-card.is-late{border-left:4px solid #8B3843}
-.reading-plan-card{border-left-color:#B86B52}.badge{background:#EFE1D4;color:#6B2737}
-@media(max-width:650px){:root{--header-h:112px}header{padding:14px 15px 13px}.header-branding{align-items:flex-start;gap:10px}header h1{font-size:25px}.brand .brand-logo{width:42px;height:42px}header .brand-motto{font-size:10px;letter-spacing:.07em}.header-message{font-size:7.5px;letter-spacing:.14em;margin-top:5px}.app-version-line{display:none!important}.today-hero{padding:16px}.today-hero-grid{grid-template-columns:1fr}.today-inspiration{display:none}.daily-actions{grid-template-columns:1fr}.nav-wrap{border-top-color:#D8C2B4;box-shadow:0 -5px 24px rgba(68,16,21,.15)}.nav-tab.active{border-top-color:#441015;color:#441015;background:#F5E9DF}}
-
 </style>
 </head>
 <body class="auth-checking">
 <header>
-  <div class="header-branding">
-    <div class="brand"><img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true"><div class="brand-copy"><h1>Diário de Estudos</h1><p class="brand-motto">Disciplina hoje, conquistas amanhã.</p></div></div>
-    <div class="header-message" aria-label="Mensagem do Diário"><span>Pequenos passos</span><b>Grandes futuros</b></div>
+  <div class="brand">
+    <img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true">
+    <h1>Diário de Estudos</h1>
   </div>
-  <p class="app-version-line">Famílias convidadas · v12.1 PWA</p>
+  <p>Homeschooling alinhado à BNCC · famílias convidadas · v11.9 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -1714,6 +1678,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       <button id="syncSharedStorageBtn" class="btn hidden" onclick="syncWithDrive({manual:true})">Sincronizar agora</button>
       <button id="openSharedStorageBtn" class="btn hidden" onclick="openSharedFamilyPhotos()">Abrir no Drive</button>
       <button id="prepareSharedStorageBtn" class="hidden" onclick="prepareSharedFamilyStorage(true)">Configurar Drive compartilhado</button>
+      <button id="connectSharedStorageBtn" class="hidden" onclick="connectFamilyDriveWithPicker()">Conectar Drive da família</button>
     </div>
 
   </div>
@@ -1802,6 +1767,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 <script>
 const GOOGLE_CLIENT_ID = "629410527657-f5b9r4o0jvcvf0517oracmhpvhsj19pn.apps.googleusercontent.com";
 const GOOGLE_SCOPES = "openid email profile https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/calendar.app.created";
+const GOOGLE_PICKER_APP_ID = "629410527657";
+const GOOGLE_PICKER_API_KEY = "AIzaSyDyKazsHTfiqb5mQuTK14FsBq8AIafWNy4";
+let googlePickerReady = false;
+let googlePickerLoading = false;
 const DRIVE_SYNC_FILE = "diario-estudos-beta.json";
 const FAMILY_SHARED_DATA_FILE = "diario-familia.json";
 const FAMILY_SHARED_PHOTOS_FOLDER = "Fotos";
@@ -2982,6 +2951,51 @@ function renderSharedStorageStatus(ready=false,message="",needsPicker=false){
   if(open)open.classList.toggle("hidden",!ready);
 }
 
+function loadGooglePicker(){
+  if(googlePickerReady)return Promise.resolve();
+  if(googlePickerLoading){
+    return new Promise((resolve,reject)=>{
+      let tries=0;
+      const timer=setInterval(()=>{
+        if(googlePickerReady){clearInterval(timer);resolve()}
+        else if(++tries>100){clearInterval(timer);reject(new Error("Google Picker não carregou."))}
+      },100);
+    });
+  }
+
+  googlePickerLoading=true;
+  return new Promise((resolve,reject)=>{
+    const begin=()=>{
+      if(!window.gapi){
+        setTimeout(begin,100);
+        return;
+      }
+      try{
+        gapi.load("picker",{
+          callback:()=>{
+            googlePickerReady=true;
+            googlePickerLoading=false;
+            resolve();
+          },
+          onerror:()=>{
+            googlePickerLoading=false;
+            reject(new Error("Não foi possível carregar o Google Picker."));
+          },
+          timeout:10000,
+          ontimeout:()=>{
+            googlePickerLoading=false;
+            reject(new Error("Tempo esgotado ao carregar o Google Picker."));
+          }
+        });
+      }catch(e){
+        googlePickerLoading=false;
+        reject(e);
+      }
+    };
+    begin();
+  });
+}
+
 async function canAccessDriveItem(fileId){
   if(!fileId||!tokenValid())return false;
   try{
@@ -2991,6 +3005,158 @@ async function canAccessDriveItem(fileId){
     return !!r?.ok;
   }catch(e){
     return false;
+  }
+}
+
+function pickerDocumentId(doc){
+  return doc?.id||doc?.[google?.picker?.Document?.ID]||"";
+}
+
+function openPickerForExpectedItem({expectedId,expectedName,foldersOnly=false,parentId=""}){
+  return new Promise(async (resolve,reject)=>{
+    try{
+      await loadGooglePicker();
+      if(!googleAccessToken)throw new Error("Entre com Google primeiro.");
+
+      let view;
+      if(foldersOnly){
+        view=new google.picker.DocsView(google.picker.ViewId.FOLDERS)
+          .setIncludeFolders(true)
+          .setSelectFolderEnabled(true);
+      }else{
+        view=new google.picker.DocsView(google.picker.ViewId.DOCS)
+          .setIncludeFolders(false)
+          .setSelectFolderEnabled(false)
+          .setMimeTypes("application/json");
+        if(expectedName)view.setQuery(expectedName);
+      }
+
+      // If Google can render this shared parent directly, start there.
+      if(parentId && typeof view.setParent==="function"){
+        try{view.setParent(parentId)}catch(e){}
+      }
+
+      const picker=new google.picker.PickerBuilder()
+        .setAppId(GOOGLE_PICKER_APP_ID)
+        .setOAuthToken(googleAccessToken)
+        .setDeveloperKey(GOOGLE_PICKER_API_KEY)
+        .setTitle(
+          foldersOnly
+            ?"Selecione a pasta compartilhada da sua família"
+            :"Selecione o arquivo diario-familia.json da sua família"
+        )
+        .addView(view)
+        .setCallback(data=>{
+          if(data.action===google.picker.Action.CANCEL){
+            reject(new Error("Seleção cancelada."));
+            return;
+          }
+          if(data.action!==google.picker.Action.PICKED)return;
+
+          const doc=data.docs?.[0];
+          const pickedId=pickerDocumentId(doc);
+          const pickedName=doc?.name||doc?.[google.picker.Document.NAME]||"";
+
+          if(expectedId && pickedId!==expectedId){
+            reject(new Error(
+              `Item incorreto. Selecione ${expectedName||"o item da Família"} compartilhado pelo Diário de Estudos.`
+            ));
+            return;
+          }
+
+          resolve({id:pickedId,name:pickedName,doc});
+        })
+        .build();
+
+      picker.setVisible(true);
+    }catch(e){
+      reject(e);
+    }
+  });
+}
+
+async function authorizeExistingFamilyDriveWithPicker(remoteFamily){
+  const folderId=remoteFamily?.drive_folder_id||"";
+  const dataFileId=remoteFamily?.drive_data_file_id||"";
+  const photosFolderId=remoteFamily?.drive_photos_folder_id||"";
+
+  if(!folderId||!dataFileId)throw new Error("O Drive da família ainda não foi preparado.");
+  if(!photosFolderId)throw new Error("A pasta Fotos oficial ainda precisa ser definida por um administrador.");
+
+  const steps=[];
+  if(!(await canAccessDriveItem(folderId)))steps.push("root");
+  if(!(await canAccessDriveItem(photosFolderId)))steps.push("photos");
+  if(!(await canAccessDriveItem(dataFileId)))steps.push("json");
+
+  let current=0;
+  const total=steps.length;
+
+  for(const step of steps){
+    current++;
+
+    if(step==="root"){
+      renderSharedStorageStatus(false,`${current} de ${total} · selecione a pasta compartilhada da família.`,true);
+      await openPickerForExpectedItem({
+        expectedId:folderId,
+        expectedName:"pasta Diário de Estudos da família",
+        foldersOnly:true
+      });
+    }
+
+    if(step==="photos"){
+      renderSharedStorageStatus(false,`${current} de ${total} · selecione a pasta Fotos oficial da família.`,true);
+      await openPickerForExpectedItem({
+        expectedId:photosFolderId,
+        expectedName:"pasta Fotos da família",
+        foldersOnly:true,
+        parentId:folderId
+      });
+    }
+
+    if(step==="json"){
+      renderSharedStorageStatus(false,`${current} de ${total} · selecione o arquivo diario-familia.json.`,true);
+      await openPickerForExpectedItem({
+        expectedId:dataFileId,
+        expectedName:FAMILY_SHARED_DATA_FILE,
+        foldersOnly:false,
+        parentId:folderId
+      });
+    }
+  }
+
+  const folderOK=await canAccessDriveItem(folderId);
+  const photosOK=await canAccessDriveItem(photosFolderId);
+  const dataOK=await canAccessDriveItem(dataFileId);
+
+  if(!folderOK||!photosOK||!dataOK){
+    throw new Error("O Google Drive não confirmou a autorização completa dos itens da família.");
+  }
+
+  sharedFamilyFolderId=folderId;
+  sharedFamilyDataFileId=dataFileId;
+  sharedFamilyPhotosFolderId=photosFolderId;
+  localStorage.setItem(VISIBLE_ROOT_ID_KEY,folderId);
+  localStorage.setItem(VISIBLE_PHOTOS_ID_KEY,photosFolderId);
+
+  renderSharedStorageStatus(true,"Drive da família conectado nesta conta.");
+  return true;
+}
+
+async function connectFamilyDriveWithPicker(){
+  if(!tokenValid())return alert("Entre com Google primeiro.");
+  const fam=currentBackendFamily();
+  if(!fam)return alert("Entre em uma família primeiro.");
+
+  try{
+    const remoteFamily=await getBackendFamilyStorage();
+    await authorizeExistingFamilyDriveWithPicker(remoteFamily);
+    await syncWithDrive({manual:true});
+    alert("Drive da família conectado. Esta conta já pode usar os registros compartilhados.");
+  }catch(e){
+    if(String(e.message||"").includes("cancelada"))return;
+    console.error(e);
+    renderSharedStorageStatus(false,"A autorização do Drive ainda está pendente.",true);
+    alert("Não foi possível conectar o Drive da família: "+e.message);
   }
 }
 
@@ -4739,10 +4905,10 @@ function renderDashboard(){
  const due=state.plans.filter(x=>planPendingForChild(x,child.id)&&!x.completedAt&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
  const todayPlans=due.filter(p=>(p.nextDate||p.date)===td),latePlans=due.filter(p=>(p.nextDate||p.date)<td),futurePlans=due.filter(p=>(p.nextDate||p.date)>td).slice(0,3);
  const planHtml=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div class="meta">👨‍👩‍👧‍👦 Planejamento compartilhado: ${esc(planChildNames(p).join(", "))}</div>`:""}<div class="meta">${esc(p.component||'')}</div>${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="attention-actions"><button class="btn success attention-primary" onclick="startPlan('${p.id}','${child.id}')">✓ Concluir e registrar</button><button class="btn small" onclick="showPage('planejamento');editPlan('${p.id}')">Editar</button>${(p.nextDate||p.date)<td?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Reagendar próxima</button>`:''}</div></div>`;
- box.innerHTML=`<div class="card today-hero"><div class="today-hero-grid"><div class="grid" style="align-items:end"><div>${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje</h2><div class="meta">${fmtDate(td)}</div></div><div><label class="field">Criança</label><select onchange="selectChild(this.value);showPage('inicio')">${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===child.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div></div>
- </div><div class="today-inspiration" aria-hidden="true"><span>Educação constrói</span><b>amanhãs mais livres.</b></div></div><div class="daily-actions"><button class="btn success daily-primary" onclick="openTodayRecord()"><span class="action-plus">＋</span> Registrar atividade <span class="action-arrow">›</span></button><button class="btn daily-secondary" onclick="showPage('planejamento');openNewPlanForm()"><span class="action-plus">＋</span> Planejar atividade <span class="action-arrow">›</span></button></div></div><div id="todayActiveReading"></div>
+ box.innerHTML=`<div class="card"><div class="grid" style="align-items:end"><div>${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje</h2><div class="meta">${fmtDate(td)}</div></div><div><label class="field">Criança</label><select onchange="selectChild(this.value);showPage('inicio')">${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===child.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div></div>
+ <div class="daily-actions"><button class="btn success daily-primary" onclick="openTodayRecord()">+ Registrar atividade</button><button class="btn success daily-primary" onclick="showPage('planejamento');openNewPlanForm()">+ Planejar atividade</button></div></div><div id="todayActiveReading"></div>
  ${latePlans.length?`<div class="card"><h3>Precisa de atenção</h3><div class="meta">Atividades planejadas que ficaram para trás.</div>${latePlans.map(planHtml).join('')}</div>`:''}
- <div class="card today-plans-card"><h3>Planejado para hoje</h3>${todayPlans.map(planHtml).join('')||"<div class='notice'>Nada planejado para hoje. Você pode registrar uma atividade que aconteceu sem planejamento.</div>"}</div>
+ <div class="card"><h3>Para hoje</h3>${todayPlans.map(planHtml).join('')||"<div class='notice'>Nada planejado para hoje. Você pode registrar uma atividade que aconteceu sem planejamento.</div>"}</div>
  ${futurePlans.length?`<div class="card"><h3>Próximos dias</h3>${futurePlans.map(p=>`<div class="plan-card record-clickable" onclick="openPlanFromDashboard('${p.id}')"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${p.place?`<div class="meta">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="entry-actions"><button class="btn success small" type="button" onclick="event.stopPropagation();startPlan('${p.id}')">+ Registrar atividade</button><button class="btn small" type="button" onclick="event.stopPropagation();openPlanFromDashboard('${p.id}')">Visualizar planejamento</button></div></div>`).join('')}<button class="btn" onclick="showPage('planejamento')">Ver todos os planejamentos</button></div>`:''}`;
  renderTodayReadingsFromCache(child.id);queueSavedPlanningWeatherRefresh();refreshTodayReadings(child.id);
 }
@@ -7610,7 +7776,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "12.1";
+const APP_VERSION = "11.9";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
