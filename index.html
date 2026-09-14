@@ -1016,7 +1016,7 @@ body.app-authenticated main{padding-bottom:0}
     <img class="brand-logo" src="./logo-diario.png" alt="" aria-hidden="true">
     <h1>Diário de Estudos</h1>
   </div>
-  <p>Homeschooling alinhado à BNCC · famílias convidadas · v11.8 PWA</p>
+  <p>Homeschooling alinhado à BNCC · famílias convidadas · v11.9 PWA</p>
 
   <div id="headerCloud" class="header-cloud hidden no-print">
     <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização">
@@ -2125,7 +2125,8 @@ async function migrateRecordDraftPhotosToIndexedDb(){
 
 
 function rememberGoogleEnabled(){
-  return localStorage.getItem(REMEMBER_GOOGLE_KEY) === "1";
+  const saved=localStorage.getItem(REMEMBER_GOOGLE_KEY);
+  return saved===null ? true : saved==="1";
 }
 function setRememberGoogle(value){
   localStorage.setItem(REMEMBER_GOOGLE_KEY, value ? "1" : "0");
@@ -2505,6 +2506,10 @@ function clearEducationalStateWithoutBackendFamily(){
 
 async function refreshBackendProfile(){
   backendProfile=await backendFetch("/me");
+  signupCreationBlocked=!!backendProfile?.user
+    && !(backendProfile.families||[]).length
+    && !(backendProfile.pendingInvites||[]).length
+    && backendProfile.signup_allowed===false;
   cacheBackendProfileForOffline();
   setBackendStatus("conectado",true);
   renderBackendFamilyState();
@@ -6969,7 +6974,7 @@ async function readingBooksForChild(childId){
 }
 function todayReadingsMarkup(books){
  const active=(books||[]).filter(b=>b.status==="Lendo");
- return active.length?`<div class="card routine-reading"><h3>Leituras em andamento</h3><div class="meta">Livros que fazem parte da rotina desta criança, sem cobrança de atraso.</div>${active.map(b=>`<div class="routine-reading-row">${b.thumbnail?`<img src="${esc(b.thumbnail)}" alt="">`:""}<div><b>${esc(b.title||"Livro")}</b><div class="meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.started_at?` · iniciado em ${esc(fmtDate(b.started_at))}`:""}</div>${b.target_finish_at?`<div class="meta">Previsão: ${esc(fmtDate(b.target_finish_at))}</div>`:""}<div class="toolbar" style="margin-top:7px"><button class="btn small" onclick="openReadingBook('${b.id}')">Abrir leitura</button><button class="btn success small" onclick="completeBookAndRegister('${b.id}')">Concluir livro</button></div></div></div>`).join("")}</div>`:"";
+ return active.length?`<div class="card routine-reading"><h3>Leituras em andamento</h3>${active.map(b=>`<div class="routine-reading-row">${b.thumbnail?`<img src="${esc(b.thumbnail)}" alt="">`:""}<div><b>${esc(b.title||"Livro")}</b><div class="meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.started_at?` · iniciado em ${esc(fmtDate(b.started_at))}`:""}</div>${b.target_finish_at?`<div class="meta">Previsão: ${esc(fmtDate(b.target_finish_at))}</div>`:""}<div class="toolbar" style="margin-top:7px"><button class="btn small" onclick="openReadingBook('${b.id}')">Abrir leitura</button><button class="btn success small" onclick="completeBookAndRegister('${b.id}')">Concluir livro</button></div></div></div>`).join("")}</div>`:"";
 }
 function renderTodayReadingsFromCache(childId){
  const box=$("todayActiveReading");if(!box||!childId)return;
@@ -7744,7 +7749,7 @@ async function init(){
  setInterval(()=>{if(document.visibilityState==="visible")queueSavedPlanningWeatherRefresh()},60*60*1000);
 
  setBackendStatus("aguardando login");
- if(rememberGoogleEnabled()){
+ if(rememberGoogleEnabled()&&rememberedGoogleEmail()){
    setCloudStatus("busy","Preparando reconexão com Google...");
    tryAutomaticGoogleReconnect();
    setTimeout(()=>{if(!authBootFinished){finishAuthBoot();updateAuthUI()}},3500);
@@ -7771,7 +7776,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "11.8";
+const APP_VERSION = "11.9";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

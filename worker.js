@@ -403,7 +403,7 @@ function globalAdminEmails() {
       return json({
         ok: true,
         service: "Diário de Estudos API",
-        version: "0.44-beta",
+        version: "0.45-beta",
         status: "online"
       });
     }
@@ -655,6 +655,11 @@ function globalAdminEmails() {
           .bind(user.email)
           .all();
 
+        const signupAllowed = (families.results || []).length > 0 || !!(await env.DB
+          .prepare(`SELECT 1 FROM allowed_signups WHERE email=? LIMIT 1`)
+          .bind(normalizeEmail(user.email))
+          .first());
+
         return json({
           ok: true,
           user: {
@@ -664,7 +669,8 @@ function globalAdminEmails() {
             picture: user.picture_url
           },
           families: families.results,
-          pendingInvites: invites.results
+          pendingInvites: invites.results,
+          signup_allowed: signupAllowed
         });
       }
 

@@ -1,0 +1,21 @@
+DIÁRIO DE ESTUDOS v11.9 — CONVITES E AJUSTES DE TELA
+
+PUBLIQUE NESTA ORDEM
+
+1. Cloudflare Worker:
+   worker.js — versão 0.45-beta
+
+2. GitHub / app:
+   index.html
+   sw.js
+   version.json
+
+Não é necessário executar SQL.
+
+ALTERAÇÕES
+
+- Conta sem família e sem autorização vê “Estamos em fase de convites” logo após o login.
+- A validação no POST /families permanece como proteção final.
+- “Manter esta conta conectada” vem marcado por padrão, mas pode ser desmarcado.
+- O app não abre reconexão automática no primeiro acesso sem uma conta lembrada.
+- Removido o texto “sem cobrança de atraso” da leitura na tela Hoje.
