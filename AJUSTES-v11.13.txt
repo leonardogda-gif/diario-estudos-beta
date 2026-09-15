@@ -1,0 +1,177 @@
+MEU DIÁRIO DE ESTUDOS — APP PWA v11.12
+
+================================================================
+CORREÇÃO IMPORTANTE (não estava na lista, mas estava quebrado)
+================================================================
+O manifest.json e o sw.js apontavam para ./icons/icon-192.png,
+icon-512.png e maskable-512.png, mas os arquivos no disco eram .jpeg.
+
+Efeito: cache.addAll() é tudo-ou-nada. Como três itens da lista não
+existiam, a promise rejeitava e O SERVICE WORKER NUNCA INSTALAVA.
+Na prática o app estava sem cache offline e sem o mecanismo de
+atualização de versão. O PWA também ficava sem ícone válido.
+
+O que foi feito:
+- Gerados PNGs reais (192 e 512) a partir da arte de madeira.
+- A arte original era 1012x976 (não quadrada); foi recortada no centro.
+- maskable-512.png refeito com zona de segurança: o emblema ocupa 78%
+  do quadro sobre fundo de madeira escura. Antes era idêntico ao ícone
+  comum e a máscara circular do Android cortava as pontas do emblema.
+- O install do sw.js passou a cachear item a item, com catch individual.
+  Assim, se um arquivo faltar no futuro, o service worker sobe mesmo
+  assim em vez de falhar inteiro.
+- CACHE_NAME -> diario-estudos-v11.12 e version.json -> 11.12,
+  para que quem já instalou o app receba a atualização.
+
+================================================================
+1. LOGOS
+================================================================
+- Cabeçalho e rodapé do app: logo-emblema.svg (emblema novo, creme,
+  fundo transparente).
+- Relatório impresso: logo-emblema-cobre.svg (fundo claro do papel).
+- Favicon da aba: favicon.ico + logo-emblema-badge.svg.
+- Ícone do PWA instalável: mantida a arte em relevo sobre madeira,
+  agora em PNG correto (icons/icon-192.png, icon-512.png,
+  maskable-512.png).
+- Removidos: logo-diario.png, logo-diario-marsala.svg, icons/*.jpeg.
+
+================================================================
+2. CABEÇALHO MAIS BAIXO
+================================================================
+- Removido o mote "Disciplina hoje, conquistas amanhã".
+- Logo de 76x92 para 52x52; título alinhado verticalmente ao centro.
+- Padding e altura mínima reduzidos.
+Redução de altura: aproximadamente 25%.
+
+================================================================
+3. HERO DA ABA HOJE
+================================================================
+- "Hoje" de 48px (42px no celular) para 30px.
+- O seletor de criança saiu de baixo e foi para o lado direito da
+  palavra "Hoje", alinhado pela base.
+- A ilustração da citação "Educação constrói amanhãs mais livres"
+  foi removida, junto com a coluna de 210px (126px no celular) que
+  ela ocupava. Esse era o maior ganho de espaço.
+- Padding do card reduzido.
+
+================================================================
+4. LEITURAS EM ANDAMENTO
+================================================================
+- Capa de 145x205 para 104x156. 104x156 é exatamente 2:3, a proporção
+  padrão de capa de livro, então a imagem para de ser cortada pelo
+  object-fit:cover.
+- Espaçamentos internos, altura dos botões e margens reduzidos.
+- Removido o ícone ▤ do botão "Abrir leitura".
+
+================================================================
+5. CORES: FIM DOS VERDES
+================================================================
+Foram encontrados 106 tons de verde diferentes em 204 ocorrências,
+espalhados por todas as abas (não só nas listadas). Em vez de caçar
+caso a caso, foi feita uma conversão sistemática, matiz por matiz,
+preservando a luminosidade original de cada cor:
+
+  - verdes escuros  -> marsala
+  - verdes médios   -> terracota / cobre
+  - verdes claros   -> creme quente
+  - cinzas levemente esverdeados -> cinzas quentes
+  - #17332A (o verde-floresta do tema antigo, 35 ocorrências) -> #441015
+
+Total convertido: 213 valores hexadecimais + 9 valores rgb/rgba.
+Verificação final: zero verdes restantes no arquivo.
+
+Isso cobre os itens 5, 7 e 8 da lista (a parte de cor), incluindo
+áreas que não tinham sido citadas.
+
+VERDE PRESERVADO (conforme combinado): só nos estados de
+conclusão e sucesso, agora num verde-sálvia que convive com o marsala
+(--success:#5E7C52). Aplicado em:
+  .entry.done, .sync-dot.online, .ai-suggestion.selected,
+  .ai-selected-btn, .ai-selection-confirm, .component-choice.selected,
+  .billing-saving, .login-promise (ícone de check).
+
+================================================================
+6. ABA PLANEJAR
+================================================================
+- Removido o card "Planeje a experiência". Todo o conteúdo da aba
+  subiu a altura desse bloco.
+
+================================================================
+8. RELATÓRIOS — BOTÕES DO CABEÇALHO
+================================================================
+- O .toolbar recebeu a classe .report-toolbar com flex, altura mínima
+  de 44px igual para os três botões, alinhamento central e gap regular.
+- No celular (até 650px) cada botão ocupa a linha inteira, em vez de
+  quebrar de forma desalinhada.
+
+================================================================
+PENDENTE
+================================================================
+Item 5 da sua lista: "mais para baixo as infos onde ficam o tempo".
+Não consegui localizar esse bloco específico no código — não há
+nenhum rótulo de tempo ou duração na aba Hoje. A varredura global
+de cor provavelmente já resolveu, mas se ainda estiver esverdeado,
+me manda um print dessa área que eu ajusto pontualmente.
+
+================================================================
+COMO VERIFICAR DEPOIS DE PUBLICAR
+================================================================
+1. Abra o app no navegador e confira em DevTools > Application >
+   Service Workers que o "diario-estudos-v11.12" está ativado.
+   Antes desta correção nenhum service worker chegava a instalar.
+2. Em Application > Manifest, os três ícones devem carregar sem erro.
+3. Em quem já tem o app instalado, a atualização chega na próxima
+   abertura (o sw.js busca index.html com cache no-store).
+
+
+================================================================
+================  v11.13 — SEGUNDA RODADA  =====================
+================================================================
+
+CABEÇALHO
+- O título "Diário de Estudos" agora fica sempre em UMA linha
+  (white-space:nowrap) com tamanho fluido: clamp(19px, 6.2vw, 30px).
+  Ele encolhe conforme a tela em vez de quebrar em três linhas.
+- O .header-branding deixou de ser uma linha (marca à esquerda,
+  sincronização à direita) e virou uma coluna centralizada.
+  Essa era a causa real da quebra: no celular a marca ficava
+  espremida em cerca de 150px.
+- Linha 1: emblema + título, centralizados na horizontal e na vertical.
+- Linha 2: badge de sincronização e "Pequenos passos / Grandes
+  futuros", lado a lado e centralizados.
+- O logo do cabeçalho também ficou fluido: clamp(38px, 11vw, 52px).
+
+BOTÕES REGISTRAR / PLANEJAR
+- Altura de 64px para 46px, fonte de 22px para 16px.
+- Os sinais "+" e "›" reduzidos de 29/31px para 19px.
+- Raio da borda e espaçamentos ajustados na mesma proporção.
+
+LEITURAS EM ANDAMENTO (aba Hoje)
+- Removido o ícone ▤ que ficava antes do título.
+
+ABA LEITURAS
+- Removido o ícone dentro da caixa ao lado do título "Leituras".
+  OBS: a classe .title-with-icon é usada em outras abas também.
+  Só a de Leituras foi alterada; se quiser padronizar, é só avisar.
+- Botão "Excluir" saiu da fileira de ações e virou um ícone de
+  lixeira no canto superior direito do card.
+  Optei por lixeira em vez de X porque X costuma ser interpretado
+  como "fechar o card". O botão tem title e aria-label, e a função
+  deleteFamilyBookReading() já pedia confirmação antes de apagar,
+  então não há risco de exclusão acidental por toque.
+- Os dois botões restantes ficaram lado a lado, em grade de duas
+  colunas iguais, com altura de 40px.
+- "Concluir e registrar leitura" virou "Concluir leitura", para
+  caber lado a lado sem quebrar em duas linhas no celular.
+- O título do livro ganhou padding à direita para não passar
+  por baixo da lixeira.
+
+REFORÇO NO HERO DA ABA HOJE
+- As regras que colocam "Hoje" e o seletor de criança na mesma
+  linha receberam !important. Nos prints que você mandou o seletor
+  aparecia embaixo, o que não deveria acontecer com flex-wrap:nowrap.
+  Se depois de publicar continuar embaixo, é cache do navegador
+  servindo o index.html antigo (teste numa aba anônima).
+
+VERSÃO
+- version.json -> 11.13 e CACHE_NAME -> diario-estudos-v11.13.
