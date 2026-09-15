@@ -1,0 +1,63 @@
+MEU DIÁRIO DE ESTUDOS — APP v11.18
+Base: v11.17 (que já trouxe logos novos e remoção dos verdes).
+Escopo desta versão: apenas duas mudanças.
+
+--------------------------------------------------------------
+1. SELETOR DE CRIANÇA AO LADO DO "HOJE"
+--------------------------------------------------------------
+O bloco do "Hoje" é uma grade (.today-copy>.grid) que estava
+definida como coluna única. Passou a ter duas colunas:
+
+  coluna 1: minmax(0,1fr)      -> "Familia Andrade", "Hoje", data
+  coluna 2: minmax(118px,200px) -> seletor de criança
+
+Alinhamento pela base (align-items:end), para o seletor casar com
+a linha da data em vez de flutuar no meio.
+
+Telas abaixo de 360px voltam a empilhar. Na conta: num aparelho de
+320px sobram 248px úteis dentro do card, e "Hoje" a 48px já ocupa
+cerca de 130px — as duas colunas se espremeriam. Do 360px para
+cima (praticamente todo aparelho atual, o seu tem 412px) fica
+lado a lado.
+
+NÃO foi alterado: o tamanho da palavra "Hoje" (segue 48px), cores,
+textos, nem qualquer outro bloco. Só o posicionamento.
+
+Por que as regras levam !important: as definições originais estão
+nas linhas 1062, 1065, 1150 e 1168, e algumas delas já usam
+!important. Sem isso as novas regras perderiam.
+
+--------------------------------------------------------------
+2. ABA PLANEJAR
+--------------------------------------------------------------
+Removido o card "Planeje a experiência"
+(div.notice#planningExperienceIntro). Todo o conteúdo da aba sobe
+a altura desse bloco.
+
+--------------------------------------------------------------
+VERIFICAÇÃO FEITA
+--------------------------------------------------------------
+Depois do erro das versões 11.12/11.13, confirmei ponto a ponto:
+
+- A camada de estilo está DENTRO do bloco <style> real
+  (abre na linha 23, fecha na 1227), e não no template JavaScript
+  do relatório compartilhado, que foi onde o CSS foi parar antes.
+- O template do relatório continua intacto.
+- Cascata conferida regra a regra: as novas definições são as
+  últimas do arquivo e vencem as das linhas 1062, 1065, 1150 e 1168.
+- A regra de empilhar em telas estreitas está isolada dentro do
+  @media(max-width:359px), sem afetar as demais.
+- Sintaxe validada: JS do index.html e sw.js passam no node --check;
+  o parser HTML acusa os mesmos 2 avisos que a base já tinha.
+- #planningExperienceIntro não existe mais em nenhum lugar do arquivo.
+
+O que NÃO consegui fazer: renderizar o app num navegador de verdade.
+Tentei instalar Chromium aqui, mas a rede deste ambiente bloqueia o
+download do binário. A verificação acima é estática. O olho final
+na tela continua sendo seu.
+
+--------------------------------------------------------------
+VERSÃO
+--------------------------------------------------------------
+CACHE_NAME -> diario-estudos-v11.18
+version.json -> 11.18

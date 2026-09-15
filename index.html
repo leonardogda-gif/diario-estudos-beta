@@ -1206,6 +1206,24 @@ header .brand-motto{display:none!important}
 .component-choice.selected{border-color:var(--success)!important;background:var(--success-soft)!important}
 .billing-saving{color:var(--success-ink)!important;background:var(--success-soft)!important}
 
+
+/* ===== v11.18 — seletor de criança ao lado do "Hoje" =====
+   Só posicionamento; não altera tamanhos, cores nem textos.
+   Precisa de !important porque as regras originais em .today-copy>.grid
+   e .today-child-select ficam antes deste ponto no arquivo. */
+.today-copy>.grid{grid-template-columns:minmax(0,1fr) minmax(118px,200px)!important;
+  align-items:end!important;gap:12px!important}
+.today-copy>.grid>div:last-child,
+.today-copy>.grid>div:last-child.today-child-select{grid-column:auto!important;margin-top:0!important}
+.today-child-select{margin-top:0!important;min-width:0}
+.today-child-select select{width:100%!important;min-width:0!important;max-width:100%!important}
+/* telas muito estreitas: volta a empilhar, senão "Hoje" e o seletor se espremem */
+@media(max-width:359px){
+  .today-copy>.grid{grid-template-columns:1fr!important}
+  .today-copy>.grid>div:last-child,
+  .today-copy>.grid>div:last-child.today-child-select{margin-top:12px!important}
+}
+
 </style>
 </head>
 <body class="auth-checking">
@@ -1314,10 +1332,6 @@ header .brand-motto{display:none!important}
     </section>
 
     <section id="page-planejamento" class="page">
-<div class="notice" id="planningExperienceIntro" style="margin:10px 0 14px">
-<b>Planeje a experiência</b>
-<div class="meta" style="margin-top:4px">Registre o que vocês pretendem fazer. Componente e BNCC serão definidos depois, a partir do que realmente aconteceu.</div>
-</div>
       <div class="card">
         <div class="toolbar" style="justify-content:space-between"><div><h2 style="margin-bottom:3px">Planejar</h2><div class="meta">Veja primeiro o que precisa de atenção. Crie um novo planejamento só quando precisar.</div></div><div class="toolbar"><button class="btn success" onclick="openNewPlanForm()">+ Planejar atividade</button></div></div>
       </div>
