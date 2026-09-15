@@ -1,0 +1,94 @@
+MEU DIÁRIO DE ESTUDOS — APP v11.17
+Base: v11.16. Escopo: apenas logos e remoção dos verdes.
+
+--------------------------------------------------------------
+POR QUE OS AJUSTES ANTERIORES NÃO FUNCIONARAM
+--------------------------------------------------------------
+Nas versões 11.12 e 11.13 eu inseri o CSS antes do ÚLTIMO </style>
+do arquivo. Só que o último </style> do index.html não pertence à
+folha de estilo do app: ele está dentro de um template JavaScript,
+o HTML do relatório compartilhado (</style></head><body>${content}).
+
+Resultado: todo o CSS de layout foi parar dentro do template de
+exportação do relatório, e nunca chegou a ser aplicado no app.
+Ao mesmo tempo, as alterações de HTML/JS (remoção da citação, dos
+ícones, etc.) foram aplicadas normalmente. O app ficou com as
+remoções, sem os ajustes de tamanho e alinhamento que deveriam
+acompanhá-las — e o template do relatório ficou poluído.
+
+É por isso que o seletor de criança continuava embaixo do "Hoje"
+mesmo com flex-wrap:nowrap no código: aquela regra estava no lugar
+errado do arquivo.
+
+Nesta versão o arquivo foi reconstruído do zero a partir da v11.16,
+e a verificação confirma:
+- existe apenas UM bloco <style> real, que fecha na linha 1195;
+- é lá que a camada entra;
+- o template do relatório continua intacto.
+
+--------------------------------------------------------------
+1. LOGOS
+--------------------------------------------------------------
+Três pontos usavam o logo antigo. Como o emblema é creme, ele
+precisa de duas versões conforme o fundo:
+
+  cabeçalho (fundo marsala)  -> ./logo-emblema.svg        (creme)
+  rodapé    (fundo marsala)  -> ./logo-emblema.svg        (creme)
+  relatório impresso (papel) -> ./logo-emblema-cobre.svg  (cobre)
+
+Os dois arquivos SVG acompanham este pacote. São vetores: nítidos
+em qualquer tamanho, fundo transparente, ~1,2 KB cada.
+
+NÃO MEXI nos ícones do PWA (icons/*.png) nem no manifest.json,
+porque eles não vieram neste zip. O ícone instalável continua o
+que já está no servidor.
+
+--------------------------------------------------------------
+2. VERDES
+--------------------------------------------------------------
+Encontrados 110 tons de verde diferentes em 177 ocorrências.
+Conversão sistemática, matiz por matiz, preservando a luminosidade
+original de cada cor:
+
+  verdes escuros                -> marsala
+  verdes médios                 -> terracota / cobre
+  verdes claros                 -> creme quente
+  cinzas levemente esverdeados  -> cinzas quentes
+  #17332A (verde-floresta antigo) -> #441015
+
+Convertidos: 177 hexadecimais + 9 valores rgb/rgba.
+Verificação final: zero verdes restantes no arquivo.
+
+VERDE PRESERVADO (conforme você definiu): apenas nos estados de
+conclusão e sucesso, num verde-sálvia que convive com o marsala.
+Fica num bloco isolado e comentado no fim do CSS — se quiser
+zero verde no app, é só apagar o bloco inteiro. Ele não toca
+em layout, só em cor.
+
+Aplicado em: .entry.done, .sync-dot.online, .ai-suggestion.selected,
+.ai-selected-btn, .ai-selection-confirm, .component-choice.selected,
+.billing-saving e o check do .login-promise.
+
+--------------------------------------------------------------
+3. O QUE MAIS MUDOU (e por quê)
+--------------------------------------------------------------
+sw.js — o APP_SHELL listava ./logo-diario.png e
+./logo-diario-marsala.svg, que deixaram de existir. Troquei pelos
+nomes novos, senão o cache falharia.
+
+Também tornei o install tolerante a arquivo ausente: cache.addAll()
+é tudo-ou-nada, então um único arquivo faltando na lista impede o
+service worker inteiro de instalar. Agora cada item falha
+isoladamente. Vale conferir, porque a lista ainda aponta para
+./icons/*.png e ./manifest.json, que não vieram neste zip.
+
+CACHE_NAME -> diario-estudos-v11.17
+version.json -> 11.17
+
+--------------------------------------------------------------
+NADA ALÉM DISSO FOI ALTERADO
+--------------------------------------------------------------
+Comparação linha a linha com a v11.16, ignorando cor:
+20 linhas diferentes no total — 3 trocas de logo e 17 da camada
+de estilo comentada. Nenhuma mudança de layout, texto, tamanho,
+espaçamento ou comportamento.

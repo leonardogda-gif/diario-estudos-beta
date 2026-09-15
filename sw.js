@@ -1,4 +1,4 @@
-const CACHE_NAME = "diario-estudos-v11.13";
+const CACHE_NAME = "diario-estudos-v11.17";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -6,8 +6,6 @@ const APP_SHELL = [
   "./version.json",
   "./logo-emblema.svg",
   "./logo-emblema-cobre.svg",
-  "./logo-emblema-badge.svg",
-  "./favicon.ico",
   "./vendor/zxing-browser.min.js",
   "./vendor/ZXING-LICENSE.txt",
   "./icons/icon-192.png",
@@ -18,10 +16,9 @@ const APP_SHELL = [
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache =>
-      // addAll() é tudo-ou-nada: se um arquivo faltar, o SW inteiro não instala.
-      // Aqui cada item falha isoladamente e o service worker sobe mesmo assim.
+      // addAll() é tudo-ou-nada: um arquivo ausente impede o SW inteiro de instalar.
       Promise.all(APP_SHELL.map(url =>
-        cache.add(url).catch(err => console.warn("[sw] não foi possível cachear", url, err))
+        cache.add(url).catch(err => console.warn("[sw] não cacheado:", url, err))
       ))
     )
   );
