@@ -1,35 +1,40 @@
-DIÁRIO DE ESTUDOS — v11.17 (ajustes de layout)
+DIÁRIO DE ESTUDOS — v12.0
 
-O QUE MUDOU
-1. Corrigido </div> sobrando na tela "Hoje" (bug de HTML encontrado na
-   revisão, sem relação com os pedidos desta rodada).
-2. Capa do livro na aba Hoje (e em qualquer outro lugar que usa a mesma
-   classe .book-cover): trocado object-fit de "cover" para "contain" —
-   a capa aparece inteira, sem cortar borda, mantendo a proporção
-   original de cada imagem.
-3. Título "Hoje": tamanho reduzido de 48px para 36px (tela larga) e de
-   42px para 32px (celular).
-4. Em todos os seletores de criança (botões de trocar criança, menu do
-   registro, menu de Histórico, menu de Relatório), agora mostra só o
-   primeiro nome, sem a série — usando uma nova função firstName().
-   A tela de Configurações (gerenciar crianças) foi mantida como estava,
-   por pedido explícito — ali "Ano atual" continua aparecendo.
+CONTEXTO DESTA VERSÃO
+Descobrimos que os comentários internos do CSS já mencionavam v11.17 e
+v11.18 (preservação de verde só em sucesso, e reposicionamento do seletor
+de criança), mas a constante APP_VERSION nunca tinha sido atualizada além
+de 11.16 — o número estava desatualizado em relação ao próprio código.
+Para não reutilizar nenhum número já "gasto", pulamos direto para 12.0.
 
-NÃO INCLUÍDO NESTE PACOTE
-worker.js e manifest.json não foram enviados nesta rodada, então não
-foram alterados nem incluídos aqui — só index.html, sw.js e version.json,
-que foi o que foi pedido.
+CORREÇÃO DE FOTO DE LIVRO — AGORA NA CLASSE CERTA
+Na v11.17 eu tinha corrigido a classe .book-cover (object-fit: cover →
+contain), mas essa não é a classe usada pela aba Hoje — lá quem manda é
+.routine-reading-row img, uma regra separada. Resultado: a aba Hoje
+continuou cortando a borda da capa, e a aba Leituras (que usa .book-cover
+de verdade) passou a mostrar a capa menor, com sobra de fundo ao redor.
 
-CÓDIGO MORTO
-A função openCalendarImport() e os ids relacionados à importação de
-evento do Google Calendar continuam no arquivo, sem uso — confirmado
-como intencional (vocês tiraram essa parte para não precisar da
-verificação de escopo sensível do Google). Mantido como está, por pedido.
+Correção agora:
+- .book-cover voltou para object-fit: cover (como estava originalmente,
+  antes da v11.17) — resolve o "ficou pequeno" na aba Leituras.
+- .routine-reading-row img e .routine-cover-placeholder passaram para
+  object-fit: contain, com um fundo neutro (#f0eeed) para preencher o
+  espaço da capa que não ocupar a caixa inteira — resolve o corte de
+  borda especificamente na aba Hoje, sem afetar a aba Leituras.
+- O ícone de placeholder (livro sem capa) mantém sua cor em degradê
+  própria, definida numa regra separada que continua vindo depois —
+  não foi afetado por essa mudança.
 
 VALIDAÇÕES REALIZADAS
 - JavaScript inline: sintaxe OK.
-- <div>: 906 aberturas / 906 fechamentos (corrigido de 906/907).
-- Nenhuma função chamada sem definição, nenhuma duplicada.
-- Confirmado que não sobrou nenhuma ocorrência de série nos 5 seletores
-  de criança corrigidos (só a tela de Configurações continua mostrando,
-  como pedido).
+- <div>: 906 aberturas / 906 fechamentos.
+- Conferido que a regra do ícone placeholder de "sem capa" continua
+  intacta após a mudança.
+
+IMPORTANTE
+Este arquivo parte do que foi enviado nesta conversa como "11.16" mais os
+ajustes já aplicados na v11.17 (que você confirmou ter publicado). Se
+houver qualquer outra mudança feita direto no site entre a v11.18 e agora
+que não tenha sido compartilhada aqui, ela não está refletida neste
+arquivo — vale conferir com o view-source antes de publicar, da mesma
+forma que fizemos agora.
