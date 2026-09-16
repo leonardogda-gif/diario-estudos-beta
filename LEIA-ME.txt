@@ -1,0 +1,35 @@
+DIÁRIO DE ESTUDOS — v11.17 (ajustes de layout)
+
+O QUE MUDOU
+1. Corrigido </div> sobrando na tela "Hoje" (bug de HTML encontrado na
+   revisão, sem relação com os pedidos desta rodada).
+2. Capa do livro na aba Hoje (e em qualquer outro lugar que usa a mesma
+   classe .book-cover): trocado object-fit de "cover" para "contain" —
+   a capa aparece inteira, sem cortar borda, mantendo a proporção
+   original de cada imagem.
+3. Título "Hoje": tamanho reduzido de 48px para 36px (tela larga) e de
+   42px para 32px (celular).
+4. Em todos os seletores de criança (botões de trocar criança, menu do
+   registro, menu de Histórico, menu de Relatório), agora mostra só o
+   primeiro nome, sem a série — usando uma nova função firstName().
+   A tela de Configurações (gerenciar crianças) foi mantida como estava,
+   por pedido explícito — ali "Ano atual" continua aparecendo.
+
+NÃO INCLUÍDO NESTE PACOTE
+worker.js e manifest.json não foram enviados nesta rodada, então não
+foram alterados nem incluídos aqui — só index.html, sw.js e version.json,
+que foi o que foi pedido.
+
+CÓDIGO MORTO
+A função openCalendarImport() e os ids relacionados à importação de
+evento do Google Calendar continuam no arquivo, sem uso — confirmado
+como intencional (vocês tiraram essa parte para não precisar da
+verificação de escopo sensível do Google). Mantido como está, por pedido.
+
+VALIDAÇÕES REALIZADAS
+- JavaScript inline: sintaxe OK.
+- <div>: 906 aberturas / 906 fechamentos (corrigido de 906/907).
+- Nenhuma função chamada sem definição, nenhuma duplicada.
+- Confirmado que não sobrou nenhuma ocorrência de série nos 5 seletores
+  de criança corrigidos (só a tela de Configurações continua mostrando,
+  como pedido).

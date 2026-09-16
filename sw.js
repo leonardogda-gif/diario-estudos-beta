@@ -1,27 +1,8 @@
-const CACHE_NAME = "diario-estudos-v11.18";
-const APP_SHELL = [
-  "./",
-  "./index.html",
-  "./manifest.json",
-  "./version.json",
-  "./logo-emblema.svg",
-  "./logo-emblema-cobre.svg",
-  "./vendor/zxing-browser.min.js",
-  "./vendor/ZXING-LICENSE.txt",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png",
-  "./icons/maskable-512.png"
-];
+const CACHE_NAME = "diario-estudos-v11.17";
+const APP_SHELL = ["./", "./index.html", "./manifest.json", "./version.json"];
 
 self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache =>
-      // addAll() é tudo-ou-nada: um arquivo ausente impede o SW inteiro de instalar.
-      Promise.all(APP_SHELL.map(url =>
-        cache.add(url).catch(err => console.warn("[sw] não cacheado:", url, err))
-      ))
-    )
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));
 });
 
 self.addEventListener("activate", event => {
@@ -37,22 +18,22 @@ self.addEventListener("message", event => {
 });
 
 self.addEventListener("fetch", event => {
-  const request = event.request;
-  if (request.method !== "GET") return;
+  const req = event.request;
+  if (req.method !== "GET") return;
 
-  const url = new URL(request.url);
+  const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
   if (url.pathname.endsWith("/version.json")) {
-    event.respondWith(fetch(request, { cache: "no-store" }).catch(() => caches.match("./version.json")));
+    event.respondWith(fetch(req, { cache: "no-store" }).catch(() => caches.match("./version.json")));
     return;
   }
 
-  if (request.mode === "navigate") {
+  if (req.mode === "navigate") {
     event.respondWith(
-      fetch(request, { cache: "no-store" })
+      fetch(req, { cache: "no-store" })
         .then(response => {
-          if (response?.status === 200) {
+          if (response && response.status === 200) {
             const copy = response.clone();
             caches.open(CACHE_NAME).then(cache => cache.put("./index.html", copy));
           }
@@ -64,10 +45,10 @@ self.addEventListener("fetch", event => {
   }
 
   event.respondWith(
-    caches.match(request).then(cached => cached || fetch(request, { cache: "no-cache" }).then(response => {
-      if (response?.status === 200) {
+    caches.match(req).then(cached => cached || fetch(req, { cache: "no-cache" }).then(response => {
+      if (response && response.status === 200) {
         const copy = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+        caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
       }
       return response;
     }))
