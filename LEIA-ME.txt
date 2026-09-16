@@ -1,38 +1,40 @@
-DIÁRIO DE ESTUDOS — v12.1 (correção real do card de leitura na aba Hoje)
+DIÁRIO DE ESTUDOS — v12.2 (correção do card de leitura, tentativa 4)
 
-O QUE ACONTECEU NA v12.0 (não bastou)
-Corrigi a regra .routine-reading-row img visível na linha 1064, mas
-existiam DUAS outras regras concorrentes mais abaixo no arquivo que eu
-não tinha visto:
-- Uma com !important forçando width:100% e height:100% na foto — isso
-  sozinho anulava qualquer correção de proporção, porque !important
-  sempre vence independente da ordem.
-- Outra, dentro do media query de celular, forçando min-height:178px
-  também com !important.
+O QUE DEU ERRADO NA v12.1
+Forcei a foto para 145px fixos com !important, sem saber que a coluna
+real dessa foto (definida em outra regra, dentro do media query de
+celular) não é um valor fixo — é "minmax(88px, 34%)", uma largura que
+varia com o tamanho do card. Como a foto ficou mais estreita que a
+própria coluna, o texto ao lado passou a se sobrepor a ela.
 
 CORREÇÃO NESTA VERSÃO
-Separei em todas essas regras o que vale para a <img> de verdade do que
-vale para o .routine-cover-placeholder (o ícone decorativo de "sem
-capa"):
-- A foto agora tem largura fixa (145px, ou 84px no celular) e altura
-  livre (auto) — sem cortar borda, sem sobrar vazio, sem distorcer.
-- O placeholder continua com comportamento de preencher o espaço
-  (100%/100%, altura mínima), porque ele não tem uma imagem real da
-  qual calcular uma proporção.
-- Como a foto deixa de ser artificialmente alta, o card inteiro encolhe
-  para caber só o que precisa — o vão vazio antes dos botões
-  ("Concluir livro" / "Abrir leitura") deve fechar como consequência
-  disso, sem ter sido mexido diretamente.
+Troquei a largura fixa (145px) por width:100% — a foto agora sempre
+ocupa exatamente a largura real da coluna onde está, seja qual for esse
+valor em cada tela (145px, 34%, ou qualquer outro número usado em
+telas diferentes), sem eu precisar saber o número de antemão. A altura
+continua livre (auto), então a proporção da capa nunca é distorcida.
+
+SEJA HONESTO SOBRE O RISCO DESTA VERSÃO
+Esta é a quarta tentativa seguida nesse mesmo elemento, sempre sem
+conseguir ver o resultado renderizado de verdade — só deduzindo pela
+leitura do CSS. Encontrei repetidamente regras escondidas mais abaixo
+no arquivo que eu não tinha visto nas tentativas anteriores. Não posso
+garantir que não existe uma QUINTA regra concorrente em algum lugar que
+eu ainda não encontrei.
+
+SE ESTA VERSÃO TAMBÉM NÃO RESOLVER
+Antes de eu tentar de novo às cegas, o caminho mais confiável agora é:
+no computador, botão direito na foto do livro → Inspecionar elemento →
+me mandar um print da aba "Styles" mostrando qual regra o navegador
+está realmente aplicando (com a linha riscada mostrando o que perdeu
+e a que "venceu" em negrito). Isso substitui a leitura estática do
+código por o que está acontecendo de verdade, e evita mais rodadas de
+tentativa e erro.
 
 VALIDAÇÕES REALIZADAS
 - JavaScript inline: sintaxe OK.
 - <div>: 906/906.
-- Conferidas TODAS as ocorrências de .routine-reading-row img e
-  .routine-cover-placeholder no arquivo (9 no total) para garantir que
-  nenhuma regra concorrente com !important ficou sem tratar.
-
-NÃO TESTADO
-Não tenho como ver o resultado visual renderizado de verdade — só a
-lógica de cascata CSS no papel. Vale conferir no celular antes de
-publicar, especialmente porque já erramos duas vezes seguidas nesse
-mesmo elemento.
+- Conferidas todas as ocorrências de .routine-reading-row img e
+  .routine-cover-placeholder no arquivo — nenhuma com width fixo
+  restante além da que já é intencional (a regra desktop de 145px na
+  coluna, que não afeta mais a foto diretamente).
