@@ -1,40 +1,38 @@
-DIÁRIO DE ESTUDOS — v12.0
+DIÁRIO DE ESTUDOS — v12.1 (correção real do card de leitura na aba Hoje)
 
-CONTEXTO DESTA VERSÃO
-Descobrimos que os comentários internos do CSS já mencionavam v11.17 e
-v11.18 (preservação de verde só em sucesso, e reposicionamento do seletor
-de criança), mas a constante APP_VERSION nunca tinha sido atualizada além
-de 11.16 — o número estava desatualizado em relação ao próprio código.
-Para não reutilizar nenhum número já "gasto", pulamos direto para 12.0.
+O QUE ACONTECEU NA v12.0 (não bastou)
+Corrigi a regra .routine-reading-row img visível na linha 1064, mas
+existiam DUAS outras regras concorrentes mais abaixo no arquivo que eu
+não tinha visto:
+- Uma com !important forçando width:100% e height:100% na foto — isso
+  sozinho anulava qualquer correção de proporção, porque !important
+  sempre vence independente da ordem.
+- Outra, dentro do media query de celular, forçando min-height:178px
+  também com !important.
 
-CORREÇÃO DE FOTO DE LIVRO — AGORA NA CLASSE CERTA
-Na v11.17 eu tinha corrigido a classe .book-cover (object-fit: cover →
-contain), mas essa não é a classe usada pela aba Hoje — lá quem manda é
-.routine-reading-row img, uma regra separada. Resultado: a aba Hoje
-continuou cortando a borda da capa, e a aba Leituras (que usa .book-cover
-de verdade) passou a mostrar a capa menor, com sobra de fundo ao redor.
-
-Correção agora:
-- .book-cover voltou para object-fit: cover (como estava originalmente,
-  antes da v11.17) — resolve o "ficou pequeno" na aba Leituras.
-- .routine-reading-row img e .routine-cover-placeholder passaram para
-  object-fit: contain, com um fundo neutro (#f0eeed) para preencher o
-  espaço da capa que não ocupar a caixa inteira — resolve o corte de
-  borda especificamente na aba Hoje, sem afetar a aba Leituras.
-- O ícone de placeholder (livro sem capa) mantém sua cor em degradê
-  própria, definida numa regra separada que continua vindo depois —
-  não foi afetado por essa mudança.
+CORREÇÃO NESTA VERSÃO
+Separei em todas essas regras o que vale para a <img> de verdade do que
+vale para o .routine-cover-placeholder (o ícone decorativo de "sem
+capa"):
+- A foto agora tem largura fixa (145px, ou 84px no celular) e altura
+  livre (auto) — sem cortar borda, sem sobrar vazio, sem distorcer.
+- O placeholder continua com comportamento de preencher o espaço
+  (100%/100%, altura mínima), porque ele não tem uma imagem real da
+  qual calcular uma proporção.
+- Como a foto deixa de ser artificialmente alta, o card inteiro encolhe
+  para caber só o que precisa — o vão vazio antes dos botões
+  ("Concluir livro" / "Abrir leitura") deve fechar como consequência
+  disso, sem ter sido mexido diretamente.
 
 VALIDAÇÕES REALIZADAS
 - JavaScript inline: sintaxe OK.
-- <div>: 906 aberturas / 906 fechamentos.
-- Conferido que a regra do ícone placeholder de "sem capa" continua
-  intacta após a mudança.
+- <div>: 906/906.
+- Conferidas TODAS as ocorrências de .routine-reading-row img e
+  .routine-cover-placeholder no arquivo (9 no total) para garantir que
+  nenhuma regra concorrente com !important ficou sem tratar.
 
-IMPORTANTE
-Este arquivo parte do que foi enviado nesta conversa como "11.16" mais os
-ajustes já aplicados na v11.17 (que você confirmou ter publicado). Se
-houver qualquer outra mudança feita direto no site entre a v11.18 e agora
-que não tenha sido compartilhada aqui, ela não está refletida neste
-arquivo — vale conferir com o view-source antes de publicar, da mesma
-forma que fizemos agora.
+NÃO TESTADO
+Não tenho como ver o resultado visual renderizado de verdade — só a
+lógica de cascata CSS no papel. Vale conferir no celular antes de
+publicar, especialmente porque já erramos duas vezes seguidas nesse
+mesmo elemento.
