@@ -1,90 +1,43 @@
-DIÁRIO DE ESTUDOS — v12.3
+DIÁRIO DE ESTUDOS — v12.4 (correção: item esquecido da v12.3)
 
-Sete mudanças confirmadas ao longo da conversa, todas nesta versão.
-NÃO incluídos (aguardando material seu): fundo verde no card de clima
-(preciso de um print de onde aparece) e o ícone "M" do instalador do PC
-(preciso do manifest.json atual).
+O QUE ACONTECEU
+A reestruturação do card "Hoje" (botões lado a lado à direita, fusão do
+"Planejado para hoje" sem o título) tinha sido combinada e confirmada com
+mockup ANTES da lista dos 7 itens da v12.3 — e foi esquecida na hora de
+consolidar tudo numa lista só. Não foi descartada de propósito.
 
-1. NOME CORTADO NO SELETOR DE CRIANÇA (Hoje, tela larga/PC)
-   O seletor today-child-select mostrava o nome completo da criança
-   numa coluna com no máximo 200px — cortava nomes longos. Agora usa
-   firstName(), igual aos outros 5 seletores já corrigidos antes.
+O QUE MUDOU NESTA VERSÃO
+- Título "Hoje" reduzido de novo (36px → 28px em tela larga, 32px → 24px
+  no celular) — refletido nas DUAS regras reais que valiam (a de sempre e
+  a do media query), não numa regra nova por cima.
+- Estrutura do card recriada: título + data + seletor de criança (só
+  primeiro nome) numa coluna à esquerda; os dois botões ("+ Registrar
+  atividade" e "+ Planejar atividade") empilhados numa coluna à direita,
+  lado a lado com a primeira coluna — não mais como barras horizontais
+  largas abaixo.
+- Uma linha divisória (<hr>) separa essa parte de cima do conteúdo de
+  "Planejado para hoje", que passou a viver dentro do mesmo card — sem
+  mais o título "Planejado para hoje" (só o link "Ver todos ›" e a
+  lista/aviso "Nada planejado para hoje").
+- "Precisa de atenção" e "Próximos dias" continuam como cards separados,
+  abaixo, exatamente como já estavam — não foram tocados.
 
-2. LOGIN PEDINDO RECONEXÃO MANUAL "TODA VEZ"
-   A reconexão automática (tryAutomaticGoogleReconnect) não informava
-   pra qual conta Google tentar, deixando a tentativa silenciosa
-   ambígua e propensa a falhar. Agora envia login_hint com o e-mail já
-   salvo localmente (rememberedGoogleEmail()), quando existir.
-
-3. "MANTER CONTA CONECTADA" JÁ MARCADO POR PADRÃO
-   O comportamento de fundo já tratava isso como true por padrão
-   (rememberGoogleEnabled()); só o HTML não refletia isso visualmente
-   antes do JavaScript sincronizar. Adicionado o atributo checked.
-
-4. "VISUALIZAR PLANEJAMENTO" → CARTÃO INTEIRO CLICÁVEL, ABRE DETALHE
-   Criada a função viewPlanDetails(id), que abre um modal (reaproveita
-   a mesma estrutura visual do modal de registro) com título, local,
-   clima, material, observações, e os botões Concluir atividade /
-   Editar / Excluir / Fechar.
-   O cartão "Próximos dias" (dashboard) agora é clicável por inteiro
-   ("Toque para abrir ›", igual ao padrão já usado no Histórico), sem
-   mais o botão separado "Visualizar planejamento".
-   O botão "+ Registrar atividade" nesse cartão virou "✓ Concluir
-   atividade" (com event.stopPropagation() pra não abrir o modal ao
-   clicar nele).
-
-5. X PARA EXCLUIR NO HISTÓRICO
-   Cartão resumido: X discreto no canto superior direito
-   (.entry-quick-delete), chamando deleteEntry() diretamente — essa
-   função já tinha dupla confirmação, não precisou adicionar nada
-   novo. O botão "Excluir" que ficava nas ações do rodapé foi
-   removido, já que o X cobre essa função agora (Visualizar e Editar
-   continuam lá).
-   Modal de detalhe (viewEntry): adicionado um botão "Excluir" ao lado
-   de Editar/Fechar, ajustando activeChildId pro dono correto do
-   registro antes de excluir (mesmo cuidado que "Editar" já tinha).
-
-6. "+ REGISTRAR ATIVIDADE" DE VOLTA EM LEITURAS, VINCULADO AO LIVRO
-   Nova função startReadingActivity(id): abre o formulário de registro
-   em branco (campo "O que vocês fizeram..." vazio, como pedido), mas
-   já com o material vinculado ao livro (materialId, materialName,
-   materialPublisher) — mesmo formato usado internamente pela
-   conclusão de leitura (reading:<id_do_livro>). Aparece para
-   qualquer criança, sem filtro de idade.
-   Adicionado tanto no card "Leituras em andamento" (aba Hoje) quanto
-   no card de livro "Lendo" na página dedicada de Leituras.
-
-7. CALENDÁRIO — "REQUEST HAD INSUFFICIENT AUTHENTICATION SCOPES"
-   Causa raiz confirmada: ensureDiaryCalendar() chamava
-   findExistingDiaryCalendar(), que usa calendarList.list — essa
-   chamada exige um escopo (calendar.calendarlist.readonly ou
-   calendar completo) que o app não pede, de propósito, desde a
-   decisão de evitar escopo restrito/sensível do Google. Reautorizar
-   ou trocar de conta nunca resolveria, porque o escopo simplesmente
-   não é solicitado.
-   Correção: ensureDiaryCalendar() não procura mais uma agenda
-   existente por nome — usa só o ID já salvo localmente, e cria uma
-   agenda nova se não encontrar. findExistingDiaryCalendar() ficou
-   sem nenhuma chamada (código morto seguro, como outros casos já
-   vistos no projeto).
-   Efeito colateral aceito: se um dispositivo perder o ID salvo
-   localmente (ex.: limpar dados do navegador), nasce uma agenda
-   "Diário de Estudos" nova em vez de reaproveitar uma antiga — gera
-   uma agenda duplicada na lista do Google, cosmético, não crítico.
+DETALHE TÉCNICO (pra não repetir o mesmo erro de novo)
+Existem outras 3 regras CSS que só valiam quando o seletor de criança
+ficava aninhado dentro da estrutura antiga (.today-copy>.grid>div:last-
+child.today-child-select) — como essa estrutura não existe mais, essas
+regras específicas (só margem, nada estrutural) deixaram de bater e
+viraram órfãs inofensivas. O visual continua correto porque outras regras
+mais genéricas (.today-child-select sozinho) já cobrem a margem, só com
+um valor levemente diferente — não deve ser perceptível.
 
 VALIDAÇÕES REALIZADAS
 - JavaScript inline: sintaxe OK.
-- <div>: 915/915 (balanceado).
-- Nenhuma função chamada no HTML sem definição correspondente.
-- Nenhuma função duplicada.
+- <div>: 913/913 (balanceado).
+- Nenhuma função chamada sem definição.
+- Conferido que a nova regra de tamanho do "Hoje" foi aplicada editando
+  as regras que já venciam a cascata, não competindo com elas.
 
 NÃO TESTADO
-- Nenhuma dessas mudanças foi testada num navegador de verdade — só
-  validação estática de sintaxe e integridade. Recomendo testar cada
-  item da lista antes de considerar fechado, especialmente o item 7
-  (calendário), que depende de comportamento real da API do Google.
-
-ARQUIVOS
-Só o index.html mudou nesta versão — sw.js e version.json não foram
-enviados nesta rodada; se quiser que eu já deixe os três sincronizados,
-me manda os dois que eu atualizo junto.
+Nenhuma dessas mudanças foi vista rodando de verdade — só validação
+estática. Recomendo abrir no celular e no PC antes de considerar fechado.
