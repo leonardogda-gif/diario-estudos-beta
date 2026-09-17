@@ -1990,6 +1990,8 @@ let sharedFamilyFolderId = "";
 let sharedFamilyDataFileId = "";
 let sharedFamilyPhotosFolderId = "";
 const BACKEND_URL = "https://diario-estudos-api.leonardo-gda.workers.dev";
+let googleServerConnected=false;
+let googleServerScopes="";
 const APP_SESSION_KEY = "DE_V125_APP_SESSION";
 const APP_SESSION_EXP_KEY = "DE_V125_APP_SESSION_EXP";
 let appSessionToken = localStorage.getItem(APP_SESSION_KEY)||"";
@@ -4020,6 +4022,28 @@ async function removeAllowedSignup(email){
  try{await backendFetch("/admin/allowed-signups/remove",{method:"POST",body:JSON.stringify({email})});loadAllowedSignups()}catch(e){alert("Não foi possível remover: "+e.message)}
 }
 
+async function refreshGoogleServerStatus(){
+  if(!appSessionValid()){googleServerConnected=false;return false}
+  try{
+    const data=await backendFetch("/google/oauth/status");
+    googleServerConnected=!!data?.connected;
+    googleServerScopes=String(data?.scopes||"");
+    return googleServerConnected;
+  }catch(e){googleServerConnected=false;return false}
+}
+async function beginPersistentGoogleAuthorization(){
+  if(!appSessionValid())return googleLogin();
+  try{
+    const data=await backendFetch("/google/oauth/start");
+    if(!data?.authorization_url)throw new Error("URL de autorização não recebida.");
+    location.href=data.authorization_url;
+  }catch(e){alert("Não foi possível iniciar a autorização Google: "+e.message)}
+}
+async function googleServerFetch(target,options={}){
+  if(!appSessionValid()){const e=new Error("Sessão do Diário necessária.");e.code="APP_SESSION_REQUIRED";throw e}
+  const headers={...(options.headers||{}),"Authorization":"Bearer "+appSessionToken,"X-Google-Target":target};
+  return fetch(BACKEND_URL+"/google/api",{...options,headers});
+}
 async function connectBackend(){
   if(!appSessionValid()){
     backendProfile=null;
@@ -4033,6 +4057,7 @@ async function connectBackend(){
 
   try{
     await refreshBackendProfile();
+    await refreshGoogleServerStatus();
     return true;
   }catch(e){
     console.error("Falha de autenticação do backend:",e);
@@ -4219,6 +4244,12 @@ function initGoogleAuth(){
     finishAuthBoot();
     updateAuthUI();
     if(backendOK){
+      await refreshGoogleServerStatus();
+      if(!googleServerConnected){
+        setCloudStatus("pending","Conclua uma vez a autorização persistente do Google");
+        await beginPersistentGoogleAuthorization();
+        return;
+      }
       if(!needsOnboarding())await syncWithDrive({initial:true});
       else setCloudStatus("pending","Complete a configuração inicial");
     }else{
@@ -4312,6 +4343,7 @@ function googleLogout(){
   let t=googleAccessToken;
   googleAccessToken="";googleTokenExpiresAt=0;googleUser=null;driveFileId=null;
   backendProfile=null;
+  googleServerConnected=false;googleServerScopes="";
   saveAppSession("",0);
   setBackendStatus("aguardando login");
   localStorage.setItem(REMEMBER_GOOGLE_KEY,"0");
@@ -4322,10 +4354,20 @@ function googleLogout(){
 }
 function tokenValid(){return googleAccessToken&&Date.now()<googleTokenExpiresAt}
 async function apiFetch(url,opt={}){
+ const fetchOpt={...opt};delete fetchOpt._noGoogleRenew;
+ const target=String(url||"");
+ const isGoogleApi=/^https:\/\/www\.googleapis\.com\/(drive\/v3\/|upload\/drive\/v3\/|calendar\/v3\/)/.test(target);
+ if(isGoogleApi && appSessionValid()){
+   let r=await googleServerFetch(target,fetchOpt);
+   if(r.status===428){googleServerConnected=false;const e=new Error("A autorização persistente do Google ainda não foi concluída.");e.code="GOOGLE_OFFLINE_AUTH_REQUIRED";throw e}
+   if(!r.ok)throw new Error("Google API "+r.status+": "+await r.text().catch(()=>""));
+   googleServerConnected=true;
+   return r;
+ }
  await ensureFreshGoogleToken();
- const makeRequest=async()=>{const h=new Headers(opt.headers||{});h.set("Authorization","Bearer "+googleAccessToken);return await fetch(url,{...opt,headers:h})};
- let r=await makeRequest();
- if(r.status===401){googleTokenExpiresAt=0;await ensureFreshGoogleToken(true);r=await makeRequest()}
+ const h=new Headers(fetchOpt.headers||{});h.set("Authorization","Bearer "+googleAccessToken);
+ let r=await fetch(target,{...fetchOpt,headers:h});
+ if(r.status===401){googleTokenExpiresAt=0;await ensureFreshGoogleToken(true);h.set("Authorization","Bearer "+googleAccessToken);r=await fetch(target,{...fetchOpt,headers:h})}
  if(!r.ok)throw new Error("Google API "+r.status+": "+await r.text().catch(()=>""));
  return r;
 }
@@ -4542,12 +4584,16 @@ function collectivePhotoDriveId(entry,index){
  return "";
 }
 async function hydrateMedia(){
+ // Hidratação roda automaticamente ao abrir/recarregar o PWA. Ela pode usar
+ // mídia local sem Google, mas NUNCA deve iniciar renovação OAuth sozinha.
+ // Downloads do Drive ficam para quando já existir um access token válido.
+ const canReadDrive=!!tokenValid();
  let changed=false;
  for(const list of Object.values(state.entries)){
   for(const e of list){
-   const photos=entryPhotos(e);for(const p of photos){if(!photoDisplayData(p)){try{const local=await mediaGet(p.mediaId);if(local?.data){p._previewData=local.data;changed=true}else if(p.visibleDriveId||p.driveId){p._previewData=await downloadAsDataUrl(p.visibleDriveId||p.driveId);changed=true}}catch(err){console.warn("Não foi possível carregar foto",e.id,err)}}}e.photos=photos;e.foto="";
-   if(!e.audio&&e.audioDriveId){
-     try{e.audio=await downloadAsDataUrl(e.audioDriveId);changed=true}catch(err){}
+   const photos=entryPhotos(e);for(const p of photos){if(!photoDisplayData(p)){try{const local=await mediaGet(p.mediaId);if(local?.data){p._previewData=local.data;changed=true}else if(canReadDrive&&(p.visibleDriveId||p.driveId)){p._previewData=await downloadAsDataUrl(p.visibleDriveId||p.driveId,{background:true});changed=true}}catch(err){console.warn("Não foi possível carregar foto",e.id,err)}}}e.photos=photos;e.foto="";
+   if(!e.audio&&e.audioDriveId&&canReadDrive){
+     try{e.audio=await downloadAsDataUrl(e.audioDriveId,{background:true});changed=true}catch(err){}
    }
   }
  }
@@ -4560,8 +4606,9 @@ async function cleanupUploadedLocalMedia(){
  const ids=[...new Set(photos.map(p=>p.mediaId).filter(Boolean))];
  for(const id of ids){const refs=photos.filter(p=>p.mediaId===id);if(refs.length&&refs.every(p=>p.visibleDriveId||p.driveId)){try{await mediaDelete(id);refs.forEach(p=>{delete p.data;delete p._previewData})}catch(e){console.warn("Não foi possível liberar mídia local",id,e)}}}
 }
-async function downloadAsDataUrl(id){
- let r=await apiFetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`),b=await r.blob();
+async function downloadAsDataUrl(id,opt={}){
+ if(opt.background&&!tokenValid()){const err=new Error("Google Drive aguardando reconexão manual.");err.code="GOOGLE_BACKGROUND_TOKEN_MISSING";throw err}
+ let r=await apiFetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`,opt.background?{_noGoogleRenew:true}:{}),b=await r.blob();
  return await new Promise((ok,fail)=>{let fr=new FileReader();fr.onload=()=>ok(fr.result);fr.onerror=fail;fr.readAsDataURL(b)})
 }
 
@@ -4817,7 +4864,7 @@ function countEntryChanges(beforePayload,afterPayload){
  return n;
 }
 async function syncSharedFamilyDrive(opt={}){
-  if(syncing||!tokenValid())return;
+  if(syncing||(!appSessionValid()&&!tokenValid()))return;
 
   syncing=true;
   setCloudStatus("busy","Sincronizando família...");
@@ -4905,7 +4952,7 @@ async function uploadState(payload){
  localStorage.setItem("DE_V2_LAST_SYNC",payload.updatedAt)
 }
 async function syncLegacyPrivateDrive(opt={}){
- if(syncing||!tokenValid())return;syncing=true;setCloudStatus("busy","Sincronizando...");
+ if(syncing||(!appSessionValid()&&!tokenValid()))return;syncing=true;setCloudStatus("busy","Sincronizando...");
  try{
   await ensureMediaRefs();saveLocal(false);
   let f=await findSyncFile(),remote=null;
@@ -6759,22 +6806,9 @@ let diaryCalendarId=localStorage.getItem(DIARY_CALENDAR_ID_KEY)||"";
 let pendingImportedCalendarEvent=null;
 
 async function calendarApiFetch(url,options={}){
- await ensureFreshGoogleToken();
- if(!googleAccessToken)throw new Error("Entre com Google para usar o calendário.");
- const headers={...(options.headers||{}),"Authorization":"Bearer "+googleAccessToken};
- if(options.body&&!headers["Content-Type"])headers["Content-Type"]="application/json";
- let res=await fetch(url,{...options,headers});
- if(res.status===401){
-  googleTokenExpiresAt=0;await ensureFreshGoogleToken(true);headers["Authorization"]="Bearer "+googleAccessToken;
-  res=await fetch(url,{...options,headers});
- }
- if(!res.ok){
-  let msg="Não foi possível acessar o Google Calendar.";
-  try{const d=await res.json();msg=d?.error?.message||msg}catch(e){}
-  throw new Error(msg);
- }
+ const res=await apiFetch(url,options);
  if(res.status===204)return null;
- return res.json()
+ return res.json();
 }
 async function findExistingDiaryCalendar(){
  let pageToken="";
@@ -6804,14 +6838,14 @@ async function ensureDiaryCalendar(createIfMissing=true){
  diaryCalendarId=cal.id;localStorage.setItem(DIARY_CALENDAR_ID_KEY,diaryCalendarId);return cal
 }
 async function setupDiaryCalendar(){
- if(!googleAccessToken)return googleLogin();
+ if(!googleServerConnected&&!googleAccessToken)return beginPersistentGoogleAuthorization();
  const status=$("calendarIntegrationStatus"),btn=$("calendarIntegrationBtn");if(status)status.textContent="Preparando o calendário…";if(btn)btn.disabled=true;
  try{const cal=await ensureDiaryCalendar(true);if(status)status.textContent=`Conectado · ${cal.summary||DIARY_CALENDAR_NAME}`;if(btn){btn.textContent="Conectado";btn.classList.add("calendar-status-button");btn.disabled=true}}
  catch(e){if(status)status.textContent=e.message||"Não foi possível conectar.";if(btn){btn.textContent="Tentar novamente";btn.classList.remove("calendar-status-button");btn.disabled=false}}
 }
 async function refreshCalendarIntegrationUI(){
  const status=$("calendarIntegrationStatus"),btn=$("calendarIntegrationBtn");if(!status||!btn)return;
- if(!googleAccessToken){status.textContent="Entre com Google para conectar.";btn.textContent="Conectar";btn.classList.remove("calendar-status-button");btn.disabled=false;return}
+ if(!googleServerConnected&&!googleAccessToken){status.textContent="Autorize o Google para conectar.";btn.textContent="Conectar";btn.classList.remove("calendar-status-button");btn.disabled=false;return}
  try{
   const cal=await ensureDiaryCalendar(false);
   if(cal){status.textContent=`Conectado · ${cal.summary||DIARY_CALENDAR_NAME}`;btn.textContent="Conectado";btn.classList.add("calendar-status-button");btn.disabled=true}
@@ -8042,7 +8076,20 @@ async function init(){
    const backendOK=await connectBackend();
    finishAuthBoot();
    updateAuthUI();
-   if(backendOK && !tokenValid())setCloudStatus("pending","Diário conectado · Google Drive reconecta somente quando necessário");
+   if(backendOK){
+     await refreshGoogleServerStatus();
+     const oauthResult=new URLSearchParams(location.search).get("google_oauth");
+     if(oauthResult){history.replaceState({},"",location.pathname+location.hash)}
+     if(googleServerConnected){
+       setCloudStatus("online","Diário e Google conectados");
+       if(!needsOnboarding())setTimeout(()=>syncWithDrive({silent:true}),350);
+     }else if(oauthResult!=="error"){
+       setCloudStatus("busy","Preparando a autorização Google única...");
+       setTimeout(()=>beginPersistentGoogleAuthorization(),250);
+     }else{
+       setCloudStatus("pending","A autorização Google não foi concluída");
+     }
+   }
  }else{
    saveAppSession("",0);
    setCloudStatus("","Aguardando login");
@@ -8052,7 +8099,7 @@ async function init(){
 window.addEventListener("load",init);
 window.addEventListener("focus",()=>{if(!navigator.onLine)updateAuthUI()});
 window.addEventListener("offline",()=>{restoreBackendProfileForOffline();updateAuthUI();setCloudStatus("pending","Sem internet · alterações ficam neste dispositivo")});
-window.addEventListener("online",()=>{if(tokenValid()){setCloudStatus("busy","Internet voltou · sincronizando...");syncWithDrive({silent:true})}else if(appSessionValid()){setCloudStatus("pending","Internet voltou · Diário conectado; Drive será reconectado quando necessário")}else{setCloudStatus("pending","Internet voltou · entre com Google")}});
+window.addEventListener("online",()=>{if(appSessionValid()&&googleServerConnected){setCloudStatus("busy","Internet voltou · sincronizando...");syncWithDrive({silent:true})}else if(appSessionValid()){setCloudStatus("pending","Internet voltou · verificando Google...");refreshGoogleServerStatus().then(ok=>{if(ok)syncWithDrive({silent:true});else setCloudStatus("pending","Autorização Google necessária")})}else{setCloudStatus("pending","Internet voltou · entre com Google")}});
 window.addEventListener("pagehide",()=>{try{saveRecordDraft(true)}catch(e){}});
 document.addEventListener("visibilitychange",()=>{
  if(document.visibilityState==="hidden"){try{saveRecordDraft(true)}catch(e){}closeBookBarcodeScanner()}
@@ -8067,7 +8114,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "12.5";
+const APP_VERSION = "13.0";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
