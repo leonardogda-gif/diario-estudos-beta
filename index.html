@@ -3098,7 +3098,6 @@ async function ensureSharedPhotosFolder(parentId,officialPhotosFolderId=""){
 
 
 async function continueFamilyStorageSetup(){
-  if(!tokenValid())return googleLogin();
   const fam=currentBackendFamily();
   if(!fam)return alert("Entre em uma família primeiro.");
 
@@ -3234,7 +3233,7 @@ function openPickerForExpectedItem({expectedId,expectedName,foldersOnly=false,pa
   return new Promise(async (resolve,reject)=>{
     try{
       await loadGooglePicker();
-      if(!googleAccessToken)throw new Error("Entre com Google primeiro.");
+      await ensurePickerGoogleToken();
 
       let view;
       if(foldersOnly){
@@ -3361,7 +3360,6 @@ async function authorizeExistingFamilyDriveWithPicker(remoteFamily){
 }
 
 async function connectFamilyDriveWithPicker(){
-  if(!tokenValid())return alert("Entre com Google primeiro.");
   const fam=currentBackendFamily();
   if(!fam)return alert("Entre em uma família primeiro.");
 
@@ -3379,7 +3377,6 @@ async function connectFamilyDriveWithPicker(){
 }
 
 async function prepareSharedFamilyStorage(showMessage=false){
-  if(!tokenValid())throw new Error("Entre com Google primeiro.");
   const fam=currentBackendFamily();
   if(!fam)throw new Error("Nenhuma família ativa.");
 
@@ -3463,7 +3460,6 @@ async function prepareSharedFamilyStorage(showMessage=false){
 
 
 async function repairSharedFamilyData(){
-  if(!tokenValid())return alert("Entre com Google primeiro.");
   try{
     const result=recoverLegacyBackupsIntoCanonicalChildren();
     await syncWithDrive({manual:true});
@@ -4039,6 +4035,16 @@ async function beginPersistentGoogleAuthorization(){
     location.href=data.authorization_url;
   }catch(e){alert("Não foi possível iniciar a autorização Google: "+e.message)}
 }
+async function ensurePickerGoogleToken(){
+  if(tokenValid())return googleAccessToken;
+  if(!appSessionValid()){const e=new Error("Sessão do Diário expirada. Entre com Google novamente.");e.code="APP_SESSION_REQUIRED";throw e}
+  const data=await backendFetch("/google/oauth/access-token");
+  if(!data?.access_token){const e=new Error("Não foi possível obter a autorização temporária do Google.");e.code="GOOGLE_TOKEN_REQUIRED";throw e}
+  googleAccessToken=String(data.access_token);
+  googleTokenExpiresAt=Date.now()+Math.max(60,Number(data.expires_in||3300)-60)*1000;
+  return googleAccessToken;
+}
+
 async function googleServerFetch(target,options={}){
   if(!appSessionValid()){const e=new Error("Sessão do Diário necessária.");e.code="APP_SESSION_REQUIRED";throw e}
   const headers={...(options.headers||{}),"Authorization":"Bearer "+appSessionToken,"X-Google-Target":target};
@@ -4519,7 +4525,6 @@ function updateVisibleDriveStatus(message){
   if(el) el.textContent=message;
 }
 async function openVisiblePhotosFolder(){
-  if(!tokenValid()) return alert("Entre com Google antes de abrir a pasta.");
   try{
     updateVisibleDriveStatus("Preparando pasta...");
     const id=await ensureVisiblePhotosRoot();
@@ -4532,7 +4537,6 @@ async function openVisiblePhotosFolder(){
   }
 }
 async function organizeExistingPhotos(){
-  if(!tokenValid()) return alert("Entre com Google antes de organizar as fotos.");
   const all=Object.values(state.entries||{}).flat();
   const pendingCount=all.reduce((total,e)=>total+entryPhotos(e).filter(p=>!(p.visibleDriveId||p.driveId)&&(p.mediaId||photoDisplayData(p))).length,0);
   if(!pendingCount){
@@ -6896,7 +6900,7 @@ async function loadCalendarSources(){
 async function openCalendarImport(){
  const card=$("calendarImportCard"),status=$("calendarImportStatus"),box=$("calendarImportList"),picker=$("calendarSourcePicker");
  card?.classList.remove("hidden");if(status)status.textContent="Carregando agendas…";if(box)box.innerHTML="";if(picker)picker.innerHTML="";
- if(!googleAccessToken){if(status)status.innerHTML='Entre com Google para consultar seus eventos. <button class="btn small" type="button" onclick="googleLogin()">Entrar com Google</button>';return}
+ if(!appSessionValid()){if(status)status.textContent="Sua sessão do Diário expirou. Entre novamente.";return}
  try{const calendars=await loadCalendarSources();window.diaryCalendarSources=calendars;renderCalendarSources(calendars);if(status)status.textContent=calendars.length?"Selecione as agendas que deseja consultar.":"Nenhuma agenda de origem disponível."}
  catch(e){const msg=String(e?.message||e);if(status)status.innerHTML=/insufficient|scope|authentication scopes|403/i.test(msg)?`Falta autorização para ler seus eventos pessoais. <button class="btn small primary" type="button" onclick="reauthorizeGoogleCalendar()">Autorizar leitura do Calendar</button>`:esc(msg)}
 }
@@ -8114,7 +8118,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "13.0";
+const APP_VERSION = "13.1";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
