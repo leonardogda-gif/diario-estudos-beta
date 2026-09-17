@@ -1990,6 +1990,10 @@ let sharedFamilyFolderId = "";
 let sharedFamilyDataFileId = "";
 let sharedFamilyPhotosFolderId = "";
 const BACKEND_URL = "https://diario-estudos-api.leonardo-gda.workers.dev";
+const APP_SESSION_KEY = "DE_V125_APP_SESSION";
+const APP_SESSION_EXP_KEY = "DE_V125_APP_SESSION_EXP";
+let appSessionToken = localStorage.getItem(APP_SESSION_KEY)||"";
+let appSessionExpiresAt = Number(localStorage.getItem(APP_SESSION_EXP_KEY)||0);
 let backendProfile = null;
 let lastBackendError = "";
 const BACKEND_FAMILY_ID_KEY = "DE_V422_BACKEND_FAMILY_ID";
@@ -2071,7 +2075,7 @@ function filterCachedBncc({q="",code="",component="",area=""}={}){
 }
 async function fetchBnccSkills(params={}){
   const custom=customBncc();
-  if(!navigator.onLine||!googleAccessToken){
+  if(!navigator.onLine||!appSessionValid()){
     return filterCachedBncc(params);
   }
   try{
@@ -2481,7 +2485,7 @@ function showWaitlistScreen(){
   $('onboardingGate')?.classList.add('hidden');$('signupWaitlistGate')?.classList.remove('hidden');$('protectedApp')?.classList.add('hidden');
 }
 function needsOnboarding(){
-  if(!googleAccessToken||!backendProfile?.user)return false;
+  if(!appSessionValid()||!backendProfile?.user)return false;
   const families=backendProfile.families||[];
   if(!families.length)return true;
   const fam=backendFamilyFromProfile();
@@ -2526,7 +2530,7 @@ function refreshOnboardingUI(){
   const btn=$("finishOnboardingBtn");if(btn)btn.textContent=fam?"Cadastrar e começar":"Criar e começar";
 }
 async function finishOnboarding(){
-  if(!googleAccessToken||!backendProfile?.user)return alert("Entre com Google para continuar.");
+  if(!appSessionValid()||!backendProfile?.user)return alert("Sua sessão do Diário expirou. Entre com Google novamente.");
   const valid=onboardingRows.map(r=>({...r,name:(r.name||"").trim()})).filter(r=>r.name);
   if(!valid.length)return alert("Cadastre pelo menos uma criança.");
   const btn=$("finishOnboardingBtn"),status=$("onboardingStatus");
@@ -2761,8 +2765,8 @@ async function refreshBackendProfile(){
 }
 
 async function linkCurrentFamilyToBackend(){
-  if(!googleAccessToken){
-    alert("Entre com Google antes de vincular a família.");
+  if(!appSessionValid()){
+    alert("Sua sessão do Diário expirou. Entre com Google novamente.");
     return;
   }
   if(!localFamilyReadyForBackend()){
@@ -3902,18 +3906,48 @@ function setBackendStatus(message, ok=null){
  if($("headerBackendStatus"))$("headerBackendStatus").textContent="Backend: "+String(message||"");
 }
 
+function appSessionValid(){
+  return !!appSessionToken && (!appSessionExpiresAt || Date.now()<appSessionExpiresAt);
+}
+function saveAppSession(token,expiresAt){
+  appSessionToken=String(token||"");
+  appSessionExpiresAt=Number(expiresAt||0);
+  if(appSessionToken){
+    localStorage.setItem(APP_SESSION_KEY,appSessionToken);
+    if(appSessionExpiresAt)localStorage.setItem(APP_SESSION_EXP_KEY,String(appSessionExpiresAt));
+  }else{
+    localStorage.removeItem(APP_SESSION_KEY);
+    localStorage.removeItem(APP_SESSION_EXP_KEY);
+  }
+}
+async function createAppSessionFromGoogle(){
+  if(!tokenValid())await ensureFreshGoogleToken();
+  const response=await fetch(BACKEND_URL+"/auth/session",{
+    method:"POST",
+    headers:{"Authorization":"Bearer "+googleAccessToken,"Content-Type":"application/json"}
+  });
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok||!data?.session_token){
+    const err=new Error(data?.error||"Não foi possível criar a sessão do Diário.");
+    err.status=response.status;err.payload=data;throw err;
+  }
+  saveAppSession(data.session_token,Number(data.expires_at||0)*1000);
+  return data;
+}
 async function backendFetch(path, options={}){
-  await ensureFreshGoogleToken();
+  if(!appSessionValid()){
+    if(tokenValid())await createAppSessionFromGoogle();
+    else{const err=new Error("Sessão do Diário expirada. Entre com Google novamente.");err.code="APP_SESSION_REQUIRED";err.status=401;throw err}
+  }
   const makeRequest=async()=>{
-    const headers={...(options.headers||{}),"Authorization":"Bearer "+googleAccessToken};
+    const headers={...(options.headers||{}),"Authorization":"Bearer "+appSessionToken};
     if(options.body && !headers["Content-Type"])headers["Content-Type"]="application/json";
     return await fetch(BACKEND_URL+path,{...options,headers});
   };
   let response=await makeRequest();
   if(response.status===401){
-    googleTokenExpiresAt=0;
-    await ensureFreshGoogleToken(true);
-    response=await makeRequest();
+    saveAppSession("",0);
+    if(tokenValid()){await createAppSessionFromGoogle();response=await makeRequest()}
   }
   let data=null;
   try{data=await response.json()}catch(e){}
@@ -3987,9 +4021,9 @@ async function removeAllowedSignup(email){
 }
 
 async function connectBackend(){
-  if(!googleAccessToken){
+  if(!appSessionValid()){
     backendProfile=null;
-    lastBackendError="Faça login com Google primeiro.";
+    lastBackendError="Sessão do Diário não encontrada.";
     setBackendStatus("aguardando login");
     return false;
   }
@@ -4010,8 +4044,8 @@ async function connectBackend(){
 }
 
 async function testBackendConnection(){
-  if(!googleAccessToken){
-    alert("Entre com Google antes de testar o backend.");
+  if(!appSessionValid()){
+    alert("Sua sessão do Diário expirou. Entre com Google novamente.");
     return;
   }
 
@@ -4106,29 +4140,30 @@ function finishAuthBoot(){
  document.body.classList.remove("auth-checking");
 }
 function updateAuthUI(){
- const onlineAuth=!!(googleAccessToken&&googleUser);
+ const onlineAuth=appSessionValid();
+ const googleConnected=!!(googleAccessToken&&googleUser);
  if(!onlineAuth)signupCreationBlocked=false;
  const offlineAuth=!onlineAuth&&offlineSessionAvailable();
  const canUseApp=onlineAuth||offlineAuth;
  const backendPending=onlineAuth&&!backendProfile;
  const onboarding=onlineAuth&&!!backendProfile?.user&&needsOnboarding()&&!signupCreationBlocked;
 
- $("googleLoginBtn")?.classList.toggle("hidden",onlineAuth);
- $("syncNowBtn")?.classList.toggle("hidden",!onlineAuth);
- $("googleLogoutBtn")?.classList.toggle("hidden",!onlineAuth);
+ $("googleLoginBtn")?.classList.toggle("hidden",googleConnected);
+ $("syncNowBtn")?.classList.toggle("hidden",!googleConnected);
+ $("googleLogoutBtn")?.classList.toggle("hidden",!onlineAuth&&!googleConnected);
  $("loginGate")?.classList.toggle("hidden",canUseApp);
  $("onboardingGate")?.classList.toggle("hidden",!onboarding);
  $("signupWaitlistGate")?.classList.toggle("hidden",!signupCreationBlocked);
  $("protectedApp")?.classList.toggle("hidden",!canUseApp||backendPending||onboarding||signupCreationBlocked);
  $("headerCloud")?.classList.toggle("hidden",!canUseApp);
- $("headerSyncBtn")?.classList.toggle("hidden",!onlineAuth);
+ $("headerSyncBtn")?.classList.toggle("hidden",!googleConnected);
  document.body.classList.toggle("app-authenticated",canUseApp);
 
  if(!canUseApp)$("headerCloudDetails")?.classList.add("hidden");
 
  if($("cloudUser")){
-  if(onlineAuth&&googleUser?.email){
-    $("cloudUser").textContent="Conectado como "+googleUser.email;
+  if(onlineAuth&&(backendProfile?.user?.email||googleUser?.email||rememberedGoogleEmail())){
+    $("cloudUser").textContent="Conectado como "+(backendProfile?.user?.email||googleUser?.email||rememberedGoogleEmail());
   }else if(offlineAuth){
     $("cloudUser").textContent="Modo offline · última conta: "+rememberedGoogleEmail();
   }else if(rememberGoogleEnabled()&&rememberedGoogleEmail()){
@@ -4178,6 +4213,7 @@ function initGoogleAuth(){
       localStorage.setItem(GOOGLE_EMAIL_KEY, googleUser.email);
       localStorage.setItem(LAST_GOOGLE_AUTH_AT_KEY, now());
     }
+    await createAppSessionFromGoogle();
     updateAuthUI();
     const backendOK=await connectBackend();
     finishAuthBoot();
@@ -4276,6 +4312,7 @@ function googleLogout(){
   let t=googleAccessToken;
   googleAccessToken="";googleTokenExpiresAt=0;googleUser=null;driveFileId=null;
   backendProfile=null;
+  saveAppSession("",0);
   setBackendStatus("aguardando login");
   localStorage.setItem(REMEMBER_GOOGLE_KEY,"0");
   localStorage.removeItem(GOOGLE_EMAIL_KEY);
@@ -5516,7 +5553,7 @@ function syncPrimaryRecordComponent(){
 async function analyzeRecordComponents(){
  const child=currentChild(),status=$("experienceComponentStatus"),btn=$("analyzeExperienceBtn");
  if(!child)return alert("Selecione uma criança.");
- if(!googleAccessToken)return alert("Entre com Google para usar a análise.");
+ if(!appSessionValid())return alert("Sua sessão do Diário expirou. Entre com Google novamente.");
  const backendChildId=localToBackendChildId(activeChildId),activity=String($("fActivity")?.value||"").trim();
  if(!backendChildId)return alert("Esta criança ainda não está vinculada ao backend.");
  if(activity.length<8)return alert("Conte um pouco mais sobre o que vocês fizeram ou aprenderam.");
@@ -5927,7 +5964,7 @@ async function testAiBnccSuggestion(){
  const child=currentChild();
  const btn=$("aiBnccTestBtn"),status=$("aiBnccTestStatus"),box=$("aiBnccTestResults");
  if(!child)return alert("Selecione uma criança.");
- if(!googleAccessToken)return alert("Entre com Google para testar a IA.");
+ if(!appSessionValid())return alert("Sua sessão do Diário expirou. Entre com Google novamente.");
  const backendChildId=localToBackendChildId(activeChildId);
  if(!backendChildId)return alert("Esta criança ainda não está vinculada ao backend.");
 
@@ -6378,7 +6415,7 @@ async function showAdminPendingSystemNotification(total,books,materials){
  }catch(e){console.warn("Notificação de validação:",e)}
 }
 async function checkAdminPendingValidations(forceNotify=false){
- if(!googleAccessToken){isGlobalDiaryAdmin=false;$("globalAdminMenuGroup")?.classList.add("hidden");return}
+ if(!appSessionValid()){isGlobalDiaryAdmin=false;$("globalAdminMenuGroup")?.classList.add("hidden");return}
  try{
   const [bookData,matData]=await Promise.all([backendFetch("/community-books/pending"),backendFetch("/materials/pending")]);
   const books=(bookData?.books||[]).length,materials=(matData?.materials||[]).length,total=books+materials;
@@ -6957,7 +6994,7 @@ function renderPlanPlaceResults(items=[]){
 async function searchPlanPlaces(){
  const q=planPlaceValue();
  if(q.length<3){hidePlanPlaceResults();return}
- if(!googleAccessToken){hidePlanPlaceResults();return}
+ if(!appSessionValid()){hidePlanPlaceResults();return}
  if(!planPlaceSessionToken)newPlacesSession();
  try{
   const data=await backendFetch("/places/autocomplete",{method:"POST",body:JSON.stringify({input:q,session_token:planPlaceSessionToken})});
@@ -7833,7 +7870,7 @@ function updateHistoryBnccBatchSelection(){
 function historyBatchResultById(id){return historyBnccBatchResults.find(x=>x.entryId===id)}
 async function startHistoryBnccBatch(){
   if(historyBnccBatchRunning)return;
-  if(!googleAccessToken)return alert("Entre com Google para usar a análise.");
+  if(!appSessionValid())return alert("Sua sessão do Diário expirou. Entre com Google novamente.");
   const childId=$("historyBrowseChild")?.value||activeChildId,backendChildId=localToBackendChildId(childId);
   if(!backendChildId)return alert("Esta criança ainda não está vinculada ao backend.");
   const ids=[...historyBnccSelected].slice(0,10),entries=ids.map(id=>(state.entries[childId]||[]).find(x=>x.id===id)).filter(Boolean);
@@ -8000,11 +8037,14 @@ async function init(){
  setInterval(()=>{if(document.visibilityState==="visible")queueSavedPlanningWeatherRefresh()},60*60*1000);
 
  setBackendStatus("aguardando login");
- if(rememberGoogleEnabled()&&rememberedGoogleEmail()){
-   setCloudStatus("busy","Preparando reconexão com Google...");
-   tryAutomaticGoogleReconnect();
-   setTimeout(()=>{if(!authBootFinished){finishAuthBoot();updateAuthUI()}},3500);
+ if(appSessionValid()){
+   setCloudStatus("online","Sessão do Diário restaurada");
+   const backendOK=await connectBackend();
+   finishAuthBoot();
+   updateAuthUI();
+   if(backendOK && !tokenValid())setCloudStatus("pending","Diário conectado · Google Drive reconecta somente quando necessário");
  }else{
+   saveAppSession("",0);
    setCloudStatus("","Aguardando login");
    finishAuthBoot();
  }
@@ -8012,7 +8052,7 @@ async function init(){
 window.addEventListener("load",init);
 window.addEventListener("focus",()=>{if(!navigator.onLine)updateAuthUI()});
 window.addEventListener("offline",()=>{restoreBackendProfileForOffline();updateAuthUI();setCloudStatus("pending","Sem internet · alterações ficam neste dispositivo")});
-window.addEventListener("online",()=>{if(tokenValid()){setCloudStatus("busy","Internet voltou · sincronizando...");syncWithDrive({silent:true})}else{setCloudStatus("pending","Internet voltou · reconecte o Google para sincronizar");tryAutomaticGoogleReconnect()}});
+window.addEventListener("online",()=>{if(tokenValid()){setCloudStatus("busy","Internet voltou · sincronizando...");syncWithDrive({silent:true})}else if(appSessionValid()){setCloudStatus("pending","Internet voltou · Diário conectado; Drive será reconectado quando necessário")}else{setCloudStatus("pending","Internet voltou · entre com Google")}});
 window.addEventListener("pagehide",()=>{try{saveRecordDraft(true)}catch(e){}});
 document.addEventListener("visibilitychange",()=>{
  if(document.visibilityState==="hidden"){try{saveRecordDraft(true)}catch(e){}closeBookBarcodeScanner()}
@@ -8027,7 +8067,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "12.4";
+const APP_VERSION = "12.5";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
