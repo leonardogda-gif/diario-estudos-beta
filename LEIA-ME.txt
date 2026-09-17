@@ -1,40 +1,90 @@
-DIÁRIO DE ESTUDOS — v12.2 (correção do card de leitura, tentativa 4)
+DIÁRIO DE ESTUDOS — v12.3
 
-O QUE DEU ERRADO NA v12.1
-Forcei a foto para 145px fixos com !important, sem saber que a coluna
-real dessa foto (definida em outra regra, dentro do media query de
-celular) não é um valor fixo — é "minmax(88px, 34%)", uma largura que
-varia com o tamanho do card. Como a foto ficou mais estreita que a
-própria coluna, o texto ao lado passou a se sobrepor a ela.
+Sete mudanças confirmadas ao longo da conversa, todas nesta versão.
+NÃO incluídos (aguardando material seu): fundo verde no card de clima
+(preciso de um print de onde aparece) e o ícone "M" do instalador do PC
+(preciso do manifest.json atual).
 
-CORREÇÃO NESTA VERSÃO
-Troquei a largura fixa (145px) por width:100% — a foto agora sempre
-ocupa exatamente a largura real da coluna onde está, seja qual for esse
-valor em cada tela (145px, 34%, ou qualquer outro número usado em
-telas diferentes), sem eu precisar saber o número de antemão. A altura
-continua livre (auto), então a proporção da capa nunca é distorcida.
+1. NOME CORTADO NO SELETOR DE CRIANÇA (Hoje, tela larga/PC)
+   O seletor today-child-select mostrava o nome completo da criança
+   numa coluna com no máximo 200px — cortava nomes longos. Agora usa
+   firstName(), igual aos outros 5 seletores já corrigidos antes.
 
-SEJA HONESTO SOBRE O RISCO DESTA VERSÃO
-Esta é a quarta tentativa seguida nesse mesmo elemento, sempre sem
-conseguir ver o resultado renderizado de verdade — só deduzindo pela
-leitura do CSS. Encontrei repetidamente regras escondidas mais abaixo
-no arquivo que eu não tinha visto nas tentativas anteriores. Não posso
-garantir que não existe uma QUINTA regra concorrente em algum lugar que
-eu ainda não encontrei.
+2. LOGIN PEDINDO RECONEXÃO MANUAL "TODA VEZ"
+   A reconexão automática (tryAutomaticGoogleReconnect) não informava
+   pra qual conta Google tentar, deixando a tentativa silenciosa
+   ambígua e propensa a falhar. Agora envia login_hint com o e-mail já
+   salvo localmente (rememberedGoogleEmail()), quando existir.
 
-SE ESTA VERSÃO TAMBÉM NÃO RESOLVER
-Antes de eu tentar de novo às cegas, o caminho mais confiável agora é:
-no computador, botão direito na foto do livro → Inspecionar elemento →
-me mandar um print da aba "Styles" mostrando qual regra o navegador
-está realmente aplicando (com a linha riscada mostrando o que perdeu
-e a que "venceu" em negrito). Isso substitui a leitura estática do
-código por o que está acontecendo de verdade, e evita mais rodadas de
-tentativa e erro.
+3. "MANTER CONTA CONECTADA" JÁ MARCADO POR PADRÃO
+   O comportamento de fundo já tratava isso como true por padrão
+   (rememberGoogleEnabled()); só o HTML não refletia isso visualmente
+   antes do JavaScript sincronizar. Adicionado o atributo checked.
+
+4. "VISUALIZAR PLANEJAMENTO" → CARTÃO INTEIRO CLICÁVEL, ABRE DETALHE
+   Criada a função viewPlanDetails(id), que abre um modal (reaproveita
+   a mesma estrutura visual do modal de registro) com título, local,
+   clima, material, observações, e os botões Concluir atividade /
+   Editar / Excluir / Fechar.
+   O cartão "Próximos dias" (dashboard) agora é clicável por inteiro
+   ("Toque para abrir ›", igual ao padrão já usado no Histórico), sem
+   mais o botão separado "Visualizar planejamento".
+   O botão "+ Registrar atividade" nesse cartão virou "✓ Concluir
+   atividade" (com event.stopPropagation() pra não abrir o modal ao
+   clicar nele).
+
+5. X PARA EXCLUIR NO HISTÓRICO
+   Cartão resumido: X discreto no canto superior direito
+   (.entry-quick-delete), chamando deleteEntry() diretamente — essa
+   função já tinha dupla confirmação, não precisou adicionar nada
+   novo. O botão "Excluir" que ficava nas ações do rodapé foi
+   removido, já que o X cobre essa função agora (Visualizar e Editar
+   continuam lá).
+   Modal de detalhe (viewEntry): adicionado um botão "Excluir" ao lado
+   de Editar/Fechar, ajustando activeChildId pro dono correto do
+   registro antes de excluir (mesmo cuidado que "Editar" já tinha).
+
+6. "+ REGISTRAR ATIVIDADE" DE VOLTA EM LEITURAS, VINCULADO AO LIVRO
+   Nova função startReadingActivity(id): abre o formulário de registro
+   em branco (campo "O que vocês fizeram..." vazio, como pedido), mas
+   já com o material vinculado ao livro (materialId, materialName,
+   materialPublisher) — mesmo formato usado internamente pela
+   conclusão de leitura (reading:<id_do_livro>). Aparece para
+   qualquer criança, sem filtro de idade.
+   Adicionado tanto no card "Leituras em andamento" (aba Hoje) quanto
+   no card de livro "Lendo" na página dedicada de Leituras.
+
+7. CALENDÁRIO — "REQUEST HAD INSUFFICIENT AUTHENTICATION SCOPES"
+   Causa raiz confirmada: ensureDiaryCalendar() chamava
+   findExistingDiaryCalendar(), que usa calendarList.list — essa
+   chamada exige um escopo (calendar.calendarlist.readonly ou
+   calendar completo) que o app não pede, de propósito, desde a
+   decisão de evitar escopo restrito/sensível do Google. Reautorizar
+   ou trocar de conta nunca resolveria, porque o escopo simplesmente
+   não é solicitado.
+   Correção: ensureDiaryCalendar() não procura mais uma agenda
+   existente por nome — usa só o ID já salvo localmente, e cria uma
+   agenda nova se não encontrar. findExistingDiaryCalendar() ficou
+   sem nenhuma chamada (código morto seguro, como outros casos já
+   vistos no projeto).
+   Efeito colateral aceito: se um dispositivo perder o ID salvo
+   localmente (ex.: limpar dados do navegador), nasce uma agenda
+   "Diário de Estudos" nova em vez de reaproveitar uma antiga — gera
+   uma agenda duplicada na lista do Google, cosmético, não crítico.
 
 VALIDAÇÕES REALIZADAS
 - JavaScript inline: sintaxe OK.
-- <div>: 906/906.
-- Conferidas todas as ocorrências de .routine-reading-row img e
-  .routine-cover-placeholder no arquivo — nenhuma com width fixo
-  restante além da que já é intencional (a regra desktop de 145px na
-  coluna, que não afeta mais a foto diretamente).
+- <div>: 915/915 (balanceado).
+- Nenhuma função chamada no HTML sem definição correspondente.
+- Nenhuma função duplicada.
+
+NÃO TESTADO
+- Nenhuma dessas mudanças foi testada num navegador de verdade — só
+  validação estática de sintaxe e integridade. Recomendo testar cada
+  item da lista antes de considerar fechado, especialmente o item 7
+  (calendário), que depende de comportamento real da API do Google.
+
+ARQUIVOS
+Só o index.html mudou nesta versão — sw.js e version.json não foram
+enviados nesta rodada; se quiser que eu já deixe os três sincronizados,
+me manda os dois que eu atualizo junto.

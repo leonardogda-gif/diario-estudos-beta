@@ -462,6 +462,8 @@ main,.app-main{letter-spacing:0}
 .switch-knob{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#FFFFFF;transition:left .15s ease;box-shadow:0 1px 2px rgba(0,0,0,.25)}
 .switch.on .switch-knob{left:20px}
 .info-btn{background:none;border:none;color:#9C917E;font-size:15px;padding:0 4px;cursor:pointer;line-height:1}
+.entry-quick-delete{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;border:none;background:#EFE7DC;color:#8A6A5E;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.entry-quick-delete:hover{background:#E4C9BE;color:#7A2A1E}
 .voice-btn{margin-top:8px;background:#441015;color:#F4F0E6;border:none}
 .voice-btn.recording{background:#94473C;animation:voicePulse 1.2s infinite}
 @keyframes voicePulse{0%,100%{opacity:1}50%{opacity:.7}}
@@ -1899,7 +1901,7 @@ header .brand-motto{display:none!important}
   </div>
 
 <h3>Conta Google</h3>
-  <div class="notice"><label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer"><input id="rememberGoogle" type="checkbox" style="width:auto;margin-top:2px" onchange="setRememberGoogle(this.checked)"><span><b>Manter esta conta conectada neste dispositivo</b><br><span class="meta">A preferência é salva localmente; o token Google não é armazenado permanentemente.</span></span></label></div>
+  <div class="notice"><label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer"><input id="rememberGoogle" type="checkbox" checked style="width:auto;margin-top:2px" onchange="setRememberGoogle(this.checked)"><span><b>Manter esta conta conectada neste dispositivo</b><br><span class="meta">A preferência é salva localmente; o token Google não é armazenado permanentemente.</span></span></label></div>
 </div>
 
 
@@ -4210,8 +4212,12 @@ function tryAutomaticGoogleReconnect(){
       try{
         // Sem "consent": se a sessão Google e o consentimento anterior ainda
         // estiverem válidos, o Google pode entregar um novo access token
-        // com pouca ou nenhuma interação.
-        googleTokenClient.requestAccessToken({prompt:"",include_granted_scopes:false});
+        // com pouca ou nenhuma interação. O login_hint diz explicitamente
+        // pra qual conta tentar — sem isso, o Google pode não saber qual
+        // sessão usar (especialmente com mais de uma conta logada no
+        // aparelho) e a tentativa silenciosa falha, exigindo clique manual.
+        const hint = rememberedGoogleEmail();
+        googleTokenClient.requestAccessToken({prompt:"",include_granted_scopes:false,...(hint?{login_hint:hint}:{})});
       }catch(e){
         console.warn("Reconexão automática não permitida pelo navegador:", e);
         setCloudStatus("","Clique em Entrar com Google para reconectar");
@@ -5110,11 +5116,11 @@ function renderDashboard(){
  const due=state.plans.filter(x=>planPendingForChild(x,child.id)&&!x.completedAt&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
  const todayPlans=due.filter(p=>(p.nextDate||p.date)===td),latePlans=due.filter(p=>(p.nextDate||p.date)<td),futurePlans=due.filter(p=>(p.nextDate||p.date)>td).slice(0,3);
  const planHtml=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div class="meta">👨‍👩‍👧‍👦 Planejamento compartilhado: ${esc(planChildNames(p).join(", "))}</div>`:""}<div class="meta">${esc(p.component||'')}</div>${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="attention-actions"><button class="btn success attention-primary" onclick="startPlan('${p.id}','${child.id}')">✓ Concluir e registrar</button><button class="btn small" onclick="showPage('planejamento');editPlan('${p.id}')">Editar</button>${(p.nextDate||p.date)<td?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Reagendar próxima</button>`:''}</div></div>`;
- box.innerHTML=`<div class="card today-hero-card"><div class="today-hero-layout"><div class="today-copy"><div class="grid" style="align-items:end"><div>${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje</h2><div class="meta">${fmtDate(td)}</div></div><div class="today-child-select"><select aria-label="Selecionar criança" onchange="selectChild(this.value);showPage('inicio')">${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===child.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div></div>
+ box.innerHTML=`<div class="card today-hero-card"><div class="today-hero-layout"><div class="today-copy"><div class="grid" style="align-items:end"><div>${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje</h2><div class="meta">${fmtDate(td)}</div></div><div class="today-child-select"><select aria-label="Selecionar criança" onchange="selectChild(this.value);showPage('inicio')">${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===child.id?'selected':''}>${esc(firstName(c.name))}</option>`).join('')}</select></div></div>
  </div></div></div><div class="daily-actions mockup-actions"><button class="btn success daily-primary" onclick="openTodayRecord()"><span class="mockup-plus">＋</span><span>Registrar atividade</span><span class="mockup-arrow">›</span></button><button class="btn daily-secondary" onclick="showPage('planejamento');openNewPlanForm()"><span class="mockup-plus">＋</span><span>Planejar atividade</span><span class="mockup-arrow">›</span></button></div><div id="todayActiveReading"></div>
  ${latePlans.length?`<div class="card"><h3>Precisa de atenção</h3><div class="meta">Atividades planejadas que ficaram para trás.</div>${latePlans.map(planHtml).join('')}</div>`:''}
  <div class="card today-plans-card"><div class="section-heading"><h3>Planejado para hoje</h3><button class="section-link" type="button" onclick="showPage('planejamento')">Ver todos ›</button></div>${todayPlans.map(planHtml).join('')||"<div class='notice'>Nada planejado para hoje. Você pode registrar uma atividade que aconteceu sem planejamento.</div>"}</div>
- ${futurePlans.length?`<div class="card"><h3>Próximos dias</h3>${futurePlans.map(p=>`<div class="plan-card record-clickable" onclick="openPlanFromDashboard('${p.id}')"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${p.place?`<div class="meta">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="entry-actions"><button class="btn success small" type="button" onclick="event.stopPropagation();startPlan('${p.id}')">+ Registrar atividade</button><button class="btn small" type="button" onclick="event.stopPropagation();openPlanFromDashboard('${p.id}')">Visualizar planejamento</button></div></div>`).join('')}<button class="btn" onclick="showPage('planejamento')">Ver todos os planejamentos</button></div>`:''}`;
+ ${futurePlans.length?`<div class="card"><h3>Próximos dias</h3>${futurePlans.map(p=>`<div class="plan-card record-clickable" onclick="viewPlanDetails('${p.id}')"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${p.place?`<div class="meta">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="toolbar" style="margin-top:8px;justify-content:space-between"><button class="btn success small" type="button" onclick="event.stopPropagation();startPlan('${p.id}')">✓ Concluir atividade</button><span class="meta">Toque para abrir ›</span></div></div>`).join('')}<button class="btn" onclick="showPage('planejamento')">Ver todos os planejamentos</button></div>`:''}`;
  renderTodayReadingsFromCache(child.id);queueSavedPlanningWeatherRefresh();refreshTodayReadings(child.id);
 }
 function openTodayRecord(){recordFormOpen=true;editing=null;showPage('registro');renderRecordPage()}
@@ -6587,12 +6593,13 @@ function renderRecordList(){
  box.innerHTML=l.map(x=>{
    const dateSource=x.activityDateSource==="photo_exif"?"foto (EXIF)":x.activityDateSource==="photo_file"?"arquivo da foto":"informada pelo responsável";
    const changed=x.updatedAt&&x.createdAt&&Math.abs(ts(x.updatedAt)-ts(x.createdAt))>1000;
-   return `<div class="entry ${x.status==="Dominado"?"done":x.status==="Precisa de revisão"?"focus":"progress"}">
+   return `<div class="entry ${x.status==="Dominado"?"done":x.status==="Precisa de revisão"?"focus":"progress"}" style="position:relative">
+    <button class="entry-quick-delete" type="button" aria-label="Excluir registro" onclick="event.stopPropagation();deleteEntry('${x.id}')">×</button>
     <div class="meta">${fmtDate(x.date)}</div>
     <div class="entry-title">${esc(x.atividade)}</div>${entryRelationsHtml(x)}${x.materialName?`<div class="meta">📘 ${esc(x.materialName)}</div>`:""}${x.observacoes?`<div class="obs">${esc(x.observacoes)}</div>`:""}
     <span class="badge">${esc(x.status)}</span>${entryPhotos(x).length?`<div>${entryPhotos(x).map(p=>`<img class="photo" style="width:160px;height:120px;object-fit:cover;margin:5px" src="${photoDisplayData(p)}">`).join("")}</div>`:""}${x.audio?`<div class="audio-box"><audio controls src="${x.audio}"></audio></div>`:""}
     <details class="tech-details" style="margin-top:8px"><summary class="meta">Datas do registro</summary><div class="meta" style="margin-top:5px">Atividade: ${esc(fmtDate(x.date))} · origem: ${esc(dateSource)}<br>Registrado em: ${esc(fmtDateTime(x.createdAt))}${changed?`<br>Alterado em: ${esc(fmtDateTime(x.updatedAt))}`:""}${x.photoTakenAt?`<br>Foto: ${esc(fmtDateTime(x.photoTakenAt))} · ${esc(photoSourceLabel(x.photoDateSource))}`:""}</div></details>
-    <div class="entry-actions"><button class="btn small dark" onclick="viewEntry('${x.id}','${activeChildId}')">Visualizar</button><button class="btn small" onclick="editEntry('${x.id}')">Editar</button><button class="btn irreversible small" onclick="deleteEntry('${x.id}')">Excluir</button></div>
+    <div class="entry-actions"><button class="btn small dark" onclick="viewEntry('${x.id}','${activeChildId}')">Visualizar</button><button class="btn small" onclick="editEntry('${x.id}')">Editar</button></div>
    </div>`;
  }).join("")||"<div class='notice'>Nenhum registro.</div>";
 }
@@ -6624,7 +6631,7 @@ function viewEntry(id,childId=""){
  ${entryPhotos(x).length?`<div class="record-view-section"><b>Fotos (${entryPhotos(x).length})</b><div style="margin-top:8px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">${entryPhotos(x).map(p=>`<img class="record-view-photo" src="${photoDisplayData(p)}" alt="Foto do registro">`).join("")}</div></div>`:""}
  ${x.audio?`<div class="record-view-section"><b>Áudio</b><div class="audio-box"><audio controls src="${x.audio}"></audio></div></div>`:""}
  <div class="record-view-section"><b>Datas do registro</b><div class="meta" style="margin-top:6px">Atividade: ${esc(fmtDate(x.date))} · origem: ${esc(dateSource)}<br>Registrado em: ${esc(fmtDateTime(x.createdAt))}${changed?`<br>Alterado em: ${esc(fmtDateTime(x.updatedAt))}`:""}${x.photoTakenAt?`<br>Foto: ${esc(fmtDateTime(x.photoTakenAt))} · ${esc(photoSourceLabel(x.photoDateSource))}`:""}</div></div>
- <div class="toolbar" style="margin-top:16px"><button class="btn" onclick="closeRecordView();showPage('registro');activeChildId='${found.childId}';editEntry('${x.id}')">Editar</button><button class="btn" onclick="closeRecordView()">Fechar</button></div>`;
+ <div class="toolbar" style="margin-top:16px"><button class="btn" onclick="closeRecordView();showPage('registro');activeChildId='${found.childId}';editEntry('${x.id}')">Editar</button><button class="btn irreversible" onclick="activeChildId='${found.childId}';closeRecordView();deleteEntry('${x.id}')">Excluir</button><button class="btn" onclick="closeRecordView()">Fechar</button></div>`;
  overlay.classList.remove("hidden");
 }
 
@@ -6737,7 +6744,14 @@ async function ensureDiaryCalendar(createIfMissing=true){
   try{const cal=await calendarApiFetch("https://www.googleapis.com/calendar/v3/calendars/"+encodeURIComponent(diaryCalendarId));if(cal?.id)return cal}
   catch(e){diaryCalendarId="";localStorage.removeItem(DIARY_CALENDAR_ID_KEY)}
  }
- const existing=await findExistingDiaryCalendar();if(existing)return existing;
+ // Não usamos mais calendarList.list aqui: essa chamada exige um escopo
+ // (calendar.calendarlist.readonly ou calendar completo) que o app não
+ // pede de propósito, pra continuar fora da faixa de escopo restrito do
+ // Google. Sem o ID já salvo localmente, criamos uma agenda nova — o
+ // único efeito colateral é uma agenda "Diário de Estudos" duplicada na
+ // lista do Google caso o dispositivo tenha perdido o ID salvo (ex.:
+ // limpou os dados do navegador), o que é bem mais aceitável do que a
+ // função inteira falhar.
  if(!createIfMissing)return null;
  const cal=await calendarApiFetch("https://www.googleapis.com/calendar/v3/calendars",{method:"POST",body:JSON.stringify({summary:DIARY_CALENDAR_NAME,description:"Planejamentos enviados pelo Diário de Estudos."})});
  diaryCalendarId=cal.id;localStorage.setItem(DIARY_CALENDAR_ID_KEY,diaryCalendarId);return cal
@@ -7132,6 +7146,16 @@ function completePlanOccurrence(planId,occurrenceDate,childId){const p=state.pla
 function skipPlanOccurrence(id){const p=state.plans.find(x=>x.id===id);if(!p)return;const current=p.nextDate||p.date;if(!confirm(`Pular a ocorrência de ${fmtDate(current)}?`))return;p.occurrences??=[];p.occurrences.push({date:current,status:"skipped",updatedAt:now()});p.nextDate=nextPlanDate(p,current);if(!p.nextDate)p.completedAt=now();p.updatedAt=now();saveLocal();renderPlans();renderDashboard()}
 async function deletePlan(id){const p=state.plans.find(x=>x.id===id);if(!p)return;if(!confirm("Excluir este planejamento?"))return;state.plans=state.plans.filter(x=>x.id!==id);addTomb("plans",id);saveLocal();renderPlans();renderDashboard();if(p.calendarEventId)await deleteCalendarEventForPlan(p)}
 
+function viewPlanDetails(id){
+ const plan=state.plans.find(p=>p.id===id);if(!plan)return alert("Planejamento não encontrado.");
+ const names=planChildNames(plan),card=$("recordViewCard"),overlay=$("recordViewOverlay");if(!card||!overlay)return;
+ card.innerHTML=`
+ <div class="record-view-head"><div><div class="meta">${esc(names.join(", ")||"Criança")} · ${esc(fmtDate(plan.nextDate||plan.date))}</div><h2>${esc(plan.title||"Planejamento")}</h2></div><button class="record-view-close" onclick="closeRecordView()">×</button></div>
+ <div class="record-view-section">${plan.component?`<div class="skill">${esc(plan.component)}</div>`:""}${plan.place?`<div class="meta" style="margin-top:6px">📍 ${esc(plan.place)}</div>`:""}${planWeatherHtml(plan)}${plan.materialName?`<div class="meta" style="margin-top:6px">📘 Material: <b>${esc(plan.materialName)}</b></div>`:""}${plan.notes?`<div class="obs" style="margin-top:10px"><b>Observações</b><br>${esc(plan.notes)}</div>`:""}</div>
+ <div class="toolbar" style="margin-top:16px"><button class="btn success" onclick="closeRecordView();startPlan('${plan.id}')">✓ Concluir atividade</button><button class="btn" onclick="closeRecordView();showPage('planejamento');editPlan('${plan.id}')">Editar</button><button class="btn irreversible" onclick="closeRecordView();deletePlan('${plan.id}')">Excluir</button><button class="btn" onclick="closeRecordView()">Fechar</button></div>`;
+ overlay.classList.remove("hidden");
+}
+
 
 
 function familyReportAiSummaries(){state.family.reportAiSummaries??={};return state.family.reportAiSummaries}
@@ -7179,7 +7203,7 @@ async function readingBooksForChild(childId){
 }
 function todayReadingsMarkup(books){
  const active=(books||[]).filter(b=>b.status==="Lendo");
- return active.length?`<div class="card routine-reading"><div class="section-heading"><h3><span class="section-book-icon" aria-hidden="true">▤</span> Leituras em andamento</h3><button class="section-link" type="button" onclick="showPage('leituras')">Ver todas ›</button></div>${active.map(b=>`<div class="routine-reading-row">${b.thumbnail?`<img src="${esc(b.thumbnail)}" alt="Capa de ${esc(b.title||"livro")}">`:`<div class="routine-cover-placeholder" aria-hidden="true">📖</div>`}<div class="routine-reading-content"><b>${esc(b.title||"Livro")}</b><div class="meta routine-author">${esc((b.authors||[]).join(", ")||"Autor não informado")}</div>${b.started_at?`<div class="meta routine-date">▣ Iniciado em ${esc(fmtDate(b.started_at))}</div>`:""}${b.target_finish_at?`<div class="meta">Previsão: ${esc(fmtDate(b.target_finish_at))}</div>`:""}<div class="toolbar routine-actions"><button class="btn small" onclick="openReadingBook('${b.id}')"><span aria-hidden="true">▤</span> Abrir leitura</button><button class="btn success small" onclick="completeBookAndRegister('${b.id}')"><span aria-hidden="true">✓</span> Concluir livro</button></div></div></div>`).join("")}</div>`:"";
+ return active.length?`<div class="card routine-reading"><div class="section-heading"><h3><span class="section-book-icon" aria-hidden="true">▤</span> Leituras em andamento</h3><button class="section-link" type="button" onclick="showPage('leituras')">Ver todas ›</button></div>${active.map(b=>`<div class="routine-reading-row">${b.thumbnail?`<img src="${esc(b.thumbnail)}" alt="Capa de ${esc(b.title||"livro")}">`:`<div class="routine-cover-placeholder" aria-hidden="true">📖</div>`}<div class="routine-reading-content"><b>${esc(b.title||"Livro")}</b><div class="meta routine-author">${esc((b.authors||[]).join(", ")||"Autor não informado")}</div>${b.started_at?`<div class="meta routine-date">▣ Iniciado em ${esc(fmtDate(b.started_at))}</div>`:""}${b.target_finish_at?`<div class="meta">Previsão: ${esc(fmtDate(b.target_finish_at))}</div>`:""}<div class="toolbar routine-actions"><button class="btn small" onclick="openReadingBook('${b.id}')"><span aria-hidden="true">▤</span> Abrir leitura</button><button class="btn small" onclick="startReadingActivity('${b.id}')">+ Registrar atividade</button><button class="btn success small" onclick="completeBookAndRegister('${b.id}')"><span aria-hidden="true">✓</span> Concluir livro</button></div></div></div>`).join("")}</div>`:"";
 }
 function renderTodayReadingsFromCache(childId){
  const box=$("todayActiveReading");if(!box||!childId)return;
@@ -7207,7 +7231,7 @@ function renderReadingCards(books){
    <div><div class="book-title">${esc(b.title)}</div><div class="book-meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.publisher?" · "+esc(b.publisher):""}</div>
    <div style="margin-top:6px"><span class="reading-status">${esc(b.status||"Lendo")}</span>${b.catalog_status==="pending"?` <span class="reading-status">Aguardando validação</span>`:""}</div>
    <div class="book-reading-dates">${b.status==="Planejado"&&b.started_at?`<span>Início previsto: <b>${fmtDate(b.started_at)}</b></span>`:b.started_at?`<span>Início: <b>${fmtDate(b.started_at)}</b></span>`:""}${b.target_finish_at?`<span>Previsão: <b>${fmtDate(b.target_finish_at)}</b></span>`:""}${b.finished_at?`<span>Conclusão: <b>${fmtDate(b.finished_at)}</b></span>`:""}</div>
-   <div class="reading-actions">${b.status==="Planejado"?`<button class="btn small" type="button" onclick="startPlannedBook('${b.id}')">Iniciar leitura</button>`:b.status==="Lendo"?`<button class="btn small success reading-primary" type="button" onclick="completeBookAndRegister('${b.id}')">Concluir e registrar</button>`:`<button class="btn small" type="button" onclick="reopenCompletedBook('${b.id}')">Reabrir leitura</button>`}<button class="btn small" type="button" onclick="editFamilyBookReading('${b.id}')">Editar planejamento</button></div>
+   <div class="reading-actions">${b.status==="Planejado"?`<button class="btn small" type="button" onclick="startPlannedBook('${b.id}')">Iniciar leitura</button>`:b.status==="Lendo"?`<button class="btn small" type="button" onclick="startReadingActivity('${b.id}')">+ Registrar atividade</button><button class="btn small success reading-primary" type="button" onclick="completeBookAndRegister('${b.id}')">Concluir e registrar</button>`:`<button class="btn small" type="button" onclick="reopenCompletedBook('${b.id}')">Reabrir leitura</button>`}<button class="btn small" type="button" onclick="editFamilyBookReading('${b.id}')">Editar planejamento</button></div>
    </div>
   </div>`;
  const section=(title,list,open=true)=>list.length?`<div class="reading-section"><h3>${title} · ${list.length}</h3><div class="reading-list">${list.map(card).join("")}</div></div>`:"";
@@ -7418,6 +7442,17 @@ async function completeBookAndRegister(id){
  const b=readingBookById(id);if(!b)return;const finished=prompt("Data de conclusão (AAAA-MM-DD):",b.finished_at||today());if(finished===null)return;if(!/^\d{4}-\d{2}-\d{2}$/.test(finished))return alert("Use o formato AAAA-MM-DD.");const notes=prompt("Observação sobre a leitura (opcional):","");if(notes===null)return;
  const entryId=createOrUpdateReadingCompletion(b,finished,String(notes||"").trim());
  try{await patchReadingBook(b,{status:"Concluído",finished_at:finished,completion_activity_id:entryId});await renderReadingPage();renderDashboard();renderPlans();alert("Livro concluído e registrado no Histórico.")}catch(e){alert("O registro foi salvo, mas não foi possível atualizar o livro: "+(e.message||e))}
+}
+function startReadingActivity(id){
+ const b=readingBookById(id);if(!b)return alert("Livro não encontrado.");
+ if(b.childId&&state.family.children.some(c=>c.id===b.childId&&!c.archived&&!c.legacyOrphan))activeChildId=b.childId;
+ releaseUnreferencedFormMedia();
+ collectiveRegistration=null;editing=null;recordFormOpen=true;
+ photoData="";photosData=[];audioData="";photoTakenAt="";photoDateSource="";
+ const draft={mode:"new",childId:activeChildId,type:"bncc",materialId:`reading:${b.id}`,materialName:b.title||"Livro",materialPublisher:b.publisher||""};
+ try{localStorage.setItem(recordDraftKey(activeChildId),JSON.stringify(draft))}catch(e){}
+ showPage("registro");renderRecordPage();
+ window.scrollTo({top:0,behavior:"smooth"});
 }
 async function reopenCompletedBook(id){
  const b=readingBookById(id);if(!b||!confirm("Reabrir esta leitura? O registro da conclusão já realizada será preservado no Histórico."))return;
@@ -7982,7 +8017,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "12.2";
+const APP_VERSION = "12.3";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
