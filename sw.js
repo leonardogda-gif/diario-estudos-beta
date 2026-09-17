@@ -1,5 +1,5 @@
-const CACHE_NAME = "diario-estudos-v13.2";
-const APP_SHELL = ["./", "./index.html", "./version.json"];
+const CACHE_NAME = "diario-estudos-v12.4";
+const APP_SHELL = ["./", "./index.html", "./manifest.json", "./version.json"];
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));
