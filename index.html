@@ -18,7 +18,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,650;9..144,750&family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://apis.google.com/js/api.js"></script>
 <script src="./vendor/zxing-browser.min.js"></script>
 <style>
 *{box-sizing:border-box}
@@ -1877,7 +1876,7 @@ header .brand-motto{display:none!important}
   <div class="drive-folder-card">
     <div class="family-summary">
       <div>
-        <div><b>Google Drive compartilhado</b></div>
+        <div><b>Google Drive da conta</b></div>
         <div id="sharedStorageStatus" class="meta" style="margin-top:4px">Verificando...</div>
       </div>
       <span id="sharedStorageBadge" class="badge">Verificando</span>
@@ -1888,8 +1887,7 @@ header .brand-motto{display:none!important}
       <button id="familyStorageContinueBtn" class="btn success hidden" onclick="continueFamilyStorageSetup()">Continuar</button>
       <button id="syncSharedStorageBtn" class="btn hidden" onclick="syncWithDrive({manual:true})">Sincronizar agora</button>
       <button id="openSharedStorageBtn" class="btn hidden" onclick="openSharedFamilyPhotos()">Abrir no Drive</button>
-      <button id="prepareSharedStorageBtn" class="hidden" onclick="prepareSharedFamilyStorage(true)">Configurar Drive compartilhado</button>
-      <button id="connectSharedStorageBtn" class="hidden" onclick="connectFamilyDriveWithPicker()">Conectar Drive da família</button>
+      <button id="prepareSharedStorageBtn" class="hidden" onclick="prepareSharedFamilyStorage(true)">Drive automático</button>
     </div>
 
   </div>
@@ -1978,10 +1976,6 @@ header .brand-motto{display:none!important}
 <script>
 const GOOGLE_CLIENT_ID = "629410527657-f5b9r4o0jvcvf0517oracmhpvhsj19pn.apps.googleusercontent.com";
 const GOOGLE_SCOPES = "openid email profile https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/calendar.app.created";
-const GOOGLE_PICKER_APP_ID = "629410527657";
-const GOOGLE_PICKER_API_KEY = "AIzaSyDyKazsHTfiqb5mQuTK14FsBq8AIafWNy4";
-let googlePickerReady = false;
-let googlePickerLoading = false;
 const DRIVE_SYNC_FILE = "diario-estudos-beta.json";
 const FAMILY_SHARED_DATA_FILE = "diario-familia.json";
 const FAMILY_SHARED_PHOTOS_FOLDER = "Fotos";
@@ -1990,6 +1984,12 @@ let sharedFamilyFolderId = "";
 let sharedFamilyDataFileId = "";
 let sharedFamilyPhotosFolderId = "";
 const BACKEND_URL = "https://diario-estudos-api.leonardo-gda.workers.dev";
+let googleServerConnected=false;
+let googleServerScopes="";
+const APP_SESSION_KEY = "DE_V125_APP_SESSION";
+const APP_SESSION_EXP_KEY = "DE_V125_APP_SESSION_EXP";
+let appSessionToken = localStorage.getItem(APP_SESSION_KEY)||"";
+let appSessionExpiresAt = Number(localStorage.getItem(APP_SESSION_EXP_KEY)||0);
 let backendProfile = null;
 let lastBackendError = "";
 const BACKEND_FAMILY_ID_KEY = "DE_V422_BACKEND_FAMILY_ID";
@@ -2071,7 +2071,7 @@ function filterCachedBncc({q="",code="",component="",area=""}={}){
 }
 async function fetchBnccSkills(params={}){
   const custom=customBncc();
-  if(!navigator.onLine||!googleAccessToken){
+  if(!navigator.onLine||!appSessionValid()){
     return filterCachedBncc(params);
   }
   try{
@@ -2265,7 +2265,7 @@ function saveLocal(mark=true){
  }
  if(mark&&saved){
   try{localStorage.setItem("DE_V2_LOCAL_UPDATED",now())}catch(e){}
-  if(googleAccessToken){setCloudStatus("pending","Alterações pendentes");scheduleSync();}
+  if(appSessionValid()){setCloudStatus("pending","Alterações pendentes");scheduleSync();}
  }
  return saved;
 }
@@ -2481,7 +2481,7 @@ function showWaitlistScreen(){
   $('onboardingGate')?.classList.add('hidden');$('signupWaitlistGate')?.classList.remove('hidden');$('protectedApp')?.classList.add('hidden');
 }
 function needsOnboarding(){
-  if(!googleAccessToken||!backendProfile?.user)return false;
+  if(!appSessionValid()||!backendProfile?.user)return false;
   const families=backendProfile.families||[];
   if(!families.length)return true;
   const fam=backendFamilyFromProfile();
@@ -2526,7 +2526,7 @@ function refreshOnboardingUI(){
   const btn=$("finishOnboardingBtn");if(btn)btn.textContent=fam?"Cadastrar e começar":"Criar e começar";
 }
 async function finishOnboarding(){
-  if(!googleAccessToken||!backendProfile?.user)return alert("Entre com Google para continuar.");
+  if(!appSessionValid()||!backendProfile?.user)return alert("Sua sessão do Diário expirou. Entre com Google novamente.");
   const valid=onboardingRows.map(r=>({...r,name:(r.name||"").trim()})).filter(r=>r.name);
   if(!valid.length)return alert("Cadastre pelo menos uma criança.");
   const btn=$("finishOnboardingBtn"),status=$("onboardingStatus");
@@ -2650,54 +2650,19 @@ async function refreshSharedStorageVisualState(){
     renderSharedStorageStatus(false,"Nenhuma família ativa.");
     return;
   }
-
+  if(!googleServerConnected){
+    await refreshGoogleServerStatus().catch(()=>false);
+  }
+  if(!googleServerConnected){
+    renderSharedStorageStatus(false,"Autorização Google persistente ainda não disponível.");
+    return;
+  }
   try{
-    const res=await backendFetch(`/families/${encodeURIComponent(fam.id)}`);
-    const remote=res?.family||{};
-    const baseConfigured=!!(remote.drive_folder_id&&remote.drive_data_file_id);
-
-    if(!baseConfigured){
-      renderSharedStorageStatus(false,"Ainda não configurado. Configure uma única vez para esta família.");
-      return;
-    }
-
-    if(!remote.drive_photos_folder_id){
-      if(canManageFamily()){
-        renderSharedStorageStatus(false,"Definindo a pasta Fotos oficial da família...");
-        try{
-          await prepareSharedFamilyStorage(false);
-          renderSharedStorageStatus(true,"Ativo. Registros e fotos usam a mesma estrutura da família.");
-        }catch(e){
-          console.error("Migração da pasta Fotos:",e);
-          renderSharedStorageStatus(false,"Não foi possível definir a pasta Fotos oficial agora.");
-        }
-      }else{
-        renderSharedStorageStatus(false,"O administrador precisa concluir a migração da pasta Fotos.");
-      }
-      return;
-    }
-
-    const folderOK=await canAccessDriveItem(remote.drive_folder_id);
-    const dataOK=await canAccessDriveItem(remote.drive_data_file_id);
-    const photosOK=await canAccessDriveItem(remote.drive_photos_folder_id);
-
-    if(folderOK&&dataOK&&photosOK){
-      sharedFamilyFolderId=remote.drive_folder_id;
-      sharedFamilyDataFileId=remote.drive_data_file_id;
-      sharedFamilyPhotosFolderId=remote.drive_photos_folder_id;
-      localStorage.setItem(VISIBLE_ROOT_ID_KEY,remote.drive_folder_id);
-      localStorage.setItem(VISIBLE_PHOTOS_ID_KEY,remote.drive_photos_folder_id);
-      renderSharedStorageStatus(true,"Ativo. Registros e fotos usam a mesma pasta da família.");
-    }else{
-      renderSharedStorageStatus(
-        false,
-        "Drive da família encontrado. Falta autorizar um ou mais itens pelo Google Picker.",
-        true
-      );
-    }
+    const s=await prepareSharedFamilyStorage(false);
+    renderSharedStorageStatus(true,"Ativo. O Drive desta conta Google é conectado e sincronizado automaticamente.");
   }catch(e){
-    console.error("Falha ao verificar armazenamento compartilhado:",e);
-    renderSharedStorageStatus(false,"Não foi possível verificar o Drive agora.");
+    console.error("Falha ao preparar o Drive automático:",e);
+    renderSharedStorageStatus(false,"O Drive será preparado automaticamente assim que a autorização Google estiver disponível.");
   }
 }
 
@@ -2761,8 +2726,8 @@ async function refreshBackendProfile(){
 }
 
 async function linkCurrentFamilyToBackend(){
-  if(!googleAccessToken){
-    alert("Entre com Google antes de vincular a família.");
+  if(!appSessionValid()){
+    alert("Sua sessão do Diário expirou. Entre com Google novamente.");
     return;
   }
   if(!localFamilyReadyForBackend()){
@@ -2948,516 +2913,89 @@ function renderBackendFamilyPanels(){
   }
 }
 
-async function getBackendFamilyStorage(){
-  const fam=currentBackendFamily();
-  if(!fam)return null;
-  const res=await backendFetch(`/families/${encodeURIComponent(fam.id)}`);
-  return res?.family||null;
-}
-
-async function persistFamilyDriveStorage(folderId,dataFileId,photosFolderId=""){
-  const fam=currentBackendFamily();
-  if(!fam)return;
-  await backendFetch("/families/drive-storage",{
-    method:"POST",
-    body:JSON.stringify({
-      family_id:fam.id,
-      drive_folder_id:folderId,
-      drive_data_file_id:dataFileId,
-      drive_photos_folder_id:photosFolderId||""
-    })
-  });
-}
-
-async function shareFolderWithFamilyMembers(folderId){
-  if(!folderId||!canManageFamily())return;
-  const me=(backendProfile?.user?.email||"").toLowerCase();
-
-  for(const m of backendMembers){
-    const email=(m.email||"").toLowerCase();
-    if(!email||email===me)continue;
-    try{
-      await apiFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(folderId)}/permissions?sendNotificationEmail=false`,{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-          type:"user",
-          role:m.role==="visualizador"?"reader":"writer",
-          emailAddress:m.email
-        })
-      });
-    }catch(e){
-      console.warn("Permissão Drive para",m.email,e);
-    }
-  }
-}
-
-async function findVisibleFile(name,parentId,mimeType=null){
-  const safeName=escapeDriveQueryValue(name);
-  let q=`name='${safeName}' and trashed=false`;
-  if(parentId)q+=` and '${escapeDriveQueryValue(parentId)}' in parents`;
-  if(mimeType)q+=` and mimeType='${escapeDriveQueryValue(mimeType)}'`;
-
-  const fields=encodeURIComponent("files(id,name,mimeType,modifiedTime,parents)");
-  const res=await apiFetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=${fields}&pageSize=20&spaces=drive`);
-  const data=await res.json();
-  return data.files?.[0]||null;
-}
-
-async function createFamilySharedFolder(){
-  const fam=currentBackendFamily();
-  if(!fam)throw new Error("Nenhuma família ativa.");
-  const folder=await createVisibleFolder(`Diário de Estudos - ${fam.name}`);
-  if(!folder?.id)throw new Error("Não foi possível criar a pasta compartilhada.");
-  return folder.id;
-}
-
-async function createSharedJsonFile(parentId){
-  const res=await apiFetch("https://www.googleapis.com/drive/v3/files?fields=id,name,webViewLink",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      name:FAMILY_SHARED_DATA_FILE,
-      mimeType:"application/json",
-      parents:[parentId]
-    })
-  });
-  const meta=await res.json();
-  if(!meta?.id)throw new Error("Não foi possível criar o arquivo compartilhado.");
-
-  await apiFetch(`https://www.googleapis.com/upload/drive/v3/files/${meta.id}?uploadType=media`,{
-    method:"PATCH",
-    headers:{"Content-Type":"application/json;charset=utf-8"},
-    body:JSON.stringify({
-      version:1,
-      updatedAt:now(),
-      entries:[],
-      plans:[],
-      complementaryActivities:[],
-      tombstones:{entries:[],complementary:[],plans:[]}
-    })
-  });
-
-  return meta.id;
-}
-
-async function validateDriveFolderUnderParent(folderId,parentId){
-  if(!folderId||!tokenValid())return false;
-  try{
-    const r=await apiFetch(
-      `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(folderId)}?fields=id,name,mimeType,trashed,parents`
-    );
-    const d=await r.json();
-    return !!(
-      d?.id &&
-      !d.trashed &&
-      d.mimeType==="application/vnd.google-apps.folder" &&
-      (!parentId || (d.parents||[]).includes(parentId))
-    );
-  }catch(e){
-    return false;
-  }
-}
-
-async function ensureSharedPhotosFolder(parentId,officialPhotosFolderId=""){
-  if(officialPhotosFolderId){
-    sharedFamilyPhotosFolderId=officialPhotosFolderId;
-
-    if(await validateDriveFolderUnderParent(officialPhotosFolderId,parentId)){
-      return officialPhotosFolderId;
-    }
-
-    const err=new Error("DRIVE_PHOTOS_PICKER_REQUIRED");
-    err.code="DRIVE_PHOTOS_PICKER_REQUIRED";
-    throw err;
-  }
-
-  if(!canManageFamily()){
-    throw new Error("O administrador precisa definir a pasta Fotos oficial da família.");
-  }
-
-  const localPhotosId=localStorage.getItem(VISIBLE_PHOTOS_ID_KEY)||"";
-  if(localPhotosId && await validateDriveFolderUnderParent(localPhotosId,parentId)){
-    sharedFamilyPhotosFolderId=localPhotosId;
-    return localPhotosId;
-  }
-
-  let found=await findVisibleFolder(FAMILY_SHARED_PHOTOS_FOLDER,parentId);
-  if(!found)found=await createVisibleFolder(FAMILY_SHARED_PHOTOS_FOLDER,parentId);
-
-  sharedFamilyPhotosFolderId=found.id;
-  return found.id;
-}
-
+// v13.3: integração Drive simplificada. O app usa somente arquivos/pastas
+// criados pela própria aplicação na conta Google autorizada; sem Picker e sem
+// compartilhamento automático de pastas entre contas.
 
 
 async function continueFamilyStorageSetup(){
-  if(!tokenValid())return googleLogin();
-  const fam=currentBackendFamily();
-  if(!fam)return alert("Entre em uma família primeiro.");
-
-  const btn=$("familyStorageContinueBtn");
-  if(btn){btn.disabled=true;btn.textContent="Conectando...";}
-
   try{
-    const remote=await getBackendFamilyStorage();
-    const hasOfficialStorage=!!(
-      remote?.drive_folder_id &&
-      remote?.drive_data_file_id &&
-      remote?.drive_photos_folder_id
-    );
-
-    if(hasOfficialStorage){
-      await authorizeExistingFamilyDriveWithPicker(remote);
-    }else{
-      if(!canManageFamily()){
-        throw new Error("O administrador da família precisa concluir a configuração inicial.");
-      }
-      await prepareSharedFamilyStorage(false);
-    }
-
-    await refreshSharedStorageVisualState();
+    await prepareSharedFamilyStorage(false);
     await syncWithDrive({manual:true});
   }catch(e){
-    if(!String(e?.message||"").toLowerCase().includes("cancelada")){
-      console.error("Conexão do armazenamento:",e);
-      alert("Não foi possível concluir a conexão: "+(e?.message||e));
-    }
-  }finally{
-    if(btn){btn.disabled=false;btn.textContent="Continuar";}
+    console.error("Drive automático:",e);
+    alert("Não foi possível sincronizar o Drive agora: "+(e?.message||e));
   }
 }
 
 function renderSharedStorageStatus(ready=false,message="",needsPicker=false){
   const simpleContinue=$("familyStorageContinueBtn");
-  if(simpleContinue){
-    simpleContinue.classList.toggle("hidden",!!ready);
-    simpleContinue.textContent="Continuar";
-  }
-
   const badge=$("sharedStorageBadge");
   const status=$("sharedStorageStatus");
   const prepare=$("prepareSharedStorageBtn");
   const connect=$("connectSharedStorageBtn");
   const sync=$("syncSharedStorageBtn");
   const open=$("openSharedStorageBtn");
-
-  if(status){
-    status.textContent=message||(
-      needsPicker
-        ?"A família já possui um Drive. Autorize esta conta a usar a pasta compartilhada."
-        : ready
-          ?"Ativo. Os responsáveis usam o mesmo conjunto de registros e fotos."
-          :"Ainda não configurado para esta família."
-    );
-  }
-
-  if(badge){
-    badge.textContent=needsPicker?"Conectar":ready?"Ativo":"Não configurado";
-    badge.className="badge "+(ready?"done":"progress");
-  }
-
-  if(prepare)prepare.classList.toggle("hidden",ready||needsPicker);
-  if(connect)connect.classList.toggle("hidden",!needsPicker);
+  if(simpleContinue)simpleContinue.classList.add("hidden");
+  if(prepare)prepare.classList.add("hidden");
+  if(connect)connect.classList.add("hidden");
+  if(status)status.textContent=message||(ready?"Ativo. Sincronização automática com o Drive desta conta Google.":"Conexão automática com o Drive em preparação.");
+  if(badge){badge.textContent=ready?"Ativo":"Automático";badge.className="badge "+(ready?"done":"progress");}
   if(sync)sync.classList.toggle("hidden",!ready);
   if(open)open.classList.toggle("hidden",!ready);
 }
 
-function loadGooglePicker(){
-  if(googlePickerReady)return Promise.resolve();
-  if(googlePickerLoading){
-    return new Promise((resolve,reject)=>{
-      let tries=0;
-      const timer=setInterval(()=>{
-        if(googlePickerReady){clearInterval(timer);resolve()}
-        else if(++tries>100){clearInterval(timer);reject(new Error("Google Picker não carregou."))}
-      },100);
-    });
-  }
-
-  googlePickerLoading=true;
-  return new Promise((resolve,reject)=>{
-    const begin=()=>{
-      if(!window.gapi){
-        setTimeout(begin,100);
-        return;
-      }
-      try{
-        gapi.load("picker",{
-          callback:()=>{
-            googlePickerReady=true;
-            googlePickerLoading=false;
-            resolve();
-          },
-          onerror:()=>{
-            googlePickerLoading=false;
-            reject(new Error("Não foi possível carregar o Google Picker."));
-          },
-          timeout:10000,
-          ontimeout:()=>{
-            googlePickerLoading=false;
-            reject(new Error("Tempo esgotado ao carregar o Google Picker."));
-          }
-        });
-      }catch(e){
-        googlePickerLoading=false;
-        reject(e);
-      }
-    };
-    begin();
-  });
-}
-
-async function canAccessDriveItem(fileId){
-  if(!fileId||!tokenValid())return false;
-  try{
-    const r=await apiFetch(
-      `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?fields=id,name,mimeType,parents`
-    );
-    return !!r?.ok;
-  }catch(e){
-    return false;
-  }
-}
-
-function pickerDocumentId(doc){
-  return doc?.id||doc?.[google?.picker?.Document?.ID]||"";
-}
-
-function openPickerForExpectedItem({expectedId,expectedName,foldersOnly=false,parentId=""}){
-  return new Promise(async (resolve,reject)=>{
-    try{
-      await loadGooglePicker();
-      if(!googleAccessToken)throw new Error("Entre com Google primeiro.");
-
-      let view;
-      if(foldersOnly){
-        view=new google.picker.DocsView(google.picker.ViewId.FOLDERS)
-          .setIncludeFolders(true)
-          .setSelectFolderEnabled(true);
-      }else{
-        view=new google.picker.DocsView(google.picker.ViewId.DOCS)
-          .setIncludeFolders(false)
-          .setSelectFolderEnabled(false)
-          .setMimeTypes("application/json");
-        if(expectedName)view.setQuery(expectedName);
-      }
-
-      // If Google can render this shared parent directly, start there.
-      if(parentId && typeof view.setParent==="function"){
-        try{view.setParent(parentId)}catch(e){}
-      }
-
-      const picker=new google.picker.PickerBuilder()
-        .setAppId(GOOGLE_PICKER_APP_ID)
-        .setOAuthToken(googleAccessToken)
-        .setDeveloperKey(GOOGLE_PICKER_API_KEY)
-        .setTitle(
-          foldersOnly
-            ?"Selecione a pasta compartilhada da sua família"
-            :"Selecione o arquivo diario-familia.json da sua família"
-        )
-        .addView(view)
-        .setCallback(data=>{
-          if(data.action===google.picker.Action.CANCEL){
-            reject(new Error("Seleção cancelada."));
-            return;
-          }
-          if(data.action!==google.picker.Action.PICKED)return;
-
-          const doc=data.docs?.[0];
-          const pickedId=pickerDocumentId(doc);
-          const pickedName=doc?.name||doc?.[google.picker.Document.NAME]||"";
-
-          if(expectedId && pickedId!==expectedId){
-            reject(new Error(
-              `Item incorreto. Selecione ${expectedName||"o item da Família"} compartilhado pelo Diário de Estudos.`
-            ));
-            return;
-          }
-
-          resolve({id:pickedId,name:pickedName,doc});
-        })
-        .build();
-
-      picker.setVisible(true);
-    }catch(e){
-      reject(e);
-    }
-  });
-}
-
-async function authorizeExistingFamilyDriveWithPicker(remoteFamily){
-  const folderId=remoteFamily?.drive_folder_id||"";
-  const dataFileId=remoteFamily?.drive_data_file_id||"";
-  const photosFolderId=remoteFamily?.drive_photos_folder_id||"";
-
-  if(!folderId||!dataFileId)throw new Error("O Drive da família ainda não foi preparado.");
-  if(!photosFolderId)throw new Error("A pasta Fotos oficial ainda precisa ser definida por um administrador.");
-
-  const steps=[];
-  if(!(await canAccessDriveItem(folderId)))steps.push("root");
-  if(!(await canAccessDriveItem(photosFolderId)))steps.push("photos");
-  if(!(await canAccessDriveItem(dataFileId)))steps.push("json");
-
-  let current=0;
-  const total=steps.length;
-
-  for(const step of steps){
-    current++;
-
-    if(step==="root"){
-      renderSharedStorageStatus(false,`${current} de ${total} · selecione a pasta compartilhada da família.`,true);
-      await openPickerForExpectedItem({
-        expectedId:folderId,
-        expectedName:"pasta Diário de Estudos da família",
-        foldersOnly:true
-      });
-    }
-
-    if(step==="photos"){
-      renderSharedStorageStatus(false,`${current} de ${total} · selecione a pasta Fotos oficial da família.`,true);
-      await openPickerForExpectedItem({
-        expectedId:photosFolderId,
-        expectedName:"pasta Fotos da família",
-        foldersOnly:true,
-        parentId:folderId
-      });
-    }
-
-    if(step==="json"){
-      renderSharedStorageStatus(false,`${current} de ${total} · selecione o arquivo diario-familia.json.`,true);
-      await openPickerForExpectedItem({
-        expectedId:dataFileId,
-        expectedName:FAMILY_SHARED_DATA_FILE,
-        foldersOnly:false,
-        parentId:folderId
-      });
-    }
-  }
-
-  const folderOK=await canAccessDriveItem(folderId);
-  const photosOK=await canAccessDriveItem(photosFolderId);
-  const dataOK=await canAccessDriveItem(dataFileId);
-
-  if(!folderOK||!photosOK||!dataOK){
-    throw new Error("O Google Drive não confirmou a autorização completa dos itens da família.");
-  }
-
-  sharedFamilyFolderId=folderId;
-  sharedFamilyDataFileId=dataFileId;
-  sharedFamilyPhotosFolderId=photosFolderId;
-  localStorage.setItem(VISIBLE_ROOT_ID_KEY,folderId);
-  localStorage.setItem(VISIBLE_PHOTOS_ID_KEY,photosFolderId);
-
-  renderSharedStorageStatus(true,"Drive da família conectado nesta conta.");
-  return true;
-}
-
-async function connectFamilyDriveWithPicker(){
-  if(!tokenValid())return alert("Entre com Google primeiro.");
-  const fam=currentBackendFamily();
-  if(!fam)return alert("Entre em uma família primeiro.");
-
-  try{
-    const remoteFamily=await getBackendFamilyStorage();
-    await authorizeExistingFamilyDriveWithPicker(remoteFamily);
-    await syncWithDrive({manual:true});
-    alert("Drive da família conectado. Esta conta já pode usar os registros compartilhados.");
-  }catch(e){
-    if(String(e.message||"").includes("cancelada"))return;
-    console.error(e);
-    renderSharedStorageStatus(false,"A autorização do Drive ainda está pendente.",true);
-    alert("Não foi possível conectar o Drive da família: "+e.message);
-  }
-}
-
 async function prepareSharedFamilyStorage(showMessage=false){
-  if(!tokenValid())throw new Error("Entre com Google primeiro.");
   const fam=currentBackendFamily();
   if(!fam)throw new Error("Nenhuma família ativa.");
-
-  let remoteFamily=await getBackendFamilyStorage();
-  let folderId=remoteFamily?.drive_folder_id||"";
-  let dataFileId=remoteFamily?.drive_data_file_id||"";
-  let photosFolderId=remoteFamily?.drive_photos_folder_id||"";
-
-  if(folderId&&dataFileId&&photosFolderId){
-    const folderOK=await canAccessDriveItem(folderId);
-    const dataOK=await canAccessDriveItem(dataFileId);
-    const photosOK=await canAccessDriveItem(photosFolderId);
-
-    if(!folderOK||!dataOK||!photosOK){
-      renderSharedStorageStatus(
-        false,
-        "A família já possui um Drive compartilhado. Conecte os itens oficiais nesta conta uma única vez.",
-        true
-      );
-      const err=new Error("DRIVE_PICKER_REQUIRED");
-      err.code="DRIVE_PICKER_REQUIRED";
-      throw err;
-    }
+  if(!googleServerConnected){
+    await refreshGoogleServerStatus().catch(()=>false);
+  }
+  if(!googleServerConnected){
+    const err=new Error("Autorização Google persistente ainda não disponível.");
+    err.code="GOOGLE_OFFLINE_AUTH_REQUIRED";
+    throw err;
   }
 
-  if(showMessage&&(!folderId||!dataFileId||!photosFolderId)){
-    const badge=$("sharedStorageBadge"),status=$("sharedStorageStatus");
-    if(status)status.textContent="Configurando o Drive compartilhado...";
-    if(badge){badge.textContent="Configurando";badge.className="badge progress";}
+  // v13.3: o Drive pertence à própria conta Google autorizada.
+  // Não usamos Picker, permissões compartilhadas nem IDs de Drive de outra conta.
+  const folderName=`Diário de Estudos - ${fam.name}`;
+  let folderId=localStorage.getItem(VISIBLE_ROOT_ID_KEY)||"";
+  if(folderId){
+    try{
+      const r=await apiFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(folderId)}?fields=id,name,trashed`);
+      const d=await r.json();
+      if(!d?.id||d.trashed)folderId="";
+    }catch(e){folderId="";}
   }
-
   if(!folderId){
-    if(!canManageFamily())throw new Error("O administrador ainda precisa preparar o armazenamento compartilhado.");
-    folderId=await createFamilySharedFolder();
+    let found=await findVisibleFolder(folderName,null);
+    if(!found)found=await createVisibleFolder(folderName,null);
+    folderId=found.id;
   }
-
   sharedFamilyFolderId=folderId;
 
-  if(canManageFamily())await shareFolderWithFamilyMembers(folderId);
-
-  if(dataFileId){
-    try{
-      const r=await apiFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(dataFileId)}?fields=id,name,trashed`);
-      const d=await r.json();
-      if(!d?.id||d.trashed)dataFileId="";
-    }catch(e){
-      dataFileId="";
-    }
-  }
-
-  if(!dataFileId){
-    const found=await findVisibleFile(FAMILY_SHARED_DATA_FILE,folderId,"application/json");
-    if(found)dataFileId=found.id;
-  }
-
-  if(!dataFileId){
-    if(currentBackendRole()==="visualizador")throw new Error("O arquivo compartilhado ainda não foi criado pelo administrador.");
-    dataFileId=await createSharedJsonFile(folderId);
-  }
-
+  let dataFileId="";
+  let foundData=await findVisibleFile(FAMILY_SHARED_DATA_FILE,folderId,"application/json");
+  if(foundData)dataFileId=foundData.id;
+  if(!dataFileId)dataFileId=await createSharedJsonFile(folderId);
   sharedFamilyDataFileId=dataFileId;
 
-  photosFolderId=await ensureSharedPhotosFolder(folderId,photosFolderId);
+  let photos=await findVisibleFolder(FAMILY_SHARED_PHOTOS_FOLDER,folderId);
+  if(!photos)photos=await createVisibleFolder(FAMILY_SHARED_PHOTOS_FOLDER,folderId);
+  const photosFolderId=photos.id;
   sharedFamilyPhotosFolderId=photosFolderId;
-
-  if(canManageFamily()){
-    await persistFamilyDriveStorage(folderId,dataFileId,photosFolderId);
-  }
 
   localStorage.setItem(VISIBLE_ROOT_ID_KEY,folderId);
   localStorage.setItem(VISIBLE_PHOTOS_ID_KEY,photosFolderId);
-
-  updateVisibleDriveStatus("");
+  updateVisibleDriveStatus("Drive conectado automaticamente.");
   if($("sharedPhotosStatus"))$("sharedPhotosStatus").textContent="";
-  renderSharedStorageStatus(true,"Ativo. Todos os responsáveis usam a mesma pasta Fotos.");
-
-  if(showMessage)alert("Armazenamento compartilhado preparado.");
-
+  renderSharedStorageStatus(true,"Ativo. Sincronização automática com o Drive desta conta Google.");
   return {folderId,dataFileId,photosFolderId};
 }
 
 
 async function repairSharedFamilyData(){
-  if(!tokenValid())return alert("Entre com Google primeiro.");
   try{
     const result=recoverLegacyBackupsIntoCanonicalChildren();
     await syncWithDrive({manual:true});
@@ -3902,18 +3440,48 @@ function setBackendStatus(message, ok=null){
  if($("headerBackendStatus"))$("headerBackendStatus").textContent="Backend: "+String(message||"");
 }
 
+function appSessionValid(){
+  return !!appSessionToken && (!appSessionExpiresAt || Date.now()<appSessionExpiresAt);
+}
+function saveAppSession(token,expiresAt){
+  appSessionToken=String(token||"");
+  appSessionExpiresAt=Number(expiresAt||0);
+  if(appSessionToken){
+    localStorage.setItem(APP_SESSION_KEY,appSessionToken);
+    if(appSessionExpiresAt)localStorage.setItem(APP_SESSION_EXP_KEY,String(appSessionExpiresAt));
+  }else{
+    localStorage.removeItem(APP_SESSION_KEY);
+    localStorage.removeItem(APP_SESSION_EXP_KEY);
+  }
+}
+async function createAppSessionFromGoogle(){
+  if(!tokenValid())await ensureFreshGoogleToken();
+  const response=await fetch(BACKEND_URL+"/auth/session",{
+    method:"POST",
+    headers:{"Authorization":"Bearer "+googleAccessToken,"Content-Type":"application/json"}
+  });
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok||!data?.session_token){
+    const err=new Error(data?.error||"Não foi possível criar a sessão do Diário.");
+    err.status=response.status;err.payload=data;throw err;
+  }
+  saveAppSession(data.session_token,Number(data.expires_at||0)*1000);
+  return data;
+}
 async function backendFetch(path, options={}){
-  await ensureFreshGoogleToken();
+  if(!appSessionValid()){
+    if(tokenValid())await createAppSessionFromGoogle();
+    else{const err=new Error("Sessão do Diário expirada. Entre com Google novamente.");err.code="APP_SESSION_REQUIRED";err.status=401;throw err}
+  }
   const makeRequest=async()=>{
-    const headers={...(options.headers||{}),"Authorization":"Bearer "+googleAccessToken};
+    const headers={...(options.headers||{}),"Authorization":"Bearer "+appSessionToken};
     if(options.body && !headers["Content-Type"])headers["Content-Type"]="application/json";
     return await fetch(BACKEND_URL+path,{...options,headers});
   };
   let response=await makeRequest();
   if(response.status===401){
-    googleTokenExpiresAt=0;
-    await ensureFreshGoogleToken(true);
-    response=await makeRequest();
+    saveAppSession("",0);
+    if(tokenValid()){await createAppSessionFromGoogle();response=await makeRequest()}
   }
   let data=null;
   try{data=await response.json()}catch(e){}
@@ -3986,10 +3554,32 @@ async function removeAllowedSignup(email){
  try{await backendFetch("/admin/allowed-signups/remove",{method:"POST",body:JSON.stringify({email})});loadAllowedSignups()}catch(e){alert("Não foi possível remover: "+e.message)}
 }
 
+async function refreshGoogleServerStatus(){
+  if(!appSessionValid()){googleServerConnected=false;return false}
+  try{
+    const data=await backendFetch("/google/oauth/status");
+    googleServerConnected=!!data?.connected;
+    googleServerScopes=String(data?.scopes||"");
+    return googleServerConnected;
+  }catch(e){googleServerConnected=false;return false}
+}
+async function beginPersistentGoogleAuthorization(){
+  if(!appSessionValid())return googleLogin();
+  try{
+    const data=await backendFetch("/google/oauth/start");
+    if(!data?.authorization_url)throw new Error("URL de autorização não recebida.");
+    location.href=data.authorization_url;
+  }catch(e){alert("Não foi possível iniciar a autorização Google: "+e.message)}
+}
+async function googleServerFetch(target,options={}){
+  if(!appSessionValid()){const e=new Error("Sessão do Diário necessária.");e.code="APP_SESSION_REQUIRED";throw e}
+  const headers={...(options.headers||{}),"Authorization":"Bearer "+appSessionToken,"X-Google-Target":target};
+  return fetch(BACKEND_URL+"/google/api",{...options,headers});
+}
 async function connectBackend(){
-  if(!googleAccessToken){
+  if(!appSessionValid()){
     backendProfile=null;
-    lastBackendError="Faça login com Google primeiro.";
+    lastBackendError="Sessão do Diário não encontrada.";
     setBackendStatus("aguardando login");
     return false;
   }
@@ -3999,6 +3589,7 @@ async function connectBackend(){
 
   try{
     await refreshBackendProfile();
+    await refreshGoogleServerStatus();
     return true;
   }catch(e){
     console.error("Falha de autenticação do backend:",e);
@@ -4010,8 +3601,8 @@ async function connectBackend(){
 }
 
 async function testBackendConnection(){
-  if(!googleAccessToken){
-    alert("Entre com Google antes de testar o backend.");
+  if(!appSessionValid()){
+    alert("Sua sessão do Diário expirou. Entre com Google novamente.");
     return;
   }
 
@@ -4106,29 +3697,30 @@ function finishAuthBoot(){
  document.body.classList.remove("auth-checking");
 }
 function updateAuthUI(){
- const onlineAuth=!!(googleAccessToken&&googleUser);
+ const onlineAuth=appSessionValid();
+ const googleConnected=!!(googleAccessToken&&googleUser);
  if(!onlineAuth)signupCreationBlocked=false;
  const offlineAuth=!onlineAuth&&offlineSessionAvailable();
  const canUseApp=onlineAuth||offlineAuth;
  const backendPending=onlineAuth&&!backendProfile;
  const onboarding=onlineAuth&&!!backendProfile?.user&&needsOnboarding()&&!signupCreationBlocked;
 
- $("googleLoginBtn")?.classList.toggle("hidden",onlineAuth);
- $("syncNowBtn")?.classList.toggle("hidden",!onlineAuth);
- $("googleLogoutBtn")?.classList.toggle("hidden",!onlineAuth);
+ $("googleLoginBtn")?.classList.toggle("hidden",googleConnected);
+ $("syncNowBtn")?.classList.toggle("hidden",!googleConnected);
+ $("googleLogoutBtn")?.classList.toggle("hidden",!onlineAuth&&!googleConnected);
  $("loginGate")?.classList.toggle("hidden",canUseApp);
  $("onboardingGate")?.classList.toggle("hidden",!onboarding);
  $("signupWaitlistGate")?.classList.toggle("hidden",!signupCreationBlocked);
  $("protectedApp")?.classList.toggle("hidden",!canUseApp||backendPending||onboarding||signupCreationBlocked);
  $("headerCloud")?.classList.toggle("hidden",!canUseApp);
- $("headerSyncBtn")?.classList.toggle("hidden",!onlineAuth);
+ $("headerSyncBtn")?.classList.toggle("hidden",!googleConnected);
  document.body.classList.toggle("app-authenticated",canUseApp);
 
  if(!canUseApp)$("headerCloudDetails")?.classList.add("hidden");
 
  if($("cloudUser")){
-  if(onlineAuth&&googleUser?.email){
-    $("cloudUser").textContent="Conectado como "+googleUser.email;
+  if(onlineAuth&&(backendProfile?.user?.email||googleUser?.email||rememberedGoogleEmail())){
+    $("cloudUser").textContent="Conectado como "+(backendProfile?.user?.email||googleUser?.email||rememberedGoogleEmail());
   }else if(offlineAuth){
     $("cloudUser").textContent="Modo offline · última conta: "+rememberedGoogleEmail();
   }else if(rememberGoogleEnabled()&&rememberedGoogleEmail()){
@@ -4158,8 +3750,6 @@ function updateAuthUI(){
  }
 }
 function initGoogleAuth(){
- // Picker is loaded independently; failures here do not block Google login.
- loadGooglePicker().catch(()=>{});
  if(googleTokenClient)return;
  if(!window.google?.accounts?.oauth2){setTimeout(initGoogleAuth,300);return}
  googleTokenClient=google.accounts.oauth2.initTokenClient({
@@ -4178,12 +3768,19 @@ function initGoogleAuth(){
       localStorage.setItem(GOOGLE_EMAIL_KEY, googleUser.email);
       localStorage.setItem(LAST_GOOGLE_AUTH_AT_KEY, now());
     }
+    await createAppSessionFromGoogle();
     updateAuthUI();
     const backendOK=await connectBackend();
     finishAuthBoot();
     updateAuthUI();
     if(backendOK){
-      if(!needsOnboarding())await syncWithDrive({initial:true});
+      await refreshGoogleServerStatus();
+      if(!googleServerConnected){
+        setCloudStatus("pending","Conclua uma vez a autorização persistente do Google");
+        await beginPersistentGoogleAuthorization();
+        return;
+      }
+      if(!needsOnboarding()){try{await prepareSharedFamilyStorage(false)}catch(e){console.warn("Preparação automática do Drive:",e)}await syncWithDrive({initial:true});}
       else setCloudStatus("pending","Complete a configuração inicial");
     }else{
       setCloudStatus("error","Backend não conectado");
@@ -4276,6 +3873,8 @@ function googleLogout(){
   let t=googleAccessToken;
   googleAccessToken="";googleTokenExpiresAt=0;googleUser=null;driveFileId=null;
   backendProfile=null;
+  googleServerConnected=false;googleServerScopes="";
+  saveAppSession("",0);
   setBackendStatus("aguardando login");
   localStorage.setItem(REMEMBER_GOOGLE_KEY,"0");
   localStorage.removeItem(GOOGLE_EMAIL_KEY);
@@ -4285,10 +3884,18 @@ function googleLogout(){
 }
 function tokenValid(){return googleAccessToken&&Date.now()<googleTokenExpiresAt}
 async function apiFetch(url,opt={}){
- await ensureFreshGoogleToken();
- const makeRequest=async()=>{const h=new Headers(opt.headers||{});h.set("Authorization","Bearer "+googleAccessToken);return await fetch(url,{...opt,headers:h})};
- let r=await makeRequest();
- if(r.status===401){googleTokenExpiresAt=0;await ensureFreshGoogleToken(true);r=await makeRequest()}
+ const fetchOpt={...opt};delete fetchOpt._noGoogleRenew;
+ const target=String(url||"");
+ const isGoogleApi=/^https:\/\/www\.googleapis\.com\/(drive\/v3\/|upload\/drive\/v3\/|calendar\/v3\/)/.test(target);
+ if(/^https:\/\/www\.googleapis\.com\/oauth2\/v3\/userinfo/.test(target)){
+   const h=new Headers(fetchOpt.headers||{});if(googleAccessToken)h.set("Authorization","Bearer "+googleAccessToken);return fetch(target,{...fetchOpt,headers:h});
+ }
+ if(!isGoogleApi)return fetch(target,fetchOpt);
+ if(!appSessionValid()){const e=new Error("Sessão do Diário necessária para acessar o Google.");e.code="APP_SESSION_REQUIRED";throw e}
+ if(!googleServerConnected){await refreshGoogleServerStatus().catch(()=>false)}
+ if(!googleServerConnected){const e=new Error("Autorize o Google uma vez para ativar a sincronização automática.");e.code="GOOGLE_OFFLINE_AUTH_REQUIRED";throw e}
+ const r=await googleServerFetch(target,fetchOpt);
+ if(r.status===428){googleServerConnected=false;const e=new Error("A autorização persistente do Google precisa ser renovada.");e.code="GOOGLE_OFFLINE_AUTH_REQUIRED";throw e}
  if(!r.ok)throw new Error("Google API "+r.status+": "+await r.text().catch(()=>""));
  return r;
 }
@@ -4440,7 +4047,6 @@ function updateVisibleDriveStatus(message){
   if(el) el.textContent=message;
 }
 async function openVisiblePhotosFolder(){
-  if(!tokenValid()) return alert("Entre com Google antes de abrir a pasta.");
   try{
     updateVisibleDriveStatus("Preparando pasta...");
     const id=await ensureVisiblePhotosRoot();
@@ -4453,7 +4059,6 @@ async function openVisiblePhotosFolder(){
   }
 }
 async function organizeExistingPhotos(){
-  if(!tokenValid()) return alert("Entre com Google antes de organizar as fotos.");
   const all=Object.values(state.entries||{}).flat();
   const pendingCount=all.reduce((total,e)=>total+entryPhotos(e).filter(p=>!(p.visibleDriveId||p.driveId)&&(p.mediaId||photoDisplayData(p))).length,0);
   if(!pendingCount){
@@ -4505,12 +4110,16 @@ function collectivePhotoDriveId(entry,index){
  return "";
 }
 async function hydrateMedia(){
+ // Hidratação roda automaticamente ao abrir/recarregar o PWA. Ela pode usar
+ // mídia local sem Google, mas NUNCA deve iniciar renovação OAuth sozinha.
+ // Downloads do Drive ficam para quando já existir um access token válido.
+ const canReadDrive=!!(appSessionValid()&&googleServerConnected);
  let changed=false;
  for(const list of Object.values(state.entries)){
   for(const e of list){
-   const photos=entryPhotos(e);for(const p of photos){if(!photoDisplayData(p)){try{const local=await mediaGet(p.mediaId);if(local?.data){p._previewData=local.data;changed=true}else if(p.visibleDriveId||p.driveId){p._previewData=await downloadAsDataUrl(p.visibleDriveId||p.driveId);changed=true}}catch(err){console.warn("Não foi possível carregar foto",e.id,err)}}}e.photos=photos;e.foto="";
-   if(!e.audio&&e.audioDriveId){
-     try{e.audio=await downloadAsDataUrl(e.audioDriveId);changed=true}catch(err){}
+   const photos=entryPhotos(e);for(const p of photos){if(!photoDisplayData(p)){try{const local=await mediaGet(p.mediaId);if(local?.data){p._previewData=local.data;changed=true}else if(canReadDrive&&(p.visibleDriveId||p.driveId)){p._previewData=await downloadAsDataUrl(p.visibleDriveId||p.driveId,{background:true});changed=true}}catch(err){console.warn("Não foi possível carregar foto",e.id,err)}}}e.photos=photos;e.foto="";
+   if(!e.audio&&e.audioDriveId&&canReadDrive){
+     try{e.audio=await downloadAsDataUrl(e.audioDriveId,{background:true});changed=true}catch(err){}
    }
   }
  }
@@ -4523,8 +4132,8 @@ async function cleanupUploadedLocalMedia(){
  const ids=[...new Set(photos.map(p=>p.mediaId).filter(Boolean))];
  for(const id of ids){const refs=photos.filter(p=>p.mediaId===id);if(refs.length&&refs.every(p=>p.visibleDriveId||p.driveId)){try{await mediaDelete(id);refs.forEach(p=>{delete p.data;delete p._previewData})}catch(e){console.warn("Não foi possível liberar mídia local",id,e)}}}
 }
-async function downloadAsDataUrl(id){
- let r=await apiFetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`),b=await r.blob();
+async function downloadAsDataUrl(id,opt={}){
+ let r=await apiFetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`,opt.background?{_noGoogleRenew:true}:{}),b=await r.blob();
  return await new Promise((ok,fail)=>{let fr=new FileReader();fr.onload=()=>ok(fr.result);fr.onerror=fail;fr.readAsDataURL(b)})
 }
 
@@ -4780,7 +4389,7 @@ function countEntryChanges(beforePayload,afterPayload){
  return n;
 }
 async function syncSharedFamilyDrive(opt={}){
-  if(syncing||!tokenValid())return;
+  if(syncing||!appSessionValid())return;
 
   syncing=true;
   setCloudStatus("busy","Sincronizando família...");
@@ -4840,18 +4449,9 @@ async function syncSharedFamilyDrive(opt={}){
     renderSharedStorageStatus(true,`Ativo · última sincronização ${syncTime} · ${changedEntries} registro${changedEntries===1?"":"s"} atualizado${changedEntries===1?"":"s"}.`);
   }catch(e){
     console.error(e);
-    if(e?.code==="DRIVE_PICKER_REQUIRED" || e?.message==="DRIVE_PICKER_REQUIRED"){
-      setCloudStatus("pending","Conecte o Drive da família nesta conta");
-      renderSharedStorageStatus(
-        false,
-        "Drive da família encontrado. Clique em Conectar Drive da família.",
-        true
-      );
-      if(opt.manual)alert("Antes de sincronizar, conecte o Drive da família pelo botão em Configurações.");
-    }else{
-      setCloudStatus("error","Falha na sincronização compartilhada; dados locais preservados");
-      if(opt.manual)alert("Não foi possível sincronizar agora: "+e.message);
-    }
+    setCloudStatus("error","Falha na sincronização com o Drive; dados locais preservados");
+    renderSharedStorageStatus(false,"Não foi possível sincronizar o Drive agora. A próxima tentativa será automática.");
+    if(opt.manual)alert("Não foi possível sincronizar agora: "+e.message);
   }finally{
     syncing=false;
   }
@@ -4868,7 +4468,7 @@ async function uploadState(payload){
  localStorage.setItem("DE_V2_LAST_SYNC",payload.updatedAt)
 }
 async function syncLegacyPrivateDrive(opt={}){
- if(syncing||!tokenValid())return;syncing=true;setCloudStatus("busy","Sincronizando...");
+ if(syncing||!appSessionValid())return;syncing=true;setCloudStatus("busy","Sincronizando...");
  try{
   await ensureMediaRefs();saveLocal(false);
   let f=await findSyncFile(),remote=null;
@@ -4885,7 +4485,7 @@ async function syncLegacyPrivateDrive(opt={}){
 async function syncWithDrive(opt={}){
   let fam=currentBackendFamily();
 
-  if(!fam && googleAccessToken){
+  if(!fam && appSessionValid()){
     if(!backendProfile?.user){
       const ok=await connectBackend();
       if(!ok){
@@ -5516,7 +5116,7 @@ function syncPrimaryRecordComponent(){
 async function analyzeRecordComponents(){
  const child=currentChild(),status=$("experienceComponentStatus"),btn=$("analyzeExperienceBtn");
  if(!child)return alert("Selecione uma criança.");
- if(!googleAccessToken)return alert("Entre com Google para usar a análise.");
+ if(!appSessionValid())return alert("Sua sessão do Diário expirou. Entre com Google novamente.");
  const backendChildId=localToBackendChildId(activeChildId),activity=String($("fActivity")?.value||"").trim();
  if(!backendChildId)return alert("Esta criança ainda não está vinculada ao backend.");
  if(activity.length<8)return alert("Conte um pouco mais sobre o que vocês fizeram ou aprenderam.");
@@ -5927,7 +5527,7 @@ async function testAiBnccSuggestion(){
  const child=currentChild();
  const btn=$("aiBnccTestBtn"),status=$("aiBnccTestStatus"),box=$("aiBnccTestResults");
  if(!child)return alert("Selecione uma criança.");
- if(!googleAccessToken)return alert("Entre com Google para testar a IA.");
+ if(!appSessionValid())return alert("Sua sessão do Diário expirou. Entre com Google novamente.");
  const backendChildId=localToBackendChildId(activeChildId);
  if(!backendChildId)return alert("Esta criança ainda não está vinculada ao backend.");
 
@@ -6345,7 +5945,7 @@ function adminAiOperationLabel(value){return value==="semantic_search"?"Embeddin
 function adminAiNumber(value){return Number(value||0).toLocaleString("pt-BR")}
 function adminAiUsd(micros){return (Number(micros||0)/1000000).toLocaleString("pt-BR",{style:"currency",currency:"USD",minimumFractionDigits:4,maximumFractionDigits:6})}
 async function loadAdminAiUsage(){
- const box=$("adminAiUsageBox");if(!box||!googleAccessToken)return;
+ const box=$("adminAiUsageBox");if(!box||!appSessionValid())return;
  const todayIso=today(),month=todayIso.slice(0,8)+"01",from=$("adminAiUsageFrom"),to=$("adminAiUsageTo");
  if(from&&!from.value)from.value=month;if(to&&!to.value)to.value=todayIso;
  box.innerHTML="Carregando consumo de IA…";
@@ -6378,7 +5978,7 @@ async function showAdminPendingSystemNotification(total,books,materials){
  }catch(e){console.warn("Notificação de validação:",e)}
 }
 async function checkAdminPendingValidations(forceNotify=false){
- if(!googleAccessToken){isGlobalDiaryAdmin=false;$("globalAdminMenuGroup")?.classList.add("hidden");return}
+ if(!appSessionValid()){isGlobalDiaryAdmin=false;$("globalAdminMenuGroup")?.classList.add("hidden");return}
  try{
   const [bookData,matData]=await Promise.all([backendFetch("/community-books/pending"),backendFetch("/materials/pending")]);
   const books=(bookData?.books||[]).length,materials=(matData?.materials||[]).length,total=books+materials;
@@ -6677,9 +6277,9 @@ async function deleteEntry(id){
  saveLocal(false);renderAll(true);
  setCloudStatus("pending","Exclusão aguardando sincronização");
  try{
-   if(tokenValid()&&currentBackendFamily())await syncSharedFamilyDrive({manual:true});
+   if(appSessionValid()&&googleServerConnected&&currentBackendFamily())await syncSharedFamilyDrive({manual:true});
    // Só remove os arquivos físicos depois que a exclusão foi registrada no JSON compartilhado.
-   if(tokenValid())await deleteDriveMediaBestEffort(entry);
+   if(appSessionValid()&&googleServerConnected)await deleteDriveMediaBestEffort(entry);
  }catch(e){
    console.error(e);
    setCloudStatus("pending","Exclusão salva; será sincronizada quando possível");
@@ -6722,22 +6322,9 @@ let diaryCalendarId=localStorage.getItem(DIARY_CALENDAR_ID_KEY)||"";
 let pendingImportedCalendarEvent=null;
 
 async function calendarApiFetch(url,options={}){
- await ensureFreshGoogleToken();
- if(!googleAccessToken)throw new Error("Entre com Google para usar o calendário.");
- const headers={...(options.headers||{}),"Authorization":"Bearer "+googleAccessToken};
- if(options.body&&!headers["Content-Type"])headers["Content-Type"]="application/json";
- let res=await fetch(url,{...options,headers});
- if(res.status===401){
-  googleTokenExpiresAt=0;await ensureFreshGoogleToken(true);headers["Authorization"]="Bearer "+googleAccessToken;
-  res=await fetch(url,{...options,headers});
- }
- if(!res.ok){
-  let msg="Não foi possível acessar o Google Calendar.";
-  try{const d=await res.json();msg=d?.error?.message||msg}catch(e){}
-  throw new Error(msg);
- }
+ const res=await apiFetch(url,options);
  if(res.status===204)return null;
- return res.json()
+ return res.json();
 }
 async function findExistingDiaryCalendar(){
  let pageToken="";
@@ -6767,14 +6354,14 @@ async function ensureDiaryCalendar(createIfMissing=true){
  diaryCalendarId=cal.id;localStorage.setItem(DIARY_CALENDAR_ID_KEY,diaryCalendarId);return cal
 }
 async function setupDiaryCalendar(){
- if(!googleAccessToken)return googleLogin();
+ if(!googleServerConnected)return beginPersistentGoogleAuthorization();
  const status=$("calendarIntegrationStatus"),btn=$("calendarIntegrationBtn");if(status)status.textContent="Preparando o calendário…";if(btn)btn.disabled=true;
  try{const cal=await ensureDiaryCalendar(true);if(status)status.textContent=`Conectado · ${cal.summary||DIARY_CALENDAR_NAME}`;if(btn){btn.textContent="Conectado";btn.classList.add("calendar-status-button");btn.disabled=true}}
  catch(e){if(status)status.textContent=e.message||"Não foi possível conectar.";if(btn){btn.textContent="Tentar novamente";btn.classList.remove("calendar-status-button");btn.disabled=false}}
 }
 async function refreshCalendarIntegrationUI(){
  const status=$("calendarIntegrationStatus"),btn=$("calendarIntegrationBtn");if(!status||!btn)return;
- if(!googleAccessToken){status.textContent="Entre com Google para conectar.";btn.textContent="Conectar";btn.classList.remove("calendar-status-button");btn.disabled=false;return}
+ if(!googleServerConnected){status.textContent="Autorize o Google uma vez para ativar.";btn.textContent="Autorizar";btn.classList.remove("calendar-status-button");btn.disabled=false;return}
  try{
   const cal=await ensureDiaryCalendar(false);
   if(cal){status.textContent=`Conectado · ${cal.summary||DIARY_CALENDAR_NAME}`;btn.textContent="Conectado";btn.classList.add("calendar-status-button");btn.disabled=true}
@@ -6825,7 +6412,7 @@ async function loadCalendarSources(){
 async function openCalendarImport(){
  const card=$("calendarImportCard"),status=$("calendarImportStatus"),box=$("calendarImportList"),picker=$("calendarSourcePicker");
  card?.classList.remove("hidden");if(status)status.textContent="Carregando agendas…";if(box)box.innerHTML="";if(picker)picker.innerHTML="";
- if(!googleAccessToken){if(status)status.innerHTML='Entre com Google para consultar seus eventos. <button class="btn small" type="button" onclick="googleLogin()">Entrar com Google</button>';return}
+ if(!appSessionValid()){if(status)status.textContent="Sua sessão do Diário expirou. Entre novamente.";return}
  try{const calendars=await loadCalendarSources();window.diaryCalendarSources=calendars;renderCalendarSources(calendars);if(status)status.textContent=calendars.length?"Selecione as agendas que deseja consultar.":"Nenhuma agenda de origem disponível."}
  catch(e){const msg=String(e?.message||e);if(status)status.innerHTML=/insufficient|scope|authentication scopes|403/i.test(msg)?`Falta autorização para ler seus eventos pessoais. <button class="btn small primary" type="button" onclick="reauthorizeGoogleCalendar()">Autorizar leitura do Calendar</button>`:esc(msg)}
 }
@@ -6898,7 +6485,7 @@ async function updateImportedCalendarCopy(planId,itemIndex){
 }
 let checkingImportedCalendarChanges=false;
 async function checkImportedCalendarChanges(){
- if(checkingImportedCalendarChanges||!googleAccessToken)return;const plans=state.plans.filter(p=>p.importedCalendarId&&p.importedCalendarEventId);if(!plans.length)return;checkingImportedCalendarChanges=true;let changedState=false;
+ if(checkingImportedCalendarChanges||!appSessionValid()||!googleServerConnected)return;const plans=state.plans.filter(p=>p.importedCalendarId&&p.importedCalendarEventId);if(!plans.length)return;checkingImportedCalendarChanges=true;let changedState=false;
  try{for(const plan of plans){try{const source=await fetchOriginalCalendarEvent(plan),changed=!!plan.importedCalendarFingerprint&&plan.importedCalendarFingerprint!==calendarEventFingerprint(source);if(plan.importedCalendarChanged!==changed){plan.importedCalendarChanged=changed;changedState=true}}catch(e){console.warn("Não foi possível conferir evento original:",e)}}if(changedState){saveLocal();renderPlans()}}finally{checkingImportedCalendarChanges=false}
 }
 async function deleteCalendarEventForPlan(plan){
@@ -6957,7 +6544,7 @@ function renderPlanPlaceResults(items=[]){
 async function searchPlanPlaces(){
  const q=planPlaceValue();
  if(q.length<3){hidePlanPlaceResults();return}
- if(!googleAccessToken){hidePlanPlaceResults();return}
+ if(!appSessionValid()){hidePlanPlaceResults();return}
  if(!planPlaceSessionToken)newPlacesSession();
  try{
   const data=await backendFetch("/places/autocomplete",{method:"POST",body:JSON.stringify({input:q,session_token:planPlaceSessionToken})});
@@ -7833,7 +7420,7 @@ function updateHistoryBnccBatchSelection(){
 function historyBatchResultById(id){return historyBnccBatchResults.find(x=>x.entryId===id)}
 async function startHistoryBnccBatch(){
   if(historyBnccBatchRunning)return;
-  if(!googleAccessToken)return alert("Entre com Google para usar a análise.");
+  if(!appSessionValid())return alert("Sua sessão do Diário expirou. Entre com Google novamente.");
   const childId=$("historyBrowseChild")?.value||activeChildId,backendChildId=localToBackendChildId(childId);
   if(!backendChildId)return alert("Esta criança ainda não está vinculada ao backend.");
   const ids=[...historyBnccSelected].slice(0,10),entries=ids.map(id=>(state.entries[childId]||[]).find(x=>x.id===id)).filter(Boolean);
@@ -8000,11 +7587,27 @@ async function init(){
  setInterval(()=>{if(document.visibilityState==="visible")queueSavedPlanningWeatherRefresh()},60*60*1000);
 
  setBackendStatus("aguardando login");
- if(rememberGoogleEnabled()&&rememberedGoogleEmail()){
-   setCloudStatus("busy","Preparando reconexão com Google...");
-   tryAutomaticGoogleReconnect();
-   setTimeout(()=>{if(!authBootFinished){finishAuthBoot();updateAuthUI()}},3500);
+ if(appSessionValid()){
+   setCloudStatus("online","Sessão do Diário restaurada");
+   const backendOK=await connectBackend();
+   finishAuthBoot();
+   updateAuthUI();
+   if(backendOK){
+     await refreshGoogleServerStatus();
+     const oauthResult=new URLSearchParams(location.search).get("google_oauth");
+     if(oauthResult){history.replaceState({},"",location.pathname+location.hash)}
+     if(googleServerConnected){
+       setCloudStatus("online","Diário e Google conectados");
+       if(!needsOnboarding())setTimeout(async()=>{try{await prepareSharedFamilyStorage(false)}catch(e){console.warn("Preparação automática do Drive:",e)}await syncWithDrive({silent:true})},350);
+     }else if(oauthResult!=="error"){
+       setCloudStatus("busy","Preparando a autorização Google única...");
+       setTimeout(()=>beginPersistentGoogleAuthorization(),250);
+     }else{
+       setCloudStatus("pending","A autorização Google não foi concluída");
+     }
+   }
  }else{
+   saveAppSession("",0);
    setCloudStatus("","Aguardando login");
    finishAuthBoot();
  }
@@ -8012,7 +7615,7 @@ async function init(){
 window.addEventListener("load",init);
 window.addEventListener("focus",()=>{if(!navigator.onLine)updateAuthUI()});
 window.addEventListener("offline",()=>{restoreBackendProfileForOffline();updateAuthUI();setCloudStatus("pending","Sem internet · alterações ficam neste dispositivo")});
-window.addEventListener("online",()=>{if(tokenValid()){setCloudStatus("busy","Internet voltou · sincronizando...");syncWithDrive({silent:true})}else{setCloudStatus("pending","Internet voltou · reconecte o Google para sincronizar");tryAutomaticGoogleReconnect()}});
+window.addEventListener("online",()=>{if(appSessionValid()&&googleServerConnected){setCloudStatus("busy","Internet voltou · sincronizando...");syncWithDrive({silent:true})}else if(appSessionValid()){setCloudStatus("pending","Internet voltou · verificando Google...");refreshGoogleServerStatus().then(ok=>{if(ok)syncWithDrive({silent:true});else setCloudStatus("pending","Autorização Google necessária")})}else{setCloudStatus("pending","Internet voltou · entre com Google")}});
 window.addEventListener("pagehide",()=>{try{saveRecordDraft(true)}catch(e){}});
 document.addEventListener("visibilitychange",()=>{
  if(document.visibilityState==="hidden"){try{saveRecordDraft(true)}catch(e){}closeBookBarcodeScanner()}
@@ -8027,7 +7630,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "12.4";
+const APP_VERSION = "13.3";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
