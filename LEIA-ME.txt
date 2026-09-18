@@ -47,3 +47,6 @@ estática. Recomendo abrir no celular e no PC antes de considerar fechado.
 Autorização Google persistente via Worker (OAuth web-server/offline).
 Após a autorização inicial, Drive e Calendar usam refresh token no backend para sincronização automática sem novos popups durante o uso normal.
 Requer publicar worker-v13.0.js, executar migracao-v13.sql, cadastrar GOOGLE_CLIENT_SECRET e adicionar o redirect URI do Worker no Google Cloud.
+
+
+v13.5: revisão visual, seções recolhíveis, Para retomar e Calendar contextual.

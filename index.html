@@ -1232,6 +1232,20 @@ header .brand-motto{display:none!important}
   .today-copy>.grid>div:last-child.today-child-select{margin-top:12px!important}
 }
 
+
+/* v13.5 · refinamentos visuais e retomadas */
+.collapsible-head{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;user-select:none}
+.collapsible-head button{border:0;background:transparent;color:#6B2737;font-size:18px;padding:5px 8px;cursor:pointer}
+.plan-section-title.collapsible-head{margin-top:18px}
+.plan-section-body.is-collapsed,.settings-collapse-body.is-collapsed{display:none}
+.retake-card{border-left:4px solid #C69A55;background:#FFFDF8}
+.retake-origin{font-size:12px;color:#756d66;margin-top:5px}
+.settings-section.v135-collapsible{padding-top:12px}.settings-section.v135-collapsible>.settings-collapse-head{display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer}.settings-section.v135-collapsible>.settings-collapse-head h3{margin:0}.settings-summary{font-size:12px;color:#756d66;margin-left:auto}.settings-chevron{border:0;background:transparent;color:#6B2737;font-size:18px;cursor:pointer;padding:4px 7px}
+.calendar-inline-connect{margin-top:10px;padding:10px 12px;border-radius:12px;background:#FFF8EA;border:1px solid #E2C56D}.calendar-inline-connect .btn{margin-top:8px}
+@media(max-width:640px){.today-top-actions .btn{min-height:44px!important;padding:8px 12px!important}.today-top-actions .btn .desktop-action-label{display:none}.today-top-actions .btn .mobile-action-label{display:inline}.routine-actions .open-reading-action{display:none!important}.entry-actions{gap:7px}.entry-actions .btn{padding-left:10px;padding-right:10px}}
+@media(min-width:641px){.mobile-action-label{display:none}.desktop-action-label{display:inline}}
+
+.today-plans-inline>.notice{background:#F7F1E7!important;border-color:#E7DDCF!important;color:#6D655E!important}
 </style>
 </head>
 <body class="auth-checking">
@@ -1371,10 +1385,10 @@ header .brand-motto{display:none!important}
 
         <div id="planCalendarWrap" class="full calendar-plan-box">
           <label style="display:flex;gap:9px;align-items:flex-start;cursor:pointer">
-            <input id="planAddToCalendar" type="checkbox" style="width:auto;margin-top:3px">
+            <input id="planAddToCalendar" type="checkbox" style="width:auto;margin-top:3px" onchange="handlePlanCalendarChoice(this.checked)">
             <span><b>Mostrar este planejamento no meu Google Calendar</b><br><span class="meta">O Diário usa um calendário separado chamado “Diário de Estudos”.</span></span>
           </label>
-          <div id="planCalendarImportedInfo" class="meta hidden" style="margin-top:7px"></div>
+          <div id="planCalendarImportedInfo" class="meta hidden" style="margin-top:7px"></div><div id="planCalendarConnectBox" class="calendar-inline-connect hidden"></div>
         </div>
 
         <div class="full recurrence-box"><label class="field">Repetir?</label>
@@ -2215,7 +2229,7 @@ function showPage(name){
  document.querySelectorAll(".nav-tab").forEach(x=>x.classList.toggle("active",x.dataset.page===name));
  if(name==="inicio"){renderDashboard()}
  if(name==="registro")renderRecordPage();
- if(name==="planejamento"){renderPlans();refreshCalendarIntegrationUI();} if(name==="mais"){refreshCalendarIntegrationUI();checkAdminPendingValidations(false);refreshAsaasBilling();} if(name==="administracao"){updateAdminValidationNotificationStatus();loadAdminAccessGrants();loadAllowedSignups();loadAdminAiUsage();loadPendingCommunityBooks();loadPendingMaterials();}
+ if(name==="planejamento"){renderPlans();refreshCalendarIntegrationUI();} if(name==="configuracoes"){setTimeout(initFamilySettingsCollapsibles,0);} if(name==="mais"){refreshCalendarIntegrationUI();checkAdminPendingValidations(false);refreshAsaasBilling();} if(name==="administracao"){updateAdminValidationNotificationStatus();loadAdminAccessGrants();loadAllowedSignups();loadAdminAiUsage();loadPendingCommunityBooks();loadPendingMaterials();}
  if(name==="relatorios")renderReportPage();
  if(name==="historico"){renderHistoryBrowser();renderHistoryBatchRows();refreshHistoryActivityOptions();}
  if(name==="leituras"){renderReadingPage();}
@@ -2913,7 +2927,7 @@ function renderBackendFamilyPanels(){
   }
 }
 
-// v13.4: integração Drive simplificada. O app usa somente arquivos/pastas
+// v13.5: integração Drive simplificada. O app usa somente arquivos/pastas
 // criados pela própria aplicação na conta Google autorizada; sem Picker e sem
 // compartilhamento automático de pastas entre contas.
 
@@ -2957,7 +2971,7 @@ async function prepareSharedFamilyStorage(showMessage=false){
     throw err;
   }
 
-  // v13.4: o Drive pertence à própria conta Google autorizada.
+  // v13.5: o Drive pertence à própria conta Google autorizada.
   // Não usamos Picker, permissões compartilhadas nem IDs de Drive de outra conta.
   const folderName=`Diário de Estudos - ${fam.name}`;
   let folderId=localStorage.getItem(VISIBLE_ROOT_ID_KEY)||"";
@@ -3958,7 +3972,7 @@ async function createVisibleFolder(name,parentId=null){
   });
   return await res.json();
 }
-// v13.4: helpers canônicos para o arquivo JSON visível da família.
+// v13.5: helpers canônicos para o arquivo JSON visível da família.
 // A v13.3 removeu as implementações antigas junto com o Picker, mas a rotina
 // prepareSharedFamilyStorage ainda dependia destes nomes.
 async function findVisibleFile(name,parentId,mimeType=""){
@@ -4748,7 +4762,7 @@ function renderDashboard(){
  box.innerHTML=`<div class="card today-hero-card">
   <div class="today-top-row">
    <div class="today-top-info">${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje</h2><div class="meta">${fmtDate(td)}</div><div class="today-child-select"><select aria-label="Selecionar criança" onchange="selectChild(this.value);showPage('inicio')">${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===child.id?'selected':''}>${esc(firstName(c.name))}</option>`).join('')}</select></div></div>
-   <div class="today-top-actions"><button class="btn success" onclick="openTodayRecord()">+ Registrar atividade</button><button class="btn" onclick="showPage('planejamento');openNewPlanForm()">+ Planejar atividade</button></div>
+   <div class="today-top-actions"><button class="btn success" onclick="openTodayRecord()"><span class="desktop-action-label">+ Registrar atividade</span><span class="mobile-action-label">+ Registrar</span></button><button class="btn" onclick="showPage('planejamento');openNewPlanForm()"><span class="desktop-action-label">+ Planejar atividade</span><span class="mobile-action-label">+ Planejar</span></button></div>
   </div>
   <hr class="today-divider">
   <div class="today-plans-inline"><div class="toolbar" style="justify-content:flex-end"><button class="section-link" type="button" onclick="showPage('planejamento')">Ver todos ›</button></div>${todayPlans.map(planHtml).join('')||"<div class='notice'>Nada planejado para hoje. Você pode registrar uma atividade que aconteceu sem planejamento.</div>"}</div>
@@ -6694,7 +6708,7 @@ function clearPlanForm(){
  if($("planFormTitle"))$("planFormTitle").textContent="Novo planejamento";if($("planSaveBtn"))$("planSaveBtn").textContent="Salvar planejamento";
  renderPlanChildrenPicker(activeChildId?[activeChildId]:[]);
 }
-function openNewPlanForm(){clearPlanForm();togglePlanForm(true)}
+function openNewPlanForm(){window.v135RetakeSource=null;clearPlanForm();togglePlanForm(true)}
 function cancelPlanEdit(){clearPlanForm();togglePlanForm(false)}
 async function editPlan(id){
  const p=state.plans.find(x=>x.id===id);if(!p)return;resetPlanCalendarOrigin();editingPlanId=id;activeChildId=planChildIds(p)[0]||p.childId;
@@ -6719,8 +6733,8 @@ async function addPlan(){
  const placeDetails=selectedPlanPlace?{...selectedPlanPlace}:null;
  const existing=editingPlanId?state.plans.find(x=>x.id===editingPlanId):null;
  if(!weather&&existing&&(existing.nextDate||existing.date)===start&&existing.place===planPlaceValue())weather=existing.weather||null;
- const plan=existing?{...existing,childId,childIds,title,notes:$("planNotes").value.trim(),place:planPlaceValue(),placeDetails,weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",recurrence,weekdays,endDate:$("planEndDate")?.value||"",nextDate:start,date:(existing.occurrences||[]).length?existing.date:start,updatedAt:now()}:{id:uid(),childId,childIds,date:start,nextDate:start,type:"planned",complementaryId:"",component:"",title,notes:$("planNotes").value.trim(),place:planPlaceValue(),placeDetails,weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",materialBnccCode:"",materialBnccDescription:"",materialBnccComponent:"",materialBnccArea:"",materialBnccSkills:[],recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],participantProgress:{},createdAt:now(),updatedAt:now(),completedAt:"",importedCalendarId:imported?.calendarId||"",importedCalendarName:imported?.calendarName||"",importedCalendarEventId:imported?.eventId||"",importedCalendarHtmlLink:imported?.htmlLink||"",importedCalendarUpdated:imported?.updated||"",importedCalendarFingerprint:imported?.fingerprint||"",importedCalendarChanged:false};
- if(!existing)state.plans.push(plan);else Object.assign(existing,plan);
+ const plan=existing?{...existing,childId,childIds,title,notes:$("planNotes").value.trim(),place:planPlaceValue(),placeDetails,weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",recurrence,weekdays,endDate:$("planEndDate")?.value||"",nextDate:start,date:(existing.occurrences||[]).length?existing.date:start,updatedAt:now()}:{id:uid(),sourceEntryId:window.v135RetakeSource?.entryId||"",childId,childIds,date:start,nextDate:start,type:"planned",complementaryId:"",component:"",title,notes:$("planNotes").value.trim(),place:planPlaceValue(),placeDetails,weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",materialBnccCode:"",materialBnccDescription:"",materialBnccComponent:"",materialBnccArea:"",materialBnccSkills:[],recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],participantProgress:{},createdAt:now(),updatedAt:now(),completedAt:"",importedCalendarId:imported?.calendarId||"",importedCalendarName:imported?.calendarName||"",importedCalendarEventId:imported?.eventId||"",importedCalendarHtmlLink:imported?.htmlLink||"",importedCalendarUpdated:imported?.updated||"",importedCalendarFingerprint:imported?.fingerprint||"",importedCalendarChanged:false};
+ if(!existing)state.plans.push(plan);else Object.assign(existing,plan);window.v135RetakeSource=null;
  const shouldAddCalendar=!!$("planAddToCalendar")?.checked&&!imported;
  clearPlanForm();togglePlanForm(false);saveLocal();renderPlans();renderDashboard();
  if(existing&&plan.calendarEventId){try{await updateCalendarEventForEditedPlan(plan);saveLocal();renderPlans()}catch(e){alert("As alterações foram salvas no Diário, mas não foi possível atualizar a cópia no Google Calendar: "+(e.message||e))}}
@@ -6736,6 +6750,18 @@ function togglePlanForm(open){
   $('planTitle')?.focus()
  }else if(!editingPlanId)resetPlanCalendarOrigin()
 }
+const V135_PLAN_SECTION_KEY="DE_V135_PLAN_SECTIONS";
+function v135SectionState(){try{return JSON.parse(localStorage.getItem(V135_PLAN_SECTION_KEY)||"{}")||{}}catch{return {}}}
+function v135SectionOpen(key,defaultOpen=true){const x=v135SectionState();return key in x?!!x[key]:defaultOpen}
+function togglePlanSection(key){const x=v135SectionState();x[key]=!v135SectionOpen(key,true);localStorage.setItem(V135_PLAN_SECTION_KEY,JSON.stringify(x));renderPlans()}
+function planSectionHtml(key,title,count,html,defaultOpen=true){const open=v135SectionOpen(key,defaultOpen);return `<div class="plan-section-title collapsible-head" onclick="togglePlanSection('${key}')"><span>${esc(title)} · ${count}</span><button type="button" aria-label="${open?'Ocultar':'Mostrar'} ${esc(title)}">${open?'⌃':'⌄'}</button></div><div class="plan-section-body ${open?'':'is-collapsed'}">${html}</div>`}
+function retakeEntries(childId=""){return Object.entries(state.entries||{}).flatMap(([cid,rows])=>(rows||[]).filter(x=>x.status==="Em progresso"&&(!childId||cid===childId)).map(x=>({entry:x,childId:cid}))).sort((a,b)=>String(b.entry.date||"").localeCompare(String(a.entry.date||"")))}
+function retakePlanFor(entryId){return state.plans.find(p=>!p.completedAt&&p.sourceEntryId===entryId)}
+function planRetake(entryId,childId){const e=(state.entries[childId]||[]).find(x=>x.id===entryId);if(!e)return;const existing=retakePlanFor(entryId);if(existing){showPage('planejamento');editPlan(existing.id);return}activeChildId=childId;openNewPlanForm();if($('planTitle'))$('planTitle').value=`Retomar: ${e.atividade||'atividade'}`;if($('planNotes'))$('planNotes').value=`Retomada do registro de ${fmtDate(e.date)}${e.observacoes?`: ${e.observacoes}`:''}`;window.v135RetakeSource={entryId,childId};}
+function renderRetakeCards(childId=""){const rows=retakeEntries(childId);return {count:rows.length,html:rows.map(({entry:e,childId:cid})=>{const child=state.family.children.find(c=>c.id===cid),p=retakePlanFor(e.id);return `<div class="plan-card retake-card"><div class="plan-date">${esc(fmtDate(e.date))} · ${esc(child?.name||'Criança')}</div><div class="entry-title">${esc(e.atividade||'Atividade')}</div>${e.componente?`<div class="skill">${esc(e.componente)}</div>`:''}<div class="retake-origin">Registro original · Em progresso</div><div class="entry-actions">${p?`<button class="btn small" onclick="editPlan('${p.id}')">Retomada planejada para ${esc(fmtDate(p.nextDate||p.date))}</button>`:`<button class="btn success small" onclick="planRetake('${e.id}','${cid}')">+ Planejar nova atividade</button>`}</div></div>`}).join('')}}
+
+async function handlePlanCalendarChoice(checked){const box=$('planCalendarConnectBox');if(!checked){box?.classList.add('hidden');if(box)box.innerHTML='';return}if(!googleServerConnected){if(box){box.classList.remove('hidden');box.innerHTML='<b>Conecte o Google Calendar para usar esta opção.</b><div class="meta">Sua autorização também mantém o Drive sincronizado automaticamente.</div><button class="btn small success" type="button" onclick="beginPersistentGoogleAuthorization()">Conectar Google Calendar</button>'}return}try{const cal=await ensureDiaryCalendar(false);if(!cal&&box){box.classList.remove('hidden');box.innerHTML='<b>Google Calendar ainda não está preparado.</b><div class="meta">O Diário criará uma agenda separada chamada “Diário de Estudos”.</div><button class="btn small success" type="button" onclick="setupDiaryCalendar().then(()=>handlePlanCalendarChoice(true))">Ativar Google Calendar</button>'}else box?.classList.add('hidden')}catch(e){if(box){box.classList.remove('hidden');box.innerHTML=`<b>É preciso autorizar o Calendar.</b><div class="meta">${esc(e.message||'')}</div><button class="btn small success" type="button" onclick="beginPersistentGoogleAuthorization()">Autorizar Google Calendar</button>`}}}
+
 const PLAN_VIEW_FILTER_KEY="DE_V76_PLAN_VIEW_FILTER";
 let planViewChildFilter=localStorage.getItem(PLAN_VIEW_FILTER_KEY)||"all";
 function setPlanViewChildFilter(value){planViewChildFilter=value||"all";localStorage.setItem(PLAN_VIEW_FILTER_KEY,planViewChildFilter);renderPlans()}
@@ -6749,7 +6775,7 @@ function renderPlans(){
  let l=state.plans.filter(x=>!x.completedAt&&(!childId||planIncludesChild(x,childId))&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
  const card=p=>{const names=planChildNames(p),progress=planOccurrenceProgress(p),status=planChildIds(p).map(id=>{const name=state.family.children.find(c=>c.id===id)?.name||"Criança",done=progress[id]?.status==="completed";return `<span class="reading-status" style="margin-right:5px">${done?"✓":"○"} ${esc(name)}</span>`}).join("");return `<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':(p.nextDate||p.date)===td?'is-today':''}" data-plan-id="${esc(p.id)}"><div class="plan-date">${fmtDate(p.nextDate||p.date)} · ${esc(names.join(", "))}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div style="margin-top:5px">${status}</div>`:""}${p.component?`<div class="skill">${esc(p.component)}</div>`:''}${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}${p.materialName?`<div class="meta" style="margin-top:4px">📘 ${esc(p.materialName)}</div>`:""}${p.notes?`<div class="obs">${esc(p.notes)}</div>`:''}${p.calendarEventId?`<div class="meta" style="margin-top:4px">📅 No Google Calendar${p.importedCalendarEventId?" · cópia preservada do beta":""}</div>`:p.importedCalendarEventId?`<div class="meta" style="margin-top:4px">📅 Planejamento importado durante o beta</div>`:""}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">+ Registrar atividade</button><button class="btn small" onclick="editPlan('${p.id}')">Editar</button>${p.recurrence!=='none'?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular / próxima</button>`:''}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`};
  const late=l.filter(p=>(p.nextDate||p.date)<td),now=l.filter(p=>(p.nextDate||p.date)===td),future=l.filter(p=>(p.nextDate||p.date)>td);
- box.innerHTML=`${late.length?`<div class="plan-section-title">Atrasadas · ${late.length}</div>${late.map(card).join('')}`:''}<div class="plan-section-title">Hoje · ${now.length}</div>${now.map(card).join('')||"<div class='notice'>Nada planejado para hoje.</div>"}${future.length?`<div class="plan-section-title">Próximos dias · ${future.length}</div>${future.map(card).join('')}`:''}`;
+ const ret=renderRetakeCards(childId);box.innerHTML=`${ret.count?planSectionHtml('retake','Para retomar',ret.count,ret.html,true):''}${late.length?planSectionHtml('late','Atrasadas',late.length,late.map(card).join(''),true):''}${planSectionHtml('today','Hoje',now.length,now.map(card).join('')||"<div class='notice'>Nada planejado para hoje.</div>",!!now.length)}${future.length?planSectionHtml('future','Próximos dias',future.length,future.map(card).join(''),true):''}`;
  queueSavedPlanningWeatherRefresh();refreshPlannedReadingsAgenda();
 }
 function closePlanParticipantChooser(){$("planParticipantChooser")?.remove()}
@@ -6824,7 +6850,7 @@ async function readingBooksForChild(childId){
 }
 function todayReadingsMarkup(books){
  const active=(books||[]).filter(b=>b.status==="Lendo");
- return active.length?`<div class="card routine-reading"><div class="section-heading"><h3><span class="section-book-icon" aria-hidden="true">▤</span> Leituras em andamento</h3><button class="section-link" type="button" onclick="showPage('leituras')">Ver todas ›</button></div>${active.map(b=>`<div class="routine-reading-row">${b.thumbnail?`<img src="${esc(b.thumbnail)}" alt="Capa de ${esc(b.title||"livro")}">`:`<div class="routine-cover-placeholder" aria-hidden="true">📖</div>`}<div class="routine-reading-content"><b>${esc(b.title||"Livro")}</b><div class="meta routine-author">${esc((b.authors||[]).join(", ")||"Autor não informado")}</div>${b.started_at?`<div class="meta routine-date">▣ Iniciado em ${esc(fmtDate(b.started_at))}</div>`:""}${b.target_finish_at?`<div class="meta">Previsão: ${esc(fmtDate(b.target_finish_at))}</div>`:""}<div class="toolbar routine-actions"><button class="btn small" onclick="openReadingBook('${b.id}')"><span aria-hidden="true">▤</span> Abrir leitura</button><button class="btn small" onclick="startReadingActivity('${b.id}')">+ Registrar atividade</button><button class="btn success small" onclick="completeBookAndRegister('${b.id}')"><span aria-hidden="true">✓</span> Concluir livro</button></div></div></div>`).join("")}</div>`:"";
+ return active.length?`<div class="card routine-reading"><div class="section-heading"><h3><span class="section-book-icon" aria-hidden="true">▤</span> Leituras em andamento</h3><button class="section-link" type="button" onclick="showPage('leituras')">Ver todas ›</button></div>${active.map(b=>`<div class="routine-reading-row">${b.thumbnail?`<img src="${esc(b.thumbnail)}" alt="Capa de ${esc(b.title||"livro")}">`:`<div class="routine-cover-placeholder" aria-hidden="true">📖</div>`}<div class="routine-reading-content"><b>${esc(b.title||"Livro")}</b><div class="meta routine-author">${esc((b.authors||[]).join(", ")||"Autor não informado")}</div>${b.started_at?`<div class="meta routine-date">▣ Iniciado em ${esc(fmtDate(b.started_at))}</div>`:""}${b.target_finish_at?`<div class="meta">Previsão: ${esc(fmtDate(b.target_finish_at))}</div>`:""}<div class="toolbar routine-actions"><button class="btn small" onclick="startReadingActivity('${b.id}')">+ Registrar atividade</button><button class="btn success small" onclick="completeBookAndRegister('${b.id}')"><span aria-hidden="true">✓</span> Concluir livro</button></div></div></div>`).join("")}</div>`:"";
 }
 function renderTodayReadingsFromCache(childId){
  const box=$("todayActiveReading");if(!box||!childId)return;
@@ -6839,7 +6865,7 @@ async function refreshTodayReadings(childId){
 }
 async function refreshPlannedReadingsAgenda(){
  const box=$("plannedReadingsAgenda");if(!box)return;const kids=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan),visible=planViewChildFilter==="all"?kids:kids.filter(c=>c.id===planViewChildFilter);const lists=await Promise.all(visible.map(async child=>({child,books:(await readingBooksForChild(child.id)).filter(b=>b.status==="Planejado")})));if(!$("plannedReadingsAgenda"))return;const items=lists.flatMap(({child,books})=>books.map(book=>({child,book}))).sort((a,b)=>String(a.book.started_at||"").localeCompare(String(b.book.started_at||"")));
- box.innerHTML=items.length?`<div class="plan-section-title">Leituras planejadas · ${items.length}</div>${items.map(({child,book})=>`<div class="plan-card reading-plan-card"><div class="plan-date">${book.started_at?fmtDate(book.started_at):"Sem data"} · ${esc(child.name)}</div><div class="entry-title">${esc(book.title||"Livro")}</div><div class="meta">Leitura planejada${book.target_finish_at?` · previsão de conclusão ${esc(fmtDate(book.target_finish_at))}`:""}</div><div class="entry-actions"><button class="btn success small" onclick="startPlannedBook('${book.id}')">Iniciar leitura</button><button class="btn small" onclick="openReadingBook('${book.id}')">Abrir em Leituras</button></div></div>`).join("")}`:"";
+ box.innerHTML=items.length?planSectionHtml("readings","Leituras planejadas",items.length,items.map(({child,book})=>`<div class="plan-card reading-plan-card"><div class="plan-date">${book.started_at?fmtDate(book.started_at):"Sem data"} · ${esc(child.name)}</div><div class="entry-title">${esc(book.title||"Livro")}</div><div class="meta">Leitura planejada${book.target_finish_at?` · previsão de conclusão ${esc(fmtDate(book.target_finish_at))}`:""}</div><div class="entry-actions"><button class="btn success small" onclick="startPlannedBook('${book.id}')">Iniciar leitura</button></div></div>`).join(""),true):"";
 }
 function renderReadingCards(books){
  const box=$("readingCurrent");if(!box)return;
@@ -7874,6 +7900,10 @@ document.addEventListener("DOMContentLoaded",()=>{
  $("planPlace")?.addEventListener("change",refreshPlanWeather);
  document.addEventListener("click",e=>{if(!e.target.closest("#planPlace")&&!e.target.closest("#planPlaceResults"))hidePlanPlaceResults()});
 });
+
+const V135_SETTINGS_KEY="DE_V135_SETTINGS_SECTIONS";
+function initFamilySettingsCollapsibles(){const root=$('page-configuracoes');if(!root)return;let saved={};try{saved=JSON.parse(localStorage.getItem(V135_SETTINGS_KEY)||'{}')||{}}catch{};root.querySelectorAll('.settings-section').forEach((sec,i)=>{if(sec.classList.contains('v135-collapsible'))return;let h=sec.querySelector(':scope > h3');let title=h?.textContent?.trim();if(!title&&i===0)title='Família';if(!title)return;const key='s'+i+'-'+title.toLowerCase().replace(/[^a-z0-9]+/g,'-');const body=document.createElement('div');body.className='settings-collapse-body';const children=[...sec.children];let head=document.createElement('div');head.className='settings-collapse-head';head.innerHTML=`<h3>${esc(title)}</h3><span class="settings-summary"></span><button class="settings-chevron" type="button" aria-label="Ocultar ou mostrar">⌃</button>`;children.forEach(el=>{if(el===h)return;body.appendChild(el)});if(h)h.remove();sec.prepend(head);sec.append(body);sec.classList.add('v135-collapsible');const open=key in saved?!!saved[key]:true;if(!open){body.classList.add('is-collapsed');head.querySelector('.settings-chevron').textContent='⌄'};head.addEventListener('click',()=>{const closed=body.classList.toggle('is-collapsed');head.querySelector('.settings-chevron').textContent=closed?'⌄':'⌃';saved[key]=!closed;localStorage.setItem(V135_SETTINGS_KEY,JSON.stringify(saved))})})}
+setTimeout(initFamilySettingsCollapsibles,0);
 </script>
 
 
