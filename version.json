@@ -1,5 +1,5 @@
 {
-  "version": "13.7",
-  "build": "2026-09-17",
+  "version": "13.8",
+  "build": "2026-09-17-ui-hotfix",
   "auth": "server-oauth-drive-stable"
 }

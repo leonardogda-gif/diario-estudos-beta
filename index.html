@@ -1247,8 +1247,44 @@ header .brand-motto{display:none!important}
 
 .today-plans-inline>.notice{background:#F7F1E7!important;border-color:#E7DDCF!important;color:#6D655E!important}
 </style>
-\n<style id="v137-corrections">\n/* v13.7 — correções responsivas de leituras e cadastro de material */\n.reading-label-mobile{display:none!important}\n.reading-label-desktop{display:inline!important}\n.reading-complete-secondary{background:#f4e8de!important;border:1px solid #d8c2b4!important;color:#6b2737!important}\n#page-leituras .reading-card{grid-template-columns:96px minmax(0,1fr)!important;align-items:start!important;gap:14px!important}\n#page-leituras .reading-card .book-cover{width:96px!important;height:auto!important;max-height:none!important;aspect-ratio:auto!important;object-fit:contain!important;align-self:start!important;background:transparent!important}\n#page-leituras .reading-card .book-cover-placeholder{width:96px!important;height:136px!important}\n#page-leituras .reading-actions{display:flex!important;flex-wrap:wrap!important;gap:7px!important;width:100%!important}\n#page-leituras .reading-actions .btn{flex:0 1 auto!important;min-width:0!important;white-space:normal!important}\n.material-inline-new{padding:12px;border:1px solid #e5d3c7;border-radius:12px;background:#f8f1e8}\n.record-material-new-trigger{display:inline-flex!important}\n@media(max-width:650px){\n .reading-label-desktop{display:none!important}\n .reading-label-mobile{display:inline!important}\n #page-leituras .reading-card{grid-template-columns:88px minmax(0,1fr)!important;gap:11px!important;padding:11px!important}\n #page-leituras .reading-card .book-cover{width:88px!important;height:auto!important;max-height:none!important;aspect-ratio:auto!important;object-fit:contain!important;border-radius:8px!important}\n #page-leituras .reading-card .book-cover-placeholder{width:88px!important;height:124px!important;min-height:0!important}\n #page-leituras .reading-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;margin-top:10px!important}\n #page-leituras .reading-actions .btn{width:100%!important;min-height:38px!important;padding:7px 6px!important;font-size:12px!important;line-height:1.15!important;white-space:normal!important}\n #page-leituras .reading-actions .btn:last-child:nth-child(3){grid-column:1/-1!important}\n .routine-reading .reading-label-desktop{display:none!important}\n .routine-reading .reading-label-mobile{display:inline!important}\n .routine-reading .routine-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;width:100%!important}\n .routine-reading .routine-actions .btn{min-width:0!important;width:100%!important;padding:7px 5px!important;font-size:12px!important;line-height:1.15!important;white-space:normal!important}\n}\n</style>\n</head>
-<body class="auth-checking">
+<style id="v138-ui-fixes">
+/* v13.8: correções aplicadas aos componentes reais */
+.desktop-action-label,.reading-label-desktop{display:inline!important}
+.mobile-action-label,.reading-label-mobile{display:none!important}
+.reading-complete-secondary{background:#f4e8de!important;border:1px solid #d8c2b4!important;color:#6b2737!important}
+/* Leituras: capa proporcional, sem esticar */
+#page-leituras .reading-card{grid-template-columns:96px minmax(0,1fr)!important;align-items:start!important;gap:14px!important}
+#page-leituras .reading-card img.book-cover{display:block!important;width:96px!important;height:auto!important;max-width:96px!important;max-height:none!important;aspect-ratio:auto!important;object-fit:contain!important;align-self:start!important;background:transparent!important}
+#page-leituras .reading-card .book-cover-placeholder{width:96px!important;height:136px!important}
+#page-leituras .reading-actions{display:flex!important;flex-wrap:wrap!important;gap:7px!important;width:100%!important}
+#page-leituras .reading-actions .btn{min-width:0!important;white-space:normal!important}
+/* Hoje: capa e ações no mesmo padrão, sem sobreposição */
+.routine-reading-row img{display:block!important;width:48px!important;height:auto!important;max-height:90px!important;object-fit:contain!important;align-self:start!important}
+.routine-actions{display:flex!important;flex-wrap:wrap!important;gap:8px!important}
+/* cadastro inline nativo: não depende de JS para revelar os campos */
+.record-material-create{margin-top:10px;border:1px solid #e5d3c7;border-radius:12px;background:#f8f1e8;padding:0 12px}
+.record-material-create>summary{cursor:pointer;font-weight:800;color:#6b2737;padding:11px 0}
+.record-material-create[open]>summary{border-bottom:1px solid #eadfd5;margin-bottom:10px}
+.record-material-create-body{padding:0 0 12px}
+@media(max-width:650px){
+ .desktop-action-label,.reading-label-desktop{display:none!important}
+ .mobile-action-label,.reading-label-mobile{display:inline!important}
+ .today-top-actions{gap:6px!important}
+ .today-top-actions .btn{min-height:38px!important;padding:6px 10px!important}
+ #page-leituras .reading-card{grid-template-columns:78px minmax(0,1fr)!important;gap:10px!important;padding:10px!important}
+ #page-leituras .reading-card img.book-cover{width:78px!important;max-width:78px!important;height:auto!important;max-height:none!important;object-fit:contain!important;border-radius:7px!important}
+ #page-leituras .reading-card .book-cover-placeholder{width:78px!important;height:110px!important;min-height:0!important}
+ #page-leituras .reading-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;margin-top:9px!important}
+ #page-leituras .reading-actions .btn{width:100%!important;min-height:36px!important;padding:6px 5px!important;font-size:11.5px!important;line-height:1.15!important;white-space:normal!important}
+ #page-leituras .reading-actions .btn:nth-child(3){grid-column:1/-1!important}
+ .routine-reading-row{grid-template-columns:54px minmax(0,1fr)!important}
+ .routine-reading-row img{width:54px!important;height:auto!important;max-height:92px!important;object-fit:contain!important}
+ .routine-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;width:100%!important}
+ .routine-actions .btn{width:100%!important;min-width:0!important;padding:6px 5px!important;font-size:11.5px!important;white-space:normal!important}
+}
+</style>
+</head>
+<body data-build="13.8" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -5322,16 +5358,18 @@ function renderRecordPage(){
       <label class="field">Material utilizado (opcional)</label>
       <input id="recordMaterialSearch" placeholder="Busque pelo nome do livro, apostila ou material" oninput="recordMaterialSearchChanged()">
       <div id="recordMaterialResults"></div>
-      <button type="button" class="btn small record-material-new-trigger" style="margin-top:8px" onclick="openRecordMaterialInline(document.getElementById('recordMaterialSearch')?.value||'')">+ Cadastrar novo material</button>
-      <div id="recordMaterialNewForm" class="hidden material-inline-new" style="margin-top:10px">
-        <div class="grid">
-          <div class="full"><label class="field">Nome</label><input id="recordMaterialNewName" placeholder="Nome do livro, apostila ou material"></div>
-          <div><label class="field">Editora / autor</label><input id="recordMaterialNewPublisher" placeholder="Opcional"></div>
-          <div><label class="field">Faixa / ano</label><input id="recordMaterialNewAge" placeholder="Opcional"></div>
-          <div class="full"><label class="field">Descrição / observações</label><textarea id="recordMaterialNewDescription" rows="3" placeholder="Opcional"></textarea></div>
+      <details id="recordMaterialNewForm" class="record-material-create">
+        <summary>+ Cadastrar novo material / livro</summary>
+        <div class="record-material-create-body">
+          <div class="grid">
+            <div class="full"><label class="field">Nome <span class="field-pill required-pill">Obrigatório</span></label><input id="recordMaterialNewName" placeholder="Nome do livro, apostila ou material"></div>
+            <div><label class="field">Editora / autor <span class="field-pill optional-pill">Opcional</span></label><input id="recordMaterialNewPublisher"></div>
+            <div><label class="field">Faixa / ano <span class="field-pill optional-pill">Opcional</span></label><input id="recordMaterialNewAge"></div>
+            <div class="full"><label class="field">Descrição / observações <span class="field-pill optional-pill">Opcional</span></label><textarea id="recordMaterialNewDescription" rows="3"></textarea></div>
+          </div>
+          <div class="toolbar" style="margin-top:8px"><button type="button" class="btn primary small" onclick="submitRecordMaterialInline()">Salvar e usar material</button></div>
         </div>
-        <div class="toolbar" style="margin-top:8px"><button type="button" class="btn primary small" onclick="submitRecordMaterialInline()">Salvar e usar material</button><button type="button" class="btn small" onclick="cancelRecordMaterialInline()">Cancelar</button></div>
-      </div>
+      </details>
       <div id="recordMaterialSelected" class="${f.materialName?"":"hidden"}">${f.materialName?`<div class="notice" style="margin-top:7px"><b>📘 ${esc(f.materialName)}</b>${f.materialPublisher?` · ${esc(f.materialPublisher)}`:""}<button type="button" class="btn small" style="margin-top:6px" onclick="clearRecordMaterial()">Trocar / remover material</button></div>`:""}</div>
       <input id="fMaterialId" type="hidden" value="${esc(f.materialId||"")}"><input id="fMaterialName" type="hidden" value="${esc(f.materialName||"")}"><input id="fMaterialPublisher" type="hidden" value="${esc(f.materialPublisher||"")}">
       </div></details>
@@ -5801,14 +5839,14 @@ function recordMaterialSearchChanged(){
 function openRecordMaterialInline(title){
  title=String(title||"").trim();
  const form=$("recordMaterialNewForm");if(!form)return;
- form.classList.remove("hidden");
+ form.open=true;
  if($("recordMaterialNewName"))$("recordMaterialNewName").value=title;
  if($("recordMaterialNewPublisher"))$("recordMaterialNewPublisher").value="";
  if($("recordMaterialNewAge"))$("recordMaterialNewAge").value="";
  if($("recordMaterialNewDescription"))$("recordMaterialNewDescription").value="";
  setTimeout(()=>$("recordMaterialNewName")?.focus(),0);
 }
-function cancelRecordMaterialInline(){ $("recordMaterialNewForm")?.classList.add("hidden"); }
+function cancelRecordMaterialInline(){ const f=$("recordMaterialNewForm");if(f)f.open=false; }
 async function submitRecordMaterialInline(){
  const fam=currentBackendFamily();if(!fam?.id)return alert("Conecte a família antes de cadastrar um material.");
  const name=$("recordMaterialNewName")?.value.trim()||"";if(!name)return alert("Informe o nome do material.");
