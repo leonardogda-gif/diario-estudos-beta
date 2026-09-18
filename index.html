@@ -1248,7 +1248,7 @@ header .brand-motto{display:none!important}
 .today-plans-inline>.notice{background:#F7F1E7!important;border-color:#E7DDCF!important;color:#6D655E!important}
 </style>
 <style id="v138-ui-fixes">
-/* v13.8: correções aplicadas aos componentes reais */
+/* v13.9: capas separadas por contexto — Hoje e Leituras */
 .desktop-action-label,.reading-label-desktop{display:inline!important}
 .mobile-action-label,.reading-label-mobile{display:none!important}
 .reading-complete-secondary{background:#f4e8de!important;border:1px solid #d8c2b4!important;color:#6b2737!important}
@@ -1259,7 +1259,7 @@ header .brand-motto{display:none!important}
 #page-leituras .reading-actions{display:flex!important;flex-wrap:wrap!important;gap:7px!important;width:100%!important}
 #page-leituras .reading-actions .btn{min-width:0!important;white-space:normal!important}
 /* Hoje: capa e ações no mesmo padrão, sem sobreposição */
-.routine-reading-row img{display:block!important;width:48px!important;height:auto!important;max-height:90px!important;object-fit:contain!important;align-self:start!important}
+.routine-reading-row img{display:block!important;width:145px!important;height:auto!important;max-width:145px!important;max-height:205px!important;object-fit:contain!important;align-self:start!important}
 .routine-actions{display:flex!important;flex-wrap:wrap!important;gap:8px!important}
 /* cadastro inline nativo: não depende de JS para revelar os campos */
 .record-material-create{margin-top:10px;border:1px solid #e5d3c7;border-radius:12px;background:#f8f1e8;padding:0 12px}
@@ -1271,20 +1271,20 @@ header .brand-motto{display:none!important}
  .mobile-action-label,.reading-label-mobile{display:inline!important}
  .today-top-actions{gap:6px!important}
  .today-top-actions .btn{min-height:38px!important;padding:6px 10px!important}
- #page-leituras .reading-card{grid-template-columns:78px minmax(0,1fr)!important;gap:10px!important;padding:10px!important}
- #page-leituras .reading-card img.book-cover{width:78px!important;max-width:78px!important;height:auto!important;max-height:none!important;object-fit:contain!important;border-radius:7px!important}
- #page-leituras .reading-card .book-cover-placeholder{width:78px!important;height:110px!important;min-height:0!important}
+ #page-leituras .reading-card{grid-template-columns:82px minmax(0,1fr)!important;gap:10px!important;padding:10px!important;align-items:start!important}
+ #page-leituras .reading-card img.book-cover{width:82px!important;max-width:82px!important;height:auto!important;max-height:none!important;object-fit:contain!important;border-radius:7px!important}
+ #page-leituras .reading-card .book-cover-placeholder{width:82px!important;height:116px!important;min-height:0!important}
  #page-leituras .reading-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;margin-top:9px!important}
  #page-leituras .reading-actions .btn{width:100%!important;min-height:36px!important;padding:6px 5px!important;font-size:11.5px!important;line-height:1.15!important;white-space:normal!important}
  #page-leituras .reading-actions .btn:nth-child(3){grid-column:1/-1!important}
- .routine-reading-row{grid-template-columns:54px minmax(0,1fr)!important}
- .routine-reading-row img{width:54px!important;height:auto!important;max-height:92px!important;object-fit:contain!important}
+ .routine-reading-row{grid-template-columns:84px minmax(0,1fr)!important}
+ .routine-reading-row img{width:84px!important;max-width:84px!important;height:auto!important;max-height:120px!important;object-fit:contain!important}
  .routine-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;width:100%!important}
  .routine-actions .btn{width:100%!important;min-width:0!important;padding:6px 5px!important;font-size:11.5px!important;white-space:normal!important}
 }
 </style>
 </head>
-<body data-build="13.8" class="auth-checking">
+<body data-build="13.9" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">

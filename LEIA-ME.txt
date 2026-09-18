@@ -1,4 +1,4 @@
-Meu Diário de Estudos — v13.8
+Meu Diário de Estudos — v13.9
 
 Correção exclusivamente do PWA/frontend.
 - Corrige rótulos mobile/desktop sem duplicação.
@@ -6,4 +6,4 @@ Correção exclusivamente do PWA/frontend.
 - Cadastro de material/livro no Registro usa <details> nativo e exibe Nome, Editora/autor, Faixa/ano e Descrição/observações.
 - Worker/D1/Secrets: sem alteração.
 
-Após publicar, confirme que version.json mostra 13.8.
+Após publicar, confirme que version.json mostra 13.9.
