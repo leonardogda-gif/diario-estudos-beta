@@ -49,4 +49,4 @@ Após a autorização inicial, Drive e Calendar usam refresh token no backend pa
 Requer publicar worker-v13.0.js, executar migracao-v13.sql, cadastrar GOOGLE_CLIENT_SECRET e adicionar o redirect URI do Worker no Google Cloud.
 
 
-v13.5: revisão visual, seções recolhíveis, Para retomar e Calendar contextual.
+v13.6: revisão visual, seções recolhíveis, Para retomar e Calendar contextual.

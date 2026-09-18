@@ -1233,7 +1233,7 @@ header .brand-motto{display:none!important}
 }
 
 
-/* v13.5 · refinamentos visuais e retomadas */
+/* v13.6 · refinamentos visuais e retomadas */
 .collapsible-head{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;user-select:none}
 .collapsible-head button{border:0;background:transparent;color:#6B2737;font-size:18px;padding:5px 8px;cursor:pointer}
 .plan-section-title.collapsible-head{margin-top:18px}
@@ -1493,6 +1493,9 @@ header .brand-motto{display:none!important}
         <div class="notice">Consulte abaixo todos os registros da criança selecionada. As ferramentas para registros antigos continuam disponíveis mais abaixo.</div>
 
         <div class="card" style="margin-top:12px">
+          <details id="historyFiltersCollapse" class="history-filters-collapse">
+            <summary><b>Filtros</b><span>Mostrar / ocultar filtros</span></summary>
+            <div class="history-filters-body">
           <div class="grid">
             <div>
               <label class="field">Criança</label>
@@ -1541,6 +1544,8 @@ header .brand-motto{display:none!important}
                   <option value="classified">Classificados</option>
                 </select>
               </div>
+            </div>
+          </details>
             </div>
           </details>
 
@@ -2927,7 +2932,7 @@ function renderBackendFamilyPanels(){
   }
 }
 
-// v13.5: integração Drive simplificada. O app usa somente arquivos/pastas
+// v13.6: integração Drive simplificada. O app usa somente arquivos/pastas
 // criados pela própria aplicação na conta Google autorizada; sem Picker e sem
 // compartilhamento automático de pastas entre contas.
 
@@ -2971,7 +2976,7 @@ async function prepareSharedFamilyStorage(showMessage=false){
     throw err;
   }
 
-  // v13.5: o Drive pertence à própria conta Google autorizada.
+  // v13.6: o Drive pertence à própria conta Google autorizada.
   // Não usamos Picker, permissões compartilhadas nem IDs de Drive de outra conta.
   const folderName=`Diário de Estudos - ${fam.name}`;
   let folderId=localStorage.getItem(VISIBLE_ROOT_ID_KEY)||"";
@@ -3972,7 +3977,7 @@ async function createVisibleFolder(name,parentId=null){
   });
   return await res.json();
 }
-// v13.5: helpers canônicos para o arquivo JSON visível da família.
+// v13.6: helpers canônicos para o arquivo JSON visível da família.
 // A v13.3 removeu as implementações antigas junto com o Picker, mas a rotina
 // prepareSharedFamilyStorage ainda dependia destes nomes.
 async function findVisibleFile(name,parentId,mimeType=""){
@@ -5317,6 +5322,15 @@ function renderRecordPage(){
       <label class="field">Material utilizado (opcional)</label>
       <input id="recordMaterialSearch" placeholder="Busque pelo nome do livro, apostila ou material" oninput="recordMaterialSearchChanged()">
       <div id="recordMaterialResults"></div>
+      <div id="recordMaterialNewForm" class="hidden material-inline-new" style="margin-top:10px">
+        <div class="grid">
+          <div class="full"><label class="field">Nome</label><input id="recordMaterialNewName" placeholder="Nome do livro, apostila ou material"></div>
+          <div><label class="field">Editora / autor</label><input id="recordMaterialNewPublisher" placeholder="Opcional"></div>
+          <div><label class="field">Faixa / ano</label><input id="recordMaterialNewAge" placeholder="Opcional"></div>
+          <div class="full"><label class="field">Descrição / observações</label><textarea id="recordMaterialNewDescription" rows="3" placeholder="Opcional"></textarea></div>
+        </div>
+        <div class="toolbar" style="margin-top:8px"><button type="button" class="btn primary small" onclick="submitRecordMaterialInline()">Salvar e usar material</button><button type="button" class="btn small" onclick="cancelRecordMaterialInline()">Cancelar</button></div>
+      </div>
       <div id="recordMaterialSelected" class="${f.materialName?"":"hidden"}">${f.materialName?`<div class="notice" style="margin-top:7px"><b>📘 ${esc(f.materialName)}</b>${f.materialPublisher?` · ${esc(f.materialPublisher)}`:""}<button type="button" class="btn small" style="margin-top:6px" onclick="clearRecordMaterial()">Trocar / remover material</button></div>`:""}</div>
       <input id="fMaterialId" type="hidden" value="${esc(f.materialId||"")}"><input id="fMaterialName" type="hidden" value="${esc(f.materialName||"")}"><input id="fMaterialPublisher" type="hidden" value="${esc(f.materialPublisher||"")}">
       </div></details>
@@ -5779,20 +5793,31 @@ function recordMaterialSearchChanged(){
      recordMaterialSearchResults=await searchMaterialsCatalog(q);
      if(seq!==recordMaterialSearchSeq)return;
      box.innerHTML=(recordMaterialSearchResults.length?recordMaterialSearchResults.map((m,i)=>materialResultCard(m,i,"record")).join(""):'<div class="meta" style="margin-top:6px">Nenhum material encontrado no catálogo.</div>')
-       +`<button type="button" class="btn small" style="margin-top:7px" data-quick-record-material="${esc(q)}" onclick="quickCreateRecordMaterial(this.dataset.quickRecordMaterial)">+ Cadastrar “${esc(q)}”</button>`;
+       +`<button type="button" class="btn small" style="margin-top:7px" data-quick-record-material="${esc(q)}" onclick="openRecordMaterialInline(this.dataset.quickRecordMaterial)">+ Cadastrar “${esc(q)}”</button>`;
    }catch(e){box.innerHTML=`<div class="notice" style="margin-top:6px">Erro ao buscar material: ${esc(e.message||"")}</div>`}
  },250);
 }
-async function quickCreateRecordMaterial(title){
- title=String(title||"").trim();if(!title)return;
+function openRecordMaterialInline(title){
+ title=String(title||"").trim();
+ const form=$("recordMaterialNewForm");if(!form)return;
+ form.classList.remove("hidden");
+ if($("recordMaterialNewName"))$("recordMaterialNewName").value=title;
+ if($("recordMaterialNewPublisher"))$("recordMaterialNewPublisher").value="";
+ if($("recordMaterialNewAge"))$("recordMaterialNewAge").value="";
+ if($("recordMaterialNewDescription"))$("recordMaterialNewDescription").value="";
+ setTimeout(()=>$("recordMaterialNewName")?.focus(),0);
+}
+function cancelRecordMaterialInline(){ $("recordMaterialNewForm")?.classList.add("hidden"); }
+async function submitRecordMaterialInline(){
  const fam=currentBackendFamily();if(!fam?.id)return alert("Conecte a família antes de cadastrar um material.");
+ const name=$("recordMaterialNewName")?.value.trim()||"";if(!name)return alert("Informe o nome do material.");
+ const publisher=$("recordMaterialNewPublisher")?.value.trim()||"",age_range=$("recordMaterialNewAge")?.value.trim()||"",content_description=$("recordMaterialNewDescription")?.value.trim()||"";
  try{
-  const data=await backendFetch("/materials",{method:"POST",body:JSON.stringify({family_id:fam.id,name:title,publisher:"",age_range:"",content_description:""})});
-  const m=data?.material||{id:"",name:title,publisher:"",status:"pending"};
-  renderRecordMaterialSelection(m);
-  if($("recordMaterialSearch"))$("recordMaterialSearch").value="";
-  if($("recordMaterialResults"))$("recordMaterialResults").innerHTML="";
-  alert("Material cadastrado. Ele já pode ser usado por sua família e ficará aguardando validação para o catálogo.");
+  const data=await backendFetch("/materials",{method:"POST",body:JSON.stringify({family_id:fam.id,name,publisher,age_range,content_description})});
+  const m=data?.material||{id:"",name,publisher,age_range,content_description,status:"pending"};
+  if($("fMaterialId"))$("fMaterialId").value=m.id||"";if($("fMaterialName"))$("fMaterialName").value=m.name||name;if($("fMaterialPublisher"))$("fMaterialPublisher").value=m.publisher||publisher;
+  renderRecordMaterialSelection({...m,name:m.name||name,publisher:m.publisher||publisher,age_range:m.age_range||age_range});
+  if($("recordMaterialSearch"))$("recordMaterialSearch").value="";if($("recordMaterialResults"))$("recordMaterialResults").innerHTML="";cancelRecordMaterialInline();saveRecordDraft(true);
  }catch(e){alert("Não foi possível cadastrar o material: "+(e.message||e))}
 }
 
@@ -6229,8 +6254,13 @@ function saveEntry(){
  editing=null;recordFormOpen=false;photoData="";photosData=[];audioData="";photoTakenAt="";photoDateSource="";
  clearRecordDraft(savedChildId);
  saveLocal();
- // Não persiste novamente os campos usados no registro concluído.
+ // Após concluir um registro, volta ao Histórico da criança em vez de deixar uma tela isolada de registros.
  renderAll(true);
+ activeChildId=savedChildId;
+ showPage("historico");
+ if($("historyBrowseChild"))$("historyBrowseChild").value=savedChildId;
+ renderHistoryBrowser();
+ setTimeout(()=>document.querySelector(`[data-history-entry-id="${CSS.escape(e.id)}"]`)?.scrollIntoView({behavior:"smooth",block:"center"}),60);
  }finally{
    saveEntryLocked=false;
  }
@@ -6279,7 +6309,7 @@ function viewEntry(id,childId=""){
  ${entryPhotos(x).length?`<div class="record-view-section"><b>Fotos (${entryPhotos(x).length})</b><div style="margin-top:8px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">${entryPhotos(x).map(p=>`<img class="record-view-photo" src="${photoDisplayData(p)}" alt="Foto do registro">`).join("")}</div></div>`:""}
  ${x.audio?`<div class="record-view-section"><b>Áudio</b><div class="audio-box"><audio controls src="${x.audio}"></audio></div></div>`:""}
  <div class="record-view-section"><b>Datas do registro</b><div class="meta" style="margin-top:6px">Atividade: ${esc(fmtDate(x.date))} · origem: ${esc(dateSource)}<br>Registrado em: ${esc(fmtDateTime(x.createdAt))}${changed?`<br>Alterado em: ${esc(fmtDateTime(x.updatedAt))}`:""}${x.photoTakenAt?`<br>Foto: ${esc(fmtDateTime(x.photoTakenAt))} · ${esc(photoSourceLabel(x.photoDateSource))}`:""}</div></div>
- <div class="toolbar" style="margin-top:16px"><button class="btn" onclick="closeRecordView();showPage('registro');activeChildId='${found.childId}';editEntry('${x.id}')">Editar</button><button class="btn irreversible" onclick="activeChildId='${found.childId}';closeRecordView();deleteEntry('${x.id}')">Excluir</button><button class="btn" onclick="closeRecordView()">Fechar</button></div>`;
+ <div class="toolbar" style="margin-top:16px"><button class="btn" onclick="closeRecordView();showPage('registro');activeChildId='${found.childId}';editEntry('${x.id}')">Editar</button><button class="btn irreversible" onclick="closeRecordView();deleteEntry('${x.id}','${found.childId}')">Excluir</button><button class="btn" onclick="closeRecordView()">Fechar</button></div>`;
  overlay.classList.remove("hidden");
 }
 
@@ -6304,15 +6334,18 @@ async function deleteDriveMediaBestEffort(entry){
  }
 }
 async function deleteUnreferencedLocalMedia(entry){for(const mediaId of [...new Set(entryPhotos(entry).map(p=>p.mediaId).filter(Boolean))]){const used=Object.values(state.entries||{}).flat().some(other=>entryPhotos(other).some(p=>p.mediaId===mediaId));if(!used){try{await mediaDelete(mediaId)}catch(e){}}}}
-async function deleteEntry(id){
- const entry=(state.entries[activeChildId]||[]).find(x=>x.id===id);if(!entry)return;
+async function deleteEntry(id,childId=""){
+ const found=findEntryById(id,childId||activeChildId);if(!found)return;
+ const targetChildId=found.childId,entry=found.entry;
  if(!confirm(`Excluir este registro da família?\n\n${entry.atividade||"Registro"}\n\nEle será removido para todos os responsáveis.`))return;
  if(!confirm("Confirma a exclusão definitiva? Esta ação não poderá ser desfeita pelo aplicativo."))return;
- const backendChildId=localToBackendChildId(activeChildId);
- state.entries[activeChildId]=(state.entries[activeChildId]||[]).filter(x=>x.id!==id);
+ const backendChildId=localToBackendChildId(targetChildId);
+ state.entries[targetChildId]=(state.entries[targetChildId]||[]).filter(x=>x.id!==id);
  await deleteUnreferencedLocalMedia(entry);
  addTomb("entries",id,{childId:backendChildId||"",deletedBy:backendProfile?.user?.email||""});
  saveLocal(false);renderAll(true);
+ // Histórico precisa refletir a exclusão imediatamente, sem aguardar Drive/F5.
+ if(document.querySelector("#page-historico.active"))renderHistoryBrowser();
  setCloudStatus("pending","Exclusão aguardando sincronização");
  try{
    if(appSessionValid()&&googleServerConnected&&currentBackendFamily())await syncSharedFamilyDrive({manual:true});
@@ -6850,7 +6883,7 @@ async function readingBooksForChild(childId){
 }
 function todayReadingsMarkup(books){
  const active=(books||[]).filter(b=>b.status==="Lendo");
- return active.length?`<div class="card routine-reading"><div class="section-heading"><h3><span class="section-book-icon" aria-hidden="true">▤</span> Leituras em andamento</h3><button class="section-link" type="button" onclick="showPage('leituras')">Ver todas ›</button></div>${active.map(b=>`<div class="routine-reading-row">${b.thumbnail?`<img src="${esc(b.thumbnail)}" alt="Capa de ${esc(b.title||"livro")}">`:`<div class="routine-cover-placeholder" aria-hidden="true">📖</div>`}<div class="routine-reading-content"><b>${esc(b.title||"Livro")}</b><div class="meta routine-author">${esc((b.authors||[]).join(", ")||"Autor não informado")}</div>${b.started_at?`<div class="meta routine-date">▣ Iniciado em ${esc(fmtDate(b.started_at))}</div>`:""}${b.target_finish_at?`<div class="meta">Previsão: ${esc(fmtDate(b.target_finish_at))}</div>`:""}<div class="toolbar routine-actions"><button class="btn small" onclick="startReadingActivity('${b.id}')">+ Registrar atividade</button><button class="btn success small" onclick="completeBookAndRegister('${b.id}')"><span aria-hidden="true">✓</span> Concluir livro</button></div></div></div>`).join("")}</div>`:"";
+ return active.length?`<div class="card routine-reading"><div class="section-heading"><h3><span class="section-book-icon" aria-hidden="true">▤</span> Leituras em andamento</h3><button class="section-link" type="button" onclick="showPage('leituras')">Ver todas ›</button></div>${active.map(b=>`<div class="routine-reading-row">${b.thumbnail?`<img src="${esc(b.thumbnail)}" alt="Capa de ${esc(b.title||"livro")}">`:`<div class="routine-cover-placeholder" aria-hidden="true">📖</div>`}<div class="routine-reading-content"><b>${esc(b.title||"Livro")}</b><div class="meta routine-author">${esc((b.authors||[]).join(", ")||"Autor não informado")}</div>${b.started_at?`<div class="meta routine-date">▣ Iniciado em ${esc(fmtDate(b.started_at))}</div>`:""}${b.target_finish_at?`<div class="meta">Previsão: ${esc(fmtDate(b.target_finish_at))}</div>`:""}<div class="toolbar routine-actions"><button class="btn small" onclick="startReadingActivity('${b.id}')"><span class="reading-label-desktop">+ Registrar atividade</span><span class="reading-label-mobile">+ Registrar</span></button><button class="btn small reading-complete-secondary" onclick="completeBookAndRegister('${b.id}')"><span class="reading-label-desktop">✓ Concluir livro</span><span class="reading-label-mobile">✓ Concluir</span></button></div></div></div>`).join("")}</div>`:"";
 }
 function renderTodayReadingsFromCache(childId){
  const box=$("todayActiveReading");if(!box||!childId)return;
@@ -6878,7 +6911,7 @@ function renderReadingCards(books){
    <div><div class="book-title">${esc(b.title)}</div><div class="book-meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.publisher?" · "+esc(b.publisher):""}</div>
    <div style="margin-top:6px"><span class="reading-status">${esc(b.status||"Lendo")}</span>${b.catalog_status==="pending"?` <span class="reading-status">Aguardando validação</span>`:""}</div>
    <div class="book-reading-dates">${b.status==="Planejado"&&b.started_at?`<span>Início previsto: <b>${fmtDate(b.started_at)}</b></span>`:b.started_at?`<span>Início: <b>${fmtDate(b.started_at)}</b></span>`:""}${b.target_finish_at?`<span>Previsão: <b>${fmtDate(b.target_finish_at)}</b></span>`:""}${b.finished_at?`<span>Conclusão: <b>${fmtDate(b.finished_at)}</b></span>`:""}</div>
-   <div class="reading-actions">${b.status==="Planejado"?`<button class="btn small" type="button" onclick="startPlannedBook('${b.id}')">Iniciar leitura</button>`:b.status==="Lendo"?`<button class="btn small" type="button" onclick="startReadingActivity('${b.id}')">+ Registrar atividade</button><button class="btn small success reading-primary" type="button" onclick="completeBookAndRegister('${b.id}')">Concluir e registrar</button>`:`<button class="btn small" type="button" onclick="reopenCompletedBook('${b.id}')">Reabrir leitura</button>`}<button class="btn small" type="button" onclick="editFamilyBookReading('${b.id}')">Editar planejamento</button></div>
+   <div class="reading-actions">${b.status==="Planejado"?`<button class="btn small" type="button" onclick="startPlannedBook('${b.id}')">Iniciar leitura</button>`:b.status==="Lendo"?`<button class="btn small" type="button" onclick="startReadingActivity('${b.id}')"><span class="reading-label-desktop">+ Registrar atividade</span><span class="reading-label-mobile">+ Registrar</span></button><button class="btn small reading-complete-secondary" type="button" onclick="completeBookAndRegister('${b.id}')"><span class="reading-label-desktop">✓ Concluir livro</span><span class="reading-label-mobile">✓ Concluir</span></button>`:`<button class="btn small" type="button" onclick="reopenCompletedBook('${b.id}')">Reabrir leitura</button>`}<button class="btn small" type="button" onclick="editFamilyBookReading('${b.id}')">Editar planejamento</button></div>
    </div>
   </div>`;
  const section=(title,list,open=true)=>list.length?`<div class="reading-section"><h3>${title} · ${list.length}</h3><div class="reading-list">${list.map(card).join("")}</div></div>`:"";
@@ -7366,7 +7399,27 @@ async function shareReportHtml(){
  let h=`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Relatório ${esc(child.name)}</title><style>
  body{font-family:Arial,Helvetica,sans-serif;margin:24px;color:#292922}.report-header,.entry,.report-bncc-group,.path-box{border:1px solid #ddd;border-radius:8px;padding:12px;margin:8px 0}.report-header-top{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding-bottom:8px;margin-bottom:8px}.report-profile-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.label{display:block;font-size:10px;text-transform:uppercase;color:#777}.value{font-weight:700}.report-component-pill{display:inline-block;border:1px solid #ddd;border-radius:999px;padding:4px 8px;margin:3px}.report-bncc-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px}.report-photo{max-width:320px}.audio-box{display:none}.meta{font-size:12px;color:#666}.entry-title{font-weight:700;margin:6px 0}.badge{display:inline-block;margin-top:6px}.stats{display:flex;gap:8px}
  @media(max-width:700px){.report-profile-grid,.report-bncc-summary{grid-template-columns:1fr}.report-header-top{display:block}}
- </style></head><body>${content}</body></html>`;
+ 
+/* v13.6 — acabamento de Histórico, materiais e leituras */
+.reading-label-mobile{display:none}
+.reading-complete-secondary{background:#F4E8DE!important;border-color:#D8C2B4!important;color:#6B2737!important}
+#page-leituras .reading-card .book-cover{width:100%!important;height:auto!important;max-height:none!important;object-fit:contain!important;align-self:start!important;background:transparent!important}
+#page-leituras .reading-card{grid-template-columns:96px minmax(0,1fr)!important;align-items:start!important}
+#page-leituras .reading-card .book-cover-placeholder{width:96px!important;height:136px!important}
+.history-quick-delete{top:8px!important;right:8px!important}
+.material-inline-new{padding:12px;border:1px solid #E5D3C7;border-radius:12px;background:#F8F1E8}
+@media(max-width:650px){
+ .reading-label-desktop{display:none!important}.reading-label-mobile{display:inline!important}
+ #page-leituras .reading-card{grid-template-columns:minmax(88px,34%) minmax(0,1fr)!important;gap:10px!important;padding:10px!important}
+ #page-leituras .reading-card .book-cover{width:100%!important;height:auto!important;object-fit:contain!important;border-radius:8px!important}
+ #page-leituras .reading-card .book-cover-placeholder{width:100%!important;height:auto!important;min-height:178px!important}
+ #page-leituras .reading-actions{gap:5px!important;margin-top:10px!important}
+ #page-leituras .reading-actions .btn{min-height:35px!important;padding:5px!important;font-size:10.5px!important;white-space:nowrap!important}
+}
+
+.history-filters-collapse>summary{display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;color:#441015;padding:3px 0 8px}.history-filters-collapse>summary span{font-size:12px;color:#756B63;font-weight:500}.history-filters-body{padding-top:8px}
+@media(max-width:650px){.today-top-actions .btn{min-height:38px!important;padding:6px 10px!important}.today-top-actions{gap:6px!important}}
+</style></head><body>${content}</body></html>`;
  shareOrDownloadText(h,"relatorio_"+child.name.replace(/\s+/g,"_")+".html","text/html","Relatório");
 }
 
@@ -7437,8 +7490,9 @@ function renderHistoryBrowser(){
   updateHistoryBnccBatchSelection();
 
   list.innerHTML=rows.map(x=>`
-    <div class="entry record-clickable" onclick="viewEntry('${x.id}','${childId}')" style="margin-bottom:10px">
-      <div class="toolbar" style="justify-content:space-between;align-items:flex-start">
+    <div class="entry record-clickable history-entry-card" data-history-entry-id="${esc(x.id)}" onclick="viewEntry('${x.id}','${childId}')" style="margin-bottom:10px;position:relative">
+      <button class="entry-quick-delete history-quick-delete" type="button" aria-label="Excluir registro" title="Excluir registro" onclick="event.stopPropagation();deleteEntry('${x.id}','${childId}')">×</button>
+      <div class="toolbar" style="justify-content:space-between;align-items:flex-start;padding-right:34px">
         <div class="meta">${esc(fmtDate(x.date))}</div>
         ${link==="pending"?`<label onclick="event.stopPropagation()" style="display:flex;gap:7px;align-items:center;font-weight:800"><input type="checkbox" ${historyBnccSelected.has(x.id)?"checked":""} onchange="toggleHistoryBnccSelection('${x.id}',this.checked)"> Selecionar</label>`:""}
       </div>
