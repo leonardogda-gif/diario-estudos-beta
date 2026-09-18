@@ -2913,7 +2913,7 @@ function renderBackendFamilyPanels(){
   }
 }
 
-// v13.3: integração Drive simplificada. O app usa somente arquivos/pastas
+// v13.4: integração Drive simplificada. O app usa somente arquivos/pastas
 // criados pela própria aplicação na conta Google autorizada; sem Picker e sem
 // compartilhamento automático de pastas entre contas.
 
@@ -2957,7 +2957,7 @@ async function prepareSharedFamilyStorage(showMessage=false){
     throw err;
   }
 
-  // v13.3: o Drive pertence à própria conta Google autorizada.
+  // v13.4: o Drive pertence à própria conta Google autorizada.
   // Não usamos Picker, permissões compartilhadas nem IDs de Drive de outra conta.
   const folderName=`Diário de Estudos - ${fam.name}`;
   let folderId=localStorage.getItem(VISIBLE_ROOT_ID_KEY)||"";
@@ -3957,6 +3957,30 @@ async function createVisibleFolder(name,parentId=null){
     body:JSON.stringify(body)
   });
   return await res.json();
+}
+// v13.4: helpers canônicos para o arquivo JSON visível da família.
+// A v13.3 removeu as implementações antigas junto com o Picker, mas a rotina
+// prepareSharedFamilyStorage ainda dependia destes nomes.
+async function findVisibleFile(name,parentId,mimeType=""){
+  const safeName=escapeDriveQueryValue(name);
+  let q=`name='${safeName}' and trashed=false`;
+  if(parentId)q+=` and '${escapeDriveQueryValue(parentId)}' in parents`;
+  if(mimeType)q+=` and mimeType='${escapeDriveQueryValue(mimeType)}'`;
+  const fields=encodeURIComponent("files(id,name,mimeType,parents,modifiedTime)");
+  const res=await apiFetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=${fields}&pageSize=20&spaces=drive`);
+  const data=await res.json();
+  return data.files?.[0]||null;
+}
+async function createSharedJsonFile(folderId){
+  const meta=await createVisibleFile(FAMILY_SHARED_DATA_FILE,"application/json",folderId);
+  // Inicializa com JSON válido para que uma primeira leitura nunca dependa
+  // do comportamento de arquivo vazio do Drive.
+  await apiFetch(`https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(meta.id)}?uploadType=media`,{
+    method:"PATCH",
+    headers:{"Content-Type":"application/json;charset=utf-8"},
+    body:"{}"
+  });
+  return meta.id;
 }
 async function ensureVisibleDriveRoot(){
   let id=localStorage.getItem(VISIBLE_ROOT_ID_KEY)||"";
@@ -7630,7 +7654,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "13.3";
+const APP_VERSION = "13.4";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
