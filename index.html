@@ -4185,8 +4185,8 @@ const DE_BOOT_DIAG={start:performance.now(),marks:[]};
 function bootDiagMark(name){
  const ms=Math.round((performance.now()-DE_BOOT_DIAG.start)*10)/10;
  DE_BOOT_DIAG.marks.push({etapa:name,ms});
- console.log(`[BOOT v15.1] ${name}: ${ms} ms`);
- try{localStorage.setItem("DE_BOOT_DIAG_LAST",JSON.stringify({version:"15.1",at:new Date().toISOString(),total_ms:ms,marks:DE_BOOT_DIAG.marks}))}catch(e){}
+ console.log(`[BOOT v15.2] ${name}: ${ms} ms`);
+ try{localStorage.setItem("DE_BOOT_DIAG_LAST",JSON.stringify({version:"15.2",at:new Date().toISOString(),total_ms:ms,marks:DE_BOOT_DIAG.marks}))}catch(e){}
 }
 window.DE_BOOT_DIAG=DE_BOOT_DIAG;
 window.diarioDiagnosticoAbertura=()=>{console.table(DE_BOOT_DIAG.marks);return DE_BOOT_DIAG};
@@ -8255,7 +8255,14 @@ async function init(){
  bootDiagMark("migração de mídia concluída");
  loadBnccApiCache();
  bootDiagMark("cache BNCC carregado");
- if(!navigator.onLine)restoreBackendProfileForOffline();
+ // v15.2 · abertura otimizada: usa o perfil em cache para liberar a interface imediatamente,
+ // enquanto a validação/sincronização com o backend acontece em segundo plano.
+ if(appSessionValid()){
+   const restoredCachedProfile=restoreBackendProfileForOffline();
+   if(restoredCachedProfile)bootDiagMark("perfil local restaurado para abertura rápida");
+ }else if(!navigator.onLine){
+   restoreBackendProfileForOffline();
+ }
  $("planDate").value=today();
  bindSettings();
  populateCommonSelects();
@@ -8271,26 +8278,40 @@ async function init(){
 
  setBackendStatus("aguardando login");
  if(appSessionValid()){
-   setCloudStatus("online","Sessão do Diário restaurada");
-   bootDiagMark("conexão backend iniciada");
-   const backendOK=await connectBackend();
-   bootDiagMark("conexão backend concluída");
-   finishAuthBoot();
-   updateAuthUI();
-   if(backendOK){
-     await refreshGoogleServerStatus();
-     const oauthResult=new URLSearchParams(location.search).get("google_oauth");
-     if(oauthResult){history.replaceState({},"",location.pathname+location.hash)}
-     if(googleServerConnected){
-       setCloudStatus("online","Diário e Google conectados");
-       if(!needsOnboarding())setTimeout(async()=>{try{await prepareSharedFamilyStorage(false)}catch(e){console.warn("Preparação automática do Drive:",e)}await syncWithDrive({silent:true})},350);
-     }else if(oauthResult!=="error"){
-       setCloudStatus("busy","Preparando a autorização Google única...");
-       setTimeout(()=>beginPersistentGoogleAuthorization(),250);
-     }else{
-       setCloudStatus("pending","A autorização Google não foi concluída");
-     }
+   setCloudStatus("busy","Sincronizando...");
+   const canOpenFromCache=!!backendProfile?.user;
+   // Com perfil local válido, libera imediatamente. Em primeira abertura/sem cache,
+   // mantém a proteção antiga e espera a primeira validação do backend.
+   if(canOpenFromCache){
+     finishAuthBoot();
+     updateAuthUI();
    }
+   bootDiagMark(canOpenFromCache?"conexão backend iniciada em segundo plano":"primeira validação backend iniciada");
+   (async()=>{
+     const backendOK=await connectBackend();
+     bootDiagMark(canOpenFromCache?"conexão backend concluída em segundo plano":"primeira validação backend concluída");
+     if(!canOpenFromCache)finishAuthBoot();
+     updateAuthUI();
+     if(backendOK){
+       await refreshGoogleServerStatus();
+       const oauthResult=new URLSearchParams(location.search).get("google_oauth");
+       if(oauthResult){history.replaceState({},"",location.pathname+location.hash)}
+       if(googleServerConnected){
+         setCloudStatus("online","Diário e Google conectados");
+         if(!needsOnboarding())setTimeout(async()=>{try{await prepareSharedFamilyStorage(false)}catch(e){console.warn("Preparação automática do Drive:",e)}await syncWithDrive({silent:true})},350);
+       }else if(oauthResult!=="error"){
+         setCloudStatus("busy","Preparando a autorização Google única...");
+         setTimeout(()=>beginPersistentGoogleAuthorization(),250);
+       }else{
+         setCloudStatus("pending","A autorização Google não foi concluída");
+       }
+     }else{
+       // Em falha de rede, preserva a experiência local já carregada.
+       restoreBackendProfileForOffline();
+       updateAuthUI();
+       setCloudStatus(navigator.onLine?"pending":"pending",navigator.onLine?"Não foi possível sincronizar agora":"Sem internet · alterações ficam neste dispositivo");
+     }
+   })();
  }else{
    bootDiagMark("sem sessão válida");
    saveAppSession("",0);

@@ -1,53 +1,11 @@
-DIÁRIO DE ESTUDOS — v15.1
+DIÁRIO DE ESTUDOS — v15.2
 
-DIAGNÓSTICO TEMPORÁRIO DE ABERTURA
-- Instrumenta o tempo desde o carregamento até a liberação da tela “Abrindo Diário”.
-- Não altera o fluxo funcional do app.
-- No desktop, abra F12 > Console e procure por linhas [BOOT v15.1] e pela tabela automática.
-- O último diagnóstico também fica salvo localmente em DE_BOOT_DIAG_LAST.
+OTIMIZAÇÃO DE ABERTURA
+- A tela do Diário deixa de esperar a sincronização completa do backend para abrir.
+- Quando existe uma sessão válida e perfil local em cache, a interface é liberada imediatamente com os dados locais.
+- Backend, D1 e Google continuam validando/sincronizando em segundo plano.
+- O indicador do cabeçalho mostra “Sincronizando...” durante esse processo.
+- Em caso de indisponibilidade momentânea da rede, os dados locais continuam acessíveis.
+- Mantidos os marcadores [BOOT v15.2] no Console para confirmar o ganho de tempo.
 
-DIÁRIO DE ESTUDOS — v15.0
-
-Mudanças desta versão:
-- Desktop: cards laterais de ajuda do Registro ficam sempre abertos, sem recolher.
-- Cards laterais sobem para aproveitar melhor o espaço vertical.
-- PWA simplificado: icon-192.png, icon-512.png e apple-touch-icon.png na raiz, com manifest direto.
-- Cache do Service Worker atualizado para v15.0.
-
-MEU DIÁRIO DE ESTUDOS — v14.9
-
-Ajustes desta versão:
-- Rodapé institucional no mobile somente na aba Mais; desktop preservado.
-- Modo rápido: informação em modal próprio do Diário, sem alert nativo.
-- Bloco “Analisar experiência” simplificado.
-- Alvos de toque pequenos reforçados.
-- Mantida a regra já existente: ao registrar a partir de planejamento, a data do registro começa em hoje e nunca aceita data futura.
-- Pequenos limites de largura no desktop.
-- Cache/versionamento atualizados para v14.7.
-
-Worker: permanece v13.23; não é necessário republicá-lo.
-
-ATENÇÃO: index.html referencia logo-emblema.svg, logo-emblema-cobre.svg e vendor/zxing-browser.min.js. Esses arquivos não vieram no pacote-base recebido e por isso não foram inventados/substituídos. Se já existem no repositório publicado, mantenha-os ao atualizar o frontend.
-
-
-
-=== v14.9 ===
-- Limpar e Falar foram movidos para baixo do campo de relato, sem cobrir o texto.
-- Limpar agora usa o emoji 🧹 e apaga somente o relato.
-- Removido o texto explicativo abaixo do botão Salvar no Modo rápido.
-- Reduzido o espaço superior da tela de Registro no celular.
-- Cache/versionamento atualizados para v14.9.
-
-=== v14.8 ===
-- Criança e Data ficam lado a lado no Registro para reduzir a altura do Modo rápido.
-- Campo de relato ganhou área reservada para as ações internas, evitando texto atrás do botão Falar.
-- Adicionada borracha dentro do relato para limpar somente o texto, com confirmação.
-- Cache/versionamento atualizados para v14.8.
-
-=== v14.7 ===
-- Registro mais compacto no celular.
-- Botão Falar integrado ao campo de relato.
-- Removidos os botões Salvar rascunho e Limpar do formulário; rascunho continua automático.
-- Indicador discreto em verde: Salvo automaticamente.
-- Histórico com card inteiro clicável e chevron, sem texto redundante de abertura.
-- Worker/API e D1 não alterados nesta versão.
+Base: v15.1 diagnóstico / v15.0 funcional.
