@@ -1267,6 +1267,30 @@ header .brand-motto{display:none!important}
 @media(max-width:600px){#page-administracao .admin-overview-grid{grid-template-columns:repeat(2,1fr)}#page-configuracoes .family-overview-grid{grid-template-columns:repeat(3,1fr)}}
 
 .admin-catalog-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}.admin-catalog-tab.active{background:#641523;color:#fff;border-color:#641523}.admin-catalog-search{display:flex;gap:8px;align-items:center}.admin-catalog-search input{min-width:0;flex:1}.admin-library-item{border:1px solid #e5dccd;border-radius:16px;padding:12px;margin:9px 0;background:#fffdf9}.admin-library-head{display:grid;grid-template-columns:48px 1fr auto;gap:10px;align-items:start}.admin-library-cover{width:48px;height:66px;object-fit:cover;border-radius:7px;background:#f1eadf}.admin-library-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.admin-library-edit{margin-top:10px;padding:12px;border-radius:14px;background:#f8f1e8}.admin-library-status{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#7b2638}@media(max-width:520px){.admin-catalog-tabs .btn{flex:1 1 calc(50% - 7px)}.admin-library-head{grid-template-columns:42px 1fr}.admin-library-head>.admin-library-status{grid-column:2}.admin-library-cover{width:42px;height:58px}}
+
+/* v14.4 · Registrar: ajuda contextual, hierarquia e acabamento mobile */
+.mode-label small{font:600 12px/1.2 "Work Sans",Arial,sans-serif;color:var(--clean-muted);letter-spacing:0}
+.record-label-with-help{display:flex!important;align-items:center;justify-content:space-between;gap:10px}
+.context-help-btn{display:inline-grid;place-items:center;flex:0 0 36px;width:36px;height:36px;min-width:36px!important;min-height:36px!important;padding:0;border:1px solid #dfd4c8;border-radius:50%;background:#fffaf4;color:#6b2737;font:800 17px/1 "Work Sans",Arial,sans-serif;cursor:pointer}
+.context-help-btn:hover{background:#f6ece3}.analysis-title-wrap h3{display:flex;align-items:center;gap:7px}.analysis-title-wrap .context-help-btn{width:32px;height:32px;min-width:32px!important;min-height:32px!important;font-size:15px}
+.record-help-modal-content{color:var(--ds-muted);line-height:1.55}.record-help-modal-content p{margin:10px 0}
+.record-clear-action{border:0;background:transparent;color:#7a5e58;font:650 14px/1.2 "Work Sans",Arial,sans-serif;padding:10px 12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.record-actions .record-clear-action{align-self:center}
+@media(max-width:650px){
+ header .header-message{display:block!important;position:absolute!important;right:15px!important;top:17px!important;font-size:6.5px!important;letter-spacing:.13em!important;line-height:1.5!important;max-width:118px!important}
+ header{position:relative!important}.header-right{padding-top:34px!important}
+ .record-title-row{margin-bottom:9px!important}.record-title-row>div:last-child{margin-top:4px!important}.quick-mode-toggle{margin-top:8px!important}
+ .record-grid{gap:15px!important}.record-grid textarea#fActivity{min-height:150px!important;height:auto!important}
+ .record-side{display:none!important}
+ .experience-analysis-card{padding:14px!important}.experience-analysis-head{display:block!important}.experience-analysis-head .btn{width:100%;margin-top:12px}
+ .record-actions{grid-template-columns:1fr 1fr!important}.record-actions .btn.primary{grid-column:1/-1!important;grid-row:1!important}.record-actions .record-clear-action{grid-column:1!important;grid-row:2!important}.record-actions>.btn:not(.primary){grid-column:2!important;grid-row:2!important}
+ .context-help-btn{width:40px;height:40px;min-width:40px!important;min-height:40px!important}
+}
+@media(min-width:901px){
+ .record-grid>div:not(.full):has(#fDate){grid-column:1/2}
+ .record-side{display:flex!important}
+}
+
 </style>
 <style id="v138-ui-fixes">
 /* v13.9: capas separadas por contexto — Hoje e Leituras */
@@ -1493,7 +1517,7 @@ input,select,textarea{font-size:16px}
 
 </style>
 </head>
-<body data-build="14.3" class="auth-checking">
+<body data-build="14.4" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -2174,7 +2198,7 @@ input,select,textarea{font-size:16px}
 <div class="admin-overview-grid"><div class="admin-stat"><b id="adminStatFamilies">—</b><span>Famílias</span></div><div class="admin-stat"><b id="adminStatChildren">—</b><span>Crianças</span></div><div class="admin-stat"><b id="adminStatPendingBooks">—</b><span>Livros pendentes</span></div><div class="admin-stat"><b id="adminStatPendingMaterials">—</b><span>Materiais pendentes</span></div></div>
 <div id="adminAttention" class="admin-attention">Verificando pendências…</div>
 <div class="admin-section-label">Saúde do sistema</div>
-<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v14.3</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
+<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v14.4</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
 <div class="admin-section-label">Gerenciamento</div>
 
 <details class="tech-details admin-panel"><summary>🔓 Acessos gratuitos <span>Beta, social, parcerias e cortesias</span></summary><div class="drive-folder-card" style="margin-top:8px">
@@ -2269,6 +2293,14 @@ input,select,textarea{font-size:16px}
     <div class="diary-info-summary"><b>Agora</b><span>Atividade · Data · Fotos</span></div>
     <div class="diary-info-summary"><b>Depois</b><span>Material · Avaliação · análise educacional</span></div>
     <button class="btn primary diary-info-ok" type="button" onclick="closeQuickModeInfo()">Entendi</button>
+  </div>
+</div>
+<div id="recordHelpOverlay" class="diary-info-overlay hidden no-print" onclick="if(event.target===this)closeRecordHelp()">
+  <div class="diary-info-modal record-help-modal" role="dialog" aria-modal="true" aria-labelledby="recordHelpTitle">
+    <div id="recordHelpIcon" class="diary-info-icon" aria-hidden="true">💡</div>
+    <h2 id="recordHelpTitle">Ajuda</h2>
+    <div id="recordHelpContent" class="record-help-modal-content"></div>
+    <button class="btn primary diary-info-ok" type="button" onclick="closeRecordHelp()">Entendi</button>
   </div>
 </div>
 <div id="printableReport" aria-hidden="true"></div>
@@ -2513,6 +2545,20 @@ function closeQuickModeInfo(){
  const overlay=$("quickModeInfoOverlay");if(!overlay)return;overlay.classList.add("hidden");document.body.classList.remove("modal-open");
 }
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("quickModeInfoOverlay")?.classList.contains("hidden"))closeQuickModeInfo()});
+function openRecordHelp(kind){
+ const overlay=$("recordHelpOverlay"),title=$("recordHelpTitle"),icon=$("recordHelpIcon"),content=$("recordHelpContent");if(!overlay||!title||!content)return;
+ if(kind==="analise"){
+   icon.textContent="✨";title.textContent="Como funciona a análise";
+   content.innerHTML='<p>O Diário usa o relato da experiência para sugerir possíveis relações educacionais.</p><p>Você revisa as sugestões antes de salvar. Nada é aplicado automaticamente.</p>';
+ }else{
+   icon.textContent="💡";title.textContent="Dicas para o relato";
+   content.innerHTML='<p>Conte o que aconteceu, o que a criança fez e o que percebeu, descobriu ou conseguiu fazer.</p><p>Detalhes simples do processo ajudam a representar melhor a experiência.</p>';
+ }
+ overlay.classList.remove("hidden");document.body.classList.add("modal-open");setTimeout(()=>overlay.querySelector("button")?.focus(),0);
+}
+function closeRecordHelp(){const overlay=$("recordHelpOverlay");if(!overlay)return;overlay.classList.add("hidden");document.body.classList.remove("modal-open")}
+function confirmClearRecord(){if(confirm("Limpar este registro e começar novamente?"))startNewRecord()}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("recordHelpOverlay")?.classList.contains("hidden"))closeRecordHelp()});
 
 function showPage(name){
  const previousPage=document.querySelector(".page.active")?.id||"";
@@ -5617,7 +5663,7 @@ function renderRecordPage(){
    <div class="meta">${esc(child.name)} · ${esc(child.stage||"")}</div>
  </div>
  ${!editing?`<div class="quick-mode-toggle">
-   <span class="mode-label">Modo rápido</span>
+   <span class="mode-label">Modo rápido <small>— só o essencial</small></span>
    <button type="button" class="switch ${quick?"on":""}" onclick="toggleRecordQuickMode(${quick?"false":"true"})" aria-pressed="${quick}"><span class="switch-knob"></span></button>
    <button type="button" class="info-btn" onclick="openQuickModeInfo()" aria-label="O que é o Modo rápido">ⓘ</button>
  </div>`:""}
@@ -5636,7 +5682,7 @@ function renderRecordPage(){
     <select id="fComplementary" class="hidden" aria-hidden="true"><option value=""></option></select>
     ${editing?.planId?`<div class="full record-context-card"><b>📅 Planejamento relacionado</b><div style="margin-top:4px">${esc(state.plans.find(x=>x.id===editing.planId)?.title||"Atividade planejada")}</div>${state.plans.find(x=>x.id===editing.planId)?.place?`<div class="meta" style="margin-top:3px">📍 ${esc(state.plans.find(x=>x.id===editing.planId)?.place||"")}</div>`:""}<div class="meta" style="margin-top:5px">Use como contexto. O registro abaixo deve contar o que realmente aconteceu.</div></div>`:""}
     <div class="full">
-      <label class="field clean-label clean-label-lg">O que vocês fizeram ou aprenderam? <span class="field-pill required-pill">Obrigatório</span></label><div class="field-help">Conte o que realmente aconteceu. Este relato terá mais peso do que o planejamento na análise pedagógica.</div>
+      <label class="field clean-label clean-label-lg record-label-with-help"><span>O que vocês fizeram ou aprenderam? <span class="field-pill required-pill">Obrigatório</span></span><button type="button" class="context-help-btn" onclick="openRecordHelp('relato')" aria-label="Dicas para descrever a experiência">ⓘ</button></label><div class="field-help">Conte o que realmente aconteceu durante a experiência.</div>
       <textarea id="fActivity" rows="5" placeholder="Ex.: Visitamos a exposição sobre o corpo humano. Ela observou os órgãos, comparou suas funções e fez perguntas sobre respiração e circulação.">${esc(f.atividade)}</textarea>
       ${speechRecognitionSupported()?`<button type="button" id="voiceBtn_fActivity" class="btn voice-btn" onclick="toggleVoiceInput('fActivity')">🎤 Falar</button>`:""}
       <div id="draftStatus" class="media-status">${draft?"Rascunho restaurado automaticamente.":"Rascunho salvo automaticamente neste dispositivo."}</div>
@@ -5664,8 +5710,8 @@ function renderRecordPage(){
       </div></details>
     <div class="full experience-analysis-card ${quick?"hidden":""}">
       <div class="experience-analysis-head">
-        <div><h3>✨ Analisar experiência</h3><div class="meta">Encontre possíveis relações com a BNCC a partir do relato.</div></div>
-        <button id="analyzeExperienceBtn" type="button" class="btn primary" onclick="analyzeRecordComponents()">✨ Analisar experiência</button>
+        <div class="analysis-title-wrap"><h3>✨ Analisar experiência <button type="button" class="context-help-btn" onclick="openRecordHelp('analise')" aria-label="Como funciona a análise">ⓘ</button></h3><div class="meta">Encontre relações educacionais a partir do relato.</div></div>
+        <button id="analyzeExperienceBtn" type="button" class="btn primary" onclick="analyzeRecordComponents()">✨ Analisar</button>
       </div>
       <div id="experienceComponentStatus" class="meta experience-status" style="margin-top:8px"></div>
       <div id="experienceComponentResults" style="margin-top:8px"></div>
@@ -5712,9 +5758,9 @@ function renderRecordPage(){
    </div>
    <div class="record-actions">
      ${quick?`<button class="btn primary" onclick="saveEntry()">✓ Salvar</button>`:`
-     ${editing?.collectiveGroupId?"":`<button class="btn" onclick="startNewRecord()">Limpar</button>`}
-     <button class="btn" onclick="saveRecordDraft(true)">Salvar rascunho</button>
      <button class="btn primary" onclick="saveEntry()">${editing?.collectiveGroupId&&Number(editing.collectivePosition)<Number(editing.collectiveTotal)?"Salvar e continuar":editing?.collectiveGroupId?"Salvar e concluir":editing?"Salvar alterações":"Salvar atividade"}</button>
+     <button class="btn" onclick="saveRecordDraft(true)">Salvar rascunho</button>
+     ${editing?.collectiveGroupId?"":`<button class="record-clear-action" onclick="confirmClearRecord()">Limpar</button>`}
      ${editing?`<button class="btn" onclick="cancelEdit()">Cancelar</button>`:""}`}
    </div>
    ${quick?`<div class="meta" style="margin-top:6px">Isso já é suficiente. Avaliação, material e BNCC podem ser completados depois — por você ou por qualquer responsável.</div>`:""}
@@ -5727,7 +5773,7 @@ function renderRecordPage(){
       <div class="tip"><div class="tip-icon">🧩</div><div><b>Inclua o processo</b><div class="meta">Como foi feito? Quais passos?</div></div></div>
       <div class="tip"><div class="tip-icon">👁️</div><div><b>Conte o que a criança percebeu</b><div class="meta">O que ela descobriu, compreendeu ou conseguiu fazer?</div></div></div>
       </div></details>
-    <details class="record-side-card record-help-collapse"><summary>👁️ Prévia da atividade</summary><div class="record-help-body"><div id="recordPreview"></div></div></details>
+    
     <details class="record-side-card record-help-collapse">
       <summary>✨ Como funciona a análise?</summary><div class="record-help-body">
       <p class="meta">O Diário analisa o relato da experiência e ajuda a identificar componentes curriculares, habilidades e competências da BNCC que podem estar relacionados ao que realmente aconteceu.</p>
@@ -8142,7 +8188,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "14.3";
+const APP_VERSION = "14.4";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
