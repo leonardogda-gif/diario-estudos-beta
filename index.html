@@ -1600,9 +1600,25 @@ input,select,textarea{font-size:16px}
   #page-registro .experience-analysis-card{padding:14px!important}
   #page-registro .analysis-title-wrap .context-help-btn{vertical-align:middle!important}
 }
+
+/* v14.9 · ações do relato abaixo do campo + registro ainda mais compacto */
+.record-report-wrap #fActivity{padding-right:13px!important;padding-bottom:12px!important}
+.record-report-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:5px}
+.record-report-footer .record-autosave-status{margin:0!important;min-width:0;flex:1}
+.record-report-actions{position:static!important;display:flex;align-items:center;gap:7px;flex:0 0 auto}
+.record-report-actions .record-erase-btn,.record-report-actions .voice-btn-inside{position:static!important;margin:0!important;min-height:36px!important;height:36px!important;border-radius:10px!important}
+.record-report-actions .record-erase-btn{width:auto!important;min-width:0!important;padding:6px 10px!important;font-size:13px!important;background:#fffaf5!important}
+@media(max-width:650px){
+ #page-registro{margin-top:-8px!important}
+ #page-registro .record-title-row{padding-bottom:6px!important;margin-bottom:3px!important}
+ #page-registro .quick-mode-toggle{margin:0!important;min-height:34px!important}
+ #page-registro .record-report-footer{gap:6px!important}
+ #page-registro .record-report-actions{gap:5px!important}
+ #page-registro .record-report-actions .record-erase-btn,#page-registro .record-report-actions .voice-btn-inside{padding:5px 8px!important;font-size:12px!important;min-height:34px!important;height:34px!important}
+}
 </style>
 </head>
-<body data-build="14.6" class="auth-checking">
+<body data-build="14.9" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -5774,9 +5790,8 @@ function renderRecordPage(){
     ${editing?.planId?`<div class="full record-context-card"><b>📅 Planejamento relacionado</b><div style="margin-top:4px">${esc(state.plans.find(x=>x.id===editing.planId)?.title||"Atividade planejada")}</div>${state.plans.find(x=>x.id===editing.planId)?.place?`<div class="meta" style="margin-top:3px">📍 ${esc(state.plans.find(x=>x.id===editing.planId)?.place||"")}</div>`:""}<div class="meta" style="margin-top:5px">Use como contexto. O registro abaixo deve contar o que realmente aconteceu.</div></div>`:""}
     <div class="full">
       <label class="field clean-label clean-label-lg record-label-with-help"><span>O que vocês fizeram ou aprenderam? <span class="field-pill required-pill">Obrigatório</span></span><button type="button" class="context-help-btn" onclick="openRecordHelp('relato')" aria-label="Dicas para descrever a experiência">ⓘ</button></label><div class="field-help">Conte o que realmente aconteceu durante a experiência.</div>
-      <div class="record-report-wrap"><textarea id="fActivity" rows="5" placeholder="Ex.: Visitamos a exposição sobre o corpo humano. Ela observou os órgãos, comparou suas funções e fez perguntas sobre respiração e circulação.">${esc(f.atividade)}</textarea>
-      <div class="record-report-actions"><button type="button" class="btn record-erase-btn" onclick="clearRecordReport()" aria-label="Limpar relato" title="Limpar relato">⌫</button>${speechRecognitionSupported()?`<button type="button" id="voiceBtn_fActivity" class="btn voice-btn voice-btn-inside" onclick="toggleVoiceInput('fActivity')">🎤 Falar</button>`:""}</div></div>
-      <div id="draftStatus" class="record-autosave-status">✓ ${draft?"Rascunho restaurado e salvo automaticamente":"Salvo automaticamente"}</div>
+      <div class="record-report-wrap"><textarea id="fActivity" rows="5" placeholder="Ex.: Visitamos a exposição sobre o corpo humano. Ela observou os órgãos, comparou suas funções e fez perguntas sobre respiração e circulação.">${esc(f.atividade)}</textarea></div>
+      <div class="record-report-footer"><div id="draftStatus" class="record-autosave-status">✓ ${draft?"Rascunho restaurado e salvo automaticamente":"Salvo automaticamente"}</div><div class="record-report-actions"><button type="button" class="btn record-erase-btn" onclick="clearRecordReport()" aria-label="Limpar relato" title="Limpar relato">🧹 Limpar</button>${speechRecognitionSupported()?`<button type="button" id="voiceBtn_fActivity" class="btn voice-btn voice-btn-inside" onclick="toggleVoiceInput('fActivity')">🎤 Falar</button>`:""}</div></div>
     </div>
     <details id="recordMaterialWrap" class="full record-more-options ${quick?"hidden":""}">
       <summary><b>Material utilizado</b><span>Opcional</span></summary><div style="margin-top:10px">
@@ -5852,7 +5867,6 @@ function renderRecordPage(){
      <button class="btn primary" onclick="saveEntry()">${editing?.collectiveGroupId&&Number(editing.collectivePosition)<Number(editing.collectiveTotal)?"Salvar e continuar":editing?.collectiveGroupId?"Salvar e concluir":editing?"Salvar alterações":"Salvar atividade"}</button>
      ${editing?`<button class="btn" onclick="cancelEdit()">Cancelar</button>`:""}`}
    </div>
-   ${quick?`<div class="meta" style="margin-top:6px">Isso já é suficiente. Avaliação, material e BNCC podem ser completados depois — por você ou por qualquer responsável.</div>`:""}
   </div>
   <aside class="record-side">
     <details class="record-side-card record-help-collapse">
@@ -8277,7 +8291,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "14.8";
+const APP_VERSION = "14.9";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
