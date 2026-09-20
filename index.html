@@ -1331,6 +1331,10 @@ header .brand-motto{display:none!important}
   #page-registro .record-help-static-title{padding:12px 14px 7px;font-size:14px;font-weight:800;color:#441015}
   #page-registro .record-help-static .record-help-body{padding:0 14px 13px}
 }
+
+/* v15.4 · planejamento rápido */
+.plan-quick-card{position:relative}.plan-quick-grid{row-gap:14px}.plan-quick-row{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(150px,.75fr);gap:12px;align-items:end}.plan-child-picker{margin-top:7px}.plan-title-wrap{display:flex;gap:8px;align-items:stretch}.plan-title-wrap input{min-width:0;flex:1}.plan-voice-btn{white-space:nowrap}.plan-quick-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.plan-details-toggle{margin-right:auto}.plan-details{padding-top:4px;border-top:1px solid var(--line,#e5ddd2)}.plan-time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.plan-repeat-shortcuts{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px}.plan-title-suggestions{border:1px solid var(--line,#ddd);border-radius:12px;margin-top:5px;overflow:hidden;background:#fff}.plan-title-suggestions button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid #eee;background:#fff;padding:9px 11px;cursor:pointer}.plan-title-suggestions button:last-child{border-bottom:0}
+@media(max-width:650px){.plan-quick-card{padding-top:18px}.plan-quick-row{grid-template-columns:minmax(0,1fr) minmax(128px,.72fr);gap:8px}.plan-child-picker{display:flex;overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px}.plan-child-picker .child{flex:0 0 auto}.plan-title-wrap{display:grid;grid-template-columns:minmax(0,1fr) auto}.plan-voice-btn{padding-left:12px!important;padding-right:12px!important}.plan-quick-actions{display:grid;grid-template-columns:1fr 1fr}.plan-details-toggle{grid-column:1/-1;width:100%}.plan-quick-actions .success{min-width:0}.plan-time-row{grid-template-columns:1fr 1fr}.plan-details>.grid{row-gap:14px}}
 </style>
 <style id="v138-ui-fixes">
 /* v13.9: capas separadas por contexto — Hoje e Leituras */
@@ -1733,45 +1737,21 @@ input,select,textarea{font-size:16px}
         <div class="toolbar" style="justify-content:space-between"><div><h2 style="margin-bottom:3px">Planejar</h2><div class="meta">Veja primeiro o que precisa de atenção. Crie um novo planejamento só quando precisar.</div></div><div class="toolbar"><button class="btn success" onclick="openNewPlanForm()">+ Planejar atividade</button></div></div>
       </div>
 
-      <div id="planFormCard" class="card hidden"><h3 id="planFormTitle">Novo planejamento</h3><div class="grid">
-        <div class="full"><label class="field">Para quem? <span class="required-mark">*</span></label><div class="field-help">Selecione uma ou várias crianças. O planejamento será escrito uma única vez.</div><div id="planChildrenPicker" class="child-tabs" style="margin-top:7px"></div><select id="planChild" class="hidden" aria-hidden="true" tabindex="-1"></select></div>
-        <div><label class="field">Quando? <span class="required-mark">*</span></label><input id="planDate" type="date"></div>
-        <div class="full"><label class="field clean-label">O que vamos fazer? <span class="required-mark">*</span></label><input id="planTitle" placeholder="Ex.: Leitura do capítulo 3"></div>
+      <div id="planFormCard" class="card hidden plan-quick-card"><h3 id="planFormTitle">Novo planejamento</h3><div class="grid plan-quick-grid">
+        <div class="full"><div class="plan-quick-row"><div><label class="field">Para quem? <span class="required-mark">*</span></label><div id="planChildrenPicker" class="child-tabs plan-child-picker"></div><select id="planChild" class="hidden" aria-hidden="true" tabindex="-1"></select></div><div><label class="field">Quando? <span class="required-mark">*</span></label><input id="planDate" type="date"></div></div></div>
+        <div class="full"><label class="field clean-label">O que vamos fazer? <span class="required-mark">*</span></label><div class="plan-title-wrap"><input id="planTitle" placeholder="Ex.: Leitura do capítulo 3" autocomplete="off"><button type="button" class="btn plan-voice-btn" onclick="toggleVoiceInput('planTitle')">🎤 Falar</button></div><div id="planTitleSuggestions" class="plan-title-suggestions hidden"></div></div>
 
-        <div class="full"><label class="field clean-label">Como vamos fazer? <span class="field-pill optional-pill">Opcional</span></label><textarea id="planNotes" rows="2" placeholder="Ex.: Ler juntos e conversar sobre os personagens; fazer os exercícios 1 a 5."></textarea></div>
+        <div class="full plan-quick-actions"><button type="button" id="planDetailsToggle" class="btn plan-details-toggle" onclick="togglePlanDetails()">＋ Adicionar detalhes</button><button id="planSaveBtn" class="btn success" onclick="addPlan()">Salvar planejamento</button><button class="btn" onclick="cancelPlanEdit()">Cancelar</button></div>
 
-        <div class="full">
-          <label class="field clean-label">Onde vamos fazer? <span class="field-pill optional-pill">Opcional</span></label>
-          <input id="planPlace" autocomplete="off" placeholder="Ex.: Museu do Ipiranga, São Paulo">
-          <div id="planPlaceResults" class="hidden"></div>
-          <input id="planPlaceId" type="hidden">
-          <div id="planWeatherBox" class="notice hidden" style="margin-top:8px"></div>
-        </div>
-
-        <div id="planMaterialWrap" class="full">
-          <label class="field clean-label">Material utilizado <span class="field-pill optional-pill">Opcional</span></label>
-          <div class="field-help">Busque um material já cadastrado. Se não encontrar, cadastre apenas pelo título.</div>
-          <input id="planMaterialSearch" placeholder="Digite o título do livro, apostila, jogo ou material" oninput="planMaterialSearchChanged()">
-          <div id="planMaterialResults"></div>
-          <div id="planMaterialSelected" class="hidden"></div>
-          <input id="planMaterialId" type="hidden"><input id="planMaterialName" type="hidden"><input id="planMaterialPublisher" type="hidden">
-        </div>
-
-
-        <div id="planCalendarWrap" class="full calendar-plan-box">
-          <label style="display:flex;gap:9px;align-items:flex-start;cursor:pointer">
-            <input id="planAddToCalendar" type="checkbox" style="width:auto;margin-top:3px" onchange="handlePlanCalendarChoice(this.checked)">
-            <span><b>Mostrar este planejamento no meu Google Calendar</b><br><span class="meta">O Diário usa um calendário separado chamado “Diário de Estudos”.</span></span>
-          </label>
-          <div id="planCalendarImportedInfo" class="meta hidden" style="margin-top:7px"></div><div id="planCalendarConnectBox" class="calendar-inline-connect hidden"></div>
-        </div>
-
-        <div class="full recurrence-box"><label class="field">Repetir?</label>
-          <select id="planRecurrence" onchange="togglePlanRecurrenceOptions()"><option value="none">Não repetir</option><option value="daily">Todos os dias</option><option value="weekly">Semanal</option><option value="weekdays">Dias específicos da semana</option><option value="monthly">Mensal</option></select>
-          <div id="planWeekdaysBox" class="hidden" style="margin-top:8px"><div class="weekdays"><label><input type="checkbox" value="1">Seg</label><label><input type="checkbox" value="2">Ter</label><label><input type="checkbox" value="3">Qua</label><label><input type="checkbox" value="4">Qui</label><label><input type="checkbox" value="5">Sex</label><label><input type="checkbox" value="6">Sáb</label><label><input type="checkbox" value="0">Dom</label></div></div>
-          <div style="margin-top:8px"><label class="field">Repetir até (opcional)</label><input id="planEndDate" type="date"></div>
-        </div>
-      </div><div class="toolbar" style="margin-top:10px"><button id="planSaveBtn" class="btn success" onclick="addPlan()">Salvar planejamento</button><button class="btn" onclick="cancelPlanEdit()">Cancelar</button></div></div>
+        <div id="planDetails" class="full hidden plan-details"><div class="grid">
+          <div class="full plan-time-row"><div><label class="field clean-label">Horário <span class="field-pill optional-pill">Opcional</span></label><input id="planTime" type="time"></div><div><label class="field clean-label">Duração <span class="field-pill optional-pill">Opcional</span></label><select id="planDuration"><option value="">Sem duração</option><option value="15">15 min</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">1 h</option><option value="90">1 h 30</option><option value="120">2 h</option></select></div></div>
+          <div class="full"><label class="field clean-label">Como vamos fazer? <span class="field-pill optional-pill">Opcional</span></label><textarea id="planNotes" rows="2" placeholder="Ex.: Ler juntos e conversar sobre os personagens; fazer os exercícios 1 a 5."></textarea></div>
+          <div class="full"><label class="field clean-label">Onde vamos fazer? <span class="field-pill optional-pill">Opcional</span></label><input id="planPlace" autocomplete="off" placeholder="Ex.: Museu do Ipiranga, São Paulo"><div id="planPlaceResults" class="hidden"></div><input id="planPlaceId" type="hidden"><div id="planWeatherBox" class="notice hidden" style="margin-top:8px"></div></div>
+          <div id="planMaterialWrap" class="full"><label class="field clean-label">Material utilizado <span class="field-pill optional-pill">Opcional</span></label><div class="field-help">Busque um material já cadastrado. Se não encontrar, cadastre apenas pelo título.</div><input id="planMaterialSearch" placeholder="Digite o título do livro, apostila, jogo ou material" oninput="planMaterialSearchChanged()"><div id="planMaterialResults"></div><div id="planMaterialSelected" class="hidden"></div><input id="planMaterialId" type="hidden"><input id="planMaterialName" type="hidden"><input id="planMaterialPublisher" type="hidden"></div>
+          <div id="planCalendarWrap" class="full calendar-plan-box"><label style="display:flex;gap:9px;align-items:flex-start;cursor:pointer"><input id="planAddToCalendar" type="checkbox" style="width:auto;margin-top:3px" onchange="handlePlanCalendarChoice(this.checked)"><span><b>Mostrar este planejamento no meu Google Calendar</b><br><span class="meta">O Diário usa um calendário separado chamado “Diário de Estudos”.</span></span></label><div id="planCalendarImportedInfo" class="meta hidden" style="margin-top:7px"></div><div id="planCalendarConnectBox" class="calendar-inline-connect hidden"></div></div>
+          <div class="full recurrence-box"><label class="field">Repetir?</label><div class="plan-repeat-shortcuts"><button type="button" class="btn small" onclick="setPlanRepeatShortcut('daily')">Todo dia</button><button type="button" class="btn small" onclick="setPlanRepeatShortcut('mwf')">Seg/Qua/Sex</button><button type="button" class="btn small" onclick="setPlanRepeatShortcut('workdays')">Dias úteis</button><button type="button" class="btn small" onclick="setPlanRepeatShortcut('weekly')">Toda semana</button></div><select id="planRecurrence" onchange="togglePlanRecurrenceOptions()"><option value="none">Não repetir</option><option value="daily">Todos os dias</option><option value="weekly">Semanal</option><option value="weekdays">Dias específicos da semana</option><option value="monthly">Mensal</option></select><div id="planWeekdaysBox" class="hidden" style="margin-top:8px"><div class="weekdays"><label><input type="checkbox" value="1">Seg</label><label><input type="checkbox" value="2">Ter</label><label><input type="checkbox" value="3">Qua</label><label><input type="checkbox" value="4">Qui</label><label><input type="checkbox" value="5">Sex</label><label><input type="checkbox" value="6">Sáb</label><label><input type="checkbox" value="0">Dom</label></div></div><div style="margin-top:8px"><label class="field">Repetir até (opcional)</label><input id="planEndDate" type="date"></div></div>
+        </div></div>
+      </div></div>
       <div class="card"><div class="toolbar" style="justify-content:space-between;align-items:flex-end"><div><h3 style="margin-bottom:3px">Agenda da família</h3><div class="meta">Veja tudo junto ou filtre por criança.</div></div></div><div id="planViewChildren" class="child-tabs child-selector" style="margin:12px 0"></div><div id="plansPrimaryList"></div><div id="plannedReadingsAgenda"></div><div id="plansSecondaryList"></div></div>
     </section>
 
@@ -2438,7 +2418,7 @@ const ACTIVE_BACKEND_FAMILY_KEY = "DE_V4242_ACTIVE_BACKEND_FAMILY";
 const BACKEND_CHILD_MAP_KEY = "DE_V422_BACKEND_CHILD_MAP";
 let backendMembers = [];
 let backendChildren = [];
-let backendFamilyDataReady = false; // v15.3: evita onboarding falso enquanto o backend ainda sincroniza
+let backendFamilyDataReady = false; // v15.4: evita onboarding falso enquanto o backend ainda sincroniza
 let backendArchivedChildren = [];
 let historicalPhotoQueue = [];
 const VISIBLE_DRIVE_ROOT_NAME = "Diário de Estudos";
@@ -2950,7 +2930,7 @@ function needsOnboarding(){
   if(!families.length)return true;
   const fam=backendFamilyFromProfile();
   if(!fam)return false;
-  // v15.3: durante a abertura rápida, backendChildren ainda pode estar vazio
+  // v15.4: durante a abertura rápida, backendChildren ainda pode estar vazio
   // apenas porque a consulta remota não terminou. Nesse intervalo, usa o estado
   // local confiável para não piscar a tela "criar família/criança".
   if(!backendFamilyDataReady){
@@ -4198,8 +4178,8 @@ const DE_BOOT_DIAG={start:performance.now(),marks:[]};
 function bootDiagMark(name){
  const ms=Math.round((performance.now()-DE_BOOT_DIAG.start)*10)/10;
  DE_BOOT_DIAG.marks.push({etapa:name,ms});
- console.log(`[BOOT v15.3] ${name}: ${ms} ms`);
- try{localStorage.setItem("DE_BOOT_DIAG_LAST",JSON.stringify({version:"15.3",at:new Date().toISOString(),total_ms:ms,marks:DE_BOOT_DIAG.marks}))}catch(e){}
+ console.log(`[BOOT v15.4] ${name}: ${ms} ms`);
+ try{localStorage.setItem("DE_BOOT_DIAG_LAST",JSON.stringify({version:"15.4",at:new Date().toISOString(),total_ms:ms,marks:DE_BOOT_DIAG.marks}))}catch(e){}
 }
 window.DE_BOOT_DIAG=DE_BOOT_DIAG;
 window.diarioDiagnosticoAbertura=()=>{console.table(DE_BOOT_DIAG.marks);return DE_BOOT_DIAG};
@@ -6901,7 +6881,7 @@ function renderPlanChildrenPicker(selected=[]){
  box.innerHTML=`<label class="child ${chosen.size===kids.length&&kids.length?"active":""}" style="cursor:pointer"><input type="checkbox" id="planAllChildren" style="width:auto" ${chosen.size===kids.length&&kids.length?"checked":""} onchange="toggleAllPlanChildren(this.checked)"> Todas</label>`+kids.map(c=>`<label class="child ${chosen.has(c.id)?"active":""}" style="cursor:pointer"><input type="checkbox" name="planChildChoice" value="${esc(c.id)}" style="width:auto" ${chosen.has(c.id)?"checked":""} onchange="planChildrenChanged()"> ${esc(c.name)}</label>`).join("");
 }
 function toggleAllPlanChildren(checked){document.querySelectorAll('#planChildrenPicker input[name="planChildChoice"]').forEach(x=>x.checked=checked);planChildrenChanged()}
-function planChildrenChanged(){const chosen=selectedPlanChildIds(),all=[...document.querySelectorAll('#planChildrenPicker input[name="planChildChoice"]')];if($("planAllChildren"))$("planAllChildren").checked=!!all.length&&chosen.length===all.length;all.forEach(x=>x.closest("label")?.classList.toggle("active",x.checked));$("planAllChildren")?.closest("label")?.classList.toggle("active",!!all.length&&chosen.length===all.length);if($("planChild")&&chosen[0])$("planChild").value=chosen[0]}
+function planChildrenChanged(){const chosen=selectedPlanChildIds(),all=[...document.querySelectorAll('#planChildrenPicker input[name="planChildChoice"]')];if($("planAllChildren"))$("planAllChildren").checked=!!all.length&&chosen.length===all.length;all.forEach(x=>x.closest("label")?.classList.toggle("active",x.checked));$("planAllChildren")?.closest("label")?.classList.toggle("active",!!all.length&&chosen.length===all.length);if($("planChild")&&chosen[0])$("planChild").value=chosen[0];if(chosen[0])localStorage.setItem(PLAN_LAST_CHILD_KEY,chosen[0])}
 function planOccurrenceProgress(plan,date=plan?.nextDate||plan?.date){return plan?.participantProgress?.[date]||{}}
 function planPendingChildren(plan,date=plan?.nextDate||plan?.date){const progress=planOccurrenceProgress(plan,date);return planChildIds(plan).filter(id=>progress[id]?.status!=="completed"&&progress[id]?.status!=="skipped")}
 function planPendingForChild(plan,childId){return planIncludesChild(plan,childId)&&planPendingChildren(plan).includes(childId)}
@@ -7057,7 +7037,7 @@ async function createCalendarEventForPlan(plan){
  const cal=await ensureDiaryCalendar(true),startDate=plan.date||plan.nextDate,end=new Date(startDate+"T00:00:00");end.setDate(end.getDate()+1);
  const endDate=[end.getFullYear(),String(end.getMonth()+1).padStart(2,"0"),String(end.getDate()).padStart(2,"0")].join("-"),children=planChildNames(plan);
  const description=[children.length?`Crianças: ${children.join(", ")}`:"",plan.materialName?`Material: ${plan.materialName}`:"",plan.notes||"","Criado pelo Diário de Estudos."].filter(Boolean).join("\n");
- const body={summary:plan.title,description,start:{date:startDate},end:{date:endDate},extendedProperties:{private:{diarioPlanId:plan.id}}},recurrence=googleCalendarRecurrence(plan);if(recurrence.length)body.recurrence=recurrence;
+ const timed=planTimeFields(plan),body={summary:plan.title,description,start:timed?.start||{date:startDate},end:timed?.end||{date:endDate},extendedProperties:{private:{diarioPlanId:plan.id}}},recurrence=googleCalendarRecurrence(plan);if(recurrence.length)body.recurrence=recurrence;
  const event=await calendarApiFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(cal.id)}/events`,{method:"POST",body:JSON.stringify(body)});
  plan.calendarId=cal.id;plan.calendarEventId=event.id||"";plan.calendarHtmlLink=event.htmlLink||"";plan.calendarSyncedAt=now();return event
 }
@@ -7068,7 +7048,7 @@ async function updateCalendarEventForEditedPlan(plan){
  else{
   const startDate=plan.nextDate||plan.date,end=new Date(startDate+"T00:00:00");end.setDate(end.getDate()+1);
   const endDate=iso(end),children=planChildNames(plan),description=[children.length?`Crianças: ${children.join(", ")}`:"",plan.materialName?`Material: ${plan.materialName}`:"",plan.notes||"","Atualizado pelo Diário de Estudos."].filter(Boolean).join("\n");
-  body={summary:plan.title,location:plan.place||"",description,start:{date:startDate},end:{date:endDate},extendedProperties:{private:{diarioPlanId:plan.id}}};const recurrence=googleCalendarRecurrence(plan);if(recurrence.length)body.recurrence=recurrence;
+  const timed=planTimeFields(plan);body={summary:plan.title,location:plan.place||"",description,start:timed?.start||{date:startDate},end:timed?.end||{date:endDate},extendedProperties:{private:{diarioPlanId:plan.id}}};const recurrence=googleCalendarRecurrence(plan);if(recurrence.length)body.recurrence=recurrence;
  }
  const event=await calendarApiFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(plan.calendarId)}/events/${encodeURIComponent(plan.calendarEventId)}`,{method:"PUT",body:JSON.stringify(body)});
  plan.calendarHtmlLink=event?.htmlLink||plan.calendarHtmlLink||"";plan.calendarSyncedAt=now();return event;
@@ -7265,21 +7245,28 @@ function queueSavedPlanningWeatherRefresh(){
  setTimeout(()=>{planningWeatherRefreshQueued=false;refreshSavedPlanningWeather()},800);
 }
 
+const PLAN_LAST_CHILD_KEY="DE_PLAN_LAST_CHILD";
+function setPlanDetailsOpen(open){const box=$("planDetails"),btn=$("planDetailsToggle");box?.classList.toggle("hidden",!open);if(btn)btn.textContent=open?"− Ocultar detalhes":"＋ Adicionar detalhes"}
+function togglePlanDetails(){setPlanDetailsOpen($("planDetails")?.classList.contains("hidden"))}
+function setPlanRepeatShortcut(kind){const rec=$("planRecurrence");if(!rec)return;document.querySelectorAll("#planWeekdaysBox input[type=checkbox]").forEach(x=>x.checked=false);if(kind==="daily")rec.value="daily";else if(kind==="weekly")rec.value="weekly";else{rec.value="weekdays";const days=kind==="mwf"?[1,3,5]:[1,2,3,4,5];document.querySelectorAll("#planWeekdaysBox input[type=checkbox]").forEach(x=>x.checked=days.includes(Number(x.value)))}togglePlanRecurrenceOptions()}
+function planTimeFields(plan){if(!plan?.time)return null;const date=plan.nextDate||plan.date,mins=Math.max(1,Number(plan.durationMinutes)||30),start=new Date(`${date}T${plan.time}:00`),end=new Date(start.getTime()+mins*60000),pad=n=>String(n).padStart(2,"0"),local=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:00`,tz=Intl.DateTimeFormat().resolvedOptions().timeZone||"America/Sao_Paulo";return {start:{dateTime:local(start),timeZone:tz},end:{dateTime:local(end),timeZone:tz}}}
+function planTitleInputChanged(){const q=$("planTitle")?.value.trim().toLowerCase()||"",box=$("planTitleSuggestions");if(!box)return;if(q.length<2){box.classList.add("hidden");box.innerHTML="";return}const titles=[...new Set(state.plans.map(p=>p.title).filter(Boolean))].filter(t=>t.toLowerCase().includes(q)&&t.toLowerCase()!==q).slice(0,4);box.innerHTML=titles.map(t=>`<button type="button" onclick="choosePlanTitleSuggestion('${encodeURIComponent(t)}')">${esc(t)}</button>`).join("");box.classList.toggle("hidden",!titles.length)}
+function choosePlanTitleSuggestion(v){if($("planTitle"))$("planTitle").value=decodeURIComponent(v);$("planTitleSuggestions")?.classList.add("hidden")}
 function clearPlanForm(){
- editingPlanId="";["planTitle","planNotes","planPlace","planMaterialSearch","planEndDate"].forEach(id=>{if($(id))$(id).value=""});
- if($("planDate"))$("planDate").value=today();if($("planRecurrence"))$("planRecurrence").value="none";
+ editingPlanId="";["planTitle","planNotes","planPlace","planMaterialSearch","planEndDate","planTime"].forEach(id=>{if($(id))$(id).value=""});
+ if($("planDate"))$("planDate").value=today();if($("planDuration"))$("planDuration").value="";setPlanDetailsOpen(false);if($("planRecurrence"))$("planRecurrence").value="none";
  document.querySelectorAll("#planWeekdaysBox input[type=checkbox]").forEach(x=>x.checked=false);togglePlanRecurrenceOptions();
  clearPlanPlaceSelection();hidePlanPlaceResults();planPlaceSessionToken="";clearPlanMaterial();resetPlanCalendarOrigin();
  if($("planWeatherBox")){$("planWeatherBox").classList.add("hidden");$("planWeatherBox").innerHTML="";delete $("planWeatherBox").dataset.weather}
  if($("planFormTitle"))$("planFormTitle").textContent="Novo planejamento";if($("planSaveBtn"))$("planSaveBtn").textContent="Salvar planejamento";
- renderPlanChildrenPicker(activeChildId?[activeChildId]:[]);
+ const lastPlanChild=localStorage.getItem(PLAN_LAST_CHILD_KEY)||activeChildId;renderPlanChildrenPicker(lastPlanChild?[lastPlanChild]:[]);
 }
 function openNewPlanForm(){window.v135RetakeSource=null;clearPlanForm();togglePlanForm(true)}
 function cancelPlanEdit(){clearPlanForm();togglePlanForm(false)}
 async function editPlan(id){
  const p=state.plans.find(x=>x.id===id);if(!p)return;resetPlanCalendarOrigin();editingPlanId=id;activeChildId=planChildIds(p)[0]||p.childId;
  togglePlanForm(true);if($("planFormTitle"))$("planFormTitle").textContent="Editar planejamento";if($("planSaveBtn"))$("planSaveBtn").textContent="Salvar alterações";
- $("planChild").value=activeChildId;renderPlanChildrenPicker(planChildIds(p));$("planDate").value=p.nextDate||p.date||today();$("planTitle").value=p.title||"";$("planNotes").value=p.notes||"";$("planPlace").value=p.place||"";
+ $("planChild").value=activeChildId;renderPlanChildrenPicker(planChildIds(p));$("planDate").value=p.nextDate||p.date||today();$("planTitle").value=p.title||"";$("planNotes").value=p.notes||"";$("planPlace").value=p.place||"";if($("planTime"))$("planTime").value=p.time||"";if($("planDuration"))$("planDuration").value=p.durationMinutes?String(p.durationMinutes):"";setPlanDetailsOpen(true);
  selectedPlanPlace=p.placeDetails?{...p.placeDetails}:(p.weather?.latitude!=null?{name:p.weather.place||p.place,address:p.place||"",latitude:p.weather.latitude,longitude:p.weather.longitude}:null);if($("planPlaceId"))$("planPlaceId").value=selectedPlanPlace?.place_id||"";
  if(p.materialId||p.materialName){$("planMaterialId").value=p.materialId||"";$("planMaterialName").value=p.materialName||"";$("planMaterialPublisher").value=p.materialPublisher||"";renderPlanMaterialSelection({id:p.materialId,name:p.materialName,publisher:p.materialPublisher})}else clearPlanMaterial();
  $("planRecurrence").value=p.recurrence||"none";$("planEndDate").value=p.endDate||"";document.querySelectorAll("#planWeekdaysBox input[type=checkbox]").forEach(x=>x.checked=(p.weekdays||[]).map(Number).includes(Number(x.value)));togglePlanRecurrenceOptions();
@@ -7299,7 +7286,7 @@ async function addPlan(){
  const placeDetails=selectedPlanPlace?{...selectedPlanPlace}:null;
  const existing=editingPlanId?state.plans.find(x=>x.id===editingPlanId):null;
  if(!weather&&existing&&(existing.nextDate||existing.date)===start&&existing.place===planPlaceValue())weather=existing.weather||null;
- const plan=existing?{...existing,childId,childIds,title,notes:$("planNotes").value.trim(),place:planPlaceValue(),placeDetails,weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",recurrence,weekdays,endDate:$("planEndDate")?.value||"",nextDate:start,date:(existing.occurrences||[]).length?existing.date:start,updatedAt:now()}:{id:uid(),sourceEntryId:window.v135RetakeSource?.entryId||"",childId,childIds,date:start,nextDate:start,type:"planned",complementaryId:"",component:"",title,notes:$("planNotes").value.trim(),place:planPlaceValue(),placeDetails,weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",materialBnccCode:"",materialBnccDescription:"",materialBnccComponent:"",materialBnccArea:"",materialBnccSkills:[],recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],participantProgress:{},createdAt:now(),updatedAt:now(),completedAt:"",importedCalendarId:imported?.calendarId||"",importedCalendarName:imported?.calendarName||"",importedCalendarEventId:imported?.eventId||"",importedCalendarHtmlLink:imported?.htmlLink||"",importedCalendarUpdated:imported?.updated||"",importedCalendarFingerprint:imported?.fingerprint||"",importedCalendarChanged:false};
+ const plan=existing?{...existing,childId,childIds,title,notes:$("planNotes").value.trim(),place:planPlaceValue(),placeDetails,weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",time:$("planTime")?.value||"",durationMinutes:Number($("planDuration")?.value||0)||0,recurrence,weekdays,endDate:$("planEndDate")?.value||"",nextDate:start,date:(existing.occurrences||[]).length?existing.date:start,updatedAt:now()}:{id:uid(),sourceEntryId:window.v135RetakeSource?.entryId||"",childId,childIds,date:start,nextDate:start,type:"planned",complementaryId:"",component:"",title,notes:$("planNotes").value.trim(),place:planPlaceValue(),placeDetails,weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",materialBnccCode:"",materialBnccDescription:"",materialBnccComponent:"",materialBnccArea:"",materialBnccSkills:[],time:$("planTime")?.value||"",durationMinutes:Number($("planDuration")?.value||0)||0,recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],participantProgress:{},createdAt:now(),updatedAt:now(),completedAt:"",importedCalendarId:imported?.calendarId||"",importedCalendarName:imported?.calendarName||"",importedCalendarEventId:imported?.eventId||"",importedCalendarHtmlLink:imported?.htmlLink||"",importedCalendarUpdated:imported?.updated||"",importedCalendarFingerprint:imported?.fingerprint||"",importedCalendarChanged:false};
  if(!existing)state.plans.push(plan);else Object.assign(existing,plan);window.v135RetakeSource=null;
  const shouldAddCalendar=!!$("planAddToCalendar")?.checked&&!imported;
  clearPlanForm();togglePlanForm(false);saveLocal();renderPlans();renderDashboard();
@@ -8268,7 +8255,7 @@ async function init(){
  bootDiagMark("migração de mídia concluída");
  loadBnccApiCache();
  bootDiagMark("cache BNCC carregado");
- // v15.3 · abertura otimizada: usa o perfil em cache para liberar a interface imediatamente,
+ // v15.4 · abertura otimizada: usa o perfil em cache para liberar a interface imediatamente,
  // enquanto a validação/sincronização com o backend acontece em segundo plano.
  if(appSessionValid()){
    const restoredCachedProfile=restoreBackendProfileForOffline();
@@ -8571,7 +8558,7 @@ function normalizeComponentSuggestionsV62(items){
 
 
 document.addEventListener("DOMContentLoaded",()=>{
- $("planDate")?.addEventListener("change",schedulePlanWeather);
+ $("planDate")?.addEventListener("change",schedulePlanWeather);$("planTitle")?.addEventListener("input",planTitleInputChanged);
  $("planPlace")?.addEventListener("input",()=>{schedulePlanPlaceSearch();schedulePlanWeather()});
  $("planPlace")?.addEventListener("change",refreshPlanWeather);
  document.addEventListener("click",e=>{if(!e.target.closest("#planPlace")&&!e.target.closest("#planPlaceResults"))hidePlanPlaceResults()});
