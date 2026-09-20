@@ -1,33 +1,22 @@
-Meu Diário de Estudos v13.23
+Meu Diário de Estudos — v14.0
 
-PUBLICAÇÃO NO GITHUB
-Substitua os arquivos do frontend pelo conteúdo deste pacote, mantendo a pasta icons.
+Versão de consistência e usabilidade do frontend.
 
-O que mudou:
-- Reestilização interna da Administração da Família.
-- Seções com descrições mais claras e hierarquia visual simplificada.
-- Formulários, avisos, botões e cartões internos mais limpos no celular.
-- Reestilização interna das ferramentas da Administração do Diário.
-- Mantidos Visão geral e Saúde do sistema da v13.17.
+Principais ajustes:
+- Tipografia consistente em inputs, selects, textareas e botões.
+- Campos em 16px no mobile para evitar zoom automático no iOS.
+- Textos auxiliares e alvos de toque revisados.
+- Histórico: filtros simplificados e menu ⋯ no lugar do × de exclusão.
+- Registrar: menos repetição, Criança/Data sem selo redundante de obrigatório e ajuda lateral recolhida.
+- Mais: opções em lista com ícone, descrição e chevron.
+- Header mobile mais compacto e rodapé institucional reduzido.
+- Alinhamento e largura de ações melhorados no desktop.
+- Primeira camada de tokens de design adicionada sem remover CSS legado de forma agressiva.
 
-Cloudflare Worker:
-NÃO precisa republicar. Esta versão usa o mesmo Worker v13.17.
+Backend/Worker:
+- Nenhuma alteração necessária. Continue usando o Worker v13.23.
 
-Alterações v13.19:
-- Removido Diagnóstico técnico do beta da Administração da Família.
-- Consumo de IA resumido em painel.
-- Custo estimado geral e por família.
-- Detalhes de chamadas por família sob demanda.
-- Worker permanece v13.17; não requer republicação.
-
-Alterações v13.20:
-- Agenda em Planejar reorganizada: Hoje → Próximos dias → Leituras planejadas → Para retomar → Atrasadas.
-- Apenas ordem visual alterada; lógica dos planejamentos preservada.
-
-Alterações v13.23:
-- “Editar planejamento” agora ocupa a largura total abaixo de “Concluir e registrar”.
-- Administração da família alinhada ao ADM do Diário: tipografia sans-serif, setas discretas, ícones e cards mais compactos.
-- Sem alteração no Worker; permanece compatível com Worker v13.17.
-
-
-v13.23: Catálogo comunitário no ADM com consulta/edição de livros e materiais, pendências e adição unificados. Ícone ✏️ nas leituras. Requer Worker v13.23.
+Observação sobre assets existentes no repositório:
+- index.html referencia logo-emblema.svg, logo-emblema-cobre.svg e vendor/zxing-browser.min.js.
+- Esses três arquivos não estavam presentes no pacote-base v13.23 recebido para gerar esta versão.
+- Ao publicar, preserve esses arquivos no repositório se eles já existirem lá.

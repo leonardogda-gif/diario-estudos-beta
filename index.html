@@ -1321,7 +1321,7 @@ header .brand-motto{display:none!important}
 @media(max-width:600px){#page-administracao .admin-hub{padding:15px 13px}#page-administracao .admin-panel>summary{padding:14px 14px;padding-right:42px}}
 
 
-/* v13.23 · consistência visual dos painéis e ações de planejamento */
+/* v14.0 · consistência visual dos painéis e ações de planejamento */
 .attention-actions{display:grid!important;grid-template-columns:1fr!important;gap:8px!important}
 .attention-actions .attention-primary,.attention-actions .attention-edit-full{width:100%!important}
 .attention-actions .attention-edit-full{background:#f3e9dc!important;border:1px solid #eadfce!important;color:#65111e!important}
@@ -1337,7 +1337,7 @@ header .brand-motto{display:none!important}
 #page-configuracoes .settings-collapse-body{border-top:1px solid #eee5d9;padding:14px 15px 15px!important}
 @media(max-width:600px){#page-configuracoes .settings-collapse-head{padding:13px 14px!important;gap:10px!important}#page-configuracoes .settings-head-icon{width:32px;height:32px;font-size:16px}#page-configuracoes .settings-collapse-head h3{font-size:15px!important}}
 
-/* v13.23 · agenda Planejar em ordem temporal: Hoje, Próximos dias, Leituras, Para retomar, Atrasadas */
+/* v14.0 · agenda Planejar em ordem temporal: Hoje, Próximos dias, Leituras, Para retomar, Atrasadas */
 /* v13.19 · painel de IA resumido e detalhes sob demanda */
 .ai-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
 .ai-summary-card{background:#F6F1E7;border:1px solid #E9DFCF;border-radius:18px;padding:16px 12px;text-align:center}
@@ -1410,7 +1410,7 @@ header .brand-motto{display:none!important}
  #page-administracao .admin-panel .btn{min-height:42px}
 }
 
-/* v13.23 · ações compactas de leitura + modal próprio para conclusão */
+/* v14.0 · ações compactas de leitura + modal próprio para conclusão */
 #page-leituras .reading-actions{display:flex!important;flex-wrap:nowrap!important;gap:7px!important;align-items:stretch}
 #page-leituras .reading-actions .reading-main-action{flex:1 1 auto!important;width:auto!important}
 #page-leituras .reading-actions .reading-icon-action{flex:0 0 44px!important;width:44px!important;min-width:44px!important;padding:0!important;display:grid!important;place-items:center;font-size:20px!important;line-height:1!important;border-radius:12px!important}
@@ -1430,7 +1430,7 @@ header .brand-motto{display:none!important}
 
 </style>
 </head>
-<body data-build="13.23" class="auth-checking">
+<body data-build="14.0" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -1527,10 +1527,7 @@ header .brand-motto{display:none!important}
     </section>
 
     <section id="page-registro" class="page">
-<div class="notice" id="recordExperienceIntro" style="margin:10px 0 14px">
-<b>Conte o que realmente aconteceu</b>
-<div class="meta" style="margin-top:4px">O Diário usará seu relato e o contexto do planejamento para sugerir componentes, habilidades e competências. Você confirma tudo antes de registrar.</div>
-</div>
+
       <div class="card" id="recordChildTabsCard"><div id="recordChildTabs" class="child-tabs"></div></div>
       <div id="recordApp"></div>
     </section>
@@ -1676,7 +1673,7 @@ header .brand-motto{display:none!important}
 
         <div class="card" style="margin-top:12px">
           <details id="historyFiltersCollapse" class="history-filters-collapse">
-            <summary><b>Filtros</b><span>Mostrar / ocultar filtros</span></summary>
+            <summary><b>Filtros</b><span>Refinar resultados</span></summary>
             <div class="history-filters-body">
           <div class="grid">
             <div>
@@ -1803,13 +1800,13 @@ header .brand-motto{display:none!important}
         </div>
         <div id="asaasPlanCard" class="billing-card"><div class="meta">Consultando acesso da família…</div></div>
         <div class="more-group"><h3 class="more-group-title">Conta e acesso</h3>
-          <div class="more-action-grid"><button class="btn" onclick="showPage('configuracoes')">Configurações da família</button></div>
+          <div class="more-action-grid"><button class="more-list-action" onclick="showPage('configuracoes')"><span class="more-list-icon" aria-hidden="true">👨‍👩‍👧</span><span><b>Configurações da família</b><small>Crianças, responsáveis, integrações e dados</small></span><span class="more-chevron">›</span></button></div>
         </div>
         <div class="more-group"><h3 class="more-group-title">Acompanhamento</h3>
-          <div class="more-action-grid"><button class="btn" onclick="showPage('relatorios')">Relatórios</button></div>
+          <div class="more-action-grid"><button class="more-list-action" onclick="showPage('relatorios')"><span class="more-list-icon" aria-hidden="true">📄</span><span><b>Relatórios</b><small>Acompanhe e compartilhe os registros da família</small></span><span class="more-chevron">›</span></button></div>
         </div>
         <div id="globalAdminMenuGroup" class="more-group hidden"><h3 class="more-group-title">Administração</h3>
-          <div class="more-action-grid"><button id="globalAdminMenuBtn" class="btn" onclick="showPage('administracao')">Administração do Diário</button></div>
+          <div class="more-action-grid"><button id="globalAdminMenuBtn" class="more-list-action" onclick="showPage('administracao')"><span class="more-list-icon" aria-hidden="true">⚙️</span><span><b>Administração do Diário</b><small>Painel técnico e gerenciamento do serviço</small></span><span class="more-chevron">›</span></button></div>
         </div>
       </div>
     </section>
@@ -2114,7 +2111,7 @@ header .brand-motto{display:none!important}
 <div class="admin-overview-grid"><div class="admin-stat"><b id="adminStatFamilies">—</b><span>Famílias</span></div><div class="admin-stat"><b id="adminStatChildren">—</b><span>Crianças</span></div><div class="admin-stat"><b id="adminStatPendingBooks">—</b><span>Livros pendentes</span></div><div class="admin-stat"><b id="adminStatPendingMaterials">—</b><span>Materiais pendentes</span></div></div>
 <div id="adminAttention" class="admin-attention">Verificando pendências…</div>
 <div class="admin-section-label">Saúde do sistema</div>
-<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v13.23</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
+<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v14.0</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
 <div class="admin-section-label">Gerenciamento</div>
 
 <details class="tech-details admin-panel"><summary>🔓 Acessos gratuitos <span>Beta, social, parcerias e cortesias</span></summary><div class="drive-folder-card" style="margin-top:8px">
@@ -5548,12 +5545,12 @@ function renderRecordPage(){
    <div class="record-grid">
     ${editing?.collectiveGroupId?`<div class="full notice"><b>👨‍👩‍👧‍👦 Registro coletivo</b><br>Agora: <b>${esc(child.name)}</b> · ${Number(editing.collectivePosition)||1} de ${Number(editing.collectiveTotal)||1}. A experiência comum já está preenchida; a análise pedagógica e a avaliação continuam individuais.</div>`:""}
     ${!editing?`<div class="full record-child-switch">
-      <label class="field clean-label">Criança <span class="field-pill required-pill">Obrigatório</span></label>
+      <label class="field clean-label">Criança</label>
       <select id="recordChildSelect" onchange="switchRecordChild(this.value)">
         ${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===activeChildId?"selected":""}>${esc(firstName(c.name))}</option>`).join("")}
       </select>
     </div>`:""}
-    <div><label class="field clean-label">Data <span class="field-pill required-pill">Obrigatório</span></label><input id="fDate" type="date" max="${today()}" value="${esc(f.date)}"></div>
+    <div><label class="field clean-label">Data</label><input id="fDate" type="date" max="${today()}" value="${esc(f.date)}"></div>
     <input id="fType" type="hidden" value="bncc">
     <select id="fComplementary" class="hidden" aria-hidden="true"><option value=""></option></select>
     ${editing?.planId?`<div class="full record-context-card"><b>📅 Planejamento relacionado</b><div style="margin-top:4px">${esc(state.plans.find(x=>x.id===editing.planId)?.title||"Atividade planejada")}</div>${state.plans.find(x=>x.id===editing.planId)?.place?`<div class="meta" style="margin-top:3px">📍 ${esc(state.plans.find(x=>x.id===editing.planId)?.place||"")}</div>`:""}<div class="meta" style="margin-top:5px">Use como contexto. O registro abaixo deve contar o que realmente aconteceu.</div></div>`:""}
@@ -5642,20 +5639,20 @@ function renderRecordPage(){
    ${quick?`<div class="meta" style="margin-top:6px">Isso já é suficiente. Avaliação, material e BNCC podem ser completados depois — por você ou por qualquer responsável.</div>`:""}
   </div>
   <aside class="record-side">
-    <div class="record-side-card">
-      <h3>💡 Dicas para descrever a experiência</h3>
+    <details class="record-side-card record-help-collapse">
+      <summary>💡 Dicas para descrever a experiência</summary><div class="record-help-body">
       <div class="tip"><div class="tip-icon">💬</div><div><b>Explique o que foi feito</b><div class="meta">O que aconteceu? O que a criança fez?</div></div></div>
       <div class="tip"><div class="tip-icon">🎯</div><div><b>Seja específico</b><div class="meta">Detalhes ajudam a IA a entender melhor.</div></div></div>
       <div class="tip"><div class="tip-icon">🧩</div><div><b>Inclua o processo</b><div class="meta">Como foi feito? Quais passos?</div></div></div>
       <div class="tip"><div class="tip-icon">👁️</div><div><b>Conte o que a criança percebeu</b><div class="meta">O que ela descobriu, compreendeu ou conseguiu fazer?</div></div></div>
-    </div>
-    <div class="record-side-card"><h3>👁️ Prévia da atividade</h3><div id="recordPreview"></div></div>
-    <div class="record-side-card">
-      <h3>✨ Como funciona a análise?</h3>
+      </div></details>
+    <details class="record-side-card record-help-collapse"><summary>👁️ Prévia da atividade</summary><div class="record-help-body"><div id="recordPreview"></div></div></details>
+    <details class="record-side-card record-help-collapse">
+      <summary>✨ Como funciona a análise?</summary><div class="record-help-body">
       <p class="meta">O Diário analisa o relato da experiência e ajuda a identificar componentes curriculares, habilidades e competências da BNCC que podem estar relacionados ao que realmente aconteceu.</p>
       <p class="meta">A busca considera o ano de referência da criança e o contexto informado no registro. As sugestões servem como apoio para sua revisão — não como uma classificação automática da aprendizagem.</p>
       <p class="meta"><b>Nada é aplicado automaticamente.</b> Você revisa as sugestões e decide o que representa a experiência antes de salvar.</p>
-    </div>
+      </div></details>
   </aside>
  </div>
 </div>`;
@@ -7712,6 +7709,44 @@ async function shareReportHtml(){
 
 .history-filters-collapse>summary{display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;color:#441015;padding:3px 0 8px}.history-filters-collapse>summary span{font-size:12px;color:#756B63;font-weight:500}.history-filters-body{padding-top:8px}
 @media(max-width:650px){.today-top-actions .btn{min-height:38px!important;padding:6px 10px!important}.today-top-actions{gap:6px!important}}
+
+/* v14.0 — camada de consistência e usabilidade */
+:root{
+ --ds-space-1:4px;--ds-space-2:8px;--ds-space-3:12px;--ds-space-4:16px;--ds-space-6:24px;
+ --ds-radius-sm:8px;--ds-radius-md:12px;--ds-radius-lg:16px;
+ --ds-text-xs:12px;--ds-text-sm:14px;--ds-text-base:16px;--ds-text-lg:18px;
+ --ds-primary:#65111E;--ds-text:#342D29;--ds-muted:#746B64;--ds-border:#E8D8CA;--ds-surface:#FFFCF7;
+}
+input,select,textarea,button{font-family:inherit}
+input,select,textarea{font-size:16px}
+button{font-size:inherit}
+.meta{font-size:12px;line-height:1.45}
+.nav-tab{font-family:inherit}
+.info-btn{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding:0;font-size:17px}
+.switch{min-width:44px;min-height:26px}
+.history-filters-collapse>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px}
+.history-filters-collapse>summary span{font-size:12px;color:var(--ds-muted)}
+.history-entry-menu{position:absolute;top:6px;right:6px;z-index:5}
+.history-entry-menu>summary{list-style:none;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#6B2737;font-size:23px;font-weight:800;background:#F7EEE8;border:1px solid #E8D8CA}
+.history-entry-menu>summary::-webkit-details-marker{display:none}
+.history-entry-menu-pop{position:absolute;right:0;top:44px;width:160px;padding:6px;background:#FFFCF7;border:1px solid #E1D9CA;border-radius:12px;box-shadow:0 10px 28px rgba(68,16,21,.16)}
+.history-entry-menu-pop button{display:block;width:100%;border:0;background:transparent;text-align:left;padding:10px;border-radius:8px;cursor:pointer;font-size:14px;color:#342D29}
+.history-entry-menu-pop button:hover{background:#F7EEE8}.history-entry-menu-pop .danger-text{color:#9B2636}
+.record-help-collapse{padding:0!important;overflow:hidden}
+.record-help-collapse>summary{list-style:none;cursor:pointer;padding:13px 14px;font-size:14px;font-weight:800;color:#441015;display:flex;align-items:center;justify-content:space-between;min-height:46px}
+.record-help-collapse>summary::-webkit-details-marker{display:none}.record-help-collapse>summary::after{content:'›';font-size:22px;transform:rotate(90deg);transition:.15s}.record-help-collapse[open]>summary::after{transform:rotate(-90deg)}
+.record-help-body{padding:0 14px 14px}.record-help-body .meta{font-size:12px}
+.more-action-grid{grid-template-columns:1fr!important;gap:8px!important}
+.more-list-action{width:100%;border:1px solid #E8D8CA;background:#FFFCF7;border-radius:14px;padding:12px 13px;display:grid;grid-template-columns:40px minmax(0,1fr) 20px;gap:11px;align-items:center;text-align:left;color:#342D29;cursor:pointer;min-height:64px}
+.more-list-action:hover{background:#FBF4ED}.more-list-icon{width:40px;height:40px;border-radius:11px;background:#F5E9DF;display:flex;align-items:center;justify-content:center;font-size:19px}.more-list-action b{display:block;font-size:15px;color:#4F1420}.more-list-action small{display:block;font-size:12px;color:#746B64;margin-top:2px;line-height:1.35}.more-chevron{font-size:25px;color:#8A6A5E;text-align:center}
+.app-footer{padding-top:22px!important;padding-bottom:22px!important;gap:18px!important}.app-footer p{margin:7px 0 0!important;line-height:1.45!important}.app-footer-links{gap:8px 18px!important}.app-footer button,.app-footer a{font-size:12px!important;font-weight:650!important}
+@media(min-width:901px){header,main{max-width:920px}.record-actions .btn{width:auto;min-width:150px}.attention-actions{max-width:560px}}
+@media(max-width:650px){
+ header{margin:6px 8px 10px!important;border-radius:18px!important;padding:8px 10px!important;min-height:56px}.brand .brand-logo{width:38px!important;height:44px!important;margin:0!important}header h1{font-size:20px!important}.header-right{min-height:44px!important}.header-message{display:none!important}.header-cloud{padding:3px 5px!important}.header-cloud-text{font-size:10px!important}
+ .nav-tab{font-size:11px!important;min-height:52px}.nav-tab-icon{width:20px;height:20px}
+ input,select,textarea{font-size:16px!important}.meta{font-size:12px!important}
+ .app-footer{padding:20px 18px calc(84px + env(safe-area-inset-bottom))!important}.app-footer-brand{font-size:14px!important}.app-footer-brand img{width:30px;height:30px}.app-footer p{font-size:12px!important}.app-footer-links{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px 14px!important}
+}
 </style></head><body>${content}</body></html>`;
  shareOrDownloadText(h,"relatorio_"+child.name.replace(/\s+/g,"_")+".html","text/html","Relatório");
 }
@@ -7784,7 +7819,7 @@ function renderHistoryBrowser(){
 
   list.innerHTML=rows.map(x=>`
     <div class="entry record-clickable history-entry-card" data-history-entry-id="${esc(x.id)}" onclick="viewEntry('${x.id}','${childId}')" style="margin-bottom:10px;position:relative">
-      <button class="entry-quick-delete history-quick-delete" type="button" aria-label="Excluir registro" title="Excluir registro" onclick="event.stopPropagation();deleteEntry('${x.id}','${childId}')">×</button>
+      <details class="history-entry-menu" onclick="event.stopPropagation()"><summary aria-label="Ações do registro" title="Ações do registro">⋯</summary><div class="history-entry-menu-pop"><button type="button" onclick="event.stopPropagation();viewEntry('${x.id}','${childId}')">Abrir registro</button><button type="button" class="danger-text" onclick="event.stopPropagation();deleteEntry('${x.id}','${childId}')">Excluir registro</button></div></details>
       <div class="toolbar" style="justify-content:space-between;align-items:flex-start;padding-right:34px">
         <div class="meta">${esc(fmtDate(x.date))}</div>
         ${link==="pending"?`<label onclick="event.stopPropagation()" style="display:flex;gap:7px;align-items:center;font-weight:800"><input type="checkbox" ${historyBnccSelected.has(x.id)?"checked":""} onchange="toggleHistoryBnccSelection('${x.id}',this.checked)"> Selecionar</label>`:""}
