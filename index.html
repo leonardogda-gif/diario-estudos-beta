@@ -1291,6 +1291,31 @@ header .brand-motto{display:none!important}
  .record-side{display:flex!important}
 }
 
+
+/* v14.7 · registro compacto + histórico totalmente clicável */
+.record-report-wrap{position:relative}
+.record-report-wrap #fActivity{display:block;width:100%;box-sizing:border-box;padding-bottom:52px}
+.voice-btn.voice-btn-inside{position:absolute;right:10px;bottom:10px;margin:0!important;min-height:36px!important;padding:7px 12px!important;border-radius:10px!important;z-index:2}
+.record-autosave-status{margin-top:5px;color:#39734b;font-size:12px;font-weight:700}
+.history-entry-card{cursor:pointer;padding:13px 15px!important;transition:background .15s ease,transform .08s ease}
+.history-entry-card:active{background:#faf3ec!important;transform:translateY(1px)}
+.history-entry-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:7px}
+.history-entry-chevron{font-size:28px;line-height:1;color:#8a6a5e;font-weight:400;padding:0 2px}
+@media(max-width:650px){
+ #page-registro .record-form-card{padding:12px!important}
+ #page-registro .record-title-row{margin-bottom:5px!important}
+ #page-registro .record-title-row h2{margin-bottom:2px!important}
+ #page-registro .quick-mode-toggle{min-height:38px!important;margin:2px 0!important}
+ #page-registro .record-grid{gap:8px!important}
+ #page-registro .record-child-switch{margin-bottom:0!important}
+ #page-registro .record-child-switch select,#page-registro #fDate{min-height:42px!important}
+ #page-registro .field-help{margin-bottom:5px!important}
+ #page-registro #fActivity{min-height:118px!important;height:118px!important;resize:vertical}
+ #page-registro .record-autosave-status{margin-top:4px!important}
+ #page-registro .record-actions{margin-top:8px!important}
+ .history-entry-card{margin-bottom:7px!important;padding:11px 13px!important}
+ .history-entry-card .entry-title{margin-top:3px!important}
+}
 </style>
 <style id="v138-ui-fixes">
 /* v13.9: capas separadas por contexto — Hoje e Leituras */
@@ -5322,11 +5347,11 @@ function saveRecordDraft(immediate=false){
    try{
      localStorage.setItem(recordDraftKey(d.childId),JSON.stringify(d));
      const s=$("draftStatus");
-     if(s)s.textContent="Rascunho salvo automaticamente · "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+     if(s)s.textContent="✓ Salvo automaticamente · "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
    }catch(e){
      console.warn("Não foi possível salvar o rascunho:",e);
      const s=$("draftStatus");
-     if(s)s.textContent="Rascunho não pôde ser salvo neste dispositivo.";
+     if(s)s.textContent="Não foi possível salvar automaticamente neste dispositivo.";
    }
  };
  clearTimeout(recordDraftTimer);
@@ -5735,9 +5760,9 @@ function renderRecordPage(){
     ${editing?.planId?`<div class="full record-context-card"><b>📅 Planejamento relacionado</b><div style="margin-top:4px">${esc(state.plans.find(x=>x.id===editing.planId)?.title||"Atividade planejada")}</div>${state.plans.find(x=>x.id===editing.planId)?.place?`<div class="meta" style="margin-top:3px">📍 ${esc(state.plans.find(x=>x.id===editing.planId)?.place||"")}</div>`:""}<div class="meta" style="margin-top:5px">Use como contexto. O registro abaixo deve contar o que realmente aconteceu.</div></div>`:""}
     <div class="full">
       <label class="field clean-label clean-label-lg record-label-with-help"><span>O que vocês fizeram ou aprenderam? <span class="field-pill required-pill">Obrigatório</span></span><button type="button" class="context-help-btn" onclick="openRecordHelp('relato')" aria-label="Dicas para descrever a experiência">ⓘ</button></label><div class="field-help">Conte o que realmente aconteceu durante a experiência.</div>
-      <textarea id="fActivity" rows="5" placeholder="Ex.: Visitamos a exposição sobre o corpo humano. Ela observou os órgãos, comparou suas funções e fez perguntas sobre respiração e circulação.">${esc(f.atividade)}</textarea>
-      ${speechRecognitionSupported()?`<button type="button" id="voiceBtn_fActivity" class="btn voice-btn" onclick="toggleVoiceInput('fActivity')">🎤 Falar</button>`:""}
-      <div id="draftStatus" class="media-status">${draft?"Rascunho restaurado automaticamente.":"Rascunho salvo automaticamente neste dispositivo."}</div>
+      <div class="record-report-wrap"><textarea id="fActivity" rows="5" placeholder="Ex.: Visitamos a exposição sobre o corpo humano. Ela observou os órgãos, comparou suas funções e fez perguntas sobre respiração e circulação.">${esc(f.atividade)}</textarea>
+      ${speechRecognitionSupported()?`<button type="button" id="voiceBtn_fActivity" class="btn voice-btn voice-btn-inside" onclick="toggleVoiceInput('fActivity')">🎤 Falar</button>`:""}</div>
+      <div id="draftStatus" class="record-autosave-status">✓ ${draft?"Rascunho restaurado e salvo automaticamente":"Salvo automaticamente"}</div>
     </div>
     <details id="recordMaterialWrap" class="full record-more-options ${quick?"hidden":""}">
       <summary><b>Material utilizado</b><span>Opcional</span></summary><div style="margin-top:10px">
@@ -5811,8 +5836,6 @@ function renderRecordPage(){
    <div class="record-actions">
      ${quick?`<button class="btn primary" onclick="saveEntry()">✓ Salvar</button>`:`
      <button class="btn primary" onclick="saveEntry()">${editing?.collectiveGroupId&&Number(editing.collectivePosition)<Number(editing.collectiveTotal)?"Salvar e continuar":editing?.collectiveGroupId?"Salvar e concluir":editing?"Salvar alterações":"Salvar atividade"}</button>
-     <button class="btn" onclick="saveRecordDraft(true)">Salvar rascunho</button>
-     ${editing?.collectiveGroupId?"":`<button class="record-clear-action" onclick="confirmClearRecord()">Limpar</button>`}
      ${editing?`<button class="btn" onclick="cancelEdit()">Cancelar</button>`:""}`}
    </div>
    ${quick?`<div class="meta" style="margin-top:6px">Isso já é suficiente. Avaliação, material e BNCC podem ser completados depois — por você ou por qualquer responsável.</div>`:""}
@@ -7997,9 +8020,9 @@ function renderHistoryBrowser(){
         ${link==="pending"?`<label onclick="event.stopPropagation()" style="display:flex;gap:7px;align-items:center;font-weight:800"><input type="checkbox" ${historyBnccSelected.has(x.id)?"checked":""} onchange="toggleHistoryBnccSelection('${x.id}',this.checked)"> Selecionar</label>`:""}
       </div>
       <div class="entry-title">${esc(x.atividade||"Registro")}</div>
-      <div class="toolbar" style="margin-top:8px;justify-content:space-between">
+      <div class="history-entry-footer">
         <span class="badge">${esc(x.status||"Sem avaliação")}</span>
-        <span class="meta">Toque para abrir ›</span>
+        <span class="history-entry-chevron" aria-hidden="true">›</span>
       </div>
     </div>`).join("") || "<div class='notice'>Nenhum registro encontrado para os filtros selecionados.</div>";
 }
@@ -8240,7 +8263,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "14.6";
+const APP_VERSION = "14.7";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
