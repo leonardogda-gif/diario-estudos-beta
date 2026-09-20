@@ -1626,7 +1626,7 @@ input,select,textarea{font-size:16px}
 }
 </style>
 </head>
-<body data-build="15.0" class="auth-checking">
+<body data-build="15.1" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -4180,10 +4180,23 @@ function initDynamicHeaderOffset(){
  }
 }
 
+/* v15.1 · diagnóstico temporário do tempo de abertura */
+const DE_BOOT_DIAG={start:performance.now(),marks:[]};
+function bootDiagMark(name){
+ const ms=Math.round((performance.now()-DE_BOOT_DIAG.start)*10)/10;
+ DE_BOOT_DIAG.marks.push({etapa:name,ms});
+ console.log(`[BOOT v15.1] ${name}: ${ms} ms`);
+ try{localStorage.setItem("DE_BOOT_DIAG_LAST",JSON.stringify({version:"15.1",at:new Date().toISOString(),total_ms:ms,marks:DE_BOOT_DIAG.marks}))}catch(e){}
+}
+window.DE_BOOT_DIAG=DE_BOOT_DIAG;
+window.diarioDiagnosticoAbertura=()=>{console.table(DE_BOOT_DIAG.marks);return DE_BOOT_DIAG};
+bootDiagMark("script pronto");
 let authBootFinished=false;
 function finishAuthBoot(){
  authBootFinished=true;
+ bootDiagMark("tela Abrindo Diário liberada");
  document.body.classList.remove("auth-checking");
+ console.table(DE_BOOT_DIAG.marks);
 }
 function updateAuthUI(){
  const onlineAuth=appSessionValid();
@@ -8233,17 +8246,24 @@ function restoreBackup(ev){let f=ev.target.files[0];if(!f)return;let fr=new File
 
 function bindSettings(){}
 async function init(){
+ bootDiagMark("window.load / init iniciado");
  initDynamicHeaderOffset();
+ bootDiagMark("cabeçalho inicializado");
  loadLocal();
+ bootDiagMark("dados locais carregados");
  try{await migrateLocalPhotosToIndexedDb();await migrateRecordDraftPhotosToIndexedDb()}catch(e){console.warn("Migração de mídia pendente:",e)}
+ bootDiagMark("migração de mídia concluída");
  loadBnccApiCache();
+ bootDiagMark("cache BNCC carregado");
  if(!navigator.onLine)restoreBackendProfileForOffline();
  $("planDate").value=today();
  bindSettings();
  populateCommonSelects();
  renderHistoryBatchRows();
+ bootDiagMark("controles iniciais preparados");
  initGoogleAuth();
  updateAuthUI();
+ bootDiagMark("interface de autenticação preparada");
  setTimeout(()=>hydrateMedia().catch(e=>console.warn("Pré-visualização de mídia pendente:",e)),0);
  syncRememberCheckbox();
  queueSavedPlanningWeatherRefresh();
@@ -8252,7 +8272,9 @@ async function init(){
  setBackendStatus("aguardando login");
  if(appSessionValid()){
    setCloudStatus("online","Sessão do Diário restaurada");
+   bootDiagMark("conexão backend iniciada");
    const backendOK=await connectBackend();
+   bootDiagMark("conexão backend concluída");
    finishAuthBoot();
    updateAuthUI();
    if(backendOK){
@@ -8270,6 +8292,7 @@ async function init(){
      }
    }
  }else{
+   bootDiagMark("sem sessão válida");
    saveAppSession("",0);
    setCloudStatus("","Aguardando login");
    finishAuthBoot();
@@ -8299,7 +8322,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "15.0";
+const APP_VERSION = "15.1";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

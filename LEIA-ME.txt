@@ -1,3 +1,11 @@
+DIÁRIO DE ESTUDOS — v15.1
+
+DIAGNÓSTICO TEMPORÁRIO DE ABERTURA
+- Instrumenta o tempo desde o carregamento até a liberação da tela “Abrindo Diário”.
+- Não altera o fluxo funcional do app.
+- No desktop, abra F12 > Console e procure por linhas [BOOT v15.1] e pela tabela automática.
+- O último diagnóstico também fica salvo localmente em DE_BOOT_DIAG_LAST.
+
 DIÁRIO DE ESTUDOS — v15.0
 
 Mudanças desta versão:
