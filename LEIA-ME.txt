@@ -1,4 +1,4 @@
-Meu Diário de Estudos v13.22
+Meu Diário de Estudos v13.23
 
 PUBLICAÇÃO NO GITHUB
 Substitua os arquivos do frontend pelo conteúdo deste pacote, mantendo a pasta icons.
@@ -24,7 +24,10 @@ Alterações v13.20:
 - Agenda em Planejar reorganizada: Hoje → Próximos dias → Leituras planejadas → Para retomar → Atrasadas.
 - Apenas ordem visual alterada; lógica dos planejamentos preservada.
 
-Alterações v13.22:
+Alterações v13.23:
 - “Editar planejamento” agora ocupa a largura total abaixo de “Concluir e registrar”.
 - Administração da família alinhada ao ADM do Diário: tipografia sans-serif, setas discretas, ícones e cards mais compactos.
 - Sem alteração no Worker; permanece compatível com Worker v13.17.
+
+
+v13.23: Catálogo comunitário no ADM com consulta/edição de livros e materiais, pendências e adição unificados. Ícone ✏️ nas leituras. Requer Worker v13.23.

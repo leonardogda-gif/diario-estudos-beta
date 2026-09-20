@@ -1265,6 +1265,8 @@ header .brand-motto{display:none!important}
 #page-configuracoes .settings-collapse-head{padding:14px 15px;margin:0}.settings-collapse-body{padding:0 15px 15px}
 #page-configuracoes .family-admin-note{font-size:12px;color:#777168;margin-top:5px}
 @media(max-width:600px){#page-administracao .admin-overview-grid{grid-template-columns:repeat(2,1fr)}#page-configuracoes .family-overview-grid{grid-template-columns:repeat(3,1fr)}}
+
+.admin-catalog-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}.admin-catalog-tab.active{background:#641523;color:#fff;border-color:#641523}.admin-catalog-search{display:flex;gap:8px;align-items:center}.admin-catalog-search input{min-width:0;flex:1}.admin-library-item{border:1px solid #e5dccd;border-radius:16px;padding:12px;margin:9px 0;background:#fffdf9}.admin-library-head{display:grid;grid-template-columns:48px 1fr auto;gap:10px;align-items:start}.admin-library-cover{width:48px;height:66px;object-fit:cover;border-radius:7px;background:#f1eadf}.admin-library-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.admin-library-edit{margin-top:10px;padding:12px;border-radius:14px;background:#f8f1e8}.admin-library-status{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#7b2638}@media(max-width:520px){.admin-catalog-tabs .btn{flex:1 1 calc(50% - 7px)}.admin-library-head{grid-template-columns:42px 1fr}.admin-library-head>.admin-library-status{grid-column:2}.admin-library-cover{width:42px;height:58px}}
 </style>
 <style id="v138-ui-fixes">
 /* v13.9: capas separadas por contexto — Hoje e Leituras */
@@ -1319,7 +1321,7 @@ header .brand-motto{display:none!important}
 @media(max-width:600px){#page-administracao .admin-hub{padding:15px 13px}#page-administracao .admin-panel>summary{padding:14px 14px;padding-right:42px}}
 
 
-/* v13.22 · consistência visual dos painéis e ações de planejamento */
+/* v13.23 · consistência visual dos painéis e ações de planejamento */
 .attention-actions{display:grid!important;grid-template-columns:1fr!important;gap:8px!important}
 .attention-actions .attention-primary,.attention-actions .attention-edit-full{width:100%!important}
 .attention-actions .attention-edit-full{background:#f3e9dc!important;border:1px solid #eadfce!important;color:#65111e!important}
@@ -1335,7 +1337,7 @@ header .brand-motto{display:none!important}
 #page-configuracoes .settings-collapse-body{border-top:1px solid #eee5d9;padding:14px 15px 15px!important}
 @media(max-width:600px){#page-configuracoes .settings-collapse-head{padding:13px 14px!important;gap:10px!important}#page-configuracoes .settings-head-icon{width:32px;height:32px;font-size:16px}#page-configuracoes .settings-collapse-head h3{font-size:15px!important}}
 
-/* v13.22 · agenda Planejar em ordem temporal: Hoje, Próximos dias, Leituras, Para retomar, Atrasadas */
+/* v13.23 · agenda Planejar em ordem temporal: Hoje, Próximos dias, Leituras, Para retomar, Atrasadas */
 /* v13.19 · painel de IA resumido e detalhes sob demanda */
 .ai-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
 .ai-summary-card{background:#F6F1E7;border:1px solid #E9DFCF;border-radius:18px;padding:16px 12px;text-align:center}
@@ -1408,7 +1410,7 @@ header .brand-motto{display:none!important}
  #page-administracao .admin-panel .btn{min-height:42px}
 }
 
-/* v13.22 · ações compactas de leitura + modal próprio para conclusão */
+/* v13.23 · ações compactas de leitura + modal próprio para conclusão */
 #page-leituras .reading-actions{display:flex!important;flex-wrap:nowrap!important;gap:7px!important;align-items:stretch}
 #page-leituras .reading-actions .reading-main-action{flex:1 1 auto!important;width:auto!important}
 #page-leituras .reading-actions .reading-icon-action{flex:0 0 44px!important;width:44px!important;min-width:44px!important;padding:0!important;display:grid!important;place-items:center;font-size:20px!important;line-height:1!important;border-radius:12px!important}
@@ -1428,7 +1430,7 @@ header .brand-motto{display:none!important}
 
 </style>
 </head>
-<body data-build="13.22" class="auth-checking">
+<body data-build="13.23" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -2112,7 +2114,7 @@ header .brand-motto{display:none!important}
 <div class="admin-overview-grid"><div class="admin-stat"><b id="adminStatFamilies">—</b><span>Famílias</span></div><div class="admin-stat"><b id="adminStatChildren">—</b><span>Crianças</span></div><div class="admin-stat"><b id="adminStatPendingBooks">—</b><span>Livros pendentes</span></div><div class="admin-stat"><b id="adminStatPendingMaterials">—</b><span>Materiais pendentes</span></div></div>
 <div id="adminAttention" class="admin-attention">Verificando pendências…</div>
 <div class="admin-section-label">Saúde do sistema</div>
-<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v13.22</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
+<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v13.23</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
 <div class="admin-section-label">Gerenciamento</div>
 
 <details class="tech-details admin-panel"><summary>🔓 Acessos gratuitos <span>Beta, social, parcerias e cortesias</span></summary><div class="drive-folder-card" style="margin-top:8px">
@@ -2146,21 +2148,37 @@ header .brand-motto{display:none!important}
             </div>
           </div></details>
           
-          <details class="tech-details admin-panel" ontoggle="if(this.open){resetAdminCatalogBookForm();}"><summary>📖 Adicionar livro ao catálogo <span>Cadastro manual ou pelo Google Books</span></summary><div class="drive-folder-card" style="margin-top:8px">
-            <div class="meta">O livro será publicado no catálogo compartilhado sem vínculo com família ou criança.</div>
-            <div class="grid" style="margin-top:10px">
-              <div class="full"><label class="field">Buscar no Google Books (opcional)</label><div style="display:flex;gap:8px"><input id="adminCatalogGoogleQuery" placeholder="Título, autor ou ISBN"><button class="btn small" type="button" onclick="searchAdminCatalogGoogleBooks()">Buscar</button></div><div id="adminCatalogGoogleResults"></div></div>
-              <div class="full"><label class="field">Título</label><input id="adminCatalogBookTitle"></div>
-              <div><label class="field">Autor(es)</label><input id="adminCatalogBookAuthors" placeholder="Separe por vírgulas"></div>
-              <div><label class="field">Editora</label><input id="adminCatalogBookPublisher"></div>
-              <div><label class="field">ISBN-13</label><input id="adminCatalogBookIsbn13"></div>
-              <div><label class="field">ISBN-10</label><input id="adminCatalogBookIsbn10"></div>
-              <div class="full"><label class="field">URL da capa</label><input id="adminCatalogBookCover"></div>
+          <details class="tech-details admin-panel" ontoggle="if(this.open){openAdminCommunityCatalog();}"><summary>📚 Catálogo comunitário <span>Consultar, editar, adicionar e validar livros e materiais</span></summary><div class="drive-folder-card" style="margin-top:8px">
+            <div class="admin-catalog-tabs" role="tablist" aria-label="Catálogo comunitário">
+              <button type="button" class="btn small admin-catalog-tab active" id="adminCatalogTabBooks" onclick="showAdminCatalogTab('books')">📚 Livros</button>
+              <button type="button" class="btn small admin-catalog-tab" id="adminCatalogTabMaterials" onclick="showAdminCatalogTab('materials')">🧩 Materiais</button>
+              <button type="button" class="btn small admin-catalog-tab" id="adminCatalogTabPending" onclick="showAdminCatalogTab('pending')">📥 Pendentes</button>
+              <button type="button" class="btn small admin-catalog-tab" id="adminCatalogTabAdd" onclick="showAdminCatalogTab('add')">＋ Adicionar</button>
             </div>
-            <button class="btn success" style="margin-top:10px" type="button" onclick="addAdminCatalogBook()">Adicionar ao catálogo</button>
+            <div id="adminCatalogBooksPane" class="admin-catalog-pane">
+              <div class="admin-catalog-search"><input id="adminCommunityBookQuery" placeholder="Buscar por título, autor ou ISBN" onkeydown="if(event.key==='Enter')loadAdminCommunityBooks()"><button class="btn small" type="button" onclick="loadAdminCommunityBooks()">Buscar</button></div>
+              <div id="adminCommunityBooksBox" class="meta" style="margin-top:10px">Busque ou carregue os livros do catálogo.</div>
+            </div>
+            <div id="adminCatalogMaterialsPane" class="admin-catalog-pane hidden">
+              <div class="admin-catalog-search"><input id="adminCommunityMaterialQuery" placeholder="Buscar material por nome" onkeydown="if(event.key==='Enter')loadAdminCommunityMaterials()"><button class="btn small" type="button" onclick="loadAdminCommunityMaterials()">Buscar</button></div>
+              <div id="adminCommunityMaterialsBox" class="meta" style="margin-top:10px">Busque ou carregue os materiais do catálogo.</div>
+            </div>
+            <div id="adminCatalogPendingPane" class="admin-catalog-pane hidden">
+              <h4 style="margin:8px 0">📚 Livros aguardando validação</h4><div id="pendingCommunityBooksBox" class="meta">Carregando...</div>
+              <h4 style="margin:18px 0 8px">🧩 Materiais aguardando validação</h4><div id="pendingMaterialsBox" class="meta">Carregando...</div>
+            </div>
+            <div id="adminCatalogAddPane" class="admin-catalog-pane hidden">
+              <div class="meta">Adicione um livro diretamente ao catálogo compartilhado.</div>
+              <div class="grid" style="margin-top:10px">
+                <div class="full"><label class="field">Buscar no Google Books (opcional)</label><div class="admin-catalog-search"><input id="adminCatalogGoogleQuery" placeholder="Título, autor ou ISBN"><button class="btn small" type="button" onclick="searchAdminCatalogGoogleBooks()">Buscar</button></div><div id="adminCatalogGoogleResults"></div></div>
+                <div class="full"><label class="field">Título</label><input id="adminCatalogBookTitle"></div>
+                <div><label class="field">Autor(es)</label><input id="adminCatalogBookAuthors" placeholder="Separe por vírgulas"></div><div><label class="field">Editora</label><input id="adminCatalogBookPublisher"></div>
+                <div><label class="field">ISBN-13</label><input id="adminCatalogBookIsbn13"></div><div><label class="field">ISBN-10</label><input id="adminCatalogBookIsbn10"></div>
+                <div class="full"><label class="field">URL da capa</label><input id="adminCatalogBookCover"></div>
+              </div><button class="btn success" style="margin-top:10px" type="button" onclick="addAdminCatalogBook()">Adicionar ao catálogo</button>
+            </div>
+            <div id="bnccEmbeddingAdmin" style="margin-top:18px;border-top:1px solid #E8E1D2;padding-top:12px"><details><summary style="cursor:pointer;font-weight:700">Ferramentas técnicas do catálogo</summary><div style="padding-top:10px"><b>Busca semântica BNCC</b><div id="bnccEmbeddingStatus" class="meta" style="margin:6px 0">Verificando índice...</div><button type="button" class="btn dark small" id="bnccEmbeddingBuildBtn" onclick="buildBnccEmbeddings()">Preparar embeddings da BNCC</button></div></details></div>
           </div></details>
-          <details class="tech-details admin-panel" ontoggle="if(this.open){loadPendingCommunityBooks();}"><summary>📚 Livros aguardando validação <span>Revisar sugestões das famílias</span></summary><div class="drive-folder-card" style="margin-top:8px"><div id="pendingCommunityBooksBox" class="meta">Carregando...</div></div></details>
-          <details class="tech-details admin-panel" ontoggle="if(this.open){loadPendingMaterials();loadBnccEmbeddingStatus();}"><summary>🧩 Materiais pendentes <span>Revisão e ferramentas do catálogo</span></summary><div class="drive-folder-card" style="margin-top:8px"><div id="pendingMaterialsBox" class="meta">Carregando...</div><div id="bnccEmbeddingAdmin" style="margin-top:14px;border-top:1px solid #E8E1D2;padding-top:12px"><b>Busca semântica BNCC</b><div id="bnccEmbeddingStatus" class="meta" style="margin:6px 0">Verificando índice...</div><button type="button" class="btn dark small" id="bnccEmbeddingBuildBtn" onclick="buildBnccEmbeddings()">Preparar embeddings da BNCC</button></div></div></details>
 </div></section>
     <footer class="app-footer no-print">
       <div><div class="app-footer-brand"><img src="./logo-emblema.svg" alt=""><span>Meu Diário de Estudos</span></div><p>Organização da aprendizagem em família com planejamento, registros, leituras, relatórios e apoio à BNCC. Seus dados permanecem no Google Drive da família.</p></div>
@@ -6297,6 +6315,19 @@ function startAdminPendingValidationWatch(){
  clearInterval(adminValidationTimer);checkAdminPendingValidations(false);adminValidationTimer=setInterval(()=>checkAdminPendingValidations(false),10*60*1000);
 }
 
+let adminCommunityBooksCache=[],adminCommunityMaterialsCache=[];
+function openAdminCommunityCatalog(){showAdminCatalogTab('books');loadBnccEmbeddingStatus();}
+function showAdminCatalogTab(tab){
+ ['books','materials','pending','add'].forEach(x=>{const pane=$('adminCatalog'+x[0].toUpperCase()+x.slice(1)+'Pane'),btn=$('adminCatalogTab'+x[0].toUpperCase()+x.slice(1));pane?.classList.toggle('hidden',x!==tab);btn?.classList.toggle('active',x===tab)});
+ if(tab==='books')loadAdminCommunityBooks();if(tab==='materials')loadAdminCommunityMaterials();if(tab==='pending'){loadPendingCommunityBooks();loadPendingMaterials()}if(tab==='add')resetAdminCatalogBookForm();
+}
+async function loadAdminCommunityBooks(){const box=$('adminCommunityBooksBox');if(!box)return;box.innerHTML='Carregando livros…';try{const q=String($('adminCommunityBookQuery')?.value||'').trim(),data=await backendFetch('/community-books/admin-list?q='+encodeURIComponent(q));adminCommunityBooksCache=data?.books||[];if(!adminCommunityBooksCache.length){box.innerHTML='Nenhum livro encontrado.';return}box.innerHTML=adminCommunityBooksCache.map((b,i)=>`<div class="admin-library-item"><div class="admin-library-head">${b.thumbnail?`<img class="admin-library-cover" src="${esc(b.thumbnail)}" alt="">`:`<div class="admin-library-cover" style="display:grid;place-items:center">📖</div>`}<div><b>${esc(b.title||'Sem título')}</b><div class="meta">${esc((b.authors||[]).join(', ')||'Autor não informado')}${b.publisher?' · '+esc(b.publisher):''}</div>${b.isbn13?`<div class="meta">ISBN ${esc(b.isbn13)}</div>`:''}</div><span class="admin-library-status">Ativo</span></div><div class="admin-library-actions"><button class="btn small" type="button" onclick="editAdminCommunityBook(${i})">✏️ Editar</button></div><div id="adminCommunityBookEdit${i}" class="hidden"></div></div>`).join('')}catch(e){box.innerHTML=`<div class="notice">${esc(e.message||'Não foi possível carregar os livros.')}</div>`}}
+function editAdminCommunityBook(i){const b=adminCommunityBooksCache[i],box=$('adminCommunityBookEdit'+i);if(!b||!box)return;box.classList.remove('hidden');box.innerHTML=`<div class="admin-library-edit"><div class="grid"><div class="full"><label class="field">Título</label><input id="aclBookTitle${i}" value="${esc(b.title||'')}"></div><div><label class="field">Autor(es)</label><input id="aclBookAuthors${i}" value="${esc((b.authors||[]).join(', '))}"></div><div><label class="field">Editora</label><input id="aclBookPublisher${i}" value="${esc(b.publisher||'')}"></div><div><label class="field">ISBN-13</label><input id="aclBookIsbn${i}" value="${esc(b.isbn13||'')}"></div><div class="full"><label class="field">URL da capa</label><input id="aclBookCover${i}" value="${esc(b.thumbnail||'')}"></div></div><div class="toolbar" style="margin-top:8px"><button class="btn success small" onclick="saveAdminCommunityBook(${i})">Salvar alterações</button><button class="btn small" onclick="$('adminCommunityBookEdit${i}').classList.add('hidden')">Cancelar</button></div></div>`}
+async function saveAdminCommunityBook(i){const b=adminCommunityBooksCache[i],title=$('aclBookTitle'+i)?.value.trim()||'';if(!b||!title)return alert('Informe o título.');try{await backendFetch('/community-books/'+encodeURIComponent(b.id),{method:'PUT',body:JSON.stringify({title,authors:String($('aclBookAuthors'+i)?.value||'').split(',').map(x=>x.trim()).filter(Boolean),publisher:$('aclBookPublisher'+i)?.value.trim()||'',isbn13:$('aclBookIsbn'+i)?.value.trim()||'',thumbnail:$('aclBookCover'+i)?.value.trim()||''})});await loadAdminCommunityBooks()}catch(e){alert('Não foi possível salvar: '+(e.message||e))}}
+async function loadAdminCommunityMaterials(){const box=$('adminCommunityMaterialsBox');if(!box)return;box.innerHTML='Carregando materiais…';try{const q=String($('adminCommunityMaterialQuery')?.value||'').trim(),data=await backendFetch('/materials/admin-list?q='+encodeURIComponent(q));adminCommunityMaterialsCache=data?.materials||[];if(!adminCommunityMaterialsCache.length){box.innerHTML='Nenhum material encontrado.';return}box.innerHTML=adminCommunityMaterialsCache.map((m,i)=>`<div class="admin-library-item"><div><b>${esc(m.name||'Sem nome')}</b><div class="meta">${esc(m.publisher||'')}${m.age_range?(m.publisher?' · ':'')+esc(m.age_range):''}</div>${m.content_description?`<div class="meta" style="margin-top:4px">${esc(m.content_description)}</div>`:''}</div><div class="admin-library-actions"><button class="btn small" type="button" onclick="editAdminCommunityMaterial(${i})">✏️ Editar</button></div><div id="adminCommunityMaterialEdit${i}" class="hidden"></div></div>`).join('')}catch(e){box.innerHTML=`<div class="notice">${esc(e.message||'Não foi possível carregar os materiais.')}</div>`}}
+function editAdminCommunityMaterial(i){const m=adminCommunityMaterialsCache[i],box=$('adminCommunityMaterialEdit'+i);if(!m||!box)return;box.classList.remove('hidden');box.innerHTML=`<div class="admin-library-edit"><div class="grid"><div class="full"><label class="field">Nome</label><input id="aclMatName${i}" value="${esc(m.name||'')}"></div><div><label class="field">Editora / autor</label><input id="aclMatPublisher${i}" value="${esc(m.publisher||'')}"></div><div><label class="field">Faixa / ano</label><input id="aclMatAge${i}" value="${esc(m.age_range||'')}"></div><div class="full"><label class="field">Descrição / observações</label><textarea id="aclMatDescription${i}" rows="3">${esc(m.content_description||'')}</textarea></div></div><div class="toolbar" style="margin-top:8px"><button class="btn success small" onclick="saveAdminCommunityMaterial(${i})">Salvar alterações</button><button class="btn small" onclick="$('adminCommunityMaterialEdit${i}').classList.add('hidden')">Cancelar</button></div></div>`}
+async function saveAdminCommunityMaterial(i){const m=adminCommunityMaterialsCache[i],name=$('aclMatName'+i)?.value.trim()||'';if(!m||!name)return alert('Informe o nome do material.');try{await backendFetch('/materials/'+encodeURIComponent(m.id),{method:'PUT',body:JSON.stringify({name,publisher:$('aclMatPublisher'+i)?.value.trim()||'',age_range:$('aclMatAge'+i)?.value.trim()||'',content_description:$('aclMatDescription'+i)?.value.trim()||''})});await loadAdminCommunityMaterials()}catch(e){alert('Não foi possível salvar: '+(e.message||e))}}
+
 let pendingCommunityBooksCache=[];
 async function loadPendingCommunityBooks(){
  const box=$("pendingCommunityBooksBox");if(!box)return;box.innerHTML="Carregando...";
@@ -7154,7 +7185,7 @@ function renderReadingCards(books){
    <div><div class="book-title">${esc(b.title)}</div><div class="book-meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.publisher?" · "+esc(b.publisher):""}</div>
    <div style="margin-top:6px"><span class="reading-status">${esc(b.status||"Lendo")}</span>${b.catalog_status==="pending"?` <span class="reading-status">Aguardando validação</span>`:""}</div>
    <div class="book-reading-dates">${b.status==="Planejado"&&b.started_at?`<span>Início previsto: <b>${fmtDate(b.started_at)}</b></span>`:b.started_at?`<span>Início: <b>${fmtDate(b.started_at)}</b></span>`:""}${b.target_finish_at?`<span>Previsão: <b>${fmtDate(b.target_finish_at)}</b></span>`:""}${b.finished_at?`<span>Conclusão: <b>${fmtDate(b.finished_at)}</b></span>`:""}</div>
-   <div class="reading-actions">${b.status==="Planejado"?`<button class="btn small reading-main-action" type="button" onclick="startPlannedBook('${b.id}')">Iniciar leitura</button>`:b.status==="Lendo"?`<button class="btn small reading-main-action" type="button" onclick="startReadingActivity('${b.id}')"><span class="reading-label-desktop">+ Registrar atividade</span><span class="reading-label-mobile">+ Registrar</span></button><button class="btn small reading-icon-action reading-complete-icon" type="button" onclick="completeBookAndRegister('${b.id}')" aria-label="Concluir leitura" title="Concluir leitura">✓</button>`:`<button class="btn small reading-main-action" type="button" onclick="reopenCompletedBook('${b.id}')">Reabrir leitura</button>`}<button class="btn small reading-icon-action reading-edit-icon" type="button" onclick="editFamilyBookReading('${b.id}')" aria-label="Editar planejamento" title="Editar planejamento">✎</button></div>
+   <div class="reading-actions">${b.status==="Planejado"?`<button class="btn small reading-main-action" type="button" onclick="startPlannedBook('${b.id}')">Iniciar leitura</button>`:b.status==="Lendo"?`<button class="btn small reading-main-action" type="button" onclick="startReadingActivity('${b.id}')"><span class="reading-label-desktop">+ Registrar atividade</span><span class="reading-label-mobile">+ Registrar</span></button><button class="btn small reading-icon-action reading-complete-icon" type="button" onclick="completeBookAndRegister('${b.id}')" aria-label="Concluir leitura" title="Concluir leitura">✓</button>`:`<button class="btn small reading-main-action" type="button" onclick="reopenCompletedBook('${b.id}')">Reabrir leitura</button>`}<button class="btn small reading-icon-action reading-edit-icon" type="button" onclick="editFamilyBookReading('${b.id}')" aria-label="Editar planejamento" title="Editar planejamento">✏️</button></div>
    </div>
   </div>`;
  const section=(title,list,open=true)=>list.length?`<div class="reading-section"><h3>${title} · ${list.length}</h3><div class="reading-list">${list.map(card).join("")}</div></div>`:"";
@@ -8002,7 +8033,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "13.22";
+const APP_VERSION = "13.23";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
