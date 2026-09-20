@@ -1515,9 +1515,21 @@ input,select,textarea{font-size:16px}
   .attention-actions .attention-primary{max-width:520px}
 }
 
+
+/* v14.5 · Registrar: alinhamento fino da ajuda contextual no mobile */
+@media(max-width:650px){
+  header .header-message{display:block!important;position:absolute!important;right:18px!important;top:auto!important;bottom:26px!important;max-width:132px!important;font-size:6.5px!important;letter-spacing:.15em!important;line-height:1.55!important;text-align:right!important;z-index:2!important}
+  .quick-mode-toggle{display:flex!important;align-items:center!important;gap:7px!important;width:100%!important}
+  .quick-mode-toggle .mode-label{order:1!important;flex:0 1 auto!important}
+  .quick-mode-toggle .info-btn{order:2!important;margin:0!important;width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;padding:0!important;border:0!important;background:transparent!important;font-size:16px!important;color:#857d70!important}
+  .quick-mode-toggle .switch{order:3!important;margin-left:auto!important;flex:0 0 auto!important}
+  .record-label-with-help{justify-content:flex-start!important;gap:7px!important;flex-wrap:wrap!important}
+  .record-label-with-help>span{flex:0 1 auto!important}
+  .record-label-with-help .context-help-btn{width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;padding:0!important;border:0!important;background:transparent!important;font-size:16px!important;color:#6b2737!important}
+}
 </style>
 </head>
-<body data-build="14.4" class="auth-checking">
+<body data-build="14.5" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -2198,7 +2210,7 @@ input,select,textarea{font-size:16px}
 <div class="admin-overview-grid"><div class="admin-stat"><b id="adminStatFamilies">—</b><span>Famílias</span></div><div class="admin-stat"><b id="adminStatChildren">—</b><span>Crianças</span></div><div class="admin-stat"><b id="adminStatPendingBooks">—</b><span>Livros pendentes</span></div><div class="admin-stat"><b id="adminStatPendingMaterials">—</b><span>Materiais pendentes</span></div></div>
 <div id="adminAttention" class="admin-attention">Verificando pendências…</div>
 <div class="admin-section-label">Saúde do sistema</div>
-<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v14.4</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
+<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v14.5</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
 <div class="admin-section-label">Gerenciamento</div>
 
 <details class="tech-details admin-panel"><summary>🔓 Acessos gratuitos <span>Beta, social, parcerias e cortesias</span></summary><div class="drive-folder-card" style="margin-top:8px">
@@ -8188,7 +8200,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "14.4";
+const APP_VERSION = "14.5";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

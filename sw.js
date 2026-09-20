@@ -1,4 +1,4 @@
-const CACHE_NAME = "diario-estudos-v14.4";
+const CACHE_NAME = "diario-estudos-v14.5";
 const APP_SHELL = ["./", "./index.html", "./version.json", "./manifest.json", "/icons/icon-44-oficial-v4.png", "/icons/icon-48-oficial-v4.png", "/icons/icon-128-oficial-v4.png", "/icons/icon-150-oficial-v4.png", "/icons/icon-192-oficial-v4.png", "/icons/icon-256-oficial-v4.png", "/icons/icon-310-oficial-v4.png", "/icons/icon-512-oficial-v4.png", "/icons/icon-192-maskable-oficial-v4.png", "/icons/icon-512-maskable-oficial-v4.png", "/icons/favicon-32-oficial-v4.png", "/icons/favicon-48-oficial-v4.png"];
 
 self.addEventListener("install", event => {
