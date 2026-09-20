@@ -2438,6 +2438,7 @@ const ACTIVE_BACKEND_FAMILY_KEY = "DE_V4242_ACTIVE_BACKEND_FAMILY";
 const BACKEND_CHILD_MAP_KEY = "DE_V422_BACKEND_CHILD_MAP";
 let backendMembers = [];
 let backendChildren = [];
+let backendFamilyDataReady = false; // v15.3: evita onboarding falso enquanto o backend ainda sincroniza
 let backendArchivedChildren = [];
 let historicalPhotoQueue = [];
 const VISIBLE_DRIVE_ROOT_NAME = "Diário de Estudos";
@@ -2949,6 +2950,15 @@ function needsOnboarding(){
   if(!families.length)return true;
   const fam=backendFamilyFromProfile();
   if(!fam)return false;
+  // v15.3: durante a abertura rápida, backendChildren ainda pode estar vazio
+  // apenas porque a consulta remota não terminou. Nesse intervalo, usa o estado
+  // local confiável para não piscar a tela "criar família/criança".
+  if(!backendFamilyDataReady){
+    const localChildren=(state?.family?.children||[]).filter(c=>!c.archived&&!c.legacyOrphan);
+    if((state?.family?.name||'').trim() && localChildren.length>0)return false;
+    // Sem cache local suficiente, não decide onboarding antes da resposta remota.
+    return false;
+  }
   return backendChildren.filter(c=>Number(c.active)!==0).length===0;
 }
 function onboardingStageOptions(selected="Sem ano de referência"){
@@ -3290,11 +3300,13 @@ function canEditFamily(){
   return ["admin","responsavel"].includes(currentBackendRole());
 }
 async function loadBackendFamilyData(){
+  backendFamilyDataReady=false;
   const fam=currentBackendFamily();
   if(!fam){
     backendMembers=[];
     backendChildren=[];
     backendArchivedChildren=[];
+    backendFamilyDataReady=true;
     renderBackendFamilyPanels();
     return;
   }
@@ -3307,6 +3319,7 @@ async function loadBackendFamilyData(){
   backendMembers=backendProfile?.user?[{name:backendProfile.user.name,email:backendProfile.user.email,role:"admin"}]:[];
   backendChildren=(childrenRes.children||[]).filter(c=>Number(c.active)!==0);
   backendArchivedChildren=(archivedRes.children||[]).filter(c=>Number(c.active)===0);
+  backendFamilyDataReady=true;
   renderBackendFamilyPanels();
 }
 function roleLabel(role){
@@ -4185,8 +4198,8 @@ const DE_BOOT_DIAG={start:performance.now(),marks:[]};
 function bootDiagMark(name){
  const ms=Math.round((performance.now()-DE_BOOT_DIAG.start)*10)/10;
  DE_BOOT_DIAG.marks.push({etapa:name,ms});
- console.log(`[BOOT v15.2] ${name}: ${ms} ms`);
- try{localStorage.setItem("DE_BOOT_DIAG_LAST",JSON.stringify({version:"15.2",at:new Date().toISOString(),total_ms:ms,marks:DE_BOOT_DIAG.marks}))}catch(e){}
+ console.log(`[BOOT v15.3] ${name}: ${ms} ms`);
+ try{localStorage.setItem("DE_BOOT_DIAG_LAST",JSON.stringify({version:"15.3",at:new Date().toISOString(),total_ms:ms,marks:DE_BOOT_DIAG.marks}))}catch(e){}
 }
 window.DE_BOOT_DIAG=DE_BOOT_DIAG;
 window.diarioDiagnosticoAbertura=()=>{console.table(DE_BOOT_DIAG.marks);return DE_BOOT_DIAG};
@@ -8255,7 +8268,7 @@ async function init(){
  bootDiagMark("migração de mídia concluída");
  loadBnccApiCache();
  bootDiagMark("cache BNCC carregado");
- // v15.2 · abertura otimizada: usa o perfil em cache para liberar a interface imediatamente,
+ // v15.3 · abertura otimizada: usa o perfil em cache para liberar a interface imediatamente,
  // enquanto a validação/sincronização com o backend acontece em segundo plano.
  if(appSessionValid()){
    const restoredCachedProfile=restoreBackendProfileForOffline();

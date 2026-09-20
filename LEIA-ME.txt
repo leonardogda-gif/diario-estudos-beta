@@ -1,4 +1,4 @@
-DIÁRIO DE ESTUDOS — v15.2
+DIÁRIO DE ESTUDOS — v15.3
 
 OTIMIZAÇÃO DE ABERTURA
 - A tela do Diário deixa de esperar a sincronização completa do backend para abrir.
@@ -6,6 +6,6 @@ OTIMIZAÇÃO DE ABERTURA
 - Backend, D1 e Google continuam validando/sincronizando em segundo plano.
 - O indicador do cabeçalho mostra “Sincronizando...” durante esse processo.
 - Em caso de indisponibilidade momentânea da rede, os dados locais continuam acessíveis.
-- Mantidos os marcadores [BOOT v15.2] no Console para confirmar o ganho de tempo.
+- Mantidos os marcadores [BOOT v15.3] no Console para confirmar o ganho de tempo.
 
 Base: v15.1 diagnóstico / v15.0 funcional.
