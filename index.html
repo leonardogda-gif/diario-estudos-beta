@@ -1527,9 +1527,50 @@ input,select,textarea{font-size:16px}
   .record-label-with-help>span{flex:0 1 auto!important}
   .record-label-with-help .context-help-btn{width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;padding:0!important;border:0!important;background:transparent!important;font-size:16px!important;color:#6b2737!important}
 }
+
+
+/* v14.6 · Registrar: topo compacto, switch próprio e ajuda contextual padronizada */
+#page-registro .quick-mode-toggle{min-height:48px;align-items:center}
+#page-registro .quick-mode-toggle .switch{
+  width:48px!important;height:28px!important;min-width:48px!important;min-height:28px!important;
+  padding:0!important;border:1px solid #d7cfc2!important;border-radius:999px!important;
+  background:#ddd7c8!important;box-shadow:inset 0 1px 2px rgba(55,38,31,.08)!important;
+}
+#page-registro .quick-mode-toggle .switch.on{background:#6B2737!important;border-color:#6B2737!important}
+#page-registro .quick-mode-toggle .switch-knob{
+  width:22px!important;height:22px!important;top:2px!important;left:2px!important;
+  background:#fff!important;box-shadow:0 1px 3px rgba(42,30,25,.24)!important;
+  transition:left .18s ease!important;
+}
+#page-registro .quick-mode-toggle .switch.on .switch-knob{left:22px!important}
+#page-registro .quick-mode-toggle .info-btn,
+#page-registro .context-help-btn{
+  width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;
+  padding:0!important;border:0!important;border-radius:50%!important;background:transparent!important;
+  color:#6b2737!important;font:700 16px/1 "Work Sans",Arial,sans-serif!important;
+  display:inline-grid!important;place-items:center!important;box-shadow:none!important;
+}
+#page-registro .analysis-title-wrap h3{display:flex!important;align-items:center!important;gap:7px!important;flex-wrap:wrap!important}
+@media(max-width:650px){
+  header{padding:9px 12px 10px!important;min-height:0!important}
+  header .header-branding{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:4px!important;min-height:0!important}
+  header .brand{min-height:46px!important}
+  header .header-right{position:relative!important;width:100%!important;min-height:38px!important;padding-top:0!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:10px!important}
+  header .header-message{position:static!important;display:block!important;order:2!important;margin-left:auto!important;max-width:132px!important;font-size:6.5px!important;letter-spacing:.15em!important;line-height:1.5!important;text-align:right!important}
+  header .header-cloud{order:1!important;margin:0!important;max-width:62%!important}
+  #page-registro .record-title-row{padding-bottom:13px!important;margin-bottom:7px!important}
+  #page-registro .record-title-row>div:last-child{display:none!important}
+  #page-registro .quick-mode-toggle{gap:6px!important;margin:5px 0 2px!important}
+  #page-registro .quick-mode-toggle .mode-label{order:1!important;flex:0 1 auto!important}
+  #page-registro .quick-mode-toggle .info-btn{order:2!important;margin:0 4px 0 0!important}
+  #page-registro .quick-mode-toggle .switch{order:3!important;margin-left:auto!important;flex:0 0 48px!important}
+  #page-registro .record-label-with-help{gap:6px!important}
+  #page-registro .experience-analysis-card{padding:14px!important}
+  #page-registro .analysis-title-wrap .context-help-btn{vertical-align:middle!important}
+}
 </style>
 </head>
-<body data-build="14.5" class="auth-checking">
+<body data-build="14.6" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -2210,7 +2251,7 @@ input,select,textarea{font-size:16px}
 <div class="admin-overview-grid"><div class="admin-stat"><b id="adminStatFamilies">—</b><span>Famílias</span></div><div class="admin-stat"><b id="adminStatChildren">—</b><span>Crianças</span></div><div class="admin-stat"><b id="adminStatPendingBooks">—</b><span>Livros pendentes</span></div><div class="admin-stat"><b id="adminStatPendingMaterials">—</b><span>Materiais pendentes</span></div></div>
 <div id="adminAttention" class="admin-attention">Verificando pendências…</div>
 <div class="admin-section-label">Saúde do sistema</div>
-<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v14.5</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
+<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v14.6</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
 <div class="admin-section-label">Gerenciamento</div>
 
 <details class="tech-details admin-panel"><summary>🔓 Acessos gratuitos <span>Beta, social, parcerias e cortesias</span></summary><div class="drive-folder-card" style="margin-top:8px">
@@ -5672,7 +5713,6 @@ function renderRecordPage(){
  box.innerHTML=`<div class="card record-form-card">
  <div class="record-title-row">
    <div><h2>${editing?.collectiveGroupId?`Registro coletivo · ${Number(editing.collectivePosition)||1} de ${Number(editing.collectiveTotal)||1}`:editing?.planId?"Concluir atividade planejada":editing?"Editar atividade":"Registrar"}</h2><div class="meta">${editing?.collectiveGroupId?"O relato, material e fotos são reaproveitados. Revise a avaliação e a BNCC desta criança.":editing?.planId?"Revise os dados do planejamento, escolha a habilidade BNCC do material quando houver mais de uma e salve o registro.":"Conte o que foi feito. O resto pode esperar."}</div></div>
-   <div class="meta">${esc(child.name)} · ${esc(child.stage||"")}</div>
  </div>
  ${!editing?`<div class="quick-mode-toggle">
    <span class="mode-label">Modo rápido <small>— só o essencial</small></span>
@@ -8200,7 +8240,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "14.5";
+const APP_VERSION = "14.6";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
