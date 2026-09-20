@@ -1,4 +1,4 @@
-const CACHE_NAME = "diario-estudos-v13.9";
+const CACHE_NAME = "diario-estudos-v13.10";
 const APP_SHELL = ["./", "./index.html", "./version.json"];
 
 self.addEventListener("install", event => {
