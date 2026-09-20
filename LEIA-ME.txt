@@ -1,10 +1,11 @@
-Meu Diário de Estudos — v13.12
+Meu Diário de Estudos — PWA v13.13
 
-Correção do PWA/frontend.
-- Atualiza os textos públicos sobre inteligência artificial e como o Diário encontra habilidades relacionadas, sem expor detalhes internos do mecanismo de classificação.
-- Atualiza favicon e ícones do PWA para a identidade oficial, com novos nomes de arquivo para favorecer a atualização em instalações existentes.
-- Inclui ícones 192, 512 e maskable no manifesto e no cache do PWA.
-- Mantém as correções da v13.11.
-- Worker/D1/Secrets: sem alteração.
+Correção do ícone de instalação do PWA.
+- Ícones PNG agora são realmente quadrados e correspondem aos tamanhos declarados no manifest.
+- Conjunto 48/72/96/128/144/192/256/384/512 para Chromium/Windows/Android.
+- Variantes maskable 192 e 512 com margem de segurança.
+- Favicons PNG 32/48 + SVG.
+- Novos nomes v3 para evitar reaproveitamento dos arquivos inválidos da v13.12.
 
-Após publicar, confirme que version.json mostra 13.12.
+Mantém as demais correções e textos da v13.12.
+Não exige alteração do Worker.

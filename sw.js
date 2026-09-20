@@ -1,5 +1,5 @@
-const CACHE_NAME = "diario-estudos-v13.12";
-const APP_SHELL = ["./", "./index.html", "./version.json", "./manifest.json", "./icons/icon-192-oficial-v2.png", "./icons/icon-512-oficial-v2.png", "./icons/icon-512-maskable-oficial-v2.png", "./icons/favicon-oficial-v2.svg"];
+const CACHE_NAME = "diario-estudos-v13.13";
+const APP_SHELL = ["./", "./index.html", "./version.json", "./manifest.json", "./icons/icon-192-oficial-v3.png", "./icons/icon-512-oficial-v3.png", "./icons/icon-192-maskable-oficial-v3.png", "./icons/icon-512-maskable-oficial-v3.png", "./icons/favicon-32-oficial-v3.png", "./icons/favicon-48-oficial-v3.png", "./icons/favicon-oficial-v2.svg"];
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));
