@@ -1284,9 +1284,25 @@ header .brand-motto{display:none!important}
  .routine-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;width:100%!important}
  .routine-actions .btn{width:100%!important;min-width:0!important;padding:6px 5px!important;font-size:11.5px!important;white-space:normal!important}
 }
+
+/* v13.16 · Administração mais limpa */
+#page-administracao .admin-hub{padding:20px}
+#page-administracao .admin-hub-head{padding:2px 2px 14px;border-bottom:1px solid #e7dfd2;margin-bottom:8px}
+#page-administracao .admin-eyebrow{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#7d263d;margin-bottom:5px}
+#page-administracao .admin-hub h2{margin:0 0 5px}
+#page-administracao .admin-section-label{margin:20px 2px 8px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#7a756b}
+#page-administracao .admin-panel{margin:8px 0;border:1px solid #e6ded0;border-radius:16px;background:#fffdf9;overflow:hidden}
+#page-administracao .admin-panel>summary{padding:15px 16px;display:flex;flex-direction:column;gap:3px;font-weight:800;cursor:pointer;list-style:none}
+#page-administracao .admin-panel>summary::-webkit-details-marker{display:none}
+#page-administracao .admin-panel>summary:after{content:'›';position:absolute;right:17px;font-size:24px;line-height:18px;color:#7d263d;transform:rotate(90deg);transition:transform .15s}
+#page-administracao .admin-panel[open]>summary:after{transform:rotate(-90deg)}
+#page-administracao .admin-panel>summary{position:relative;padding-right:45px}
+#page-administracao .admin-panel>summary span{font-size:12px;font-weight:500;color:#777168}
+#page-administracao .admin-panel>.drive-folder-card{margin:0 10px 10px!important;border-radius:13px}
+@media(max-width:600px){#page-administracao .admin-hub{padding:15px 13px}#page-administracao .admin-panel>summary{padding:14px 14px;padding-right:42px}}
 </style>
 </head>
-<body data-build="13.15" class="auth-checking">
+<body data-build="13.16" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -1302,7 +1318,7 @@ header .brand-motto{display:none!important}
     </div>
   </div>
   <div id="headerCloudDetails" class="header-cloud-details hidden no-print">
-    <div class="cloud-title">Google Drive</div><div id="headerCloudStatus" class="cloud-status">Aguardando login</div><div id="headerCloudUser" class="cloud-user"></div><div id="headerBackendStatus" class="cloud-user"></div>
+    <div class="cloud-title">Google Drive</div><div id="headerCloudStatus" class="cloud-status">Aguardando login</div><div id="headerCloudUser" class="cloud-user"></div><div id="headerBackendStatus" class="cloud-user hidden" aria-hidden="true"></div>
     <div class="toolbar"><button class="btn" onclick="syncWithDrive({manual:true});toggleHeaderCloudDetails(false)">Sincronizar agora</button><button class="btn" onclick="showPage('configuracoes');toggleHeaderCloudDetails(false)">Configurações</button><button class="btn danger" onclick="googleLogout();toggleHeaderCloudDetails(false)">Sair</button></div>
   </div>
 </header>
@@ -1317,7 +1333,7 @@ header .brand-motto{display:none!important}
           <div class="cloud-title">Google Drive</div>
           <div id="cloudStatus" class="cloud-status"><span class="sync-dot"></span>Aguardando login</div>
           <div id="cloudUser" class="cloud-user"></div>
-          <div id="backendStatus" class="cloud-user">Backend: aguardando login</div>
+          <div id="backendStatus" class="cloud-user hidden" aria-hidden="true">Backend: aguardando login</div>
         </div>
       </div>
       <div class="toolbar">
@@ -1967,24 +1983,25 @@ header .brand-motto{display:none!important}
 </div></section>
 
 <section id="page-administracao" class="page">
-<div class="card"><h2>Administração do Diário</h2>
-<div class="notice" style="margin-bottom:12px">Área exclusiva do administrador geral para gerenciar o catálogo compartilhado e os recursos técnicos do Diário de Estudos.</div>
+<div class="card admin-hub"><div class="admin-hub-head"><div><div class="admin-eyebrow">Acesso de administrador</div><h2>Administração do Diário</h2><p class="meta">Gerencie acessos, cadastros, consumo e catálogo em um só lugar.</p></div></div>
+<div class="admin-section-label">Acessos e famílias</div>
 
-<details class="tech-details" open><summary>🔓 Acessos gratuitos</summary><div class="drive-folder-card" style="margin-top:8px">
+<details class="tech-details admin-panel"><summary>🔓 Acessos gratuitos <span>Beta, social, parcerias e cortesias</span></summary><div class="drive-folder-card" style="margin-top:8px">
   <div class="notice"><b>Acessos especiais por família</b><div class="meta" style="margin-top:4px;color:#5F5B50">Use para beta testers, acesso social, parcerias e cortesias.</div></div>
   <div class="toolbar" style="margin-top:8px"><button class="btn small" type="button" onclick="loadAdminAccessGrants()">Atualizar lista</button></div><hr>
   <div class="grid"><div class="full"><label class="field">Família</label><select id="adminAccessGrantFamily"></select></div><div><label class="field">Tipo de acesso</label><select id="adminAccessGrantType"><option value="beta_tester">Beta tester</option><option value="social">Acesso social</option><option value="partnership">Parceria</option><option value="courtesy">Cortesia</option></select></div><div><label class="field">Válido até (opcional)</label><input id="adminAccessGrantEnds" type="date"></div><div class="full"><label class="field">Motivo</label><input id="adminAccessGrantReason" placeholder="Ex.: família participante do beta inicial"></div></div>
   <div class="toolbar" style="margin-top:8px"><button class="btn success small" type="button" onclick="grantFamilyAccess()">Liberar acesso</button><button class="btn danger small" type="button" onclick="revokeFamilyAccess()">Remover gratuidade</button></div><div id="adminAccessGrantFamilies" class="meta" style="margin-top:12px">Carregando famílias…</div>
 </div></details>
 
-<details class="tech-details" open><summary>Famílias autorizadas a se cadastrar</summary><div class="drive-folder-card" style="margin-top:8px">
+<details class="tech-details admin-panel"><summary>✉️ Convites para novas famílias <span>E-mails autorizados a criar uma família</span></summary><div class="drive-folder-card" style="margin-top:8px">
   <div class="notice"><b>Lista de convites</b><div class="meta" style="margin-top:4px;color:#5F5B50">Somente estes e-mails conseguem criar uma família nova. Contas que já pertencem a uma família não são bloqueadas.</div></div>
   <div class="grid" style="margin-top:10px"><div><label class="field">E-mail</label><input id="adminAllowedEmailInput" type="email" placeholder="email@exemplo.com"></div><div><label class="field">Nota (opcional)</label><input id="adminAllowedEmailNote" placeholder="Ex.: Família Silva"></div></div>
   <div class="toolbar" style="margin-top:8px"><button class="btn success small" type="button" onclick="addAllowedSignup()">+ Adicionar e-mail</button><button class="btn small" type="button" onclick="loadAllowedSignups()">Atualizar lista</button></div>
   <div id="adminAllowedSignupsList" style="margin-top:12px">Carregando e-mails…</div>
 </div></details>
 
-<details class="tech-details" open><summary>🤖 Consumo de IA por família</summary><div class="drive-folder-card" style="margin-top:8px">
+<div class="admin-section-label">Uso e acompanhamento</div>
+<details class="tech-details admin-panel"><summary>🤖 Consumo de IA <span>Uso por família e período</span></summary><div class="drive-folder-card" style="margin-top:8px">
   <div class="grid">
     <div><label class="field">De</label><input id="adminAiUsageFrom" type="date"></div>
     <div><label class="field">Até</label><input id="adminAiUsageTo" type="date"></div>
@@ -1993,13 +2010,14 @@ header .brand-motto{display:none!important}
   <div id="adminAiUsageBox" class="meta" style="margin-top:10px">Carregando consumo de IA…</div>
 </div></details>
 
-<div id="adminValidationAlertControls" class="drive-folder-card" style="margin-bottom:10px">
+<details class="tech-details admin-panel"><summary>🔔 Alertas de validação <span>Avisos sobre itens aguardando revisão</span></summary><div id="adminValidationAlertControls" class="drive-folder-card" style="margin-top:8px">
             <div class="toolbar" style="justify-content:space-between">
-              <div><b>🔔 Alertas de validação</b><div id="adminValidationAlertStatus" class="meta">O Diário pode avisar quando houver novos livros ou materiais aguardando revisão.</div></div>
+              <div id="adminValidationAlertStatus" class="meta">O Diário pode avisar quando houver novos livros ou materiais aguardando revisão.</div>
               <button class="btn small" type="button" onclick="enableAdminValidationNotifications()">Ativar alertas</button>
             </div>
-          </div>
-          <details class="tech-details" ontoggle="if(this.open){resetAdminCatalogBookForm();}"><summary>📖 Adicionar livro ao catálogo</summary><div class="drive-folder-card" style="margin-top:8px">
+          </div></details>
+          <div class="admin-section-label">Catálogo e validações</div>
+          <details class="tech-details admin-panel" ontoggle="if(this.open){resetAdminCatalogBookForm();}"><summary>📖 Adicionar livro ao catálogo <span>Cadastro manual ou pelo Google Books</span></summary><div class="drive-folder-card" style="margin-top:8px">
             <div class="meta">O livro será publicado no catálogo compartilhado sem vínculo com família ou criança.</div>
             <div class="grid" style="margin-top:10px">
               <div class="full"><label class="field">Buscar no Google Books (opcional)</label><div style="display:flex;gap:8px"><input id="adminCatalogGoogleQuery" placeholder="Título, autor ou ISBN"><button class="btn small" type="button" onclick="searchAdminCatalogGoogleBooks()">Buscar</button></div><div id="adminCatalogGoogleResults"></div></div>
@@ -2012,8 +2030,8 @@ header .brand-motto{display:none!important}
             </div>
             <button class="btn success" style="margin-top:10px" type="button" onclick="addAdminCatalogBook()">Adicionar ao catálogo</button>
           </div></details>
-          <details class="tech-details" ontoggle="if(this.open){loadPendingCommunityBooks();}"><summary>📚 Livros aguardando validação</summary><div class="drive-folder-card" style="margin-top:8px"><div id="pendingCommunityBooksBox" class="meta">Carregando...</div></div></details>
-          <details class="tech-details" ontoggle="if(this.open){loadPendingMaterials();loadBnccEmbeddingStatus();}"><summary>Materiais pendentes de validação</summary><div class="drive-folder-card" style="margin-top:8px"><div id="pendingMaterialsBox" class="meta">Carregando...</div><div id="bnccEmbeddingAdmin" style="margin-top:14px;border-top:1px solid #E8E1D2;padding-top:12px"><b>Busca semântica BNCC</b><div id="bnccEmbeddingStatus" class="meta" style="margin:6px 0">Verificando índice...</div><button type="button" class="btn dark small" id="bnccEmbeddingBuildBtn" onclick="buildBnccEmbeddings()">Preparar embeddings da BNCC</button></div></div></details>
+          <details class="tech-details admin-panel" ontoggle="if(this.open){loadPendingCommunityBooks();}"><summary>📚 Livros aguardando validação <span>Revisar sugestões das famílias</span></summary><div class="drive-folder-card" style="margin-top:8px"><div id="pendingCommunityBooksBox" class="meta">Carregando...</div></div></details>
+          <details class="tech-details admin-panel" ontoggle="if(this.open){loadPendingMaterials();loadBnccEmbeddingStatus();}"><summary>🧩 Materiais pendentes <span>Revisão e ferramentas do catálogo</span></summary><div class="drive-folder-card" style="margin-top:8px"><div id="pendingMaterialsBox" class="meta">Carregando...</div><div id="bnccEmbeddingAdmin" style="margin-top:14px;border-top:1px solid #E8E1D2;padding-top:12px"><b>Busca semântica BNCC</b><div id="bnccEmbeddingStatus" class="meta" style="margin:6px 0">Verificando índice...</div><button type="button" class="btn dark small" id="bnccEmbeddingBuildBtn" onclick="buildBnccEmbeddings()">Preparar embeddings da BNCC</button></div></div></details>
 </div></section>
     <footer class="app-footer no-print">
       <div><div class="app-footer-brand"><img src="./logo-emblema.svg" alt=""><span>Meu Diário de Estudos</span></div><p>Organização da aprendizagem em família com planejamento, registros, leituras, relatórios e apoio à BNCC. Seus dados permanecem no Google Drive da família.</p></div>
@@ -4807,7 +4825,7 @@ function renderDashboard(){
  const td=today();
  const due=state.plans.filter(x=>planPendingForChild(x,child.id)&&!x.completedAt&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
  const todayPlans=due.filter(p=>(p.nextDate||p.date)===td),latePlans=due.filter(p=>(p.nextDate||p.date)<td),futurePlans=due.filter(p=>(p.nextDate||p.date)>td).slice(0,3);
- const planHtml=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div class="meta">👨‍👩‍👧‍👦 Planejamento compartilhado: ${esc(planChildNames(p).join(", "))}</div>`:""}<div class="meta">${esc(p.component||'')}</div>${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="attention-actions"><button class="btn success attention-primary" onclick="startPlan('${p.id}','${child.id}')">✓ Concluir e registrar</button><button class="btn small" onclick="showPage('planejamento');editPlan('${p.id}')">Editar</button>${(p.nextDate||p.date)<td?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Reagendar próxima</button>`:''}</div></div>`;
+ const planHtml=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div class="meta">👨‍👩‍👧‍👦 Planejamento compartilhado: ${esc(planChildNames(p).join(", "))}</div>`:""}<div class="meta">${esc(p.component||'')}</div>${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="attention-actions"><button class="btn success attention-primary" onclick="startPlan('${p.id}','${child.id}')">✓ Concluir e registrar</button><button class="btn small" onclick="showPage('planejamento');editPlan('${p.id}')">Editar</button></div></div>`;
  box.innerHTML=`<div class="card today-hero-card">
   <div class="today-top-row">
    <div class="today-top-info">${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje</h2><div class="meta">${fmtDate(td)}</div><div class="today-child-select"><select aria-label="Selecionar criança" onchange="selectChild(this.value);showPage('inicio')">${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===child.id?'selected':''}>${esc(firstName(c.name))}</option>`).join('')}</select></div></div>
@@ -7795,7 +7813,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "13.15";
+const APP_VERSION = "13.16";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

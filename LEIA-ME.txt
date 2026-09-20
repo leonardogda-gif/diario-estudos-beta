@@ -1,11 +1,10 @@
-Meu Diário de Estudos — PWA v13.15
+Meu Diário de Estudos — v13.16
 
-Correção focada na instalação no Windows/Chromium.
-- manifest com id/start_url/scope absolutos e estáveis
-- conjunto PNG com tamanhos específicos para Windows, incluindo 44, 50, 71, 150 e 310 px
-- ícones purpose:any e maskable separados
-- nomes v4 para evitar reaproveitamento dos arquivos anteriores
-- favicon e apple-touch-icon atualizados
-- cache do Service Worker atualizado para 13.15
+Publicação: envie/substitua todo o conteúdo desta pasta no GitHub Pages, mantendo a pasta icons.
+Não é necessário alterar o Worker/Cloudflare para esta versão.
 
-Mantém as correções funcionais e de conteúdo da v13.13.
+Mudanças principais:
+- Detalhes de sincronização para famílias sem a informação técnica “Backend: conectado”.
+- Removido “Reagendar próxima” dos planejamentos atrasados; permanecem Concluir e registrar + Editar.
+- Área Administração do Diário reorganizada em seções recolhíveis e mais objetivas.
+- Mantidas as correções da v13.15 (Hoje, data de registro e sincronização ao retornar ao app).
