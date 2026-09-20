@@ -6,15 +6,15 @@
 <meta name="theme-color" content="#441015">
 <title>Diário de Estudos</title>
 
-<link rel="manifest" href="/manifest.json">
-<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32-oficial-v4.png">
-<link rel="icon" type="image/png" sizes="48x48" href="/icons/favicon-48-oficial-v4.png">
-<link rel="icon" type="image/svg+xml" href="./icons/favicon-oficial-v2.svg">
+<link rel="manifest" href="/manifest.json?v=15.0">
+<link rel="icon" type="image/png" sizes="32x32" href="/icon-192.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/icon-192.png">
+
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Diário de Estudos">
-<link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192-oficial-v4.png">
+<link rel="apple-touch-icon" sizes="192x192" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,650;9..144,750&family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1323,6 +1323,14 @@ header .brand-motto{display:none!important}
  .history-entry-card{margin-bottom:7px!important;padding:11px 13px!important}
  .history-entry-card .entry-title{margin-top:3px!important}
 }
+
+/* v15.0 · desktop: ajuda lateral sempre aberta + alinhamento superior */
+@media(min-width:901px){
+  #page-registro .record-side{margin-top:-8px!important;gap:12px!important}
+  #page-registro .record-help-static{padding:0!important;overflow:hidden}
+  #page-registro .record-help-static-title{padding:12px 14px 7px;font-size:14px;font-weight:800;color:#441015}
+  #page-registro .record-help-static .record-help-body{padding:0 14px 13px}
+}
 </style>
 <style id="v138-ui-fixes">
 /* v13.9: capas separadas por contexto — Hoje e Leituras */
@@ -1601,7 +1609,7 @@ input,select,textarea{font-size:16px}
   #page-registro .analysis-title-wrap .context-help-btn{vertical-align:middle!important}
 }
 
-/* v14.9 · ações do relato abaixo do campo + registro ainda mais compacto */
+/* v15.0 · ações do relato abaixo do campo + registro ainda mais compacto */
 .record-report-wrap #fActivity{padding-right:13px!important;padding-bottom:12px!important}
 .record-report-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:5px}
 .record-report-footer .record-autosave-status{margin:0!important;min-width:0;flex:1}
@@ -1618,7 +1626,7 @@ input,select,textarea{font-size:16px}
 }
 </style>
 </head>
-<body data-build="14.9" class="auth-checking">
+<body data-build="15.0" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -5869,20 +5877,20 @@ function renderRecordPage(){
    </div>
   </div>
   <aside class="record-side">
-    <details class="record-side-card record-help-collapse">
-      <summary>💡 Dicas para descrever a experiência</summary><div class="record-help-body">
+    <div class="record-side-card record-help-static">
+      <div class="record-help-static-title">💡 Dicas para descrever a experiência</div><div class="record-help-body">
       <div class="tip"><div class="tip-icon">💬</div><div><b>Explique o que foi feito</b><div class="meta">O que aconteceu? O que a criança fez?</div></div></div>
       <div class="tip"><div class="tip-icon">🎯</div><div><b>Seja específico</b><div class="meta">Detalhes ajudam a IA a entender melhor.</div></div></div>
       <div class="tip"><div class="tip-icon">🧩</div><div><b>Inclua o processo</b><div class="meta">Como foi feito? Quais passos?</div></div></div>
       <div class="tip"><div class="tip-icon">👁️</div><div><b>Conte o que a criança percebeu</b><div class="meta">O que ela descobriu, compreendeu ou conseguiu fazer?</div></div></div>
-      </div></details>
+      </div></div>
     
-    <details class="record-side-card record-help-collapse">
-      <summary>✨ Como funciona a análise?</summary><div class="record-help-body">
+    <div class="record-side-card record-help-static">
+      <div class="record-help-static-title">✨ Como funciona a análise?</div><div class="record-help-body">
       <p class="meta">O Diário analisa o relato da experiência e ajuda a identificar componentes curriculares, habilidades e competências da BNCC que podem estar relacionados ao que realmente aconteceu.</p>
       <p class="meta">A busca considera o ano de referência da criança e o contexto informado no registro. As sugestões servem como apoio para sua revisão — não como uma classificação automática da aprendizagem.</p>
       <p class="meta"><b>Nada é aplicado automaticamente.</b> Você revisa as sugestões e decide o que representa a experiência antes de salvar.</p>
-      </div></details>
+      </div></div>
   </aside>
  </div>
 </div>`;
@@ -8291,7 +8299,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "14.9";
+const APP_VERSION = "15.0";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

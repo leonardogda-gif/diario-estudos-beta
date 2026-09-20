@@ -1,3 +1,11 @@
+DIÁRIO DE ESTUDOS — v15.0
+
+Mudanças desta versão:
+- Desktop: cards laterais de ajuda do Registro ficam sempre abertos, sem recolher.
+- Cards laterais sobem para aproveitar melhor o espaço vertical.
+- PWA simplificado: icon-192.png, icon-512.png e apple-touch-icon.png na raiz, com manifest direto.
+- Cache do Service Worker atualizado para v15.0.
+
 MEU DIÁRIO DE ESTUDOS — v14.9
 
 Ajustes desta versão:
