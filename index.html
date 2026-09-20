@@ -6,15 +6,15 @@
 <meta name="theme-color" content="#441015">
 <title>Diário de Estudos</title>
 
-<link rel="manifest" href="./manifest.json">
-<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32-oficial-v3.png">
-<link rel="icon" type="image/png" sizes="48x48" href="./icons/favicon-48-oficial-v3.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32-oficial-v4.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/icons/favicon-48-oficial-v4.png">
 <link rel="icon" type="image/svg+xml" href="./icons/favicon-oficial-v2.svg">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Diário de Estudos">
-<link rel="apple-touch-icon" sizes="192x192" href="./icons/icon-192-oficial-v3.png">
+<link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192-oficial-v4.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,650;9..144,750&family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -465,7 +465,7 @@ main,.app-main{letter-spacing:0}
 .info-btn{background:none;border:none;color:#9C917E;font-size:15px;padding:0 4px;cursor:pointer;line-height:1}
 .entry-quick-delete{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;border:none;background:#EFE7DC;color:#8A6A5E;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .entry-quick-delete:hover{background:#E4C9BE;color:#7A2A1E}
-.today-top-row{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.today-top-row{display:flex;justify-content:space-between;align-items:flex-end;gap:14px}
 .today-top-actions{display:flex;flex-direction:column;gap:8px;min-width:150px;flex-shrink:0}
 .today-top-actions .btn{font-size:13px;font-weight:650;padding:11px 13px;text-align:left;white-space:nowrap}
 .today-divider{border:none;border-top:1px solid #E8E1D2;margin:16px 0}
@@ -1286,7 +1286,7 @@ header .brand-motto{display:none!important}
 }
 </style>
 </head>
-<body data-build="13.13" class="auth-checking">
+<body data-build="13.15" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -4814,7 +4814,7 @@ function renderDashboard(){
    <div class="today-top-actions"><button class="btn success" onclick="openTodayRecord()"><span class="desktop-action-label">+ Registrar atividade</span><span class="mobile-action-label">+ Registrar</span></button><button class="btn" onclick="showPage('planejamento');openNewPlanForm()"><span class="desktop-action-label">+ Planejar atividade</span><span class="mobile-action-label">+ Planejar</span></button></div>
   </div>
   <hr class="today-divider">
-  <div class="today-plans-inline"><div class="toolbar" style="justify-content:flex-end"><button class="section-link" type="button" onclick="showPage('planejamento')">Ver todos ›</button></div>${todayPlans.map(planHtml).join('')||"<div class='notice'>Nada planejado para hoje. Você pode registrar uma atividade que aconteceu sem planejamento.</div>"}</div>
+  <div class="today-plans-inline"><div class="toolbar" style="justify-content:flex-end"><button class="section-link" type="button" onclick="showPage('planejamento')">Ver planejamentos ›</button></div>${todayPlans.map(planHtml).join('')||"<div class='notice'>Nada planejado para hoje. Você pode registrar uma atividade que aconteceu sem planejamento.</div>"}</div>
  </div><div id="todayActiveReading"></div>
  ${latePlans.length?`<div class="card"><h3>Precisa de atenção</h3><div class="meta">Atividades planejadas que ficaram para trás.</div>${latePlans.map(planHtml).join('')}</div>`:''}
  ${futurePlans.length?`<div class="card"><h3>Próximos dias</h3>${futurePlans.map(p=>`<div class="plan-card record-clickable" onclick="viewPlanDetails('${p.id}')"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${p.place?`<div class="meta">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="toolbar" style="margin-top:8px;justify-content:space-between"><button class="btn success small" type="button" onclick="event.stopPropagation();startPlan('${p.id}')">✓ Concluir atividade</button><span class="meta">Toque para abrir ›</span></div></div>`).join('')}<button class="btn" onclick="showPage('planejamento')">Ver todos os planejamentos</button></div>`:''}`;
@@ -6876,7 +6876,7 @@ function startCollectivePlan(id){
  const p=state.plans.find(x=>x.id===id);if(!p)return;const childIds=planPendingChildren(p);if(childIds.length<2)return startPlan(id,childIds[0]||"");
  collectiveRegistration={groupId:uid(),planId:id,occurrenceDate:p.nextDate||p.date,childIds,index:0,total:childIds.length};startPlan(id,childIds[0],true);
 }
-function startPlan(id,childId="",fromCollective=false){let p=state.plans.find(x=>x.id===id);if(!p)return;const pending=planPendingChildren(p);if(!childId){if(pending.length===1)childId=pending[0];else if(planViewChildFilter!=="all"&&pending.includes(planViewChildFilter))childId=planViewChildFilter;else return openPlanParticipantChooser(p)}if(!pending.includes(childId))return alert("Esta atividade já foi registrada para esta criança.");if(!fromCollective)collectiveRegistration=null;activeChildId=childId;recordFormOpen=true;const collective=fromCollective&&collectiveRegistration;editing={id:uid(),isNewFromPlan:true,childId,date:p.nextDate||p.date,type:p.type,complementaryId:p.complementaryId||"",area:"",componente:p.component||"",codigo:"",habilidade:"",materialId:p.materialId||"",materialName:p.materialName||"",materialPublisher:p.materialPublisher||"",materialBnccSkills:[],atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,planOccurrenceDate:p.nextDate||p.date,collectiveGroupId:collective?.groupId||"",collectivePosition:collective?collective.index+1:0,collectiveTotal:collective?.total||0};clearRecordDraft(childId);showPage("registro");renderRecordPage()}
+function startPlan(id,childId="",fromCollective=false){let p=state.plans.find(x=>x.id===id);if(!p)return;const pending=planPendingChildren(p);if(!childId){if(pending.length===1)childId=pending[0];else if(planViewChildFilter!=="all"&&pending.includes(planViewChildFilter))childId=planViewChildFilter;else return openPlanParticipantChooser(p)}if(!pending.includes(childId))return alert("Esta atividade já foi registrada para esta criança.");if(!fromCollective)collectiveRegistration=null;activeChildId=childId;recordFormOpen=true;const collective=fromCollective&&collectiveRegistration;editing={id:uid(),isNewFromPlan:true,childId,date:today(),type:p.type,complementaryId:p.complementaryId||"",area:"",componente:p.component||"",codigo:"",habilidade:"",materialId:p.materialId||"",materialName:p.materialName||"",materialPublisher:p.materialPublisher||"",materialBnccSkills:[],atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,planOccurrenceDate:p.nextDate||p.date,collectiveGroupId:collective?.groupId||"",collectivePosition:collective?collective.index+1:0,collectiveTotal:collective?.total||0};clearRecordDraft(childId);showPage("registro");renderRecordPage()}
 function completePlanOccurrence(planId,occurrenceDate,childId){const p=state.plans.find(x=>x.id===planId);if(!p)return;childId=childId||p.childId;p.participantProgress??={};p.participantProgress[occurrenceDate]??={};p.participantProgress[occurrenceDate][childId]={status:"completed",updatedAt:now()};const allDone=planChildIds(p).every(id=>["completed","skipped"].includes(p.participantProgress[occurrenceDate]?.[id]?.status));if(allDone){p.occurrences??=[];p.occurrences=p.occurrences.filter(x=>x.date!==occurrenceDate);p.occurrences.push({date:occurrenceDate,status:"completed",updatedAt:now()});if(p.recurrence==="none"){p.completedAt=now();p.nextDate=""}else{p.nextDate=nextPlanDate(p,occurrenceDate);if(!p.nextDate)p.completedAt=now()}}p.updatedAt=now()}
 function skipPlanOccurrence(id){const p=state.plans.find(x=>x.id===id);if(!p)return;const current=p.nextDate||p.date;if(!confirm(`Pular a ocorrência de ${fmtDate(current)}?`))return;p.occurrences??=[];p.occurrences.push({date:current,status:"skipped",updatedAt:now()});p.nextDate=nextPlanDate(p,current);if(!p.nextDate)p.completedAt=now();p.updatedAt=now();saveLocal();renderPlans();renderDashboard()}
 async function deletePlan(id){const p=state.plans.find(x=>x.id===id);if(!p)return;if(!confirm("Excluir este planejamento?"))return;state.plans=state.plans.filter(x=>x.id!==id);addTomb("plans",id);saveLocal();renderPlans();renderDashboard();if(p.calendarEventId)await deleteCalendarEventForPlan(p)}
@@ -7776,9 +7776,15 @@ window.addEventListener("focus",()=>{if(!navigator.onLine)updateAuthUI()});
 window.addEventListener("offline",()=>{restoreBackendProfileForOffline();updateAuthUI();setCloudStatus("pending","Sem internet · alterações ficam neste dispositivo")});
 window.addEventListener("online",()=>{if(appSessionValid()&&googleServerConnected){setCloudStatus("busy","Internet voltou · sincronizando...");syncWithDrive({silent:true})}else if(appSessionValid()){setCloudStatus("pending","Internet voltou · verificando Google...");refreshGoogleServerStatus().then(ok=>{if(ok)syncWithDrive({silent:true});else setCloudStatus("pending","Autorização Google necessária")})}else{setCloudStatus("pending","Internet voltou · entre com Google")}});
 window.addEventListener("pagehide",()=>{try{saveRecordDraft(true)}catch(e){}});
+let lastResumeDriveSyncAt=0;
+function syncDriveOnAppResume(){
+ if(!navigator.onLine||!appSessionValid()||!googleServerConnected||syncing)return;
+ const t=Date.now();if(t-lastResumeDriveSyncAt<15000)return;
+ lastResumeDriveSyncAt=t;syncWithDrive({silent:true});
+}
 document.addEventListener("visibilitychange",()=>{
  if(document.visibilityState==="hidden"){try{saveRecordDraft(true)}catch(e){}closeBookBarcodeScanner()}
- else queueSavedPlanningWeatherRefresh();
+ else{queueSavedPlanningWeatherRefresh();syncDriveOnAppResume()}
 });
 
 document.addEventListener("click",e=>{
@@ -7789,7 +7795,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "13.4";
+const APP_VERSION = "13.15";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

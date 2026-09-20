@@ -1,76 +1,107 @@
 {
+  "id": "/",
   "name": "Meu Diário de Estudos",
-  "short_name": "Diário de Estudos",
+  "short_name": "Meu Diário",
   "description": "Organização da aprendizagem em família.",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#EFEAE0",
   "theme_color": "#441015",
   "lang": "pt-BR",
   "icons": [
     {
-      "src": "./icons/icon-48-oficial-v3.png",
+      "src": "/icons/icon-16-oficial-v4.png",
+      "sizes": "16x16",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-32-oficial-v4.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-44-oficial-v4.png",
+      "sizes": "44x44",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-48-oficial-v4.png",
       "sizes": "48x48",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-72-oficial-v3.png",
-      "sizes": "72x72",
+      "src": "/icons/icon-50-oficial-v4.png",
+      "sizes": "50x50",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-96-oficial-v3.png",
+      "src": "/icons/icon-64-oficial-v4.png",
+      "sizes": "64x64",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-71-oficial-v4.png",
+      "sizes": "71x71",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-96-oficial-v4.png",
       "sizes": "96x96",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-128-oficial-v3.png",
+      "src": "/icons/icon-128-oficial-v4.png",
       "sizes": "128x128",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-144-oficial-v3.png",
-      "sizes": "144x144",
+      "src": "/icons/icon-150-oficial-v4.png",
+      "sizes": "150x150",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-192-oficial-v3.png",
+      "src": "/icons/icon-192-oficial-v4.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-256-oficial-v3.png",
+      "src": "/icons/icon-256-oficial-v4.png",
       "sizes": "256x256",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-384-oficial-v3.png",
-      "sizes": "384x384",
+      "src": "/icons/icon-310-oficial-v4.png",
+      "sizes": "310x310",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-512-oficial-v3.png",
+      "src": "/icons/icon-512-oficial-v4.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-192-maskable-oficial-v3.png",
+      "src": "/icons/icon-192-maskable-oficial-v4.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "./icons/icon-512-maskable-oficial-v3.png",
+      "src": "/icons/icon-512-maskable-oficial-v4.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

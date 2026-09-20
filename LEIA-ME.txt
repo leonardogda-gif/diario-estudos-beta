@@ -1,11 +1,11 @@
-Meu Diário de Estudos — PWA v13.13
+Meu Diário de Estudos — PWA v13.15
 
-Correção do ícone de instalação do PWA.
-- Ícones PNG agora são realmente quadrados e correspondem aos tamanhos declarados no manifest.
-- Conjunto 48/72/96/128/144/192/256/384/512 para Chromium/Windows/Android.
-- Variantes maskable 192 e 512 com margem de segurança.
-- Favicons PNG 32/48 + SVG.
-- Novos nomes v3 para evitar reaproveitamento dos arquivos inválidos da v13.12.
+Correção focada na instalação no Windows/Chromium.
+- manifest com id/start_url/scope absolutos e estáveis
+- conjunto PNG com tamanhos específicos para Windows, incluindo 44, 50, 71, 150 e 310 px
+- ícones purpose:any e maskable separados
+- nomes v4 para evitar reaproveitamento dos arquivos anteriores
+- favicon e apple-touch-icon atualizados
+- cache do Service Worker atualizado para 13.15
 
-Mantém as demais correções e textos da v13.12.
-Não exige alteração do Worker.
+Mantém as correções funcionais e de conteúdo da v13.13.
