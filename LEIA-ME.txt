@@ -1,10 +1,6 @@
-Meu Diário de Estudos — v13.16
+Meu Diário de Estudos v13.17
 
-Publicação: envie/substitua todo o conteúdo desta pasta no GitHub Pages, mantendo a pasta icons.
-Não é necessário alterar o Worker/Cloudflare para esta versão.
+Publicar todo o conteúdo desta pasta no frontend.
+Esta versão também acompanha worker-v13.17.js, que deve ser publicado no Cloudflare Worker para habilitar o painel Saúde do sistema e Visão geral do administrador.
 
-Mudanças principais:
-- Detalhes de sincronização para famílias sem a informação técnica “Backend: conectado”.
-- Removido “Reagendar próxima” dos planejamentos atrasados; permanecem Concluir e registrar + Editar.
-- Área Administração do Diário reorganizada em seções recolhíveis e mais objetivas.
-- Mantidas as correções da v13.15 (Hoje, data de registro e sincronização ao retornar ao app).
+Principais mudanças: painel administrativo com visão geral e saúde real do Worker/D1; administração da família reorganizada visualmente; manutenção das correções da v13.16.

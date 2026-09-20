@@ -1248,6 +1248,23 @@ header .brand-motto{display:none!important}
 @media(min-width:641px){.mobile-action-label{display:none}.desktop-action-label{display:inline}}
 
 .today-plans-inline>.notice{background:#F7F1E7!important;border-color:#E7DDCF!important;color:#6D655E!important}
+
+/* v13.17 · Painéis de administração */
+#page-administracao .admin-overview-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:14px 0}
+#page-administracao .admin-stat{border:1px solid #e7dfd2;border-radius:15px;padding:13px 8px;text-align:center;background:#fffdf9}
+#page-administracao .admin-stat b{display:block;font-family:Georgia,serif;font-size:25px;color:#5b1420;line-height:1.05}
+#page-administracao .admin-stat span{font-size:11px;color:#777168}
+#page-administracao .system-health{border:1px solid #e7dfd2;border-radius:16px;padding:14px;background:#fbf7ef;margin:12px 0 18px}
+#page-administracao .health-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #ece4d7}
+#page-administracao .health-row:last-child{border-bottom:0}.health-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#aaa;margin-right:7px}.health-dot.ok{background:#2f855a}.health-dot.bad{background:#b42318}.health-dot.wait{background:#c08a24}
+#page-administracao .admin-attention{border-radius:15px;padding:13px 14px;background:#f6efe4;margin:10px 0 16px}.admin-attention.ok{background:#edf6ef}
+#page-configuracoes .family-admin-hero{padding:2px 2px 16px;border-bottom:1px solid #e7dfd2;margin-bottom:10px}
+#page-configuracoes .family-overview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:14px}
+#page-configuracoes .family-stat{border:1px solid #e7dfd2;border-radius:14px;padding:11px 8px;text-align:center;background:#fffdf9}.family-stat b{display:block;font-size:20px;color:#5b1420}.family-stat span{font-size:11px;color:#777168}
+#page-configuracoes .settings-section.v135-collapsible{border:1px solid #e7dfd2;border-radius:16px;padding:0;margin:10px 0;background:#fffdf9;overflow:hidden}
+#page-configuracoes .settings-collapse-head{padding:14px 15px;margin:0}.settings-collapse-body{padding:0 15px 15px}
+#page-configuracoes .family-admin-note{font-size:12px;color:#777168;margin-top:5px}
+@media(max-width:600px){#page-administracao .admin-overview-grid{grid-template-columns:repeat(2,1fr)}#page-configuracoes .family-overview-grid{grid-template-columns:repeat(3,1fr)}}
 </style>
 <style id="v138-ui-fixes">
 /* v13.9: capas separadas por contexto — Hoje e Leituras */
@@ -1285,7 +1302,7 @@ header .brand-motto{display:none!important}
  .routine-actions .btn{width:100%!important;min-width:0!important;padding:6px 5px!important;font-size:11.5px!important;white-space:normal!important}
 }
 
-/* v13.16 · Administração mais limpa */
+/* v13.17 · Administração mais limpa */
 #page-administracao .admin-hub{padding:20px}
 #page-administracao .admin-hub-head{padding:2px 2px 14px;border-bottom:1px solid #e7dfd2;margin-bottom:8px}
 #page-administracao .admin-eyebrow{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#7d263d;margin-bottom:5px}
@@ -1302,7 +1319,7 @@ header .brand-motto{display:none!important}
 @media(max-width:600px){#page-administracao .admin-hub{padding:15px 13px}#page-administracao .admin-panel>summary{padding:14px 14px;padding-right:42px}}
 </style>
 </head>
-<body data-build="13.16" class="auth-checking">
+<body data-build="13.17" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -1875,7 +1892,7 @@ header .brand-motto{display:none!important}
     </section>
 
     <section id="page-configuracoes" class="page">
-<div class="card"><h2>Configurações</h2>
+<div class="card"><div class="family-admin-hero"><div class="admin-eyebrow">Administração da família</div><h2 style="margin:4px 0 5px">Sua família</h2><p class="meta">Pessoas, estudos, relatórios e dados da família em um só lugar.</p><div class="family-overview-grid"><div class="family-stat"><b id="familyOverviewChildren">—</b><span>Crianças</span></div><div class="family-stat"><b id="familyOverviewRecords">—</b><span>Registros</span></div><div class="family-stat"><b id="familyOverviewBooks">—</b><span>Leituras</span></div></div></div>
 
 <div class="settings-section">
   <div class="family-summary">
@@ -1983,8 +2000,13 @@ header .brand-motto{display:none!important}
 </div></section>
 
 <section id="page-administracao" class="page">
-<div class="card admin-hub"><div class="admin-hub-head"><div><div class="admin-eyebrow">Acesso de administrador</div><h2>Administração do Diário</h2><p class="meta">Gerencie acessos, cadastros, consumo e catálogo em um só lugar.</p></div></div>
-<div class="admin-section-label">Acessos e famílias</div>
+<div class="card admin-hub"><div class="admin-hub-head"><div><div class="admin-eyebrow">Acesso de administrador</div><h2>Administração do Diário</h2><p class="meta">Visão geral, saúde do sistema e ferramentas de gerenciamento.</p></div></div>
+<div class="admin-section-label">Visão geral</div>
+<div class="admin-overview-grid"><div class="admin-stat"><b id="adminStatFamilies">—</b><span>Famílias</span></div><div class="admin-stat"><b id="adminStatChildren">—</b><span>Crianças</span></div><div class="admin-stat"><b id="adminStatPendingBooks">—</b><span>Livros pendentes</span></div><div class="admin-stat"><b id="adminStatPendingMaterials">—</b><span>Materiais pendentes</span></div></div>
+<div id="adminAttention" class="admin-attention">Verificando pendências…</div>
+<div class="admin-section-label">Saúde do sistema</div>
+<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v13.17</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
+<div class="admin-section-label">Gerenciamento</div>
 
 <details class="tech-details admin-panel"><summary>🔓 Acessos gratuitos <span>Beta, social, parcerias e cortesias</span></summary><div class="drive-folder-card" style="margin-top:8px">
   <div class="notice"><b>Acessos especiais por família</b><div class="meta" style="margin-top:4px;color:#5F5B50">Use para beta testers, acesso social, parcerias e cortesias.</div></div>
@@ -2000,7 +2022,7 @@ header .brand-motto{display:none!important}
   <div id="adminAllowedSignupsList" style="margin-top:12px">Carregando e-mails…</div>
 </div></details>
 
-<div class="admin-section-label">Uso e acompanhamento</div>
+
 <details class="tech-details admin-panel"><summary>🤖 Consumo de IA <span>Uso por família e período</span></summary><div class="drive-folder-card" style="margin-top:8px">
   <div class="grid">
     <div><label class="field">De</label><input id="adminAiUsageFrom" type="date"></div>
@@ -2016,7 +2038,7 @@ header .brand-motto{display:none!important}
               <button class="btn small" type="button" onclick="enableAdminValidationNotifications()">Ativar alertas</button>
             </div>
           </div></details>
-          <div class="admin-section-label">Catálogo e validações</div>
+          
           <details class="tech-details admin-panel" ontoggle="if(this.open){resetAdminCatalogBookForm();}"><summary>📖 Adicionar livro ao catálogo <span>Cadastro manual ou pelo Google Books</span></summary><div class="drive-folder-card" style="margin-top:8px">
             <div class="meta">O livro será publicado no catálogo compartilhado sem vínculo com família ou criança.</div>
             <div class="grid" style="margin-top:10px">
@@ -2286,12 +2308,12 @@ function showPage(name){
  document.querySelectorAll(".nav-tab").forEach(x=>x.classList.toggle("active",x.dataset.page===name));
  if(name==="inicio"){renderDashboard()}
  if(name==="registro")renderRecordPage();
- if(name==="planejamento"){renderPlans();refreshCalendarIntegrationUI();} if(name==="configuracoes"){setTimeout(initFamilySettingsCollapsibles,0);} if(name==="mais"){refreshCalendarIntegrationUI();checkAdminPendingValidations(false);refreshAsaasBilling();} if(name==="administracao"){updateAdminValidationNotificationStatus();loadAdminAccessGrants();loadAllowedSignups();loadAdminAiUsage();loadPendingCommunityBooks();loadPendingMaterials();}
+ if(name==="planejamento"){renderPlans();refreshCalendarIntegrationUI();} if(name==="configuracoes"){setTimeout(initFamilySettingsCollapsibles,0);} if(name==="mais"){refreshCalendarIntegrationUI();checkAdminPendingValidations(false);refreshAsaasBilling();} if(name==="administracao"){loadAdminDashboard();updateAdminValidationNotificationStatus();loadAdminAccessGrants();loadAllowedSignups();loadAdminAiUsage();}
  if(name==="relatorios")renderReportPage();
  if(name==="historico"){renderHistoryBrowser();renderHistoryBatchRows();refreshHistoryActivityOptions();}
  if(name==="leituras"){renderReadingPage();}
  if(name==="manutencao")renderComplementaryList();
- if(name==="configuracoes")renderSettingsChildren();
+ if(name==="configuracoes"){renderSettingsChildren();setTimeout(refreshFamilyAdminOverview,50);} 
  if(previousPage!=="page-"+name)requestAnimationFrame(()=>window.scrollTo({top:0,behavior:"smooth"}));
 }
 
@@ -3539,6 +3561,32 @@ async function createAppSessionFromGoogle(){
   saveAppSession(data.session_token,Number(data.expires_at||0)*1000);
   return data;
 }
+function refreshFamilyAdminOverview(){
+ try{
+  const activeChildren=(state?.family?.children||[]).filter(c=>!c.archived&&!c.legacyOrphan).length;
+  const entries=Object.values(state?.entries||{}).flat().filter(Boolean).length;
+  const readings=(state?.family?.children||[]).reduce((n,c)=>n+((c.readings||c.books||[]).length||0),0);
+  if($("familyOverviewChildren")) $("familyOverviewChildren").textContent=activeChildren;
+  if($("familyOverviewRecords")) $("familyOverviewRecords").textContent=entries;
+  if($("familyOverviewBooks")) $("familyOverviewBooks").textContent=readings;
+ }catch(e){}
+}
+function setHealth(id,dotId,text,ok){const el=$(id),dot=$(dotId);if(el)el.textContent=text;if(dot){dot.classList.remove('ok','bad','wait');dot.classList.add(ok?'ok':'bad')}}
+async function loadAdminDashboard(){
+ const checked=$("healthCheckedAt"); if(checked)checked.textContent="Verificando…";
+ try{
+  const data=await backendFetch('/admin/dashboard');
+  const o=data.overview||{};
+  [["adminStatFamilies",o.families],["adminStatChildren",o.children],["adminStatPendingBooks",o.pending_books],["adminStatPendingMaterials",o.pending_materials]].forEach(([id,v])=>{if($(id))$(id).textContent=Number(v||0)});
+  setHealth('healthWorker','healthWorkerDot',data.health?.worker==='ok'?'Operacional':'Indisponível',data.health?.worker==='ok');
+  setHealth('healthDb','healthDbDot',data.health?.database==='ok'?'Conectado':'Falha',data.health?.database==='ok');
+  if($("healthWorkerVersion")) $("healthWorkerVersion").textContent=data.worker_version||'—';
+  if(checked) checked.textContent=new Date(data.checked_at||Date.now()).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const pending=Number(o.pending_books||0)+Number(o.pending_materials||0),att=$("adminAttention");
+  if(att){att.classList.toggle('ok',pending===0);att.innerHTML=pending?`<b>Requer atenção</b><div class="meta" style="margin-top:4px">${Number(o.pending_books||0)} livro(s) e ${Number(o.pending_materials||0)} material(is) aguardando validação.</div>`:'<b>✓ Nenhuma pendência de catálogo no momento</b>';}
+ }catch(e){setHealth('healthWorker','healthWorkerDot','Indisponível',false);setHealth('healthDb','healthDbDot','Não verificado',false);if(checked)checked.textContent=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});const a=$("adminAttention");if(a)a.innerHTML='<b>Não foi possível carregar o painel.</b><div class="meta">'+esc(e.message||'Erro de conexão')+'</div>';}
+}
+
 async function backendFetch(path, options={}){
   if(!appSessionValid()){
     if(tokenValid())await createAppSessionFromGoogle();
@@ -7813,7 +7861,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "13.16";
+const APP_VERSION = "13.17";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
