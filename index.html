@@ -1470,9 +1470,30 @@ input,select,textarea{font-size:16px}
  .app-footer button,.app-footer a{font-size:11.5px!important;font-weight:650!important;line-height:1.3!important}
 }
 
+/* v14.3 · acabamento de testes: rodapé contextual, modal do Diário e consistência */
+.diary-info-overlay{position:fixed;inset:0;z-index:12500;background:rgba(35,25,22,.50);display:flex;align-items:center;justify-content:center;padding:20px}
+.diary-info-overlay.hidden{display:none!important}
+.diary-info-modal{width:min(420px,100%);background:#fffdf9;border:1px solid #e6d8c8;border-radius:24px;box-shadow:0 24px 70px rgba(42,25,20,.24);padding:22px;color:var(--ds-text)}
+.diary-info-icon{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:#f7eee6;font-size:23px;margin-bottom:12px}
+.diary-info-modal h2{margin:0;color:#5b1420;font-size:25px}.diary-info-modal>p{margin:7px 0 16px;color:var(--ds-muted);line-height:1.45}
+.diary-info-summary{display:flex;justify-content:space-between;gap:16px;padding:11px 0;border-top:1px solid #eee4d8;font-size:13px}.diary-info-summary b{color:#5b1420}.diary-info-summary span{text-align:right;color:var(--ds-muted)}
+.diary-info-ok{width:100%;margin-top:16px;min-height:46px}
+.experience-analysis-card .experience-analysis-head{gap:14px}.experience-analysis-card .experience-analysis-head h3{margin-bottom:4px}.experience-analysis-card .experience-status:empty{display:none}
+.info-btn,.settings-collapse-head,.admin-panel>summary{touch-action:manipulation}.info-btn{min-width:44px!important;min-height:44px!important;display:inline-grid!important;place-items:center!important}
+.switch{min-width:44px!important;min-height:28px!important}
+@media(max-width:650px){
+  .app-footer{display:none!important}
+  body.mobile-footer-visible .app-footer{display:grid!important}
+  .diary-info-modal{padding:19px;border-radius:21px}.diary-info-modal h2{font-size:23px}
+}
+@media(min-width:900px){
+  main>.wrap{max-width:900px;margin-left:auto;margin-right:auto}
+  .attention-actions .attention-primary{max-width:520px}
+}
+
 </style>
 </head>
-<body data-build="14.2" class="auth-checking">
+<body data-build="14.3" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -2153,7 +2174,7 @@ input,select,textarea{font-size:16px}
 <div class="admin-overview-grid"><div class="admin-stat"><b id="adminStatFamilies">—</b><span>Famílias</span></div><div class="admin-stat"><b id="adminStatChildren">—</b><span>Crianças</span></div><div class="admin-stat"><b id="adminStatPendingBooks">—</b><span>Livros pendentes</span></div><div class="admin-stat"><b id="adminStatPendingMaterials">—</b><span>Materiais pendentes</span></div></div>
 <div id="adminAttention" class="admin-attention">Verificando pendências…</div>
 <div class="admin-section-label">Saúde do sistema</div>
-<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v14.2</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
+<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v14.3</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
 <div class="admin-section-label">Gerenciamento</div>
 
 <details class="tech-details admin-panel"><summary>🔓 Acessos gratuitos <span>Beta, social, parcerias e cortesias</span></summary><div class="drive-folder-card" style="margin-top:8px">
@@ -2238,6 +2259,16 @@ input,select,textarea{font-size:16px}
     <label class="field" for="readingCompleteNotes">Observação <span style="font-weight:500;color:#817b72">(opcional)</span></label>
     <textarea id="readingCompleteNotes" placeholder="Algo que queira guardar sobre essa leitura?"></textarea>
     <div class="modal-actions"><button class="btn" type="button" onclick="closeReadingCompleteModal()">Cancelar</button><button id="readingCompleteConfirm" class="btn success" type="button" onclick="confirmReadingCompletion()">✓ Concluir leitura</button></div>
+  </div>
+</div>
+<div id="quickModeInfoOverlay" class="diary-info-overlay hidden no-print" onclick="if(event.target===this)closeQuickModeInfo()">
+  <div class="diary-info-modal" role="dialog" aria-modal="true" aria-labelledby="quickModeInfoTitle">
+    <div class="diary-info-icon" aria-hidden="true">⚡</div>
+    <h2 id="quickModeInfoTitle">Modo rápido</h2>
+    <p>Registre o essencial agora e complete os detalhes depois.</p>
+    <div class="diary-info-summary"><b>Agora</b><span>Atividade · Data · Fotos</span></div>
+    <div class="diary-info-summary"><b>Depois</b><span>Material · Avaliação · análise educacional</span></div>
+    <button class="btn primary diary-info-ok" type="button" onclick="closeQuickModeInfo()">Entendi</button>
   </div>
 </div>
 <div id="printableReport" aria-hidden="true"></div>
@@ -2474,6 +2505,14 @@ function currentChild(){
     ||null;
 }
 function ageFromBirth(b){if(!b)return"";let x=new Date(b+"T00:00:00"),n=new Date(),a=n.getFullYear()-x.getFullYear();if(n.getMonth()<x.getMonth()||(n.getMonth()===x.getMonth()&&n.getDate()<x.getDate()))a--;return a>=0?a:""}
+
+function openQuickModeInfo(){
+ const overlay=$("quickModeInfoOverlay");if(!overlay)return;overlay.classList.remove("hidden");document.body.classList.add("modal-open");setTimeout(()=>overlay.querySelector("button")?.focus(),0);
+}
+function closeQuickModeInfo(){
+ const overlay=$("quickModeInfoOverlay");if(!overlay)return;overlay.classList.add("hidden");document.body.classList.remove("modal-open");
+}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("quickModeInfoOverlay")?.classList.contains("hidden"))closeQuickModeInfo()});
 
 function showPage(name){
  const previousPage=document.querySelector(".page.active")?.id||"";
@@ -5580,7 +5619,7 @@ function renderRecordPage(){
  ${!editing?`<div class="quick-mode-toggle">
    <span class="mode-label">Modo rápido</span>
    <button type="button" class="switch ${quick?"on":""}" onclick="toggleRecordQuickMode(${quick?"false":"true"})" aria-pressed="${quick}"><span class="switch-knob"></span></button>
-   <button type="button" class="info-btn" onclick="alert('Modo rápido\\n\\nMostra só o essencial — atividade, data e foto — pra você não perder o momento.\\n\\nAvaliação, material e BNCC ficam pendentes e podem ser completados depois, por você ou por outro responsável, editando o registro. Nada se perde, só fica pra depois.')" aria-label="O que é o Modo rápido">ⓘ</button>
+   <button type="button" class="info-btn" onclick="openQuickModeInfo()" aria-label="O que é o Modo rápido">ⓘ</button>
  </div>`:""}
  <div class="record-shell">
   <div class="record-main">
@@ -5625,10 +5664,10 @@ function renderRecordPage(){
       </div></details>
     <div class="full experience-analysis-card ${quick?"hidden":""}">
       <div class="experience-analysis-head">
-        <div><h3>✨ Analisar experiência</h3><div class="meta">O Diário identifica componentes e busca habilidades e competências BNCC relacionadas em uma única análise.</div></div>
+        <div><h3>✨ Analisar experiência</h3><div class="meta">Encontre possíveis relações com a BNCC a partir do relato.</div></div>
         <button id="analyzeExperienceBtn" type="button" class="btn primary" onclick="analyzeRecordComponents()">✨ Analisar experiência</button>
       </div>
-      <div id="experienceComponentStatus" class="meta" style="margin-top:8px">Conte a experiência e toque em analisar. Você receberá tudo junto para revisar.</div>
+      <div id="experienceComponentStatus" class="meta experience-status" style="margin-top:8px"></div>
       <div id="experienceComponentResults" style="margin-top:8px"></div>
     </div>
 
@@ -8103,7 +8142,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "13.23";
+const APP_VERSION = "14.3";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

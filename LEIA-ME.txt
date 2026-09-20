@@ -1,28 +1,14 @@
-Meu Diário de Estudos — v14.2
+MEU DIÁRIO DE ESTUDOS — v14.3
 
-Versão de consistência e usabilidade do frontend.
+Ajustes desta versão:
+- Rodapé institucional no mobile somente na aba Mais; desktop preservado.
+- Modo rápido: informação em modal próprio do Diário, sem alert nativo.
+- Bloco “Analisar experiência” simplificado.
+- Alvos de toque pequenos reforçados.
+- Mantida a regra já existente: ao registrar a partir de planejamento, a data do registro começa em hoje e nunca aceita data futura.
+- Pequenos limites de largura no desktop.
+- Cache/versionamento atualizados para v14.3.
 
-Principais ajustes:
-- Tipografia consistente em inputs, selects, textareas e botões.
-- Campos em 16px no mobile para evitar zoom automático no iOS.
-- Textos auxiliares e alvos de toque revisados.
-- Histórico: filtros simplificados e menu ⋯ no lugar do × de exclusão.
-- Registrar: menos repetição, Criança/Data sem selo redundante de obrigatório e ajuda lateral recolhida.
-- Mais: opções em lista com ícone, descrição e chevron.
-- Header mobile mais compacto e rodapé institucional reduzido.
-- Alinhamento e largura de ações melhorados no desktop.
-- Primeira camada de tokens de design adicionada sem remover CSS legado de forma agressiva.
+Worker: permanece v13.23; não é necessário republicá-lo.
 
-Backend/Worker:
-- Nenhuma alteração necessária. Continue usando o Worker v13.23.
-
-Observação sobre assets existentes no repositório:
-- index.html referencia logo-emblema.svg, logo-emblema-cobre.svg e vendor/zxing-browser.min.js.
-- Esses três arquivos não estavam presentes no pacote-base v13.23 recebido para gerar esta versão.
-- Ao publicar, preserve esses arquivos no repositório se eles já existirem lá.
-
-
-v14.2: corrige a aplicação real dos estilos da tela Mais, compacta o header mobile e reduz o rodapé mobile. Sem alteração no Worker.
-
-
-v14.2: Histórico simplificado. Removido o menu de três pontos e as ações redundantes dos cards; tocar no card continua abrindo o registro. Exclusão permanece disponível no fluxo do registro aberto.
+ATENÇÃO: index.html referencia logo-emblema.svg, logo-emblema-cobre.svg e vendor/zxing-browser.min.js. Esses arquivos não vieram no pacote-base recebido e por isso não foram inventados/substituídos. Se já existem no repositório publicado, mantenha-os ao atualizar o frontend.
