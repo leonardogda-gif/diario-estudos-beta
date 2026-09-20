@@ -1,4 +1,4 @@
-Meu Diário de Estudos v13.19
+Meu Diário de Estudos v13.20
 
 PUBLICAÇÃO NO GITHUB
 Substitua os arquivos do frontend pelo conteúdo deste pacote, mantendo a pasta icons.
@@ -19,3 +19,7 @@ Alterações v13.19:
 - Custo estimado geral e por família.
 - Detalhes de chamadas por família sob demanda.
 - Worker permanece v13.17; não requer republicação.
+
+Alterações v13.20:
+- Agenda em Planejar reorganizada: Hoje → Próximos dias → Leituras planejadas → Para retomar → Atrasadas.
+- Apenas ordem visual alterada; lógica dos planejamentos preservada.

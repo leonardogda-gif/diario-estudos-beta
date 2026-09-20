@@ -1319,6 +1319,7 @@ header .brand-motto{display:none!important}
 @media(max-width:600px){#page-administracao .admin-hub{padding:15px 13px}#page-administracao .admin-panel>summary{padding:14px 14px;padding-right:42px}}
 
 
+/* v13.20 · agenda Planejar em ordem temporal: Hoje, Próximos dias, Leituras, Para retomar, Atrasadas */
 /* v13.19 · painel de IA resumido e detalhes sob demanda */
 .ai-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
 .ai-summary-card{background:#F6F1E7;border:1px solid #E9DFCF;border-radius:18px;padding:16px 12px;text-align:center}
@@ -1393,7 +1394,7 @@ header .brand-motto{display:none!important}
 
 </style>
 </head>
-<body data-build="13.19" class="auth-checking">
+<body data-build="13.20" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -1542,7 +1543,7 @@ header .brand-motto{display:none!important}
           <div style="margin-top:8px"><label class="field">Repetir até (opcional)</label><input id="planEndDate" type="date"></div>
         </div>
       </div><div class="toolbar" style="margin-top:10px"><button id="planSaveBtn" class="btn success" onclick="addPlan()">Salvar planejamento</button><button class="btn" onclick="cancelPlanEdit()">Cancelar</button></div></div>
-      <div class="card"><div class="toolbar" style="justify-content:space-between;align-items:flex-end"><div><h3 style="margin-bottom:3px">Agenda da família</h3><div class="meta">Veja tudo junto ou filtre por criança.</div></div></div><div id="planViewChildren" class="child-tabs child-selector" style="margin:12px 0"></div><div id="plannedReadingsAgenda"></div><div id="plansList"></div></div>
+      <div class="card"><div class="toolbar" style="justify-content:space-between;align-items:flex-end"><div><h3 style="margin-bottom:3px">Agenda da família</h3><div class="meta">Veja tudo junto ou filtre por criança.</div></div></div><div id="planViewChildren" class="child-tabs child-selector" style="margin:12px 0"></div><div id="plansPrimaryList"></div><div id="plannedReadingsAgenda"></div><div id="plansSecondaryList"></div></div>
     </section>
 
     
@@ -2077,7 +2078,7 @@ header .brand-motto{display:none!important}
 <div class="admin-overview-grid"><div class="admin-stat"><b id="adminStatFamilies">—</b><span>Famílias</span></div><div class="admin-stat"><b id="adminStatChildren">—</b><span>Crianças</span></div><div class="admin-stat"><b id="adminStatPendingBooks">—</b><span>Livros pendentes</span></div><div class="admin-stat"><b id="adminStatPendingMaterials">—</b><span>Materiais pendentes</span></div></div>
 <div id="adminAttention" class="admin-attention">Verificando pendências…</div>
 <div class="admin-section-label">Saúde do sistema</div>
-<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v13.19</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
+<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v13.20</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
 <div class="admin-section-label">Gerenciamento</div>
 
 <details class="tech-details admin-panel"><summary>🔓 Acessos gratuitos <span>Beta, social, parcerias e cortesias</span></summary><div class="drive-folder-card" style="margin-top:8px">
@@ -6998,11 +6999,13 @@ function renderPlanViewChildren(){
  box.innerHTML=`<button type="button" class="child ${planViewChildFilter==="all"?"active":""}" onclick="setPlanViewChildFilter('all')">Todas</button>`+kids.map(c=>`<button type="button" class="child ${planViewChildFilter===c.id?"active":""}" onclick="setPlanViewChildFilter('${c.id}')">${esc(c.name)}</button>`).join("");
 }
 function renderPlans(){
- let box=$("plansList");if(!box)return;renderPlanViewChildren();let childId=planViewChildFilter==="all"?"":planViewChildFilter,td=today();
+ let primaryBox=$("plansPrimaryList"),secondaryBox=$("plansSecondaryList");if(!primaryBox||!secondaryBox)return;renderPlanViewChildren();let childId=planViewChildFilter==="all"?"":planViewChildFilter,td=today();
  let l=state.plans.filter(x=>!x.completedAt&&(!childId||planIncludesChild(x,childId))&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
  const card=p=>{const names=planChildNames(p),progress=planOccurrenceProgress(p),status=planChildIds(p).map(id=>{const name=state.family.children.find(c=>c.id===id)?.name||"Criança",done=progress[id]?.status==="completed";return `<span class="reading-status" style="margin-right:5px">${done?"✓":"○"} ${esc(name)}</span>`}).join("");return `<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':(p.nextDate||p.date)===td?'is-today':''}" data-plan-id="${esc(p.id)}"><div class="plan-date">${fmtDate(p.nextDate||p.date)} · ${esc(names.join(", "))}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div style="margin-top:5px">${status}</div>`:""}${p.component?`<div class="skill">${esc(p.component)}</div>`:''}${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}${p.materialName?`<div class="meta" style="margin-top:4px">📘 ${esc(p.materialName)}</div>`:""}${p.notes?`<div class="obs">${esc(p.notes)}</div>`:''}${p.calendarEventId?`<div class="meta" style="margin-top:4px">📅 No Google Calendar${p.importedCalendarEventId?" · cópia preservada do beta":""}</div>`:p.importedCalendarEventId?`<div class="meta" style="margin-top:4px">📅 Planejamento importado durante o beta</div>`:""}<div class="entry-actions"><button class="btn success small" onclick="startPlan('${p.id}')">+ Registrar atividade</button><button class="btn small" onclick="editPlan('${p.id}')">Editar</button>${p.recurrence!=='none'?`<button class="btn small" onclick="skipPlanOccurrence('${p.id}')">Pular / próxima</button>`:''}<button class="btn danger small" onclick="deletePlan('${p.id}')">Excluir</button></div></div>`};
  const late=l.filter(p=>(p.nextDate||p.date)<td),now=l.filter(p=>(p.nextDate||p.date)===td),future=l.filter(p=>(p.nextDate||p.date)>td);
- const ret=renderRetakeCards(childId);box.innerHTML=`${ret.count?planSectionHtml('retake','Para retomar',ret.count,ret.html,true):''}${late.length?planSectionHtml('late','Atrasadas',late.length,late.map(card).join(''),true):''}${planSectionHtml('today','Hoje',now.length,now.map(card).join('')||"<div class='notice'>Nada planejado para hoje.</div>",!!now.length)}${future.length?planSectionHtml('future','Próximos dias',future.length,future.map(card).join(''),true):''}`;
+ const ret=renderRetakeCards(childId);
+ primaryBox.innerHTML=`${planSectionHtml('today','Hoje',now.length,now.map(card).join('')||"<div class='notice'>Nada planejado para hoje.</div>",!!now.length)}${future.length?planSectionHtml('future','Próximos dias',future.length,future.map(card).join(''),true):''}`;
+ secondaryBox.innerHTML=`${ret.count?planSectionHtml('retake','Para retomar',ret.count,ret.html,true):''}${late.length?planSectionHtml('late','Atrasadas',late.length,late.map(card).join(''),true):''}`;
  queueSavedPlanningWeatherRefresh();refreshPlannedReadingsAgenda();
 }
 function closePlanParticipantChooser(){$("planParticipantChooser")?.remove()}
@@ -7934,7 +7937,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "13.19";
+const APP_VERSION = "13.20";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
