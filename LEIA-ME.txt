@@ -1,6 +1,14 @@
-Meu Diário de Estudos v13.17
+Meu Diário de Estudos v13.18
 
-Publicar todo o conteúdo desta pasta no frontend.
-Esta versão também acompanha worker-v13.17.js, que deve ser publicado no Cloudflare Worker para habilitar o painel Saúde do sistema e Visão geral do administrador.
+PUBLICAÇÃO NO GITHUB
+Substitua os arquivos do frontend pelo conteúdo deste pacote, mantendo a pasta icons.
 
-Principais mudanças: painel administrativo com visão geral e saúde real do Worker/D1; administração da família reorganizada visualmente; manutenção das correções da v13.16.
+O que mudou:
+- Reestilização interna da Administração da Família.
+- Seções com descrições mais claras e hierarquia visual simplificada.
+- Formulários, avisos, botões e cartões internos mais limpos no celular.
+- Reestilização interna das ferramentas da Administração do Diário.
+- Mantidos Visão geral e Saúde do sistema da v13.17.
+
+Cloudflare Worker:
+NÃO precisa republicar. Esta versão usa o mesmo Worker v13.17.

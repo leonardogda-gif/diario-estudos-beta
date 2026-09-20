@@ -1317,9 +1317,63 @@ header .brand-motto{display:none!important}
 #page-administracao .admin-panel>summary span{font-size:12px;font-weight:500;color:#777168}
 #page-administracao .admin-panel>.drive-folder-card{margin:0 10px 10px!important;border-radius:13px}
 @media(max-width:600px){#page-administracao .admin-hub{padding:15px 13px}#page-administracao .admin-panel>summary{padding:14px 14px;padding-right:42px}}
+
+/* v13.18 · interiores administrativos mais simples e funcionais */
+#page-configuracoes .settings-section.v135-collapsible{box-shadow:0 5px 16px rgba(74,45,36,.035)}
+#page-configuracoes .settings-collapse-head{padding:17px 18px!important;min-height:70px;background:#fffdf9}
+#page-configuracoes .settings-head-copy{min-width:0;display:flex;flex-direction:column;gap:4px}
+#page-configuracoes .settings-collapse-head h3{font-size:20px!important;color:#4f1420;line-height:1.15}
+#page-configuracoes .settings-summary{margin:0!important;font-size:12px!important;line-height:1.35;color:#777168!important;font-weight:500}
+#page-configuracoes .settings-chevron{flex:0 0 34px;width:34px;height:34px;border-radius:50%;background:#f6eee8!important;display:grid;place-items:center;padding:0!important}
+#page-configuracoes .settings-collapse-body{border-top:1px solid #eee5d8;padding:16px 18px 18px;background:#fffefa}
+#page-configuracoes .settings-collapse-body.is-collapsed{display:none}
+#page-configuracoes .settings-collapse-body>.notice,
+#page-configuracoes .settings-collapse-body>.drive-folder-card,
+#page-configuracoes .calendar-integration-card{border:0!important;border-radius:14px!important;background:#f8f3ea!important;padding:14px!important}
+#page-configuracoes .family-summary{align-items:center;gap:12px}
+#page-configuracoes .family-summary .name{font-size:20px;font-family:Georgia,serif;color:#4f1420;margin-top:2px}
+#page-configuracoes .report-info-grid{gap:12px}
+#page-configuracoes .report-info-grid h4{color:#4f1420}
+#page-configuracoes .settings-collapse-body .field{font-size:12px;font-weight:700;color:#615d55;margin-bottom:5px}
+#page-configuracoes .settings-collapse-body input,
+#page-configuracoes .settings-collapse-body select,
+#page-configuracoes .settings-collapse-body textarea{background:#fff;border-color:#ddd3c5}
+#page-configuracoes .settings-collapse-body .toolbar{gap:8px}
+#page-configuracoes .settings-collapse-body .btn{border-radius:12px}
+#page-configuracoes #childrenCards .child-card{border-radius:14px;background:#fff;border:1px solid #e8dfd2;box-shadow:none}
+#page-configuracoes #archivedChildrenBox{background:#faf7f0!important}
+#page-configuracoes .calendar-integration-card>.toolbar{gap:12px}
+#page-configuracoes .tech-details{margin-top:16px;border:1px dashed #d9cfc0;background:#faf7f0}
+
+#page-administracao .admin-panel{box-shadow:0 4px 14px rgba(74,45,36,.03)}
+#page-administracao .admin-panel[open]{border-color:#d9cabc;background:#fff}
+#page-administracao .admin-panel[open]>summary{background:#fbf5ed;border-bottom:1px solid #eadfd2}
+#page-administracao .admin-panel>.drive-folder-card{border:0!important;background:#fff!important;padding:15px!important;margin:0!important;border-radius:0!important}
+#page-administracao .admin-panel .notice{border:0;background:#f8f3ea;border-radius:13px;padding:13px}
+#page-administracao .admin-panel .grid{gap:11px}
+#page-administracao .admin-panel .field{font-size:12px;font-weight:700;color:#615d55;margin-bottom:5px}
+#page-administracao .admin-panel input,
+#page-administracao .admin-panel select,
+#page-administracao .admin-panel textarea{background:#fff;border-color:#ddd3c5}
+#page-administracao .admin-panel .toolbar{gap:8px;flex-wrap:wrap}
+#page-administracao .admin-panel .btn{border-radius:11px}
+#page-administracao .admin-panel hr{border:0;border-top:1px solid #eee5d8}
+#page-administracao #adminAllowedSignupsList,
+#page-administracao #adminAiUsageBox,
+#page-administracao #pendingCommunityBooksBox,
+#page-administracao #pendingMaterialsBox{padding:4px 1px}
+@media(max-width:600px){
+ #page-configuracoes .settings-collapse-head{padding:15px 14px!important;min-height:66px}
+ #page-configuracoes .settings-collapse-body{padding:14px}
+ #page-configuracoes .settings-collapse-head h3{font-size:18px!important}
+ #page-configuracoes .settings-collapse-body .btn{min-height:44px}
+ #page-administracao .admin-panel>.drive-folder-card{padding:13px!important}
+ #page-administracao .admin-panel .btn{min-height:42px}
+}
+
 </style>
 </head>
-<body data-build="13.17" class="auth-checking">
+<body data-build="13.18" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -2005,7 +2059,7 @@ header .brand-motto{display:none!important}
 <div class="admin-overview-grid"><div class="admin-stat"><b id="adminStatFamilies">—</b><span>Famílias</span></div><div class="admin-stat"><b id="adminStatChildren">—</b><span>Crianças</span></div><div class="admin-stat"><b id="adminStatPendingBooks">—</b><span>Livros pendentes</span></div><div class="admin-stat"><b id="adminStatPendingMaterials">—</b><span>Materiais pendentes</span></div></div>
 <div id="adminAttention" class="admin-attention">Verificando pendências…</div>
 <div class="admin-section-label">Saúde do sistema</div>
-<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v13.17</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
+<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v13.18</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
 <div class="admin-section-label">Gerenciamento</div>
 
 <details class="tech-details admin-panel"><summary>🔓 Acessos gratuitos <span>Beta, social, parcerias e cortesias</span></summary><div class="drive-folder-card" style="margin-top:8px">
@@ -7861,7 +7915,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "13.17";
+const APP_VERSION = "13.18";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
@@ -8082,8 +8136,15 @@ document.addEventListener("DOMContentLoaded",()=>{
  document.addEventListener("click",e=>{if(!e.target.closest("#planPlace")&&!e.target.closest("#planPlaceResults"))hidePlanPlaceResults()});
 });
 
-const V135_SETTINGS_KEY="DE_V135_SETTINGS_SECTIONS";
-function initFamilySettingsCollapsibles(){const root=$('page-configuracoes');if(!root)return;let saved={};try{saved=JSON.parse(localStorage.getItem(V135_SETTINGS_KEY)||'{}')||{}}catch{};root.querySelectorAll('.settings-section').forEach((sec,i)=>{if(sec.classList.contains('v135-collapsible'))return;let h=sec.querySelector(':scope > h3');let title=h?.textContent?.trim();if(!title&&i===0)title='Família';if(!title)return;const key='s'+i+'-'+title.toLowerCase().replace(/[^a-z0-9]+/g,'-');const body=document.createElement('div');body.className='settings-collapse-body';const children=[...sec.children];let head=document.createElement('div');head.className='settings-collapse-head';head.innerHTML=`<h3>${esc(title)}</h3><span class="settings-summary"></span><button class="settings-chevron" type="button" aria-label="Ocultar ou mostrar">⌃</button>`;children.forEach(el=>{if(el===h)return;body.appendChild(el)});if(h)h.remove();sec.prepend(head);sec.append(body);sec.classList.add('v135-collapsible');const open=key in saved?!!saved[key]:true;if(!open){body.classList.add('is-collapsed');head.querySelector('.settings-chevron').textContent='⌄'};head.addEventListener('click',()=>{const closed=body.classList.toggle('is-collapsed');head.querySelector('.settings-chevron').textContent=closed?'⌄':'⌃';saved[key]=!closed;localStorage.setItem(V135_SETTINGS_KEY,JSON.stringify(saved))})})}
+const V135_SETTINGS_KEY="DE_V1318_SETTINGS_SECTIONS";
+function initFamilySettingsCollapsibles(){const root=$('page-configuracoes');if(!root)return;let saved={};try{saved=JSON.parse(localStorage.getItem(V135_SETTINGS_KEY)||'{}')||{}}catch{};root.querySelectorAll('.settings-section').forEach((sec,i)=>{if(sec.classList.contains('v135-collapsible'))return;let h=sec.querySelector(':scope > h3');let title=h?.textContent?.trim();if(!title&&i===0)title='Família';if(!title)return;const key='s'+i+'-'+title.toLowerCase().replace(/[^a-z0-9]+/g,'-');const body=document.createElement('div');body.className='settings-collapse-body';const children=[...sec.children];let head=document.createElement('div');head.className='settings-collapse-head';const familyHints={
+'Família':'Nome e identificação da família',
+'Administrador da família':'Conta responsável e permissões',
+'Crianças':'Cadastros, ano de referência e arquivadas',
+'Informações para relatórios':'Dados que aparecem nos relatórios e PDFs',
+'Armazenamento da família':'Google Drive, fotos e sincronização',
+'Integrações':'Google Calendar e conta conectada'
+};head.innerHTML=`<div class="settings-head-copy"><h3>${esc(title)}</h3><span class="settings-summary">${esc(familyHints[title]||'Configurações da família')}</span></div><button class="settings-chevron" type="button" aria-label="Ocultar ou mostrar">⌃</button>`;children.forEach(el=>{if(el===h)return;body.appendChild(el)});if(h)h.remove();sec.prepend(head);sec.append(body);sec.classList.add('v135-collapsible');const open=key in saved?!!saved[key]:(i===0);if(!open){body.classList.add('is-collapsed');head.querySelector('.settings-chevron').textContent='⌄'};head.addEventListener('click',()=>{const closed=body.classList.toggle('is-collapsed');head.querySelector('.settings-chevron').textContent=closed?'⌄':'⌃';saved[key]=!closed;localStorage.setItem(V135_SETTINGS_KEY,JSON.stringify(saved))})})}
 setTimeout(initFamilySettingsCollapsibles,0);
 </script>
 
