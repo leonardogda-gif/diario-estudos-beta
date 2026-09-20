@@ -1318,7 +1318,27 @@ header .brand-motto{display:none!important}
 #page-administracao .admin-panel>.drive-folder-card{margin:0 10px 10px!important;border-radius:13px}
 @media(max-width:600px){#page-administracao .admin-hub{padding:15px 13px}#page-administracao .admin-panel>summary{padding:14px 14px;padding-right:42px}}
 
-/* v13.18 · interiores administrativos mais simples e funcionais */
+
+/* v13.19 · painel de IA resumido e detalhes sob demanda */
+.ai-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
+.ai-summary-card{background:#F6F1E7;border:1px solid #E9DFCF;border-radius:18px;padding:16px 12px;text-align:center}
+.ai-summary-card b{display:block;color:#65111E;font-family:Georgia,serif;font-size:24px;line-height:1.1}
+.ai-summary-card span{display:block;color:#6E6A61;font-size:13px;margin-top:5px}
+.ai-cost-card{background:#FBF6F0;border:1px solid #E9D8CF;border-radius:18px;padding:15px;margin-top:10px}
+.ai-cost-card .ai-cost-value{font-size:22px;font-weight:800;color:#65111E;margin-top:3px}
+.ai-family-list{display:grid;gap:9px;margin-top:12px}
+.ai-family-item{border:1px solid #E7DDCF;border-radius:16px;background:#fff;overflow:hidden}
+.ai-family-item summary{cursor:pointer;list-style:none;padding:14px 15px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ai-family-item summary::-webkit-details-marker{display:none}
+.ai-family-name{font-weight:800;color:#3F342F}
+.ai-family-sub{font-size:12px;color:#777168;margin-top:3px}
+.ai-family-cost{font-weight:800;color:#65111E;white-space:nowrap;text-align:right}
+.ai-family-detail{border-top:1px solid #EEE5D9;padding:12px 15px;background:#FCFAF6}
+.ai-detail-row{padding:8px 0;border-bottom:1px solid #EEE5D9;font-size:13px}
+.ai-detail-row:last-child{border-bottom:0}
+@media(max-width:520px){.ai-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ai-family-item summary{align-items:flex-start}}
+
+/* v13.19 · interiores administrativos mais simples e funcionais */
 #page-configuracoes .settings-section.v135-collapsible{box-shadow:0 5px 16px rgba(74,45,36,.035)}
 #page-configuracoes .settings-collapse-head{padding:17px 18px!important;min-height:70px;background:#fffdf9}
 #page-configuracoes .settings-head-copy{min-width:0;display:flex;flex-direction:column;gap:4px}
@@ -1373,7 +1393,7 @@ header .brand-motto{display:none!important}
 
 </style>
 </head>
-<body data-build="13.18" class="auth-checking">
+<body data-build="13.19" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -2049,8 +2069,6 @@ header .brand-motto{display:none!important}
 
 
 
-<details class="tech-details"><summary>Diagnóstico técnico do beta</summary><div class="drive-folder-card" style="margin-top:8px"><div id="backendDetails" class="meta">Aguardando backend.</div><div id="backendFamilyInfo" class="meta" style="margin-top:6px"></div><div id="backendFamilyChooser" class="hidden"></div><div class="toolbar" style="margin-top:8px"><button class="btn small" onclick="testBackendConnection()">Testar backend</button><button id="syncFamilyBtn" class="btn small hidden" onclick="syncFamilyFromBackend(true)">Atualizar família</button><button id="linkFamilyBtn" class="btn small hidden" onclick="linkCurrentFamilyToBackend()">Vincular família local</button></div><hr style="margin:12px 0"><div class="meta">OAuth: Drive por arquivo/pasta (`drive.file`) + dados privados do app (`drive.appdata`) + escrita restrita ao calendário criado pelo Diário (`calendar.app.created`). O app não lê calendários pessoais.</div><hr style="margin:10px 0"><div class="meta">Ferramentas temporárias do beta</div><button class="btn danger small" style="margin-top:8px" onclick="resetLocalBetaData()">Apagar dados locais deste dispositivo</button></div></details>
-
 </div></section>
 
 <section id="page-administracao" class="page">
@@ -2059,7 +2077,7 @@ header .brand-motto{display:none!important}
 <div class="admin-overview-grid"><div class="admin-stat"><b id="adminStatFamilies">—</b><span>Famílias</span></div><div class="admin-stat"><b id="adminStatChildren">—</b><span>Crianças</span></div><div class="admin-stat"><b id="adminStatPendingBooks">—</b><span>Livros pendentes</span></div><div class="admin-stat"><b id="adminStatPendingMaterials">—</b><span>Materiais pendentes</span></div></div>
 <div id="adminAttention" class="admin-attention">Verificando pendências…</div>
 <div class="admin-section-label">Saúde do sistema</div>
-<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v13.18</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
+<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v13.19</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
 <div class="admin-section-label">Gerenciamento</div>
 
 <details class="tech-details admin-panel"><summary>🔓 Acessos gratuitos <span>Beta, social, parcerias e cortesias</span></summary><div class="drive-folder-card" style="margin-top:8px">
@@ -6189,10 +6207,11 @@ async function loadAdminAiUsage(){
  try{
   const data=await backendFetch(`/admin/ai-usage?from=${encodeURIComponent(from?.value||month)}&to=${encodeURIComponent(to?.value||todayIso)}`),tot=data?.totals||{},features=data?.features||[],models=data?.models||[];
   const featureMap={},modelMap={};for(const f of features){(featureMap[f.family_id]??=[]).push(f)}for(const m of models){(modelMap[m.family_id]??=[]).push(m)}
-  const totalsHtml=`<div class="path-grid"><div class="path-box"><b>${adminAiNumber(tot.families)}</b><span>Famílias</span></div><div class="path-box"><b>${adminAiNumber(tot.user_requests)}</b><span>Ações de IA</span></div><div class="path-box"><b>${adminAiNumber(tot.provider_calls)}</b><span>Chamadas Gemini</span></div><div class="path-box"><b>${adminAiNumber(tot.total_tokens)}</b><span>Tokens</span></div></div>`;
-  const costHtml=`<div class="notice" style="margin-top:8px"><b>Custo projetado no plano pago: ${adminAiUsd(tot.estimated_cost_usd_micros)}</b><br><span class="meta">Entrada: ${adminAiUsd(tot.estimated_input_cost_usd_micros)} · saída e raciocínio: ${adminAiUsd(tot.estimated_output_cost_usd_micros)}. A conta pode permanecer sem cobrança enquanto estiver no plano gratuito.</span></div>`;
-  const families=(data.families||[]).map(f=>`<div class="duplicate-card" style="margin-top:8px"><b>${esc(f.family_name||"Família")}</b><div class="meta">${adminAiNumber(f.user_requests)} ação(ões) · ${adminAiNumber(f.provider_calls)} chamada(s) Gemini · ${adminAiNumber(f.total_tokens)} tokens</div><div class="meta"><b>Total projetado: ${adminAiUsd(f.estimated_cost_usd_micros)}</b> · entrada ${adminAiUsd(f.estimated_input_cost_usd_micros)} · saída/raciocínio ${adminAiUsd(f.estimated_output_cost_usd_micros)}</div>${(modelMap[f.family_id]||[]).map(x=>`<div class="notice" style="margin-top:6px"><b>${esc(adminAiModelLabel(x.model))} · ${esc(adminAiOperationLabel(x.operation))}</b><br><span class="meta">${adminAiNumber(x.provider_calls)} chamada(s) · entrada ${adminAiNumber(x.prompt_tokens)} tokens (${adminAiUsd(x.estimated_input_cost_usd_micros)})${x.model!=="gemini-embedding-2"?` · saída ${adminAiNumber(x.output_tokens)} + raciocínio ${adminAiNumber(x.thoughts_tokens)} (${adminAiUsd(x.estimated_output_cost_usd_micros)})`:""} · total ${adminAiUsd(x.estimated_cost_usd_micros)}${x.token_count_source==="estimated_chars"?" · tokens estimados pelo tamanho do texto":""}</span></div>`).join("")}${(featureMap[f.family_id]||[]).map(x=>`<div class="meta" style="margin-top:4px">• ${esc(adminAiFeatureLabel(x.feature))}: ${adminAiNumber(x.user_requests)} ação(ões), ${adminAiNumber(x.total_tokens)} tokens</div>`).join("")}</div>`).join("");
-  box.innerHTML=totalsHtml+costHtml+(families||`<div class="notice" style="margin-top:8px">Nenhum consumo de IA registrado neste período.</div>`);
+  const totalsHtml=`<div class="ai-summary-grid"><div class="ai-summary-card"><b>${adminAiNumber(tot.families)}</b><span>Famílias</span></div><div class="ai-summary-card"><b>${adminAiNumber(tot.user_requests)}</b><span>Ações de IA</span></div><div class="ai-summary-card"><b>${adminAiNumber(tot.provider_calls)}</b><span>Chamadas</span></div><div class="ai-summary-card"><b>${adminAiNumber(tot.total_tokens)}</b><span>Tokens</span></div></div>`;
+  const costHtml=`<div class="ai-cost-card"><div class="meta">Custo estimado do período</div><div class="ai-cost-value">${adminAiUsd(tot.estimated_cost_usd_micros)}</div><div class="meta" style="margin-top:5px">Estimativa técnica com base no uso registrado. O valor efetivamente cobrado pode variar conforme o plano do provedor.</div></div>`;
+  const list=data.families||[];
+  const families=list.length?`<div style="margin-top:16px"><b>Consumo por família</b><div class="meta" style="margin-top:3px">Toque em uma família para ver os detalhes das chamadas.</div><div class="ai-family-list">${list.map(f=>`<details class="ai-family-item"><summary><div><div class="ai-family-name">${esc(f.family_name||"Família")}</div><div class="ai-family-sub">${adminAiNumber(f.user_requests)} ações · ${adminAiNumber(f.provider_calls)} chamadas · ${adminAiNumber(f.total_tokens)} tokens</div></div><div><div class="ai-family-cost">${adminAiUsd(f.estimated_cost_usd_micros)}</div><div class="meta">estimado</div></div></summary><div class="ai-family-detail"><div class="meta"><b>Detalhamento da família</b></div>${(featureMap[f.family_id]||[]).map(x=>`<div class="ai-detail-row"><b>${esc(adminAiFeatureLabel(x.feature))}</b><div class="meta">${adminAiNumber(x.user_requests)} ações · ${adminAiNumber(x.total_tokens)} tokens</div></div>`).join("")}${(modelMap[f.family_id]||[]).map(x=>`<div class="ai-detail-row"><b>${esc(adminAiOperationLabel(x.operation))}</b><div class="meta">${adminAiNumber(x.provider_calls)} chamadas · ${adminAiNumber(x.prompt_tokens)} tokens de entrada${x.model!=="gemini-embedding-2"?` · ${adminAiNumber(Number(x.output_tokens||0)+Number(x.thoughts_tokens||0))} saída/raciocínio`:""}</div><div class="meta">Custo estimado: ${adminAiUsd(x.estimated_cost_usd_micros)}</div></div>`).join("")||`<div class="meta" style="margin-top:8px">Sem detalhamento técnico para este período.</div>`}</div></details>`).join("")}</div></div>`:`<div class="notice" style="margin-top:10px">Nenhum consumo de IA registrado neste período.</div>`;
+  box.innerHTML=totalsHtml+costHtml+families;
  }catch(e){const msg=String(e.message||e);box.innerHTML=`<div class="notice">${esc(msg.includes("ai_usage_events")?"A tabela de medição ainda não existe no D1. Aplique primeiro o arquivo d1-ai-usage-v8_6.sql.":"Não foi possível carregar o consumo de IA: "+msg)}</div>`}
 }
 async function enableAdminValidationNotifications(){
@@ -7915,7 +7934,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "13.18";
+const APP_VERSION = "13.19";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";

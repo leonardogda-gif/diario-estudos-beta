@@ -1,4 +1,4 @@
-Meu Diário de Estudos v13.18
+Meu Diário de Estudos v13.19
 
 PUBLICAÇÃO NO GITHUB
 Substitua os arquivos do frontend pelo conteúdo deste pacote, mantendo a pasta icons.
@@ -12,3 +12,10 @@ O que mudou:
 
 Cloudflare Worker:
 NÃO precisa republicar. Esta versão usa o mesmo Worker v13.17.
+
+Alterações v13.19:
+- Removido Diagnóstico técnico do beta da Administração da Família.
+- Consumo de IA resumido em painel.
+- Custo estimado geral e por família.
+- Detalhes de chamadas por família sob demanda.
+- Worker permanece v13.17; não requer republicação.
