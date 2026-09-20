@@ -1,4 +1,4 @@
-Meu Diário de Estudos — v14.0
+Meu Diário de Estudos — v14.2
 
 Versão de consistência e usabilidade do frontend.
 
@@ -20,3 +20,9 @@ Observação sobre assets existentes no repositório:
 - index.html referencia logo-emblema.svg, logo-emblema-cobre.svg e vendor/zxing-browser.min.js.
 - Esses três arquivos não estavam presentes no pacote-base v13.23 recebido para gerar esta versão.
 - Ao publicar, preserve esses arquivos no repositório se eles já existirem lá.
+
+
+v14.2: corrige a aplicação real dos estilos da tela Mais, compacta o header mobile e reduz o rodapé mobile. Sem alteração no Worker.
+
+
+v14.2: Histórico simplificado. Removido o menu de três pontos e as ações redundantes dos cards; tocar no card continua abrindo o registro. Exclusão permanece disponível no fluxo do registro aberto.
