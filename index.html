@@ -1319,7 +1319,23 @@ header .brand-motto{display:none!important}
 @media(max-width:600px){#page-administracao .admin-hub{padding:15px 13px}#page-administracao .admin-panel>summary{padding:14px 14px;padding-right:42px}}
 
 
-/* v13.20 · agenda Planejar em ordem temporal: Hoje, Próximos dias, Leituras, Para retomar, Atrasadas */
+/* v13.21 · consistência visual dos painéis e ações de planejamento */
+.attention-actions{display:grid!important;grid-template-columns:1fr!important;gap:8px!important}
+.attention-actions .attention-primary,.attention-actions .attention-edit-full{width:100%!important}
+.attention-actions .attention-edit-full{background:#f3e9dc!important;border:1px solid #eadfce!important;color:#65111e!important}
+#page-configuracoes .settings-section.v135-collapsible{border:1px solid #e6ded0!important;border-radius:16px!important;background:#fffdf9!important;overflow:hidden!important}
+#page-configuracoes .settings-collapse-head{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto!important;align-items:center!important;gap:11px!important;padding:14px 15px!important;cursor:pointer!important}
+#page-configuracoes .settings-head-icon{width:34px;height:34px;border-radius:11px;background:#f7ece7;display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1}
+#page-configuracoes .settings-head-copy{min-width:0}
+#page-configuracoes .settings-collapse-head h3{font-family:inherit!important;font-size:16px!important;line-height:1.2!important;font-weight:800!important;color:#4a4039!important;margin:0!important}
+#page-configuracoes .settings-summary{display:block!important;font-size:12px!important;line-height:1.35!important;font-weight:500!important;color:#777168!important;margin:3px 0 0!important}
+#page-configuracoes .settings-chevron{border:0!important;background:transparent!important;color:#a56c7b!important;font-size:0!important;padding:6px!important;width:30px;height:30px;position:relative}
+#page-configuracoes .settings-chevron:after{content:'›';font-size:24px;line-height:18px;display:block;transform:rotate(-90deg);transition:transform .15s}
+#page-configuracoes .settings-collapse-head:has(+ .settings-collapse-body.is-collapsed) .settings-chevron:after{transform:rotate(90deg)}
+#page-configuracoes .settings-collapse-body{border-top:1px solid #eee5d9;padding:14px 15px 15px!important}
+@media(max-width:600px){#page-configuracoes .settings-collapse-head{padding:13px 14px!important;gap:10px!important}#page-configuracoes .settings-head-icon{width:32px;height:32px;font-size:16px}#page-configuracoes .settings-collapse-head h3{font-size:15px!important}}
+
+/* v13.21 · agenda Planejar em ordem temporal: Hoje, Próximos dias, Leituras, Para retomar, Atrasadas */
 /* v13.19 · painel de IA resumido e detalhes sob demanda */
 .ai-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
 .ai-summary-card{background:#F6F1E7;border:1px solid #E9DFCF;border-radius:18px;padding:16px 12px;text-align:center}
@@ -1394,7 +1410,7 @@ header .brand-motto{display:none!important}
 
 </style>
 </head>
-<body data-build="13.20" class="auth-checking">
+<body data-build="13.21" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -2078,7 +2094,7 @@ header .brand-motto{display:none!important}
 <div class="admin-overview-grid"><div class="admin-stat"><b id="adminStatFamilies">—</b><span>Famílias</span></div><div class="admin-stat"><b id="adminStatChildren">—</b><span>Crianças</span></div><div class="admin-stat"><b id="adminStatPendingBooks">—</b><span>Livros pendentes</span></div><div class="admin-stat"><b id="adminStatPendingMaterials">—</b><span>Materiais pendentes</span></div></div>
 <div id="adminAttention" class="admin-attention">Verificando pendências…</div>
 <div class="admin-section-label">Saúde do sistema</div>
-<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v13.20</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
+<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v13.21</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
 <div class="admin-section-label">Gerenciamento</div>
 
 <details class="tech-details admin-panel"><summary>🔓 Acessos gratuitos <span>Beta, social, parcerias e cortesias</span></summary><div class="drive-folder-card" style="margin-top:8px">
@@ -4946,7 +4962,7 @@ function renderDashboard(){
  const td=today();
  const due=state.plans.filter(x=>planPendingForChild(x,child.id)&&!x.completedAt&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
  const todayPlans=due.filter(p=>(p.nextDate||p.date)===td),latePlans=due.filter(p=>(p.nextDate||p.date)<td),futurePlans=due.filter(p=>(p.nextDate||p.date)>td).slice(0,3);
- const planHtml=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div class="meta">👨‍👩‍👧‍👦 Planejamento compartilhado: ${esc(planChildNames(p).join(", "))}</div>`:""}<div class="meta">${esc(p.component||'')}</div>${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="attention-actions"><button class="btn success attention-primary" onclick="startPlan('${p.id}','${child.id}')">✓ Concluir e registrar</button><button class="btn small" onclick="showPage('planejamento');editPlan('${p.id}')">Editar</button></div></div>`;
+ const planHtml=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div class="meta">👨‍👩‍👧‍👦 Planejamento compartilhado: ${esc(planChildNames(p).join(", "))}</div>`:""}<div class="meta">${esc(p.component||'')}</div>${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="attention-actions"><button class="btn success attention-primary" onclick="startPlan('${p.id}','${child.id}')">✓ Concluir e registrar</button><button class="btn small attention-edit-full" onclick="showPage('planejamento');editPlan('${p.id}')">✏️ Editar planejamento</button></div></div>`;
  box.innerHTML=`<div class="card today-hero-card">
   <div class="today-top-row">
    <div class="today-top-info">${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje</h2><div class="meta">${fmtDate(td)}</div><div class="today-child-select"><select aria-label="Selecionar criança" onchange="selectChild(this.value);showPage('inicio')">${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===child.id?'selected':''}>${esc(firstName(c.name))}</option>`).join('')}</select></div></div>
@@ -7937,7 +7953,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "13.20";
+const APP_VERSION = "13.21";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
@@ -8166,7 +8182,7 @@ function initFamilySettingsCollapsibles(){const root=$('page-configuracoes');if(
 'Informações para relatórios':'Dados que aparecem nos relatórios e PDFs',
 'Armazenamento da família':'Google Drive, fotos e sincronização',
 'Integrações':'Google Calendar e conta conectada'
-};head.innerHTML=`<div class="settings-head-copy"><h3>${esc(title)}</h3><span class="settings-summary">${esc(familyHints[title]||'Configurações da família')}</span></div><button class="settings-chevron" type="button" aria-label="Ocultar ou mostrar">⌃</button>`;children.forEach(el=>{if(el===h)return;body.appendChild(el)});if(h)h.remove();sec.prepend(head);sec.append(body);sec.classList.add('v135-collapsible');const open=key in saved?!!saved[key]:(i===0);if(!open){body.classList.add('is-collapsed');head.querySelector('.settings-chevron').textContent='⌄'};head.addEventListener('click',()=>{const closed=body.classList.toggle('is-collapsed');head.querySelector('.settings-chevron').textContent=closed?'⌄':'⌃';saved[key]=!closed;localStorage.setItem(V135_SETTINGS_KEY,JSON.stringify(saved))})})}
+};const familyIcons={'Família':'👨‍👩‍👧','Administrador da família':'👤','Crianças':'🎓','Informações para relatórios':'📄','Armazenamento da família':'☁️','Integrações':'📅'};head.innerHTML=`<div class="settings-head-icon" aria-hidden="true">${familyIcons[title]||'⚙️'}</div><div class="settings-head-copy"><h3>${esc(title)}</h3><span class="settings-summary">${esc(familyHints[title]||'Configurações da família')}</span></div><button class="settings-chevron" type="button" aria-label="Ocultar ou mostrar">⌃</button>`;children.forEach(el=>{if(el===h)return;body.appendChild(el)});if(h)h.remove();sec.prepend(head);sec.append(body);sec.classList.add('v135-collapsible');const open=key in saved?!!saved[key]:(i===0);if(!open){body.classList.add('is-collapsed');head.querySelector('.settings-chevron').textContent='⌄'};head.addEventListener('click',()=>{const closed=body.classList.toggle('is-collapsed');head.querySelector('.settings-chevron').textContent=closed?'⌄':'⌃';saved[key]=!closed;localStorage.setItem(V135_SETTINGS_KEY,JSON.stringify(saved))})})}
 setTimeout(initFamilySettingsCollapsibles,0);
 </script>
 
