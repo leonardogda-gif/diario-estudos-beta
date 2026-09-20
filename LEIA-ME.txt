@@ -1,4 +1,4 @@
-MEU DIÁRIO DE ESTUDOS — v14.7
+MEU DIÁRIO DE ESTUDOS — v14.8
 
 Ajustes desta versão:
 - Rodapé institucional no mobile somente na aba Mais; desktop preservado.
@@ -13,6 +13,12 @@ Worker: permanece v13.23; não é necessário republicá-lo.
 
 ATENÇÃO: index.html referencia logo-emblema.svg, logo-emblema-cobre.svg e vendor/zxing-browser.min.js. Esses arquivos não vieram no pacote-base recebido e por isso não foram inventados/substituídos. Se já existem no repositório publicado, mantenha-os ao atualizar o frontend.
 
+
+=== v14.8 ===
+- Criança e Data ficam lado a lado no Registro para reduzir a altura do Modo rápido.
+- Campo de relato ganhou área reservada para as ações internas, evitando texto atrás do botão Falar.
+- Adicionada borracha dentro do relato para limpar somente o texto, com confirmação.
+- Cache/versionamento atualizados para v14.8.
 
 === v14.7 ===
 - Registro mais compacto no celular.

@@ -1297,6 +1297,13 @@ header .brand-motto{display:none!important}
 .record-report-wrap #fActivity{display:block;width:100%;box-sizing:border-box;padding-bottom:52px}
 .voice-btn.voice-btn-inside{position:absolute;right:10px;bottom:10px;margin:0!important;min-height:36px!important;padding:7px 12px!important;border-radius:10px!important;z-index:2}
 .record-autosave-status{margin-top:5px;color:#39734b;font-size:12px;font-weight:700}
+/* v14.8 · criança/data lado a lado + ações internas do relato */
+.record-child-date-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;grid-column:1/-1}
+.record-child-date-row>div{min-width:0}
+.record-report-wrap #fActivity{padding-right:16px;padding-bottom:58px}
+.record-report-actions{position:absolute;right:10px;bottom:10px;display:flex;align-items:center;gap:7px;z-index:2}
+.record-report-actions .voice-btn-inside{position:static!important}
+.record-erase-btn{width:38px;min-width:38px!important;height:38px;min-height:38px!important;padding:0!important;border-radius:10px!important;background:#fffaf5!important;border:1px solid #dbc9bd!important;color:#6b2737!important;font-size:18px!important;display:inline-flex!important;align-items:center;justify-content:center}
 .history-entry-card{cursor:pointer;padding:13px 15px!important;transition:background .15s ease,transform .08s ease}
 .history-entry-card:active{background:#faf3ec!important;transform:translateY(1px)}
 .history-entry-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:7px}
@@ -5652,6 +5659,11 @@ function toggleRecordQuickMode(on){
 }
 function speechRecognitionSupported(){return !!(window.SpeechRecognition||window.webkitSpeechRecognition)}
 let activeSpeechRecognition=null;
+function clearRecordReport(){
+ const field=$("fActivity");if(!field||!field.value)return;
+ if(!confirm("Limpar o texto do relato?"))return;
+ field.value="";saveRecordDraft(true);updateRecordPreview();field.focus();
+}
 function toggleVoiceInput(fieldId){
  const btn=$("voiceBtn_"+fieldId),field=$(fieldId);
  if(!field)return;
@@ -5748,20 +5760,22 @@ function renderRecordPage(){
   <div class="record-main">
    <div class="record-grid">
     ${editing?.collectiveGroupId?`<div class="full notice"><b>👨‍👩‍👧‍👦 Registro coletivo</b><br>Agora: <b>${esc(child.name)}</b> · ${Number(editing.collectivePosition)||1} de ${Number(editing.collectiveTotal)||1}. A experiência comum já está preenchida; a análise pedagógica e a avaliação continuam individuais.</div>`:""}
-    ${!editing?`<div class="full record-child-switch">
-      <label class="field clean-label">Criança</label>
-      <select id="recordChildSelect" onchange="switchRecordChild(this.value)">
-        ${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===activeChildId?"selected":""}>${esc(firstName(c.name))}</option>`).join("")}
-      </select>
-    </div>`:""}
-    <div><label class="field clean-label">Data</label><input id="fDate" type="date" max="${today()}" value="${esc(f.date)}"></div>
+    <div class="record-child-date-row">
+      ${!editing?`<div class="record-child-switch">
+        <label class="field clean-label">Criança</label>
+        <select id="recordChildSelect" onchange="switchRecordChild(this.value)">
+          ${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===activeChildId?"selected":""}>${esc(firstName(c.name))}</option>`).join("")}
+        </select>
+      </div>`:`<div></div>`}
+      <div><label class="field clean-label">Data</label><input id="fDate" type="date" max="${today()}" value="${esc(f.date)}"></div>
+    </div>
     <input id="fType" type="hidden" value="bncc">
     <select id="fComplementary" class="hidden" aria-hidden="true"><option value=""></option></select>
     ${editing?.planId?`<div class="full record-context-card"><b>📅 Planejamento relacionado</b><div style="margin-top:4px">${esc(state.plans.find(x=>x.id===editing.planId)?.title||"Atividade planejada")}</div>${state.plans.find(x=>x.id===editing.planId)?.place?`<div class="meta" style="margin-top:3px">📍 ${esc(state.plans.find(x=>x.id===editing.planId)?.place||"")}</div>`:""}<div class="meta" style="margin-top:5px">Use como contexto. O registro abaixo deve contar o que realmente aconteceu.</div></div>`:""}
     <div class="full">
       <label class="field clean-label clean-label-lg record-label-with-help"><span>O que vocês fizeram ou aprenderam? <span class="field-pill required-pill">Obrigatório</span></span><button type="button" class="context-help-btn" onclick="openRecordHelp('relato')" aria-label="Dicas para descrever a experiência">ⓘ</button></label><div class="field-help">Conte o que realmente aconteceu durante a experiência.</div>
       <div class="record-report-wrap"><textarea id="fActivity" rows="5" placeholder="Ex.: Visitamos a exposição sobre o corpo humano. Ela observou os órgãos, comparou suas funções e fez perguntas sobre respiração e circulação.">${esc(f.atividade)}</textarea>
-      ${speechRecognitionSupported()?`<button type="button" id="voiceBtn_fActivity" class="btn voice-btn voice-btn-inside" onclick="toggleVoiceInput('fActivity')">🎤 Falar</button>`:""}</div>
+      <div class="record-report-actions"><button type="button" class="btn record-erase-btn" onclick="clearRecordReport()" aria-label="Limpar relato" title="Limpar relato">⌫</button>${speechRecognitionSupported()?`<button type="button" id="voiceBtn_fActivity" class="btn voice-btn voice-btn-inside" onclick="toggleVoiceInput('fActivity')">🎤 Falar</button>`:""}</div></div>
       <div id="draftStatus" class="record-autosave-status">✓ ${draft?"Rascunho restaurado e salvo automaticamente":"Salvo automaticamente"}</div>
     </div>
     <details id="recordMaterialWrap" class="full record-more-options ${quick?"hidden":""}">
@@ -8263,7 +8277,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "14.7";
+const APP_VERSION = "14.8";
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
