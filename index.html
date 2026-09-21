@@ -1332,9 +1332,9 @@ header .brand-motto{display:none!important}
   #page-registro .record-help-static .record-help-body{padding:0 14px 13px}
 }
 
-/* v15.4 · planejamento rápido */
-.plan-quick-card{position:relative}.plan-quick-grid{row-gap:14px}.plan-quick-row{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(150px,.75fr);gap:12px;align-items:end}.plan-child-picker{margin-top:7px}.plan-title-wrap{display:flex;gap:8px;align-items:stretch}.plan-title-wrap input{min-width:0;flex:1}.plan-voice-btn{white-space:nowrap}.plan-quick-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.plan-details-toggle{margin-right:auto}.plan-details{padding-top:4px;border-top:1px solid var(--line,#e5ddd2)}.plan-time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.plan-repeat-shortcuts{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px}.plan-title-suggestions{border:1px solid var(--line,#ddd);border-radius:12px;margin-top:5px;overflow:hidden;background:#fff}.plan-title-suggestions button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid #eee;background:#fff;padding:9px 11px;cursor:pointer}.plan-title-suggestions button:last-child{border-bottom:0}
-@media(max-width:650px){.plan-quick-card{padding-top:18px}.plan-quick-row{grid-template-columns:minmax(0,1fr) minmax(128px,.72fr);gap:8px}.plan-child-picker{display:flex;overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px}.plan-child-picker .child{flex:0 0 auto}.plan-title-wrap{display:grid;grid-template-columns:minmax(0,1fr) auto}.plan-voice-btn{padding-left:12px!important;padding-right:12px!important}.plan-quick-actions{display:grid;grid-template-columns:1fr 1fr}.plan-details-toggle{grid-column:1/-1;width:100%}.plan-quick-actions .success{min-width:0}.plan-time-row{grid-template-columns:1fr 1fr}.plan-details>.grid{row-gap:14px}}
+/* v15.5 · planejamento rápido · distribuição revisada */
+.plan-quick-card{position:relative}.plan-quick-grid{row-gap:14px}.plan-quick-row{display:grid;grid-template-columns:1fr;gap:12px}.plan-child-picker{margin-top:7px;display:flex;overflow-x:auto;flex-wrap:nowrap;padding-bottom:3px}.plan-child-picker .child{flex:0 0 auto}.plan-date-wrap{max-width:360px}.plan-title-wrap{display:block}.plan-title-wrap input{width:100%;min-width:0}.plan-voice-row{display:flex;justify-content:flex-end;margin-top:8px}.plan-voice-btn{white-space:nowrap}.plan-details-toggle{width:100%}.plan-details{padding-top:12px;border-top:1px solid var(--line,#e5ddd2)}.plan-time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.plan-repeat-shortcuts{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px}.plan-title-suggestions{border:1px solid var(--line,#ddd);border-radius:12px;margin-top:5px;overflow:hidden;background:#fff}.plan-title-suggestions button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid #eee;background:#fff;padding:9px 11px;cursor:pointer}.plan-title-suggestions button:last-child{border-bottom:0}.plan-final-actions{display:flex;gap:10px;align-items:center;margin-top:2px}.plan-final-actions .success{flex:1;width:100%}.plan-cancel-link{border:0!important;background:transparent!important;box-shadow:none!important;color:var(--wine,#641524)!important;padding:10px 14px!important}
+@media(max-width:650px){.plan-quick-card{padding-top:18px}.plan-date-wrap{max-width:none}.plan-voice-row{margin-top:7px}.plan-voice-btn{padding-left:14px!important;padding-right:14px!important}.plan-time-row{grid-template-columns:1fr 1fr}.plan-details>.grid{row-gap:14px}.plan-final-actions{display:grid;grid-template-columns:1fr}.plan-final-actions .success{width:100%}.plan-cancel-link{width:100%}}
 </style>
 <style id="v138-ui-fixes">
 /* v13.9: capas separadas por contexto — Hoje e Leituras */
@@ -1738,10 +1738,10 @@ input,select,textarea{font-size:16px}
       </div>
 
       <div id="planFormCard" class="card hidden plan-quick-card"><h3 id="planFormTitle">Novo planejamento</h3><div class="grid plan-quick-grid">
-        <div class="full"><div class="plan-quick-row"><div><label class="field">Para quem? <span class="required-mark">*</span></label><div id="planChildrenPicker" class="child-tabs plan-child-picker"></div><select id="planChild" class="hidden" aria-hidden="true" tabindex="-1"></select></div><div><label class="field">Quando? <span class="required-mark">*</span></label><input id="planDate" type="date"></div></div></div>
-        <div class="full"><label class="field clean-label">O que vamos fazer? <span class="required-mark">*</span></label><div class="plan-title-wrap"><input id="planTitle" placeholder="Ex.: Leitura do capítulo 3" autocomplete="off"><button type="button" class="btn plan-voice-btn" onclick="toggleVoiceInput('planTitle')">🎤 Falar</button></div><div id="planTitleSuggestions" class="plan-title-suggestions hidden"></div></div>
+        <div class="full"><div class="plan-quick-row"><div><label class="field">Para quem? <span class="required-mark">*</span></label><div id="planChildrenPicker" class="child-tabs plan-child-picker"></div><select id="planChild" class="hidden" aria-hidden="true" tabindex="-1"></select></div><div class="plan-date-wrap"><label class="field">Quando? <span class="required-mark">*</span></label><input id="planDate" type="date"></div></div></div>
+        <div class="full"><label class="field clean-label">O que vamos fazer? <span class="required-mark">*</span></label><div class="plan-title-wrap"><input id="planTitle" placeholder="Ex.: Leitura do capítulo 3" autocomplete="off"></div><div class="plan-voice-row"><button type="button" class="btn plan-voice-btn" onclick="toggleVoiceInput('planTitle')">🎤 Falar</button></div><div id="planTitleSuggestions" class="plan-title-suggestions hidden"></div></div>
 
-        <div class="full plan-quick-actions"><button type="button" id="planDetailsToggle" class="btn plan-details-toggle" onclick="togglePlanDetails()">＋ Adicionar detalhes</button><button id="planSaveBtn" class="btn success" onclick="addPlan()">Salvar planejamento</button><button class="btn" onclick="cancelPlanEdit()">Cancelar</button></div>
+        <div class="full"><button type="button" id="planDetailsToggle" class="btn plan-details-toggle" onclick="togglePlanDetails()">＋ Adicionar detalhes</button></div>
 
         <div id="planDetails" class="full hidden plan-details"><div class="grid">
           <div class="full plan-time-row"><div><label class="field clean-label">Horário <span class="field-pill optional-pill">Opcional</span></label><input id="planTime" type="time"></div><div><label class="field clean-label">Duração <span class="field-pill optional-pill">Opcional</span></label><select id="planDuration"><option value="">Sem duração</option><option value="15">15 min</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">1 h</option><option value="90">1 h 30</option><option value="120">2 h</option></select></div></div>
@@ -1751,6 +1751,7 @@ input,select,textarea{font-size:16px}
           <div id="planCalendarWrap" class="full calendar-plan-box"><label style="display:flex;gap:9px;align-items:flex-start;cursor:pointer"><input id="planAddToCalendar" type="checkbox" style="width:auto;margin-top:3px" onchange="handlePlanCalendarChoice(this.checked)"><span><b>Mostrar este planejamento no meu Google Calendar</b><br><span class="meta">O Diário usa um calendário separado chamado “Diário de Estudos”.</span></span></label><div id="planCalendarImportedInfo" class="meta hidden" style="margin-top:7px"></div><div id="planCalendarConnectBox" class="calendar-inline-connect hidden"></div></div>
           <div class="full recurrence-box"><label class="field">Repetir?</label><div class="plan-repeat-shortcuts"><button type="button" class="btn small" onclick="setPlanRepeatShortcut('daily')">Todo dia</button><button type="button" class="btn small" onclick="setPlanRepeatShortcut('mwf')">Seg/Qua/Sex</button><button type="button" class="btn small" onclick="setPlanRepeatShortcut('workdays')">Dias úteis</button><button type="button" class="btn small" onclick="setPlanRepeatShortcut('weekly')">Toda semana</button></div><select id="planRecurrence" onchange="togglePlanRecurrenceOptions()"><option value="none">Não repetir</option><option value="daily">Todos os dias</option><option value="weekly">Semanal</option><option value="weekdays">Dias específicos da semana</option><option value="monthly">Mensal</option></select><div id="planWeekdaysBox" class="hidden" style="margin-top:8px"><div class="weekdays"><label><input type="checkbox" value="1">Seg</label><label><input type="checkbox" value="2">Ter</label><label><input type="checkbox" value="3">Qua</label><label><input type="checkbox" value="4">Qui</label><label><input type="checkbox" value="5">Sex</label><label><input type="checkbox" value="6">Sáb</label><label><input type="checkbox" value="0">Dom</label></div></div><div style="margin-top:8px"><label class="field">Repetir até (opcional)</label><input id="planEndDate" type="date"></div></div>
         </div></div>
+        <div class="full plan-final-actions"><button id="planSaveBtn" class="btn success" onclick="addPlan()">Salvar planejamento</button><button class="btn plan-cancel-link" onclick="cancelPlanEdit()">Cancelar</button></div>
       </div></div>
       <div class="card"><div class="toolbar" style="justify-content:space-between;align-items:flex-end"><div><h3 style="margin-bottom:3px">Agenda da família</h3><div class="meta">Veja tudo junto ou filtre por criança.</div></div></div><div id="planViewChildren" class="child-tabs child-selector" style="margin:12px 0"></div><div id="plansPrimaryList"></div><div id="plannedReadingsAgenda"></div><div id="plansSecondaryList"></div></div>
     </section>
@@ -2418,7 +2419,7 @@ const ACTIVE_BACKEND_FAMILY_KEY = "DE_V4242_ACTIVE_BACKEND_FAMILY";
 const BACKEND_CHILD_MAP_KEY = "DE_V422_BACKEND_CHILD_MAP";
 let backendMembers = [];
 let backendChildren = [];
-let backendFamilyDataReady = false; // v15.4: evita onboarding falso enquanto o backend ainda sincroniza
+let backendFamilyDataReady = false; // v15.5: evita onboarding falso enquanto o backend ainda sincroniza
 let backendArchivedChildren = [];
 let historicalPhotoQueue = [];
 const VISIBLE_DRIVE_ROOT_NAME = "Diário de Estudos";
@@ -2930,7 +2931,7 @@ function needsOnboarding(){
   if(!families.length)return true;
   const fam=backendFamilyFromProfile();
   if(!fam)return false;
-  // v15.4: durante a abertura rápida, backendChildren ainda pode estar vazio
+  // v15.5: durante a abertura rápida, backendChildren ainda pode estar vazio
   // apenas porque a consulta remota não terminou. Nesse intervalo, usa o estado
   // local confiável para não piscar a tela "criar família/criança".
   if(!backendFamilyDataReady){
@@ -4178,8 +4179,8 @@ const DE_BOOT_DIAG={start:performance.now(),marks:[]};
 function bootDiagMark(name){
  const ms=Math.round((performance.now()-DE_BOOT_DIAG.start)*10)/10;
  DE_BOOT_DIAG.marks.push({etapa:name,ms});
- console.log(`[BOOT v15.4] ${name}: ${ms} ms`);
- try{localStorage.setItem("DE_BOOT_DIAG_LAST",JSON.stringify({version:"15.4",at:new Date().toISOString(),total_ms:ms,marks:DE_BOOT_DIAG.marks}))}catch(e){}
+ console.log(`[BOOT v15.5] ${name}: ${ms} ms`);
+ try{localStorage.setItem("DE_BOOT_DIAG_LAST",JSON.stringify({version:"15.5",at:new Date().toISOString(),total_ms:ms,marks:DE_BOOT_DIAG.marks}))}catch(e){}
 }
 window.DE_BOOT_DIAG=DE_BOOT_DIAG;
 window.diarioDiagnosticoAbertura=()=>{console.table(DE_BOOT_DIAG.marks);return DE_BOOT_DIAG};
@@ -8255,7 +8256,7 @@ async function init(){
  bootDiagMark("migração de mídia concluída");
  loadBnccApiCache();
  bootDiagMark("cache BNCC carregado");
- // v15.4 · abertura otimizada: usa o perfil em cache para liberar a interface imediatamente,
+ // v15.5 · abertura otimizada: usa o perfil em cache para liberar a interface imediatamente,
  // enquanto a validação/sincronização com o backend acontece em segundo plano.
  if(appSessionValid()){
    const restoredCachedProfile=restoreBackendProfileForOffline();
