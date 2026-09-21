@@ -1332,8 +1332,8 @@ header .brand-motto{display:none!important}
   #page-registro .record-help-static .record-help-body{padding:0 14px 13px}
 }
 
-/* v15.5 · planejamento rápido · distribuição revisada */
-.plan-quick-card{position:relative}.plan-quick-grid{row-gap:14px}.plan-quick-row{display:grid;grid-template-columns:1fr;gap:12px}.plan-child-picker{margin-top:7px;display:flex;overflow-x:auto;flex-wrap:nowrap;padding-bottom:3px}.plan-child-picker .child{flex:0 0 auto}.plan-date-wrap{max-width:360px}.plan-title-wrap{display:block}.plan-title-wrap input{width:100%;min-width:0}.plan-voice-row{display:flex;justify-content:flex-end;margin-top:8px}.plan-voice-btn{white-space:nowrap}.plan-details-toggle{width:100%}.plan-details{padding-top:12px;border-top:1px solid var(--line,#e5ddd2)}.plan-time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.plan-repeat-shortcuts{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px}.plan-title-suggestions{border:1px solid var(--line,#ddd);border-radius:12px;margin-top:5px;overflow:hidden;background:#fff}.plan-title-suggestions button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid #eee;background:#fff;padding:9px 11px;cursor:pointer}.plan-title-suggestions button:last-child{border-bottom:0}.plan-final-actions{display:flex;gap:10px;align-items:center;margin-top:2px}.plan-final-actions .success{flex:1;width:100%}.plan-cancel-link{border:0!important;background:transparent!important;box-shadow:none!important;color:var(--wine,#641524)!important;padding:10px 14px!important}
+/* v15.6 · planejamento rápido · seletor compacto e campo ampliado */
+.plan-quick-card{position:relative}.plan-quick-grid{row-gap:14px}.plan-quick-row{display:grid;grid-template-columns:1fr;gap:12px}.plan-child-picker{position:relative;margin-top:7px}.plan-child-picker>summary{list-style:none;cursor:pointer;border:1px solid var(--line,#ddd);border-radius:14px;padding:14px 46px 14px 16px;min-height:52px;background:#fff;font-weight:700;position:relative}.plan-child-picker>summary::-webkit-details-marker{display:none}.plan-child-picker>summary:after{content:"⌄";position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:18px}.plan-child-picker[open]>summary:after{content:"⌃"}.plan-child-options{position:absolute;z-index:30;left:0;right:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--line,#ddd);border-radius:14px;padding:7px;box-shadow:0 10px 28px rgba(70,35,20,.14)}.plan-child-option{display:flex;align-items:center;gap:10px;padding:11px 10px;border-radius:10px;cursor:pointer;font-weight:700}.plan-child-option:hover{background:#f7f1e9}.plan-child-option input{width:auto!important;margin:0}.plan-date-wrap{max-width:360px}.plan-title-wrap{display:block}.plan-title-wrap textarea{width:100%;min-width:0;min-height:112px;resize:vertical}.plan-voice-row{display:flex;justify-content:flex-end;margin-top:8px}.plan-voice-btn{white-space:nowrap}.plan-details-toggle{width:100%}.plan-details{padding-top:12px;border-top:1px solid var(--line,#e5ddd2)}.plan-time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.plan-repeat-shortcuts{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px}.plan-title-suggestions{border:1px solid var(--line,#ddd);border-radius:12px;margin-top:5px;overflow:hidden;background:#fff}.plan-title-suggestions button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid #eee;background:#fff;padding:9px 11px;cursor:pointer}.plan-title-suggestions button:last-child{border-bottom:0}.plan-final-actions{display:flex;gap:10px;align-items:center;margin-top:2px}.plan-final-actions .success{flex:1;width:100%}.plan-cancel-link{border:0!important;background:transparent!important;box-shadow:none!important;color:var(--wine,#641524)!important;padding:10px 14px!important}
 @media(max-width:650px){.plan-quick-card{padding-top:18px}.plan-date-wrap{max-width:none}.plan-voice-row{margin-top:7px}.plan-voice-btn{padding-left:14px!important;padding-right:14px!important}.plan-time-row{grid-template-columns:1fr 1fr}.plan-details>.grid{row-gap:14px}.plan-final-actions{display:grid;grid-template-columns:1fr}.plan-final-actions .success{width:100%}.plan-cancel-link{width:100%}}
 </style>
 <style id="v138-ui-fixes">
@@ -1733,13 +1733,13 @@ input,select,textarea{font-size:16px}
     </section>
 
     <section id="page-planejamento" class="page">
-      <div class="card">
+      <div class="card" id="planIntroCard">
         <div class="toolbar" style="justify-content:space-between"><div><h2 style="margin-bottom:3px">Planejar</h2><div class="meta">Veja primeiro o que precisa de atenção. Crie um novo planejamento só quando precisar.</div></div><div class="toolbar"><button class="btn success" onclick="openNewPlanForm()">+ Planejar atividade</button></div></div>
       </div>
 
       <div id="planFormCard" class="card hidden plan-quick-card"><h3 id="planFormTitle">Novo planejamento</h3><div class="grid plan-quick-grid">
         <div class="full"><div class="plan-quick-row"><div><label class="field">Para quem? <span class="required-mark">*</span></label><div id="planChildrenPicker" class="child-tabs plan-child-picker"></div><select id="planChild" class="hidden" aria-hidden="true" tabindex="-1"></select></div><div class="plan-date-wrap"><label class="field">Quando? <span class="required-mark">*</span></label><input id="planDate" type="date"></div></div></div>
-        <div class="full"><label class="field clean-label">O que vamos fazer? <span class="required-mark">*</span></label><div class="plan-title-wrap"><input id="planTitle" placeholder="Ex.: Leitura do capítulo 3" autocomplete="off"></div><div class="plan-voice-row"><button type="button" class="btn plan-voice-btn" onclick="toggleVoiceInput('planTitle')">🎤 Falar</button></div><div id="planTitleSuggestions" class="plan-title-suggestions hidden"></div></div>
+        <div class="full"><label class="field clean-label">O que vamos fazer? <span class="required-mark">*</span></label><div class="plan-title-wrap"><textarea id="planTitle" rows="3" placeholder="Ex.: Leitura do capítulo 3 e conversar sobre os personagens." autocomplete="off"></textarea></div><div class="plan-voice-row"><button type="button" class="btn plan-voice-btn" onclick="toggleVoiceInput('planTitle')">🎤 Falar</button></div><div id="planTitleSuggestions" class="plan-title-suggestions hidden"></div></div>
 
         <div class="full"><button type="button" id="planDetailsToggle" class="btn plan-details-toggle" onclick="togglePlanDetails()">＋ Adicionar detalhes</button></div>
 
@@ -2419,7 +2419,7 @@ const ACTIVE_BACKEND_FAMILY_KEY = "DE_V4242_ACTIVE_BACKEND_FAMILY";
 const BACKEND_CHILD_MAP_KEY = "DE_V422_BACKEND_CHILD_MAP";
 let backendMembers = [];
 let backendChildren = [];
-let backendFamilyDataReady = false; // v15.5: evita onboarding falso enquanto o backend ainda sincroniza
+let backendFamilyDataReady = false; // v15.6: evita onboarding falso enquanto o backend ainda sincroniza
 let backendArchivedChildren = [];
 let historicalPhotoQueue = [];
 const VISIBLE_DRIVE_ROOT_NAME = "Diário de Estudos";
@@ -2931,7 +2931,7 @@ function needsOnboarding(){
   if(!families.length)return true;
   const fam=backendFamilyFromProfile();
   if(!fam)return false;
-  // v15.5: durante a abertura rápida, backendChildren ainda pode estar vazio
+  // v15.6: durante a abertura rápida, backendChildren ainda pode estar vazio
   // apenas porque a consulta remota não terminou. Nesse intervalo, usa o estado
   // local confiável para não piscar a tela "criar família/criança".
   if(!backendFamilyDataReady){
@@ -4179,8 +4179,8 @@ const DE_BOOT_DIAG={start:performance.now(),marks:[]};
 function bootDiagMark(name){
  const ms=Math.round((performance.now()-DE_BOOT_DIAG.start)*10)/10;
  DE_BOOT_DIAG.marks.push({etapa:name,ms});
- console.log(`[BOOT v15.5] ${name}: ${ms} ms`);
- try{localStorage.setItem("DE_BOOT_DIAG_LAST",JSON.stringify({version:"15.5",at:new Date().toISOString(),total_ms:ms,marks:DE_BOOT_DIAG.marks}))}catch(e){}
+ console.log(`[BOOT v15.6] ${name}: ${ms} ms`);
+ try{localStorage.setItem("DE_BOOT_DIAG_LAST",JSON.stringify({version:"15.6",at:new Date().toISOString(),total_ms:ms,marks:DE_BOOT_DIAG.marks}))}catch(e){}
 }
 window.DE_BOOT_DIAG=DE_BOOT_DIAG;
 window.diarioDiagnosticoAbertura=()=>{console.table(DE_BOOT_DIAG.marks);return DE_BOOT_DIAG};
@@ -6879,10 +6879,12 @@ function selectedPlanChildIds(){return [...document.querySelectorAll('#planChild
 function renderPlanChildrenPicker(selected=[]){
  const box=$("planChildrenPicker");if(!box)return;const kids=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan),chosen=new Set(selected.filter(Boolean));
  if(!chosen.size&&activeChildId)chosen.add(activeChildId);
- box.innerHTML=`<label class="child ${chosen.size===kids.length&&kids.length?"active":""}" style="cursor:pointer"><input type="checkbox" id="planAllChildren" style="width:auto" ${chosen.size===kids.length&&kids.length?"checked":""} onchange="toggleAllPlanChildren(this.checked)"> Todas</label>`+kids.map(c=>`<label class="child ${chosen.has(c.id)?"active":""}" style="cursor:pointer"><input type="checkbox" name="planChildChoice" value="${esc(c.id)}" style="width:auto" ${chosen.has(c.id)?"checked":""} onchange="planChildrenChanged()"> ${esc(c.name)}</label>`).join("");
+ const names=kids.filter(c=>chosen.has(c.id)).map(c=>c.name);
+ const summary=chosen.size===kids.length&&kids.length?"Todas as crianças":(names.length?names.join(" + "):"Selecionar criança");
+ box.innerHTML=`<details class="plan-child-picker"><summary id="planChildrenSummary">${esc(summary)}</summary><div class="plan-child-options"><label class="plan-child-option"><input type="checkbox" id="planAllChildren" ${chosen.size===kids.length&&kids.length?"checked":""} onchange="toggleAllPlanChildren(this.checked)"> Todas</label>${kids.map(c=>`<label class="plan-child-option"><input type="checkbox" name="planChildChoice" value="${esc(c.id)}" ${chosen.has(c.id)?"checked":""} onchange="planChildrenChanged()"> ${esc(c.name)}</label>`).join("")}</div></details>`;
 }
 function toggleAllPlanChildren(checked){document.querySelectorAll('#planChildrenPicker input[name="planChildChoice"]').forEach(x=>x.checked=checked);planChildrenChanged()}
-function planChildrenChanged(){const chosen=selectedPlanChildIds(),all=[...document.querySelectorAll('#planChildrenPicker input[name="planChildChoice"]')];if($("planAllChildren"))$("planAllChildren").checked=!!all.length&&chosen.length===all.length;all.forEach(x=>x.closest("label")?.classList.toggle("active",x.checked));$("planAllChildren")?.closest("label")?.classList.toggle("active",!!all.length&&chosen.length===all.length);if($("planChild")&&chosen[0])$("planChild").value=chosen[0];if(chosen[0])localStorage.setItem(PLAN_LAST_CHILD_KEY,chosen[0])}
+function planChildrenChanged(){const chosen=selectedPlanChildIds(),all=[...document.querySelectorAll('#planChildrenPicker input[name="planChildChoice"]')],kids=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan);if($("planAllChildren"))$("planAllChildren").checked=!!all.length&&chosen.length===all.length;const names=kids.filter(c=>chosen.includes(c.id)).map(c=>c.name);if($("planChildrenSummary"))$("planChildrenSummary").textContent=chosen.length===kids.length&&kids.length?"Todas as crianças":(names.length?names.join(" + "):"Selecionar criança");if($("planChild")&&chosen[0])$("planChild").value=chosen[0];if(chosen[0])localStorage.setItem(PLAN_LAST_CHILD_KEY,chosen[0])}
 function planOccurrenceProgress(plan,date=plan?.nextDate||plan?.date){return plan?.participantProgress?.[date]||{}}
 function planPendingChildren(plan,date=plan?.nextDate||plan?.date){const progress=planOccurrenceProgress(plan,date);return planChildIds(plan).filter(id=>progress[id]?.status!=="completed"&&progress[id]?.status!=="skipped")}
 function planPendingForChild(plan,childId){return planIncludesChild(plan,childId)&&planPendingChildren(plan).includes(childId)}
@@ -7297,6 +7299,7 @@ async function addPlan(){
 }
 function togglePlanForm(open){
  $('planFormCard')?.classList.toggle('hidden',!open);
+ $('planIntroCard')?.classList.toggle('hidden',!!open);
  if(open){
   if($('planDate')&&!$('planDate').value)$('planDate').value=today();
   if($('planChild')&&activeChildId)$('planChild').value=activeChildId;
@@ -8256,7 +8259,7 @@ async function init(){
  bootDiagMark("migração de mídia concluída");
  loadBnccApiCache();
  bootDiagMark("cache BNCC carregado");
- // v15.5 · abertura otimizada: usa o perfil em cache para liberar a interface imediatamente,
+ // v15.6 · abertura otimizada: usa o perfil em cache para liberar a interface imediatamente,
  // enquanto a validação/sincronização com o backend acontece em segundo plano.
  if(appSessionValid()){
    const restoredCachedProfile=restoreBackendProfileForOffline();
