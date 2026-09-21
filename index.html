@@ -2294,7 +2294,7 @@ input,select,textarea{font-size:16px}
 <div class="admin-overview-grid"><div class="admin-stat"><b id="adminStatFamilies">—</b><span>Famílias</span></div><div class="admin-stat"><b id="adminStatChildren">—</b><span>Crianças</span></div><div class="admin-stat"><b id="adminStatPendingBooks">—</b><span>Livros pendentes</span></div><div class="admin-stat"><b id="adminStatPendingMaterials">—</b><span>Materiais pendentes</span></div></div>
 <div id="adminAttention" class="admin-attention">Verificando pendências…</div>
 <div class="admin-section-label">Saúde do sistema</div>
-<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b>v14.6</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
+<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b id="healthFrontendVersion">—</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
 <div class="admin-section-label">Gerenciamento</div>
 
 <details class="tech-details admin-panel"><summary>🔓 Acessos gratuitos <span>Beta, social, parcerias e cortesias</span></summary><div class="drive-folder-card" style="margin-top:8px">
@@ -8381,7 +8381,8 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "16.2";
+const APP_VERSION = "16.3";
+queueMicrotask(()=>{ const el=document.getElementById("healthFrontendVersion"); if(el) el.textContent=`v${APP_VERSION}`; });
 
 let deferredInstallPrompt=null;
 const INSTALL_DISMISS_KEY="diarioInstallDismissedAt";
