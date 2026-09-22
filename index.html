@@ -1558,6 +1558,7 @@ input,select,textarea{font-size:16px}
 .diary-info-modal h2{margin:0;color:#5b1420;font-size:25px}.diary-info-modal>p{margin:7px 0 16px;color:var(--ds-muted);line-height:1.45}
 .diary-info-summary{display:flex;justify-content:space-between;gap:16px;padding:11px 0;border-top:1px solid #eee4d8;font-size:13px}.diary-info-summary b{color:#5b1420}.diary-info-summary span{text-align:right;color:var(--ds-muted)}
 .diary-info-ok{width:100%;margin-top:16px;min-height:46px}
+.app-notice-body{margin:7px 0 4px;color:var(--ds-text);line-height:1.5;font-size:14.5px;white-space:pre-line}
 .experience-analysis-card .experience-analysis-head{gap:14px}.experience-analysis-card .experience-analysis-head h3{margin-bottom:4px}.experience-analysis-card .experience-status:empty{display:none}
 .info-btn,.settings-collapse-head,.admin-panel>summary{touch-action:manipulation}.info-btn{min-width:44px!important;min-height:44px!important;display:inline-grid!important;place-items:center!important}
 .switch{min-width:44px!important;min-height:28px!important}
@@ -2214,8 +2215,6 @@ input,select,textarea{font-size:16px}
   <h3>Administrador da família</h3>
   <div id="familyMembersBox" class="notice">Carregando administrador...</div>
   <div class="notice" style="margin-top:10px">Esta família possui um único Administrador. Nesta versão não é possível convidar ou adicionar outras pessoas.</div>
-  <div id="inviteMemberBox" class="hidden"></div>
-  <div id="pendingInvitesBox" class="hidden"></div>
 </div>
 
 <div class="settings-section">
@@ -2411,6 +2410,14 @@ input,select,textarea{font-size:16px}
     <button class="btn primary diary-info-ok" type="button" onclick="closeRecordHelp()">Entendi</button>
   </div>
 </div>
+<div id="appNoticeOverlay" class="diary-info-overlay hidden no-print" onclick="if(event.target===this)closeAppNotice()">
+  <div class="diary-info-modal" role="dialog" aria-modal="true" aria-labelledby="appNoticeTitle">
+    <div id="appNoticeIcon" class="diary-info-icon" aria-hidden="true">ℹ️</div>
+    <h2 id="appNoticeTitle">Aviso</h2>
+    <div id="appNoticeBody" class="app-notice-body"></div>
+    <button class="btn primary diary-info-ok" type="button" onclick="closeAppNotice()">Entendi</button>
+  </div>
+</div>
 <div id="printableReport" aria-hidden="true"></div>
 
 <script>
@@ -2572,6 +2579,22 @@ let googleTokenClient=null,googleRenewTokenClient=null,googleRenewPromise=null,g
 
 const $=id=>document.getElementById(id);
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+let _appNoticeResolve=null;
+function showNotice(message,opts={}){
+ const overlay=$("appNoticeOverlay");
+ if(!overlay){alert(message);return Promise.resolve()}
+ $("appNoticeTitle").textContent=opts.title||"Aviso";
+ $("appNoticeIcon").textContent=opts.icon||(opts.type==="error"?"⚠️":"ℹ️");
+ $("appNoticeBody").textContent=String(message??"");
+ overlay.classList.remove("hidden");
+ if(_appNoticeResolve){const prev=_appNoticeResolve;_appNoticeResolve=null;prev()}
+ return new Promise(res=>{_appNoticeResolve=res});
+}
+function closeAppNotice(){
+ const overlay=$("appNoticeOverlay");
+ if(overlay)overlay.classList.add("hidden");
+ if(_appNoticeResolve){const res=_appNoticeResolve;_appNoticeResolve=null;res()}
+}
 function firstName(s){return String(s||"").trim().split(/\s+/)[0]||""}
 function uid(){return (crypto?.randomUUID?.()||Date.now().toString(36)+Math.random().toString(36).slice(2))}
 function now(){return new Date().toISOString()}
@@ -2737,7 +2760,7 @@ function saveLocal(mark=true){
  catch(error){
   console.error("Falha ao salvar os dados locais:",error);
   try{const compact=stateForLocalStorage();if(Array.isArray(compact.bncc))compact.bncc=null;localStorage.setItem("DE_V2_STATE",JSON.stringify(compact));saved=true}catch(secondError){console.error("Falha no salvamento compacto:",secondError)}
-  if(!storageWarningShown){storageWarningShown=true;setTimeout(()=>alert(saved?"O Diário liberou espaço local e preservou os dados de texto. As fotos continuam na fila segura de envio.":"O armazenamento deste dispositivo está cheio. Mantenha o aplicativo aberto e conectado; não foi possível confirmar o salvamento local desta alteração."),0)}
+  if(!storageWarningShown){storageWarningShown=true;setTimeout(()=>showNotice(saved?"O Diário liberou espaço local e preservou os dados de texto. As fotos continuam na fila segura de envio.":"O armazenamento deste dispositivo está cheio. Mantenha o aplicativo aberto e conectado; não foi possível confirmar o salvamento local desta alteração."),0)}
  }
  if(mark&&saved){
   try{localStorage.setItem("DE_V2_LOCAL_UPDATED",now())}catch(e){}
@@ -3342,36 +3365,17 @@ function renderBackendFamilyPanels(){
   renderBackendFamilyChooser();
 
   const membersBox=$("familyMembersBox");
-  const inviteBox=$("inviteMemberBox");
-  const pendingBox=$("pendingInvitesBox");
   const archivedBox=$("archivedChildrenBox");
   const syncBtn=$("syncFamilyBtn");
   const fam=currentBackendFamily();
-  const receivedInvites=[];
 
   if(syncBtn)syncBtn.classList.toggle("hidden",!fam);
-
-  if(pendingBox){
-    pendingBox.innerHTML=receivedInvites.length
-      ? `<div class="notice"><b>Convite pendente</b>${receivedInvites.map(i=>`
-          <div class="invite-row">
-            <div><b>${esc(i.family_name||"Família")}</b><div class="meta">Acesso: ${esc(roleLabel(i.role))}</div></div>
-            <div class="toolbar">
-              <button class="btn small success" onclick="acceptInvite('${i.id}')">Aceitar convite</button>
-              <button class="btn small" onclick="declineInvite('${i.id}')">Recusar</button>
-            </div>
-          </div>`).join("")}</div>`
-      : "";
-  }
 
   if(!fam){
     if(membersBox){
       membersBox.className="notice";
-      membersBox.innerHTML=receivedInvites.length
-        ?"Aceite o convite acima para acessar membros e crianças."
-        :"Você ainda não participa de uma família.";
+      membersBox.innerHTML="Você ainda não participa de uma família.";
     }
-    if(inviteBox)inviteBox.classList.add("hidden");
     if(archivedBox)archivedBox.innerHTML="<div class='notice'>Nenhuma criança disponível antes de entrar em uma família.</div>";
     return;
   }
@@ -3385,8 +3389,6 @@ function renderBackendFamilyPanels(){
         </div>`).join("")
       : "<div class='notice'>Nenhum membro carregado.</div>";
   }
-
-  if(inviteBox)inviteBox.classList.add("hidden");
 
   renderDuplicateChildren();
 
@@ -3688,62 +3690,6 @@ function renderDuplicateChildren(){
  `;
 }
 
-async function inviteFamilyMember(){
-  const fam=currentBackendFamily();
-  if(!fam)return alert("Crie ou selecione uma família primeiro.");
-  if(!canManageFamily())return alert("Somente administradores podem convidar responsáveis.");
-
-  const email=String($("inviteEmail")?.value||"").trim().toLowerCase();
-  const role=String($("inviteRole")?.value||"responsavel");
-
-  if(!email || !email.includes("@")){
-    return alert("Informe um e-mail válido.");
-  }
-
-  const me=String(backendProfile?.user?.email||"").trim().toLowerCase();
-  if(email===me)return alert("Este e-mail já é o seu acesso.");
-
-  try{
-    const result=await backendFetch("/invites",{
-      method:"POST",
-      body:JSON.stringify({
-        family_id:fam.id,
-        email,
-        role
-      })
-    });
-
-    if($("inviteEmail"))$("inviteEmail").value="";
-    await refreshBackendProfile();
-    await loadBackendFamilyData();
-    renderAll();
-    alert("Convite criado para "+email+". Agora entre no Diário de Estudos com essa conta para aceitar o convite.");
-    return result;
-  }catch(e){
-    alert("Não foi possível criar o convite: "+e.message);
-  }
-}
-
-async function acceptInvite(id){
-  try{
-    const accepted=await backendFetch("/invites/accept",{method:"POST",body:JSON.stringify({invite_id:id})});
-    if(accepted?.family_id){
-      localStorage.setItem(ACTIVE_BACKEND_FAMILY_KEY,accepted.family_id);
-      setBackendFamilyId(accepted.family_id);
-    }
-    await refreshBackendProfile();
-    await loadBackendFamilyData();
-    await syncFamilyFromBackend(false);
-    alert("Convite aceito. A família convidada foi selecionada como ativa neste dispositivo.");
-  }catch(e){alert("Não foi possível aceitar o convite: "+e.message)}
-}
-async function declineInvite(id){
-  try{
-    await backendFetch("/invites/decline",{method:"POST",body:JSON.stringify({invite_id:id})});
-    await refreshBackendProfile();
-    alert("Convite recusado.");
-  }catch(e){alert("Não foi possível recusar o convite: "+e.message)}
-}
 async function archiveBackendChild(backendChildId, localChildId){
   if(!canManageFamily())return alert("Somente administradores podem excluir crianças.");
   const child=backendChildren.find(c=>c.id===backendChildId);
@@ -5317,7 +5263,7 @@ function openOldRecord(){showPage('historico');setTimeout(()=>{toggleOldRecordFo
 function toggleOldRecordForm(open){$('oldRecordForm')?.classList.toggle('hidden',!open);if(open){const c=$('oldRecordChild');if(c&&activeChildId)c.value=activeChildId}}
 function saveOldRecord(){
  const childId=$('oldRecordChild')?.value||activeChildId,date=$('oldRecordDate')?.value||'',activity=($('oldRecordActivity')?.value||'').trim();
- if(!childId||!date||!activity)return alert('Informe criança, data e atividade.');
+ if(!childId||!date||!activity)return showNotice('Informe criança, data e atividade.');
  const x={id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||'',createdByEmail:backendProfile?.user?.email||googleUser?.email||'',createdByName:backendProfile?.user?.name||googleUser?.name||'',date,type:'bncc',classificationStatus:'pending',area:'',componente:($('oldRecordComponent')?.value||'').trim(),codigo:'',habilidade:'',atividade:activity,observacoes:($('oldRecordNotes')?.value||'').trim(),status:$('oldRecordStatus')?.value||'',foto:'',audio:''};
  state.entries[childId]=[x,...(state.entries[childId]||[])];saveLocal();toggleOldRecordForm(false);['oldRecordActivity','oldRecordComponent','oldRecordNotes'].forEach(id=>{if($(id))$(id).value=''});if($('oldRecordStatus'))$('oldRecordStatus').value='';renderAll();showPage('inicio');
 }
@@ -5475,7 +5421,7 @@ function switchRecordChild(id){
  const nextId=String(id||"").trim();
  if(!nextId||nextId===activeChildId)return;
  if(editing){
-   alert("Para alterar a criança de uma atividade já existente, conclua ou cancele a edição atual.");
+   showNotice("Para alterar a criança de uma atividade já existente, conclua ou cancele a edição atual.");
    return;
  }
 
@@ -5689,11 +5635,11 @@ function syncPrimaryRecordComponent(){
 }
 async function analyzeRecordComponents(){
  const child=currentChild(),status=$("experienceComponentStatus"),btn=$("analyzeExperienceBtn");
- if(!child)return alert("Selecione uma criança.");
- if(!appSessionValid())return alert("Sua sessão do Diário expirou. Entre com Google novamente.");
+ if(!child)return showNotice("Selecione uma criança.");
+ if(!appSessionValid())return showNotice("Sua sessão do Diário expirou. Entre com Google novamente.");
  const backendChildId=localToBackendChildId(activeChildId),activity=String($("fActivity")?.value||"").trim();
- if(!backendChildId)return alert("Esta criança ainda não está vinculada ao backend.");
- if(activity.length<8)return alert("Conte um pouco mais sobre o que vocês fizeram ou aprenderam.");
+ if(!backendChildId)return showNotice("Esta criança ainda não está vinculada ao backend.");
+ if(activity.length<8)return showNotice("Conte um pouco mais sobre o que vocês fizeram ou aprenderam.");
  if(btn){btn.disabled=true;btn.innerHTML='<span class="ai-spinner"></span> Analisando';}
  if(status)status.textContent="✨ Entendendo a experiência e buscando relações com a BNCC…";
  try{
@@ -5732,30 +5678,10 @@ function toggleRecordQuickMode(on){
  localStorage.setItem("DE_RECORD_QUICK_MODE",on?"1":"0");
  renderRecordPage();
 }
-function speechRecognitionSupported(){return !!(window.SpeechRecognition||window.webkitSpeechRecognition)}
-let activeSpeechRecognition=null;
 function clearRecordReport(){
  const field=$("fActivity");if(!field||!field.value)return;
  if(!confirm("Limpar o texto do relato?"))return;
  field.value="";saveRecordDraft(true);updateRecordPreview();field.focus();
-}
-function toggleVoiceInput(fieldId){
- const btn=$("voiceBtn_"+fieldId),field=$(fieldId);
- if(!field)return;
- if(activeSpeechRecognition){activeSpeechRecognition.stop();return}
- const Rec=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!Rec){alert("Seu navegador não tem suporte a reconhecimento de voz. Digite normalmente.");return}
- const rec=new Rec();
- rec.lang="pt-BR";rec.interimResults=false;rec.maxAlternatives=1;
- activeSpeechRecognition=rec;
- if(btn){btn.classList.add("recording");btn.textContent="🔴 Ouvindo... toque para parar";}
- rec.onresult=(ev)=>{
-  const text=Array.from(ev.results).map(r=>r[0].transcript).join(" ").trim();
-  if(text){field.value=(field.value.trim()?field.value.trim()+" ":"")+text;saveRecordDraft(true);updateRecordPreview();}
- };
- rec.onerror=(ev)=>{if(ev.error!=="aborted")alert("Não foi possível reconhecer a fala: "+ev.error);};
- rec.onend=()=>{activeSpeechRecognition=null;if(btn){btn.classList.remove("recording");btn.textContent="🎤 Falar";}};
- try{rec.start()}catch(e){activeSpeechRecognition=null;if(btn){btn.classList.remove("recording");btn.textContent="🎤 Falar";}}
 }
 function renderRecordPage(){
  renderChildButtons("recordChildTabs",(!editing&&recordFormOpen)?"switchRecordChild":"selectChild");
@@ -6120,13 +6046,13 @@ let selectedAiBnccIndex=-1;
 async function testAiBnccSuggestion(){
  const child=currentChild();
  const btn=$("aiBnccTestBtn"),status=$("aiBnccTestStatus"),box=$("aiBnccTestResults");
- if(!child)return alert("Selecione uma criança.");
- if(!appSessionValid())return alert("Sua sessão do Diário expirou. Entre com Google novamente.");
+ if(!child)return showNotice("Selecione uma criança.");
+ if(!appSessionValid())return showNotice("Sua sessão do Diário expirou. Entre com Google novamente.");
  const backendChildId=localToBackendChildId(activeChildId);
- if(!backendChildId)return alert("Esta criança ainda não está vinculada ao backend.");
+ if(!backendChildId)return showNotice("Esta criança ainda não está vinculada ao backend.");
 
  const activity=String($("fActivity")?.value||"").trim();
- if(activity.length<5)return alert("Descreva a atividade realizada antes de testar a IA.");
+ if(activity.length<5)return showNotice("Descreva a atividade realizada antes de testar a IA.");
 
  const component=String($("fComp")?.value||"").trim();
  const area=String($("fArea")?.value||"").trim();
@@ -6748,7 +6674,7 @@ async function releaseUnreferencedFormMedia(){for(const mediaId of [...new Set((
 function renderRecordPhotos(){const wrap=$("photoPreviewWrap");if(!wrap)return;wrap.innerHTML=photosData.map((p,i)=>`<div style="display:inline-block;position:relative;margin:5px"><img class="photo" style="width:150px;height:110px;object-fit:cover" src="${photoDisplayData(p)}"><button type="button" class="btn danger small" style="position:absolute;right:4px;top:4px" onclick="removeRecordPhoto(${i})">×</button></div>`).join("")+(photosData.length?`<div class="meta">${photosData.length} foto(s) selecionada(s)</div>`:"")}
 async function removeRecordPhoto(index){const removed=photosData.splice(index,1)[0];if(removed?.mediaId&&!Object.values(state.entries||{}).flat().some(e=>entryPhotos(e).some(p=>p.mediaId===removed.mediaId))){try{await mediaDelete(removed.mediaId)}catch(e){}}photoData=photoDisplayData(photosData[0]);photoTakenAt=photosData[0]?.takenAt||"";photoDateSource=photosData[0]?.dateSource||"";renderRecordPhotos();saveRecordDraft(true)}
 async function compressRecordPhoto(file){const meta=await readPhotoTimestamp(file);const src=await new Promise((ok,fail)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=fail;r.readAsDataURL(file)});return await new Promise((ok,fail)=>{const img=new Image();img.onload=async()=>{try{const max=1200,s=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext("2d").drawImage(img,0,0,c.width,c.height);const data=c.toDataURL("image/jpeg",.72),mediaId=`photo_${uid()}`;await mediaPut(mediaId,data,"image/jpeg");ok({mediaId,_previewData:data,takenAt:meta.at||"",dateSource:meta.source||"",visibleDriveId:"",driveId:""})}catch(e){fail(e)}};img.onerror=fail;img.src=src})}
-async function readPhoto(ev){saveRecordDraft(true);const files=[...(ev.target.files||[])];if(!files.length)return;let failed=0;for(const file of files){try{photosData.push(await compressRecordPhoto(file))}catch(e){failed++;console.warn("Foto ignorada",e)}}photoData=photoDisplayData(photosData[0]);photoTakenAt=photosData[0]?.takenAt||"";photoDateSource=photosData[0]?.dateSource||"";renderRecordPhotos();renderPhotoDateHint();saveRecordDraft(true);ev.target.value="";if(failed)alert(`${failed} foto(s) não puderam ser guardadas neste dispositivo. O restante do registro continua preservado.`)}
+async function readPhoto(ev){saveRecordDraft(true);const files=[...(ev.target.files||[])];if(!files.length)return;let failed=0;for(const file of files){try{photosData.push(await compressRecordPhoto(file))}catch(e){failed++;console.warn("Foto ignorada",e)}}photoData=photoDisplayData(photosData[0]);photoTakenAt=photosData[0]?.takenAt||"";photoDateSource=photosData[0]?.dateSource||"";renderRecordPhotos();renderPhotoDateHint();saveRecordDraft(true);ev.target.value="";if(failed)showNotice(`${failed} foto(s) não puderam ser guardadas neste dispositivo. O restante do registro continua preservado.`)}
 function entryComponents(x){const a=Array.isArray(x?.selectedComponents)?x.selectedComponents.map(c=>c?.component):[];if(x?.componente)a.unshift(x.componente);return [...new Set(a.filter(Boolean))]}
 function entrySkills(x){if(Array.isArray(x?.selectedSkills)&&x.selectedSkills.length)return x.selectedSkills;return x?.codigo||x?.habilidade?[{code:x.codigo||"",curricular_component:x.componente||"",description:x.habilidade||""}]:[]}
 function entryCompetencies(x){return Array.isArray(x?.selectedCompetencies)?x.selectedCompetencies:[]}
@@ -6788,8 +6714,8 @@ function saveEntry(){
  habilidade:$("fSkill")?.value||"",aiExperience:recordAiExperience||null,complementarySelected:!!recordComplementarySelected,complementaryActivityName:complementaryName,aiComponents:Array.isArray(recordAiComponents)?recordAiComponents:[],selectedComponents:Array.isArray(recordSelectedComponents)?recordSelectedComponents:[],aiSkills:Array.isArray(recordAiSkills)?recordAiSkills:[],selectedSkills:Array.isArray(recordSelectedSkills)?recordSelectedSkills:[],aiCompetencies:Array.isArray(recordAiCompetencies)?recordAiCompetencies:[],selectedCompetencies:Array.isArray(recordSelectedCompetencies)?recordSelectedCompetencies:[],materialId:$("fMaterialId")?.value||"",materialName:$("fMaterialName")?.value||"",materialPublisher:$("fMaterialPublisher")?.value||"",atividade:$("fActivity").value.trim(),observacoes:$("fObs").value.trim(),status:$("fStatus").value,
  photos:photosData.map(p=>({...p})),foto:"",fotoDriveId:photosData[0]?.driveId||editing?.fotoDriveId||"",fotoVisibleDriveId:photosData[0]?.visibleDriveId||editing?.fotoVisibleDriveId||"",audio:editing?.audio||"",audioDriveId:editing?.audioDriveId||""};
  if(!e.date)missing.push("Data");if(!e.atividade)missing.push("Atividade realizada");if(!e.status&&!(!editing&&recordQuickMode()))missing.push("Avaliação");
- if(missing.length)return alert("Preencha antes de registrar:\n\n• "+missing.join("\n• "));
- if(e.date>today())return alert("A data do registro não pode estar no futuro. Para uma atividade futura, use Planejar atividade.");
+ if(missing.length)return showNotice("Preencha antes de registrar:\n\n• "+missing.join("\n• "));
+ if(e.date>today())return showNotice("A data do registro não pode estar no futuro. Para uma atividade futura, use Planejar atividade.");
  let savedChildId=activeChildId;
  let planIdToComplete=editing?.planId||"";
  let planOccurrenceDate=editing?.planOccurrenceDate||editing?.date||"";
@@ -6861,7 +6787,7 @@ function closeRecordView(){
 }
 function viewEntry(id,childId=""){
  const found=findEntryById(id,childId);
- if(!found)return alert("Registro não encontrado neste dispositivo.");
+ if(!found)return showNotice("Registro não encontrado neste dispositivo.");
  const x=found.entry,child=state.family.children.find(c=>c.id===found.childId);
  const dateSource=x.activityDateSource==="photo_exif"?"foto (EXIF)":x.activityDateSource==="photo_file"?"arquivo da foto":"informada pelo responsável";
  const changed=x.updatedAt&&x.createdAt&&Math.abs(ts(x.updatedAt)-ts(x.createdAt))>1000;
@@ -7330,9 +7256,9 @@ async function editPlan(id){
 
 async function addPlan(){
  const childIds=selectedPlanChildIds();let childId=childIds[0]||"",title=$("planTitle").value.trim();
- if(!childIds.length||!title)return alert("Escolha pelo menos uma criança e informe a atividade.");
+ if(!childIds.length||!title)return showNotice("Escolha pelo menos uma criança e informe a atividade.");
  const recurrence=$("planRecurrence")?.value||"none",weekdays=recurrence==="weekdays"?selectedPlanWeekdays():[];
- if(recurrence==="weekdays"&&!weekdays.length)return alert("Escolha pelo menos um dia da semana.");
+ if(recurrence==="weekdays"&&!weekdays.length)return showNotice("Escolha pelo menos um dia da semana.");
  const start=$("planDate").value||today(),imported=pendingImportedCalendarEvent?{...pendingImportedCalendarEvent}:null;
  let weather=(()=>{try{return JSON.parse($("planWeatherBox")?.dataset.weather||"null")}catch{return null}})();
  const placeDetails=selectedPlanPlace?{...selectedPlanPlace}:null;
@@ -7342,9 +7268,9 @@ async function addPlan(){
  if(!existing)state.plans.push(plan);else Object.assign(existing,plan);window.v135RetakeSource=null;
  const shouldAddCalendar=!!$("planAddToCalendar")?.checked&&!imported;
  clearPlanForm();togglePlanForm(false);saveLocal();renderPlans();renderDashboard();
- if(existing&&plan.calendarEventId){try{await updateCalendarEventForEditedPlan(plan);saveLocal();renderPlans()}catch(e){alert("As alterações foram salvas no Diário, mas não foi possível atualizar a cópia no Google Calendar: "+(e.message||e))}}
- else if(shouldAddCalendar){try{await createCalendarEventForPlan(plan);saveLocal();renderPlans()}catch(e){alert("O planejamento foi salvo no Diário, mas não foi possível adicioná-lo ao Google Calendar: "+(e.message||e))}}
- if(imported){try{await createImportedCalendarCopy(plan,imported);saveLocal();renderPlans()}catch(e){alert("O planejamento foi salvo, mas a cópia não pôde ser criada na agenda Diário de Estudos: "+(e.message||e))}}
+ if(existing&&plan.calendarEventId){try{await updateCalendarEventForEditedPlan(plan);saveLocal();renderPlans()}catch(e){showNotice("As alterações foram salvas no Diário, mas não foi possível atualizar a cópia no Google Calendar: "+(e.message||e))}}
+ else if(shouldAddCalendar){try{await createCalendarEventForPlan(plan);saveLocal();renderPlans()}catch(e){showNotice("O planejamento foi salvo no Diário, mas não foi possível adicioná-lo ao Google Calendar: "+(e.message||e))}}
+ if(imported){try{await createImportedCalendarCopy(plan,imported);saveLocal();renderPlans()}catch(e){showNotice("O planejamento foi salvo, mas a cópia não pôde ser criada na agenda Diário de Estudos: "+(e.message||e))}}
 }
 function togglePlanForm(open){
  $('planFormCard')?.classList.toggle('hidden',!open);
@@ -7402,7 +7328,7 @@ function renderPlans(){
 }
 function closePlanParticipantChooser(){$("planParticipantChooser")?.remove()}
 function openPlanParticipantChooser(plan){
- closePlanParticipantChooser();const pending=planPendingChildren(plan);if(!pending.length)return alert("Este planejamento já foi registrado para todas as crianças.");
+ closePlanParticipantChooser();const pending=planPendingChildren(plan);if(!pending.length)return showNotice("Este planejamento já foi registrado para todas as crianças.");
  const overlay=document.createElement("div");overlay.id="planParticipantChooser";overlay.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px";
  overlay.innerHTML=`<div class="card" style="width:min(440px,100%);margin:0"><h3>Como deseja registrar?</h3><div class="meta" style="margin-bottom:12px">${esc(plan.title)}</div>${pending.length>1?`<button class="btn primary" style="width:100%;margin-bottom:12px" type="button" onclick="closePlanParticipantChooser();startCollectivePlan('${plan.id}')">👨‍👩‍👧‍👦 Registrar para todas (${pending.length})</button><div class="meta" style="margin-bottom:8px">Ou registre somente uma criança:</div>`:""}<div class="toolbar">${pending.map(id=>`<button class="btn success" type="button" onclick="closePlanParticipantChooser();startPlan('${plan.id}','${id}')">${esc(state.family.children.find(c=>c.id===id)?.name||"Criança")}</button>`).join("")}</div><button class="btn" type="button" style="margin-top:12px" onclick="closePlanParticipantChooser()">Cancelar</button></div>`;overlay.addEventListener("click",e=>{if(e.target===overlay)closePlanParticipantChooser()});document.body.appendChild(overlay);
 }
@@ -7410,13 +7336,13 @@ function startCollectivePlan(id){
  const p=state.plans.find(x=>x.id===id);if(!p)return;const childIds=planPendingChildren(p);if(childIds.length<2)return startPlan(id,childIds[0]||"");
  collectiveRegistration={groupId:uid(),planId:id,occurrenceDate:p.nextDate||p.date,childIds,index:0,total:childIds.length};startPlan(id,childIds[0],true);
 }
-function startPlan(id,childId="",fromCollective=false){let p=state.plans.find(x=>x.id===id);if(!p)return;const pending=planPendingChildren(p);if(!childId){if(pending.length===1)childId=pending[0];else if(planViewChildFilter!=="all"&&pending.includes(planViewChildFilter))childId=planViewChildFilter;else return openPlanParticipantChooser(p)}if(!pending.includes(childId))return alert("Esta atividade já foi registrada para esta criança.");if(!fromCollective)collectiveRegistration=null;activeChildId=childId;recordFormOpen=true;const collective=fromCollective&&collectiveRegistration;editing={id:uid(),isNewFromPlan:true,childId,date:today(),type:p.type,complementaryId:p.complementaryId||"",area:"",componente:p.component||"",codigo:"",habilidade:"",materialId:p.materialId||"",materialName:p.materialName||"",materialPublisher:p.materialPublisher||"",materialBnccSkills:[],atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,planOccurrenceDate:p.nextDate||p.date,collectiveGroupId:collective?.groupId||"",collectivePosition:collective?collective.index+1:0,collectiveTotal:collective?.total||0};clearRecordDraft(childId);showPage("registro");renderRecordPage()}
+function startPlan(id,childId="",fromCollective=false){let p=state.plans.find(x=>x.id===id);if(!p)return;const pending=planPendingChildren(p);if(!childId){if(pending.length===1)childId=pending[0];else if(planViewChildFilter!=="all"&&pending.includes(planViewChildFilter))childId=planViewChildFilter;else return openPlanParticipantChooser(p)}if(!pending.includes(childId))return showNotice("Esta atividade já foi registrada para esta criança.");if(!fromCollective)collectiveRegistration=null;activeChildId=childId;recordFormOpen=true;const collective=fromCollective&&collectiveRegistration;editing={id:uid(),isNewFromPlan:true,childId,date:today(),type:p.type,complementaryId:p.complementaryId||"",area:"",componente:p.component||"",codigo:"",habilidade:"",materialId:p.materialId||"",materialName:p.materialName||"",materialPublisher:p.materialPublisher||"",materialBnccSkills:[],atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,planOccurrenceDate:p.nextDate||p.date,collectiveGroupId:collective?.groupId||"",collectivePosition:collective?collective.index+1:0,collectiveTotal:collective?.total||0};clearRecordDraft(childId);showPage("registro");renderRecordPage()}
 function completePlanOccurrence(planId,occurrenceDate,childId){const p=state.plans.find(x=>x.id===planId);if(!p)return;childId=childId||p.childId;p.participantProgress??={};p.participantProgress[occurrenceDate]??={};p.participantProgress[occurrenceDate][childId]={status:"completed",updatedAt:now()};const allDone=planChildIds(p).every(id=>["completed","skipped"].includes(p.participantProgress[occurrenceDate]?.[id]?.status));if(allDone){p.occurrences??=[];p.occurrences=p.occurrences.filter(x=>x.date!==occurrenceDate);p.occurrences.push({date:occurrenceDate,status:"completed",updatedAt:now()});if(p.recurrence==="none"){p.completedAt=now();p.nextDate=""}else{p.nextDate=nextPlanDate(p,occurrenceDate);if(!p.nextDate)p.completedAt=now()}}p.updatedAt=now()}
 function skipPlanOccurrence(id){const p=state.plans.find(x=>x.id===id);if(!p)return;const current=p.nextDate||p.date;if(!confirm(`Pular a ocorrência de ${fmtDate(current)}?`))return;p.occurrences??=[];p.occurrences.push({date:current,status:"skipped",updatedAt:now()});p.nextDate=nextPlanDate(p,current);if(!p.nextDate)p.completedAt=now();p.updatedAt=now();saveLocal();renderPlans();renderDashboard()}
 async function deletePlan(id){const p=state.plans.find(x=>x.id===id);if(!p)return;if(!confirm("Excluir este planejamento?"))return;state.plans=state.plans.filter(x=>x.id!==id);addTomb("plans",id);saveLocal();renderPlans();renderDashboard();if(p.calendarEventId)await deleteCalendarEventForPlan(p)}
 
 function viewPlanDetails(id,occurrenceStatus="planned",occurrenceDate=""){
- const plan=state.plans.find(p=>p.id===id);if(!plan)return alert("Planejamento não encontrado.");
+ const plan=state.plans.find(p=>p.id===id);if(!plan)return showNotice("Planejamento não encontrado.");
  const isCompleted=occurrenceStatus==="completed";
  const detailDate=occurrenceDate||plan.nextDate||plan.date;
  const names=planChildNames(plan),card=$("recordViewCard"),overlay=$("recordViewOverlay");if(!card||!overlay)return;
@@ -7651,14 +7577,14 @@ async function searchGoogleBooks(){
 }
 async function addLibrarySearchBook(i){
  const b=(window.lastGoogleBookResults||[])[i];if(!b)return;
- if(b.alreadyAdded)return alert("Este livro já está na biblioteca desta criança.");
- let plan;try{plan=readingPlanValues()}catch(e){return alert(e.message)}
+ if(b.alreadyAdded)return showNotice("Este livro já está na biblioteca desta criança.");
+ let plan;try{plan=readingPlanValues()}catch(e){return showNotice(e.message)}
  const fam=currentBackendFamily(),backendChild=localToBackendChildId(readingChildId());
  if(fam?.id&&backendChild){
   try{
    await backendFetch("/family-books",{method:"POST",body:JSON.stringify({family_id:fam.id,child_id:backendChild,source:b.community_book_id?"community":"google_books",google_volume_id:b.google_volume_id||"",community_book_id:b.community_book_id||"",title:b.title||"",authors:b.authors||[],publisher:b.publisher||"",published_date:b.published_date||"",isbn13:b.isbn13||"",isbn10:b.isbn10||"",page_count:b.page_count||null,categories:b.categories||[],language:b.language||"",description:b.description||"",thumbnail:b.thumbnail||"",...plan})});
    closeBookSearch();await renderReadingPage();return;
-  }catch(e){return alert("Não foi possível adicionar o livro: "+(e.message||e))}
+  }catch(e){return showNotice("Não foi possível adicionar o livro: "+(e.message||e))}
  }
  // fallback local if family is not synchronized
  const books=getReadingLibrary();books.push({id:"book_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),childId:readingChildId(),source:b.source||"google_books",googleVolumeId:b.google_volume_id||"",communityBookId:b.community_book_id||"",title:b.title||"",authors:b.authors||[],publisher:b.publisher||"",publishedDate:b.published_date||"",isbn13:b.isbn13||"",isbn10:b.isbn10||"",pageCount:b.page_count||null,categories:b.categories||[],language:b.language||"",description:b.description||"",thumbnail:b.thumbnail||"",...plan,finished_at:"",addedAt:new Date().toISOString()});saveReadingLibrary(books);closeBookSearch();renderReadingPage()
@@ -7666,27 +7592,27 @@ async function addLibrarySearchBook(i){
 function addGoogleBook(i){return addLibrarySearchBook(i)}
 function previewManualBookCover(event){
  const file=event?.target?.files?.[0];manualBookCoverData="";$("manualBookCoverPreview").innerHTML="";
- if(!file)return;if(file.size>2.5*1024*1024){event.target.value="";return alert("Escolha uma imagem de até 2,5 MB.");}
+ if(!file)return;if(file.size>2.5*1024*1024){event.target.value="";return showNotice("Escolha uma imagem de até 2,5 MB.");}
  const r=new FileReader();r.onload=()=>{manualBookCoverData=String(r.result||"");$("manualBookCoverPreview").innerHTML=manualBookCoverData?`<img src="${manualBookCoverData}" class="book-cover" alt="Prévia da capa">`:""};r.readAsDataURL(file)
 }
 async function addManualBook(){
- const title=String($("manualBookTitle")?.value||"").trim();if(!title)return alert("Informe o título.");
+ const title=String($("manualBookTitle")?.value||"").trim();if(!title)return showNotice("Informe o título.");
  const author=String($("manualBookAuthor")?.value||"").trim(),publisher=String($("manualBookPublisher")?.value||"").trim(),isbn=String($("manualBookIsbn")?.value||"").trim();
- let plan;try{plan=readingPlanValues()}catch(e){return alert(e.message)}const fam=currentBackendFamily(),backendChild=localToBackendChildId(readingChildId());
+ let plan;try{plan=readingPlanValues()}catch(e){return showNotice(e.message)}const fam=currentBackendFamily(),backendChild=localToBackendChildId(readingChildId());
  if(fam?.id&&backendChild){
    try{
      await backendFetch("/community-books",{method:"POST",body:JSON.stringify({family_id:fam.id,child_id:backendChild,title,authors:author?[author]:[],publisher,isbn13:isbn,cover_data:manualBookCoverData||"",...plan})});
-     manualBookCoverData="";closeBookSearch();await renderReadingPage();alert("Livro adicionado. O cadastro ficará disponível para outras famílias após a validação.");return;
-   }catch(e){return alert("Não foi possível cadastrar o livro: "+(e.message||e))}
+     manualBookCoverData="";closeBookSearch();await renderReadingPage();showNotice("Livro adicionado. O cadastro ficará disponível para outras famílias após a validação.");return;
+   }catch(e){return showNotice("Não foi possível cadastrar o livro: "+(e.message||e))}
  }
  const books=getReadingLibrary();books.push({id:"book_"+Date.now(),childId:readingChildId(),source:"manual",title,authors:author?[author]:[],publisher,isbn13:isbn,thumbnail:manualBookCoverData||"",catalog_status:"pending",...plan,finished_at:"",addedAt:new Date().toISOString()});saveReadingLibrary(books);manualBookCoverData="";closeBookSearch();renderReadingPage()
 }
 async function setBookStartDate(id){
  const b=(window.currentReadingBooks||[]).find(x=>x.id===id)||getReadingLibrary().find(x=>x.id===id);if(!b)return;
  const chosen=prompt("Data de início da leitura (AAAA-MM-DD):",b.started_at||today());if(!chosen)return;
- if(!/^\d{4}-\d{2}-\d{2}$/.test(chosen))return alert("Use o formato AAAA-MM-DD.");
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(chosen))return showNotice("Use o formato AAAA-MM-DD.");
  if(b.backend){
-  try{await backendFetch(`/family-books/${encodeURIComponent(id)}`,{method:"PATCH",body:JSON.stringify({started_at:chosen})});await renderReadingPage();return}catch(e){return alert("Não foi possível atualizar: "+(e.message||e))}
+  try{await backendFetch(`/family-books/${encodeURIComponent(id)}`,{method:"PATCH",body:JSON.stringify({started_at:chosen})});await renderReadingPage();return}catch(e){return showNotice("Não foi possível atualizar: "+(e.message||e))}
  }
  const books=getReadingLibrary(),local=books.find(x=>x.id===id);if(!local)return;local.started_at=chosen;saveReadingLibrary(books);renderReadingPage()
 }
@@ -7697,8 +7623,8 @@ async function patchReadingBook(book,changes){
  Object.assign(book,changes);
 }
 async function startPlannedBook(id){
- const b=readingBookById(id);if(!b)return;const start=prompt("Data de início da leitura (AAAA-MM-DD):",b.started_at||today());if(start===null)return;if(!/^\d{4}-\d{2}-\d{2}$/.test(start))return alert("Use o formato AAAA-MM-DD.");
- try{await patchReadingBook(b,{status:"Lendo",started_at:start,finished_at:""});await renderReadingPage();renderDashboard();renderPlans()}catch(e){alert("Não foi possível iniciar a leitura: "+(e.message||e))}
+ const b=readingBookById(id);if(!b)return;const start=prompt("Data de início da leitura (AAAA-MM-DD):",b.started_at||today());if(start===null)return;if(!/^\d{4}-\d{2}-\d{2}$/.test(start))return showNotice("Use o formato AAAA-MM-DD.");
+ try{await patchReadingBook(b,{status:"Lendo",started_at:start,finished_at:""});await renderReadingPage();renderDashboard();renderPlans()}catch(e){showNotice("Não foi possível iniciar a leitura: "+(e.message||e))}
 }
 function readingCompletionEntry(book,childId){return (state.entries[childId]||[]).find(entry=>entry.readingCompletionBookId===book.id||(entry.materialId===`reading:${book.id}`&&String(entry.atividade||"").startsWith("Leitura concluída")))}
 function createOrUpdateReadingCompletion(book,finishedAt,notes){
@@ -7725,16 +7651,16 @@ function completeBookAndRegister(id){
 async function confirmReadingCompletion(){
  const b=readingBookById(pendingReadingCompletionId);if(!b)return closeReadingCompleteModal();
  const finished=$("readingCompleteDate")?.value||"",notes=String($("readingCompleteNotes")?.value||"").trim();
- if(!/^\d{4}-\d{2}-\d{2}$/.test(finished))return alert("Escolha a data de conclusão.");
- if(finished>today())return alert("A data de conclusão não pode estar no futuro.");
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(finished))return showNotice("Escolha a data de conclusão.");
+ if(finished>today())return showNotice("A data de conclusão não pode estar no futuro.");
  const btn=$("readingCompleteConfirm");if(btn){btn.disabled=true;btn.textContent="Concluindo…"}
  const entryId=createOrUpdateReadingCompletion(b,finished,notes);
  try{await patchReadingBook(b,{status:"Concluído",finished_at:finished,completion_activity_id:entryId});closeReadingCompleteModal();await renderReadingPage();renderDashboard();renderPlans();}
- catch(e){alert("O registro foi salvo, mas não foi possível atualizar o livro: "+(e.message||e))}
+ catch(e){showNotice("O registro foi salvo, mas não foi possível atualizar o livro: "+(e.message||e))}
  finally{if(btn){btn.disabled=false;btn.textContent="✓ Concluir leitura"}}
 }
 function startReadingActivity(id){
- const b=readingBookById(id);if(!b)return alert("Livro não encontrado.");
+ const b=readingBookById(id);if(!b)return showNotice("Livro não encontrado.");
  if(b.childId&&state.family.children.some(c=>c.id===b.childId&&!c.archived&&!c.legacyOrphan))activeChildId=b.childId;
  releaseUnreferencedFormMedia();
  collectiveRegistration=null;editing=null;recordFormOpen=true;
@@ -7746,16 +7672,16 @@ function startReadingActivity(id){
 }
 async function reopenCompletedBook(id){
  const b=readingBookById(id);if(!b||!confirm("Reabrir esta leitura? O registro da conclusão já realizada será preservado no Histórico."))return;
- try{await patchReadingBook(b,{status:"Lendo",finished_at:""});await renderReadingPage();renderDashboard();renderPlans()}catch(e){alert("Não foi possível reabrir: "+(e.message||e))}
+ try{await patchReadingBook(b,{status:"Lendo",finished_at:""});await renderReadingPage();renderDashboard();renderPlans()}catch(e){showNotice("Não foi possível reabrir: "+(e.message||e))}
 }
 async function editFamilyBookReading(id){
- const b=readingBookById(id);if(!b)return;const started=prompt(b.status==="Planejado"?"Data prevista para iniciar (AAAA-MM-DD):":"Data de início (AAAA-MM-DD):",b.started_at||today());if(started===null)return;if(!/^\d{4}-\d{2}-\d{2}$/.test(started))return alert("Use o formato AAAA-MM-DD.");const target=prompt("Previsão de conclusão (AAAA-MM-DD, opcional):",b.target_finish_at||"");if(target===null)return;if(target&&!/^\d{4}-\d{2}-\d{2}$/.test(target))return alert("Use o formato AAAA-MM-DD.");if(target&&target<started)return alert("A previsão não pode ser anterior ao início.");
- try{await patchReadingBook(b,{started_at:started,target_finish_at:target});await renderReadingPage();renderDashboard();renderPlans()}catch(e){alert("Não foi possível editar a leitura: "+(e.message||e))}
+ const b=readingBookById(id);if(!b)return;const started=prompt(b.status==="Planejado"?"Data prevista para iniciar (AAAA-MM-DD):":"Data de início (AAAA-MM-DD):",b.started_at||today());if(started===null)return;if(!/^\d{4}-\d{2}-\d{2}$/.test(started))return showNotice("Use o formato AAAA-MM-DD.");const target=prompt("Previsão de conclusão (AAAA-MM-DD, opcional):",b.target_finish_at||"");if(target===null)return;if(target&&!/^\d{4}-\d{2}-\d{2}$/.test(target))return showNotice("Use o formato AAAA-MM-DD.");if(target&&target<started)return showNotice("A previsão não pode ser anterior ao início.");
+ try{await patchReadingBook(b,{started_at:started,target_finish_at:target});await renderReadingPage();renderDashboard();renderPlans()}catch(e){showNotice("Não foi possível editar a leitura: "+(e.message||e))}
 }
 async function deleteFamilyBookReading(id){
  const b=(window.currentReadingBooks||[]).find(x=>x.id===id)||getReadingLibrary().find(x=>x.id===id);if(!b)return;
  if(!confirm(`Excluir “${b.title||"este livro"}” das leituras desta criança?\n\nO livro continuará no catálogo e o registro de conclusão, se existir, será preservado no Histórico.`))return;
- if(b.backend){try{await backendFetch(`/family-books/${encodeURIComponent(id)}`,{method:"DELETE"});await renderReadingPage();return}catch(e){return alert("Não foi possível excluir a leitura: "+(e.message||e))}}
+ if(b.backend){try{await backendFetch(`/family-books/${encodeURIComponent(id)}`,{method:"DELETE"});await renderReadingPage();return}catch(e){return showNotice("Não foi possível excluir a leitura: "+(e.message||e))}}
  saveReadingLibrary(getReadingLibrary().filter(x=>x.id!==id));renderReadingPage();
 }
 function openReadingBook(id){const b=readingBookById(id);if(!b)return;const localChild=b.childId||backendToLocalChildId(b.child_id);if(localChild)window.readingActiveChildId=localChild;showPage("leituras");setTimeout(()=>document.querySelector(`[data-reading-book-id="${CSS.escape(id)}"]`)?.scrollIntoView({behavior:"smooth",block:"center"}),80)}
