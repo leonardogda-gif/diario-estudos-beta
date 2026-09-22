@@ -2651,7 +2651,10 @@ function showFormModal(config={}){
  const msgEl=$("appFormMessage");
  if(config.message){msgEl.textContent=config.message;msgEl.classList.remove("hidden")}
  else{msgEl.textContent="";msgEl.classList.add("hidden")}
- $("appFormFields").innerHTML=fields.map(f=>`<label class="field">${esc(f.label||"")}<input type="${esc(f.type||"date")}" id="appFormField_${esc(f.id)}" value="${esc(f.value||"")}"${f.min?` min="${esc(f.min)}"`:""}${f.max?` max="${esc(f.max)}"`:""}></label>`).join("");
+ $("appFormFields").innerHTML=fields.map(f=>{
+  if(f.type==="select")return `<label class="field">${esc(f.label||"")}<select id="appFormField_${esc(f.id)}">${(f.options||[]).map(o=>`<option value="${esc(o.value)}"${o.value===f.value?" selected":""}>${esc(o.label)}</option>`).join("")}</select></label>`;
+  return `<label class="field">${esc(f.label||"")}<input type="${esc(f.type||"date")}" id="appFormField_${esc(f.id)}" value="${esc(f.value||"")}"${f.min?` min="${esc(f.min)}"`:""}${f.max?` max="${esc(f.max)}"`:""}></label>`;
+ }).join("");
  overlay.classList.remove("hidden");
  setTimeout(()=>$("appFormField_"+fields[0]?.id)?.focus(),40);
  if(_appFormResolve){const prev=_appFormResolve;_appFormResolve=null;prev.resolve(null)}
@@ -3174,9 +3177,11 @@ async function resetLocalBetaData(){
  saveLocal(false);renderAll(true);alert("Dados locais antigos removidos deste dispositivo.");
 }
 async function editBackendFamilyName(){
- const fam=currentBackendFamily();if(!fam||fam.role!=="admin")return alert("Somente administradores podem alterar o nome.");
- const name=prompt("Nome da família:",fam.name||"");if(name===null||!name.trim())return;
- try{await backendFetch(`/families/${encodeURIComponent(fam.id)}`,{method:"PATCH",body:JSON.stringify({name:name.trim()})});await refreshBackendProfile();await syncFamilyFromBackend(false);renderAll()}catch(e){alert("Não foi possível alterar o nome: "+e.message)}
+ const fam=currentBackendFamily();if(!fam||fam.role!=="admin")return showNotice("Somente administradores podem alterar o nome.");
+ const result=await showFormModal({title:"Nome da família",icon:"👨‍👩‍👧",fields:[{id:"name",label:"Nome da família",type:"text",value:fam.name||""}]});
+ if(!result||!result.name.trim())return;
+ const name=result.name;
+ try{await backendFetch(`/families/${encodeURIComponent(fam.id)}`,{method:"PATCH",body:JSON.stringify({name:name.trim()})});await refreshBackendProfile();await syncFamilyFromBackend(false);renderAll()}catch(e){showNotice("Não foi possível alterar o nome: "+e.message)}
 }
 function renderBackendFamilyState(){
   renderSimpleFamilySummary();
@@ -3767,11 +3772,11 @@ function renderDuplicateChildren(){
 }
 
 async function archiveBackendChild(backendChildId, localChildId){
-  if(!canManageFamily())return alert("Somente administradores podem excluir crianças.");
+  if(!canManageFamily())return showNotice("Somente administradores podem excluir crianças.");
   const child=backendChildren.find(c=>c.id===backendChildId);
   if(!child)return;
 
-  if(!confirm(`Arquivar ${child.name}?\n\nEla sairá das telas principais, mas o cadastro e os dados serão preservados e poderão ser restaurados.`))return;
+  if(!await showConfirm(`Arquivar ${child.name}? Ela sairá das telas principais, mas o cadastro e os dados serão preservados e poderão ser restaurados.`,{title:"Arquivar criança",icon:"📦",okLabel:"Arquivar",danger:false}))return;
 
   try{
     await backendFetch(`/children/${encodeURIComponent(backendChildId)}/archive`,{method:"POST"});
@@ -5187,14 +5192,25 @@ function renderChildrenCards(){
 }
 async function editChild(id){
  const c=state.family.children.find(x=>x.id===id),backendId=getBackendChildMap()[id];if(!c||!backendId)return;
- const name=prompt("Nome da criança:",c.name);if(name===null)return;const birth=prompt("Nascimento (AAAA-MM-DD):",c.birth||"");if(birth===null)return;
- try{await backendFetch(`/children/${encodeURIComponent(backendId)}`,{method:"PATCH",body:JSON.stringify({name:name.trim()||c.name,birth_date:birth.trim(),reference_stage:c.stage||null})});await loadBackendFamilyData();await reconcileChildrenWithBackend(false)}catch(e){alert("Não foi possível editar: "+e.message)}
+ const result=await showFormModal({title:"Editar criança",icon:"🧒",fields:[
+   {id:"name",label:"Nome da criança",type:"text",value:c.name||""},
+   {id:"birth",label:"Nascimento",type:"date",value:c.birth||""}
+ ]});
+ if(!result)return;
+ const name=result.name,birth=result.birth;
+ try{await backendFetch(`/children/${encodeURIComponent(backendId)}`,{method:"PATCH",body:JSON.stringify({name:name.trim()||c.name,birth_date:birth.trim(),reference_stage:c.stage||null})});await loadBackendFamilyData();await reconcileChildrenWithBackend(false)}catch(e){showNotice("Não foi possível editar: "+e.message)}
 }
 async function changeChildStage(id){
  const c=state.family.children.find(x=>x.id===id),backendId=getBackendChildMap()[id];if(!c||!backendId)return;
- const opts=STAGES.map((s,i)=>`${i}: ${s}`).join("\\n"),ans=prompt("Escolha o novo ano de referência:\\n\\n"+opts,String(Math.max(0,STAGES.indexOf(c.stage))));if(ans===null)return;
- const idx=parseInt(ans,10);if(Number.isNaN(idx)||!STAGES[idx])return alert("Opção inválida.");const next=STAGES[idx];if(next===c.stage)return;const start=prompt("A partir de qual data? (AAAA-MM-DD)",today());if(start===null)return;
- try{await backendFetch(`/children/${encodeURIComponent(backendId)}`,{method:"PATCH",body:JSON.stringify({name:c.name,birth_date:c.birth||null,reference_stage:next})});c.stageHistory??=[];const cur=c.stageHistory.find(x=>!x.endDate);if(cur)cur.endDate=start;c.stageHistory.push({stage:next,startDate:start,endDate:""});saveLocal();await loadBackendFamilyData();await reconcileChildrenWithBackend(false)}catch(e){alert("Não foi possível alterar o ano: "+e.message)}
+ const result=await showFormModal({title:"Alterar ano de referência",icon:"🎓",fields:[
+   {id:"stage",label:"Novo ano de referência",type:"select",value:c.stage||STAGES[0],options:STAGES.map(s=>({value:s,label:s}))},
+   {id:"start",label:"A partir de qual data",value:today()}
+ ]});
+ if(!result)return;
+ const next=result.stage,start=result.start;
+ if(!STAGES.includes(next))return showNotice("Opção inválida.");
+ if(next===c.stage)return;
+ try{await backendFetch(`/children/${encodeURIComponent(backendId)}`,{method:"PATCH",body:JSON.stringify({name:c.name,birth_date:c.birth||null,reference_stage:next})});c.stageHistory??=[];const cur=c.stageHistory.find(x=>!x.endDate);if(cur)cur.endDate=start;c.stageHistory.push({stage:next,startDate:start,endDate:""});saveLocal();await loadBackendFamilyData();await reconcileChildrenWithBackend(false)}catch(e){showNotice("Não foi possível alterar o ano: "+e.message)}
 }
 
 function educationStageFromReference(stage){
@@ -5276,21 +5292,23 @@ function reportPeriodText(from,to){
 function renderSettingsChildren(){renderChildrenCards();renderReportInfoSettings();}
 
 async function addChild(){
- const fam=currentBackendFamily();if(!fam)return alert("Entre em uma família antes de cadastrar uma criança.");if(!canEditFamily())return alert("Sua permissão não permite cadastrar crianças.");
- const name=$("childName").value.trim();if(!name)return alert("Informe o nome.");
+ const fam=currentBackendFamily();if(!fam)return showNotice("Entre em uma família antes de cadastrar uma criança.");if(!canEditFamily())return showNotice("Sua permissão não permite cadastrar crianças.");
+ const name=$("childName").value.trim();if(!name)return showNotice("Informe o nome.");
  const birth=$("childBirth").value||"",stage=$("childStage").value||"Sem ano de referência";
  const similar=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>({c,hit:duplicateConfidence({name,birth,stage},c)})).filter(x=>x.hit&&x.hit.score>=45).sort((a,b)=>b.hit.score-a.hit.score)[0];
  if(similar){
    const c=similar.c;
    const extra=c.birth?`\nNascimento: ${c.birth}`:"";
-   if(!confirm(`Já existe uma criança com cadastro parecido:\n\n${c.name}${extra}\n${c.stage||""}\n\nDeseja cadastrar outra criança mesmo assim?`))return;
+   if(!await showConfirm(`Já existe uma criança com cadastro parecido:\n\n${c.name}${extra}\n${c.stage||""}\n\nDeseja cadastrar outra criança mesmo assim?`,{title:"Cadastro parecido",icon:"⚠️",okLabel:"Cadastrar mesmo assim"}))return;
  }
- const start=prompt("Data de início deste ano de referência (AAAA-MM-DD)",today());if(start===null)return;
- try{const created=await backendFetch("/children",{method:"POST",body:JSON.stringify({family_id:fam.id,name,birth_date:birth||null,reference_stage:stage||null,notes:null})});if(!created?.child?.id)throw new Error("Cadastro não retornado pelo backend.");const localId=uid(),c={id:localId,name,birth,stage,stageHistory:[{stage,startDate:start||today(),endDate:""}],reportInfo:{fullName:"",schoolYear:String(new Date().getFullYear()),notes:""},archived:false,backendManaged:true,createdAt:now(),updatedAt:now()};state.family.children.push(c);const map=getBackendChildMap();map[localId]=created.child.id;setBackendChildMap(map);activeChildId=localId;$("childName").value="";$("childBirth").value="";saveLocal();await loadBackendFamilyData();await reconcileChildrenWithBackend(false)}catch(e){alert("Não foi possível cadastrar: "+e.message)}
+ const dateResult=await showFormModal({title:"Ano de referência",icon:"📅",fields:[{id:"start",label:"Data de início deste ano de referência",value:today()}]});
+ if(!dateResult)return;
+ const start=dateResult.start;
+ try{const created=await backendFetch("/children",{method:"POST",body:JSON.stringify({family_id:fam.id,name,birth_date:birth||null,reference_stage:stage||null,notes:null})});if(!created?.child?.id)throw new Error("Cadastro não retornado pelo backend.");const localId=uid(),c={id:localId,name,birth,stage,stageHistory:[{stage,startDate:start||today(),endDate:""}],reportInfo:{fullName:"",schoolYear:String(new Date().getFullYear()),notes:""},archived:false,backendManaged:true,createdAt:now(),updatedAt:now()};state.family.children.push(c);const map=getBackendChildMap();map[localId]=created.child.id;setBackendChildMap(map);activeChildId=localId;$("childName").value="";$("childBirth").value="";saveLocal();await loadBackendFamilyData();await reconcileChildrenWithBackend(false)}catch(e){showNotice("Não foi possível cadastrar: "+e.message)}
 }
 function addTomb(type,id,extra={}){state.tombstones[type]??=[];const t={id,deletedAt:now(),...extra};state.tombstones[type]=state.tombstones[type].filter(x=>x.id!==id);state.tombstones[type].push(t);return t}
-function deleteChild(id){
- if(!confirm("Excluir esta criança e seus registros?"))return;
+async function deleteChild(id){
+ if(!await showConfirm("Excluir esta criança e seus registros?",{title:"Excluir criança",icon:"🗑️",okLabel:"Excluir"}))return;
  state.family.children=state.family.children.filter(x=>x.id!==id);addTomb("children",id);
  (state.entries[id]||[]).forEach(x=>addTomb("entries",x.id));delete state.entries[id];
  state.plans=state.plans.flatMap(p=>{if(!planIncludesChild(p,id))return [p];const remaining=planChildIds(p).filter(x=>x!==id);if(!remaining.length){addTomb("plans",p.id);return []}if(p.participantProgress)Object.values(p.participantProgress).forEach(progress=>{if(progress)delete progress[id]});return [{...p,childIds:remaining,childId:remaining[0],updatedAt:now()}]});
@@ -6902,8 +6920,7 @@ async function deleteUnreferencedLocalMedia(entry){for(const mediaId of [...new 
 async function deleteEntry(id,childId=""){
  const found=findEntryById(id,childId||activeChildId);if(!found)return;
  const targetChildId=found.childId,entry=found.entry;
- if(!confirm(`Excluir este registro da família?\n\n${entry.atividade||"Registro"}\n\nEle será removido para todos os responsáveis.`))return;
- if(!confirm("Confirma a exclusão definitiva? Esta ação não poderá ser desfeita pelo aplicativo."))return;
+ if(!await showConfirm(`Excluir este registro?\n\n${entry.atividade||"Registro"}\n\nApagado permanentemente, não poderá ser desfeito.`,{title:"Excluir registro",icon:"🗑️",okLabel:"Excluir"}))return;
  const backendChildId=localToBackendChildId(targetChildId);
  state.entries[targetChildId]=(state.entries[targetChildId]||[]).filter(x=>x.id!==id);
  await deleteUnreferencedLocalMedia(entry);
