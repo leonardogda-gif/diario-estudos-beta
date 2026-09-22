@@ -1559,6 +1559,10 @@ input,select,textarea{font-size:16px}
 .diary-info-summary{display:flex;justify-content:space-between;gap:16px;padding:11px 0;border-top:1px solid #eee4d8;font-size:13px}.diary-info-summary b{color:#5b1420}.diary-info-summary span{text-align:right;color:var(--ds-muted)}
 .diary-info-ok{width:100%;margin-top:16px;min-height:46px}
 .app-notice-body{margin:7px 0 4px;color:var(--ds-text);line-height:1.5;font-size:14.5px;white-space:pre-line}
+.app-form-fields{display:flex;flex-direction:column;gap:10px;margin:6px 0 4px}
+.app-form-fields label.field{margin:0}
+.diary-info-modal .modal-actions{display:grid;grid-template-columns:1fr 1.35fr;gap:9px;margin-top:16px}
+.diary-info-modal .modal-actions .btn{min-height:46px}
 .experience-analysis-card .experience-analysis-head{gap:14px}.experience-analysis-card .experience-analysis-head h3{margin-bottom:4px}.experience-analysis-card .experience-status:empty{display:none}
 .info-btn,.settings-collapse-head,.admin-panel>summary{touch-action:manipulation}.info-btn{min-width:44px!important;min-height:44px!important;display:inline-grid!important;place-items:center!important}
 .switch{min-width:44px!important;min-height:28px!important}
@@ -2418,6 +2422,29 @@ input,select,textarea{font-size:16px}
     <button class="btn primary diary-info-ok" type="button" onclick="closeAppNotice()">Entendi</button>
   </div>
 </div>
+<div id="appConfirmOverlay" class="diary-info-overlay hidden no-print" onclick="if(event.target===this)closeAppConfirm(false)">
+  <div class="diary-info-modal" role="dialog" aria-modal="true" aria-labelledby="appConfirmTitle">
+    <div id="appConfirmIcon" class="diary-info-icon" aria-hidden="true">❓</div>
+    <h2 id="appConfirmTitle">Confirmar</h2>
+    <div id="appConfirmBody" class="app-notice-body"></div>
+    <div class="modal-actions">
+      <button class="btn" type="button" onclick="closeAppConfirm(false)">Cancelar</button>
+      <button id="appConfirmOkBtn" class="btn danger" type="button" onclick="closeAppConfirm(true)">Confirmar</button>
+    </div>
+  </div>
+</div>
+<div id="appFormOverlay" class="diary-info-overlay hidden no-print" onclick="if(event.target===this)closeAppForm(null)">
+  <div class="diary-info-modal" role="dialog" aria-modal="true" aria-labelledby="appFormTitle">
+    <div id="appFormIcon" class="diary-info-icon" aria-hidden="true">📅</div>
+    <h2 id="appFormTitle">Título</h2>
+    <p id="appFormMessage" class="app-notice-body hidden"></p>
+    <div id="appFormFields" class="app-form-fields"></div>
+    <div class="modal-actions">
+      <button class="btn" type="button" onclick="closeAppForm(null)">Cancelar</button>
+      <button class="btn primary" type="button" onclick="submitAppForm()">OK</button>
+    </div>
+  </div>
+</div>
 <div id="printableReport" aria-hidden="true"></div>
 
 <script>
@@ -2594,6 +2621,55 @@ function closeAppNotice(){
  const overlay=$("appNoticeOverlay");
  if(overlay)overlay.classList.add("hidden");
  if(_appNoticeResolve){const res=_appNoticeResolve;_appNoticeResolve=null;res()}
+}
+let _appConfirmResolve=null;
+function showConfirm(message,opts={}){
+ const overlay=$("appConfirmOverlay");
+ if(!overlay)return Promise.resolve(confirm(message));
+ $("appConfirmTitle").textContent=opts.title||"Confirmar";
+ $("appConfirmIcon").textContent=opts.icon||"❓";
+ $("appConfirmBody").textContent=String(message??"");
+ const okBtn=$("appConfirmOkBtn");
+ okBtn.textContent=opts.okLabel||"Confirmar";
+ okBtn.className="btn "+(opts.danger===false?"primary":"danger");
+ overlay.classList.remove("hidden");
+ if(_appConfirmResolve){const prev=_appConfirmResolve;_appConfirmResolve=null;prev(false)}
+ return new Promise(res=>{_appConfirmResolve=res});
+}
+function closeAppConfirm(result){
+ const overlay=$("appConfirmOverlay");
+ if(overlay)overlay.classList.add("hidden");
+ if(_appConfirmResolve){const res=_appConfirmResolve;_appConfirmResolve=null;res(result)}
+}
+let _appFormResolve=null;
+function showFormModal(config={}){
+ const overlay=$("appFormOverlay");
+ if(!overlay)return Promise.resolve(null);
+ const fields=config.fields||[];
+ $("appFormTitle").textContent=config.title||"";
+ $("appFormIcon").textContent=config.icon||"📅";
+ const msgEl=$("appFormMessage");
+ if(config.message){msgEl.textContent=config.message;msgEl.classList.remove("hidden")}
+ else{msgEl.textContent="";msgEl.classList.add("hidden")}
+ $("appFormFields").innerHTML=fields.map(f=>`<label class="field">${esc(f.label||"")}<input type="${esc(f.type||"date")}" id="appFormField_${esc(f.id)}" value="${esc(f.value||"")}"${f.min?` min="${esc(f.min)}"`:""}${f.max?` max="${esc(f.max)}"`:""}></label>`).join("");
+ overlay.classList.remove("hidden");
+ setTimeout(()=>$("appFormField_"+fields[0]?.id)?.focus(),40);
+ if(_appFormResolve){const prev=_appFormResolve;_appFormResolve=null;prev.resolve(null)}
+ return new Promise(res=>{_appFormResolve={resolve:res,fields}});
+}
+function submitAppForm(){
+ if(!_appFormResolve)return;
+ const {resolve,fields}=_appFormResolve;_appFormResolve=null;
+ $("appFormOverlay").classList.add("hidden");
+ const result={};
+ fields.forEach(f=>{result[f.id]=$("appFormField_"+f.id)?.value||""});
+ resolve(result);
+}
+function closeAppForm(val){
+ if(!_appFormResolve)return;
+ const {resolve}=_appFormResolve;_appFormResolve=null;
+ $("appFormOverlay").classList.add("hidden");
+ resolve(val);
 }
 function firstName(s){return String(s||"").trim().split(/\s+/)[0]||""}
 function uid(){return (crypto?.randomUUID?.()||Date.now().toString(36)+Math.random().toString(36).slice(2))}
@@ -7609,7 +7685,9 @@ async function addManualBook(){
 }
 async function setBookStartDate(id){
  const b=(window.currentReadingBooks||[]).find(x=>x.id===id)||getReadingLibrary().find(x=>x.id===id);if(!b)return;
- const chosen=prompt("Data de início da leitura (AAAA-MM-DD):",b.started_at||today());if(!chosen)return;
+ const result=await showFormModal({title:"Início da leitura",icon:"📅",fields:[{id:"start",label:"Data de início",value:b.started_at||today(),max:today()}]});
+ if(!result)return;
+ const chosen=result.start;
  if(!/^\d{4}-\d{2}-\d{2}$/.test(chosen))return showNotice("Use o formato AAAA-MM-DD.");
  if(b.backend){
   try{await backendFetch(`/family-books/${encodeURIComponent(id)}`,{method:"PATCH",body:JSON.stringify({started_at:chosen})});await renderReadingPage();return}catch(e){return showNotice("Não foi possível atualizar: "+(e.message||e))}
@@ -7623,7 +7701,10 @@ async function patchReadingBook(book,changes){
  Object.assign(book,changes);
 }
 async function startPlannedBook(id){
- const b=readingBookById(id);if(!b)return;const start=prompt("Data de início da leitura (AAAA-MM-DD):",b.started_at||today());if(start===null)return;if(!/^\d{4}-\d{2}-\d{2}$/.test(start))return showNotice("Use o formato AAAA-MM-DD.");
+ const b=readingBookById(id);if(!b)return;
+ const result=await showFormModal({title:"Iniciar leitura",icon:"📅",fields:[{id:"start",label:"Data de início",value:b.started_at||today(),max:today()}]});
+ if(!result)return;
+ const start=result.start;if(!/^\d{4}-\d{2}-\d{2}$/.test(start))return showNotice("Use o formato AAAA-MM-DD.");
  try{await patchReadingBook(b,{status:"Lendo",started_at:start,finished_at:""});await renderReadingPage();renderDashboard();renderPlans()}catch(e){showNotice("Não foi possível iniciar a leitura: "+(e.message||e))}
 }
 function readingCompletionEntry(book,childId){return (state.entries[childId]||[]).find(entry=>entry.readingCompletionBookId===book.id||(entry.materialId===`reading:${book.id}`&&String(entry.atividade||"").startsWith("Leitura concluída")))}
@@ -7671,16 +7752,25 @@ function startReadingActivity(id){
  window.scrollTo({top:0,behavior:"smooth"});
 }
 async function reopenCompletedBook(id){
- const b=readingBookById(id);if(!b||!confirm("Reabrir esta leitura? O registro da conclusão já realizada será preservado no Histórico."))return;
+ const b=readingBookById(id);if(!b)return;
+ if(!await showConfirm("Reabrir esta leitura? O registro da conclusão já realizada será preservado no Histórico.",{title:"Reabrir leitura",icon:"📖",okLabel:"Reabrir",danger:false}))return;
  try{await patchReadingBook(b,{status:"Lendo",finished_at:""});await renderReadingPage();renderDashboard();renderPlans()}catch(e){showNotice("Não foi possível reabrir: "+(e.message||e))}
 }
 async function editFamilyBookReading(id){
- const b=readingBookById(id);if(!b)return;const started=prompt(b.status==="Planejado"?"Data prevista para iniciar (AAAA-MM-DD):":"Data de início (AAAA-MM-DD):",b.started_at||today());if(started===null)return;if(!/^\d{4}-\d{2}-\d{2}$/.test(started))return showNotice("Use o formato AAAA-MM-DD.");const target=prompt("Previsão de conclusão (AAAA-MM-DD, opcional):",b.target_finish_at||"");if(target===null)return;if(target&&!/^\d{4}-\d{2}-\d{2}$/.test(target))return showNotice("Use o formato AAAA-MM-DD.");if(target&&target<started)return showNotice("A previsão não pode ser anterior ao início.");
+ const b=readingBookById(id);if(!b)return;
+ const isPlanned=b.status==="Planejado";
+ const result=await showFormModal({title:isPlanned?"Planejar leitura":"Editar leitura",icon:"📅",fields:[
+   {id:"started",label:isPlanned?"Data prevista para iniciar":"Data de início",value:b.started_at||today()},
+   {id:"target",label:"Previsão de conclusão (opcional)",value:b.target_finish_at||""}
+ ]});
+ if(!result)return;
+ const started=result.started,target=result.target;
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(started))return showNotice("Use o formato AAAA-MM-DD.");if(target&&!/^\d{4}-\d{2}-\d{2}$/.test(target))return showNotice("Use o formato AAAA-MM-DD.");if(target&&target<started)return showNotice("A previsão não pode ser anterior ao início.");
  try{await patchReadingBook(b,{started_at:started,target_finish_at:target});await renderReadingPage();renderDashboard();renderPlans()}catch(e){showNotice("Não foi possível editar a leitura: "+(e.message||e))}
 }
 async function deleteFamilyBookReading(id){
  const b=(window.currentReadingBooks||[]).find(x=>x.id===id)||getReadingLibrary().find(x=>x.id===id);if(!b)return;
- if(!confirm(`Excluir “${b.title||"este livro"}” das leituras desta criança?\n\nO livro continuará no catálogo e o registro de conclusão, se existir, será preservado no Histórico.`))return;
+ if(!await showConfirm(`Excluir "${b.title||"este livro"}" das leituras desta criança?\n\nO livro continuará no catálogo e o registro de conclusão, se existir, será preservado no Histórico.`,{title:"Excluir leitura",icon:"🗑️",okLabel:"Excluir"}))return;
  if(b.backend){try{await backendFetch(`/family-books/${encodeURIComponent(id)}`,{method:"DELETE"});await renderReadingPage();return}catch(e){return showNotice("Não foi possível excluir a leitura: "+(e.message||e))}}
  saveReadingLibrary(getReadingLibrary().filter(x=>x.id!==id));renderReadingPage();
 }
