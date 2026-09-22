@@ -331,7 +331,6 @@ body.app-authenticated .cloud-card{display:none!important}
 
 
 /* v5.5 — informações para relatório e impressão pedagógica */
-.report-profile-link{margin-left:auto}
 .report-header{
   border:1px solid #D8D1C2;border-radius:12px;padding:16px;margin-bottom:14px;background:#FFFDF8
 }
@@ -1852,7 +1851,7 @@ input,select,textarea{font-size:16px}
         <div class="toolbar no-print">
           <button class="btn success action-primary" onclick="printReport()">Imprimir / Salvar PDF</button>
           <button class="btn" onclick="shareReportHtml()">Compartilhar relatório</button>
-          <button class="btn report-profile-link" onclick="openReportInfoSettings()">⚙ Informações para relatório</button>
+          <button type="button" class="info-btn" style="margin-left:auto" onclick="openReportInfoSettings()" aria-label="Informações para relatório" title="Informações para relatório">⚙️</button>
         </div>
         <h2 style="margin-top:12px">Relatórios</h2>
         <div class="report-child-picker no-print"><div class="meta" style="margin-bottom:7px">Criança</div><div id="reportChildButtons" class="child-tabs child-selector"></div><select id="reportChild" class="hidden" onchange="renderReportPage()"></select></div>
@@ -7450,7 +7449,7 @@ function viewPlanDetails(id,occurrenceStatus="planned",occurrenceDate=""){
 
 function familyReportAiSummaries(){state.family.reportAiSummaries??={};return state.family.reportAiSummaries}
 function selectReportChild(id){if(!id)return;activeChildId=id;const s=$("reportChild");if(s)s.value=id;renderReportPage()}
-function renderReportChildButtons(){const box=$("reportChildButtons");if(!box)return;const kids=(state.family.children||[]).filter(c=>!c.archived&&!c.legacyOrphan),selected=$("reportChild")?.value||activeChildId;box.innerHTML=kids.map(c=>`<button type="button" class="child ${c.id===selected?"active":""}" onclick="selectReportChild('${c.id}')">${esc(c.name)}</button>`).join("")}
+function renderReportChildButtons(){renderChildButtons("reportChildButtons","selectReportChild")}
 function reportRowsFingerprint(rows){return rows.map(x=>`${x.id||""}:${x.updatedAt||x.createdAt||""}`).sort().join("|")}
 function reportAiKey(childId,from,to,status,type,comp){const stableChildId=localToBackendChildId(childId)||childId;return ["v2",stableChildId,from,to,status,type,comp].join("::")}
 function findFamilyReportAiSummary(childId,from,to,status,type,comp,rows){
