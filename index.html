@@ -1635,6 +1635,16 @@ input,select,textarea{font-size:16px}
  #page-registro .record-report-actions .record-erase-btn,#page-registro .record-report-actions .voice-btn-inside{padding:5px 8px!important;font-size:12px!important;min-height:34px!important;height:34px!important}
 }
 </style>
+
+<style>
+/* v16.4 · simplificação de registro, atenção e planejamento */
+#planIntroCard.plan-intro-compact{display:flex;justify-content:center;align-items:center;padding:12px!important}
+#planIntroCard.plan-intro-compact .btn{width:auto;min-width:190px;margin:0}
+.attention-plan-card{position:relative;padding-right:52px!important}
+.attention-edit-icon{position:absolute;top:10px;right:10px;width:38px;height:38px;min-width:38px;border:0;background:transparent;border-radius:10px;font-size:19px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.attention-edit-icon:active{background:#f2e7dc}
+.record-report-actions .record-erase-btn,#page-registro .record-report-actions .record-erase-btn{width:40px!important;min-width:40px!important;height:40px!important;min-height:40px!important;padding:0!important;font-size:19px!important}
+</style>
 </head>
 <body data-build="15.1" class="auth-checking">
 <header>
@@ -1739,14 +1749,14 @@ input,select,textarea{font-size:16px}
     </section>
 
     <section id="page-planejamento" class="page">
-      <div class="card" id="planIntroCard">
-        <div class="toolbar" style="justify-content:space-between"><div><h2 style="margin-bottom:3px">Planejar</h2><div class="meta">Veja primeiro o que precisa de atenção. Crie um novo planejamento só quando precisar.</div></div><div class="toolbar"><button class="btn success" onclick="openNewPlanForm()">+ Planejar atividade</button></div></div>
+      <div class="card plan-intro-compact" id="planIntroCard">
+        <button class="btn success" onclick="openNewPlanForm()">+ Planejar atividade</button>
       </div>
 
       <div id="planFormCard" class="card hidden plan-quick-card"><h3 id="planFormTitle">Novo planejamento</h3><div class="grid plan-quick-grid">
         <div class="full"><div class="plan-quick-row"><div><label class="field">Para quem? <span class="required-mark">*</span></label><div id="planChildrenPicker" class="child-tabs plan-child-picker"></div><select id="planChild" class="hidden" aria-hidden="true" tabindex="-1"></select></div><div class="plan-date-wrap"><label class="field">Quando? <span class="required-mark">*</span></label><input id="planDate" type="date"></div></div></div>
-        <div class="full"><div class="plan-field-heading"><label class="field clean-label">O que vamos fazer? <span class="required-mark">*</span></label><button type="button" class="plan-inline-mic" onclick="toggleVoiceInput('planTitle')" aria-label="Falar o que vamos fazer" title="Falar">🎤</button></div><div class="plan-title-wrap"><textarea id="planTitle" rows="3" placeholder="Ex.: Leitura do capítulo 3 e conversar sobre os personagens." autocomplete="off"></textarea></div><div id="planTitleSuggestions" class="plan-title-suggestions hidden"></div></div>
-        <div class="full"><div class="plan-field-heading"><label class="field clean-label">Como vamos fazer? <span class="field-pill optional-pill">Opcional</span></label><button type="button" class="plan-inline-mic" onclick="toggleVoiceInput('planNotes')" aria-label="Falar como vamos fazer" title="Falar">🎤</button></div><textarea id="planNotes" rows="3" placeholder="Ex.: Ler juntos e conversar sobre os personagens; fazer os exercícios 1 a 5."></textarea></div>
+        <div class="full"><div class="plan-field-heading"><label class="field clean-label">O que vamos fazer? <span class="required-mark">*</span></label></div><div class="plan-title-wrap"><textarea id="planTitle" rows="3" placeholder="Ex.: Leitura do capítulo 3 e conversar sobre os personagens." autocomplete="off"></textarea></div><div id="planTitleSuggestions" class="plan-title-suggestions hidden"></div></div>
+        <div class="full"><div class="plan-field-heading"><label class="field clean-label">Como vamos fazer? <span class="field-pill optional-pill">Opcional</span></label></div><textarea id="planNotes" rows="3" placeholder="Ex.: Ler juntos e conversar sobre os personagens; fazer os exercícios 1 a 5."></textarea></div>
         <div class="full"><label class="field clean-label">Onde vamos fazer? <span class="field-pill optional-pill">Opcional</span></label><input id="planPlace" autocomplete="off" placeholder="Ex.: Museu do Ipiranga, São Paulo"><div id="planPlaceResults" class="hidden"></div><input id="planPlaceId" type="hidden"><div id="planWeatherBox" class="notice hidden" style="margin-top:8px"></div></div>
 
         <div class="full"><button type="button" id="planDetailsToggle" class="btn plan-details-toggle" onclick="togglePlanDetails()">＋ Adicionar detalhes</button></div>
@@ -2657,9 +2667,22 @@ function closeRecordHelp(){const overlay=$("recordHelpOverlay");if(!overlay)retu
 function confirmClearRecord(){if(confirm("Limpar este registro e começar novamente?"))startNewRecord()}
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("recordHelpOverlay")?.classList.contains("hidden"))closeRecordHelp()});
 
+const LAST_MAIN_TAB_KEY="DE_LAST_MAIN_TAB";
+const MAIN_TABS=new Set(["inicio","planejamento","leituras","historico","mais"]);
+let mainTabRestored=false;
+function savedMainTab(){
+ try{const v=localStorage.getItem(LAST_MAIN_TAB_KEY);return MAIN_TABS.has(v)?v:"inicio"}catch(e){return "inicio"}
+}
+function restoreMainTabOnce(){
+ if(mainTabRestored)return;
+ mainTabRestored=true;
+ const target=savedMainTab();
+ if(document.querySelector("#protectedApp:not(.hidden)"))showPage(target);
+}
 function showPage(name){
  const previousPage=document.querySelector(".page.active")?.id||"";
  if(name==="administracao"&&!isGlobalDiaryAdmin){alert("Esta área está disponível somente para o administrador geral do Diário de Estudos.");name="mais"}
+ if(MAIN_TABS.has(name)){try{localStorage.setItem(LAST_MAIN_TAB_KEY,name)}catch(e){}}
  document.body.classList.toggle("mobile-footer-visible",name==="mais");
  if(name!=="leituras"&&typeof closeBookBarcodeScanner==="function")closeBookBarcodeScanner();
  document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id==="page-"+name));
@@ -3019,7 +3042,7 @@ async function finishOnboarding(){
     await syncFamilyFromBackend(false);
     activeChildId=state.family.children.find(c=>!c.archived&&!c.legacyOrphan)?.id||null;
     if(status)status.textContent="Tudo pronto.";
-    updateAuthUI();renderAll();showPage("inicio");
+    updateAuthUI();renderAll();showPage(savedMainTab());
     setCloudStatus("ok","Diário pronto para usar");
   }catch(e){console.error(e);if(signupNotAllowed(e)){if(status)status.textContent="";showWaitlistScreen();return}if(status)status.textContent="Não foi possível concluir a configuração.";alert("Não foi possível preparar o Diário: "+(e.message||e))}
   finally{if(btn){btn.disabled=false;btn.textContent=backendFamilyFromProfile()?"Cadastrar e começar":"Criar e começar"}}
@@ -4214,6 +4237,7 @@ function updateAuthUI(){
  $("onboardingGate")?.classList.toggle("hidden",!onboarding);
  $("signupWaitlistGate")?.classList.toggle("hidden",!signupCreationBlocked);
  $("protectedApp")?.classList.toggle("hidden",!canUseApp||backendPending||onboarding||signupCreationBlocked);
+ if(canUseApp&&!backendPending&&!onboarding&&!signupCreationBlocked)setTimeout(restoreMainTabOnce,0);
  $("headerCloud")?.classList.toggle("hidden",!canUseApp);
  $("headerSyncBtn")?.classList.toggle("hidden",!googleConnected);
  document.body.classList.toggle("app-authenticated",canUseApp);
@@ -5256,7 +5280,7 @@ function renderDashboard(){
  const td=today();
  const due=state.plans.filter(x=>planPendingForChild(x,child.id)&&!x.completedAt&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
  const todayPlans=due.filter(p=>(p.nextDate||p.date)===td),latePlans=due.filter(p=>(p.nextDate||p.date)<td),futurePlans=due.filter(p=>(p.nextDate||p.date)>td).slice(0,3);
- const planHtml=p=>`<div class="plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div class="meta">👨‍👩‍👧‍👦 Planejamento compartilhado: ${esc(planChildNames(p).join(", "))}</div>`:""}<div class="meta">${esc(p.component||'')}</div>${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}${planWeatherHtml(p)}<div class="attention-actions"><button class="btn success attention-primary" onclick="startPlan('${p.id}','${child.id}')">✓ Concluir e registrar</button><button class="btn small attention-edit-full" onclick="showPage('planejamento');editPlan('${p.id}')">✏️ Editar planejamento</button></div></div>`;
+ const planHtml=p=>`<div class="plan-card attention-plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><button type="button" class="attention-edit-icon" onclick="showPage('planejamento');editPlan('${p.id}')" aria-label="Editar planejamento" title="Editar planejamento">✏️</button><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div class="meta">👨‍👩‍👧‍👦 Planejamento compartilhado: ${esc(planChildNames(p).join(", "))}</div>`:""}<div class="meta">${esc(p.component||'')}</div>${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}<div class="attention-actions"><button class="btn success attention-primary" onclick="startPlan('${p.id}','${child.id}')">✓ Concluir</button></div></div>`;
  box.innerHTML=`<div class="card today-hero-card">
   <div class="today-top-row">
    <div class="today-top-info">${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje</h2><div class="meta">${fmtDate(td)}</div><div class="today-child-select"><select aria-label="Selecionar criança" onchange="selectChild(this.value);showPage('inicio')">${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===child.id?'selected':''}>${esc(firstName(c.name))}</option>`).join('')}</select></div></div>
@@ -5403,7 +5427,7 @@ function saveRecordDraft(immediate=false){
    try{
      localStorage.setItem(recordDraftKey(d.childId),JSON.stringify(d));
      const s=$("draftStatus");
-     if(s)s.textContent="✓ Salvo automaticamente · "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+     if(s){const until=Number(s.dataset.restoredUntil||0);if(Date.now()>=until)s.textContent="✓ Rascunho salvo";}
    }catch(e){
      console.warn("Não foi possível salvar o rascunho:",e);
      const s=$("draftStatus");
@@ -5824,7 +5848,7 @@ function renderRecordPage(){
     <div class="full">
       <label class="field clean-label clean-label-lg record-label-with-help"><span>O que vocês fizeram ou aprenderam? <span class="field-pill required-pill">Obrigatório</span></span><button type="button" class="context-help-btn" onclick="openRecordHelp('relato')" aria-label="Dicas para descrever a experiência">ⓘ</button></label><div class="field-help">Conte o que realmente aconteceu durante a experiência.</div>
       <div class="record-report-wrap"><textarea id="fActivity" rows="5" placeholder="Ex.: Visitamos a exposição sobre o corpo humano. Ela observou os órgãos, comparou suas funções e fez perguntas sobre respiração e circulação.">${esc(f.atividade)}</textarea></div>
-      <div class="record-report-footer"><div id="draftStatus" class="record-autosave-status">✓ ${draft?"Rascunho restaurado e salvo automaticamente":"Salvo automaticamente"}</div><div class="record-report-actions"><button type="button" class="btn record-erase-btn" onclick="clearRecordReport()" aria-label="Limpar relato" title="Limpar relato">🧹 Limpar</button>${speechRecognitionSupported()?`<button type="button" id="voiceBtn_fActivity" class="btn voice-btn voice-btn-inside" onclick="toggleVoiceInput('fActivity')">🎤 Falar</button>`:""}</div></div>
+      <div class="record-report-footer"><div id="draftStatus" class="record-autosave-status">✓ ${draft?"Rascunho restaurado":"Rascunho salvo"}</div><div class="record-report-actions"><button type="button" class="btn record-erase-btn" onclick="clearRecordReport()" aria-label="Limpar relato" title="Limpar relato">🧹</button></div></div>
     </div>
     <details id="recordMaterialWrap" class="full record-more-options ${quick?"hidden":""}">
       <summary><b>Material utilizado</b><span>Opcional</span></summary><div style="margin-top:10px">
@@ -5920,6 +5944,11 @@ function renderRecordPage(){
  </div>
 </div>`;
 
+ const draftStatusEl=$("draftStatus");
+ if(draft&&draftStatusEl){
+   draftStatusEl.dataset.restoredUntil=String(Date.now()+2600);
+   setTimeout(()=>{if($("draftStatus")===draftStatusEl)draftStatusEl.textContent="✓ Rascunho salvo"},2600);
+ }
  bindRecordDraft();
  ["fActivity","fDate","fType","fComp","fCode"].forEach(id=>{
    const el=$(id);
@@ -8381,7 +8410,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "16.3";
+const APP_VERSION = "16.4";
 queueMicrotask(()=>{ const el=document.getElementById("healthFrontendVersion"); if(el) el.textContent=`v${APP_VERSION}`; });
 
 let deferredInstallPrompt=null;
