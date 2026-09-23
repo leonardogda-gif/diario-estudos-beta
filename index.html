@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#441015">
 <title>Diário de Estudos</title>
 
-<link rel="manifest" href="/manifest.json?v=16.21">
+<link rel="manifest" href="/manifest.json?v=16.23">
 <link rel="icon" type="image/png" sizes="32x32" href="/icon-192.png">
 <link rel="icon" type="image/png" sizes="48x48" href="/icon-192.png">
 
@@ -1704,7 +1704,7 @@ input,select,textarea{font-size:16px}
 .ai-period-text.is-updating{opacity:.45;transition:opacity .2s}
 </style>
 </head>
-<body data-build="16.21" class="auth-checking">
+<body data-build="16.23" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -2844,7 +2844,7 @@ function restoreMainTabOnce(){
 }
 function showPage(name){
  const previousPage=document.querySelector(".page.active")?.id||"";
- if(name==="administracao"&&!isGlobalDiaryAdmin){alert("Esta área está disponível somente para o administrador geral do Diário de Estudos.");name="mais"}
+ if(name==="administracao"&&!isGlobalDiaryAdmin){showNotice("Esta área está disponível somente para o administrador geral do Diário de Estudos.",{"title": "Área restrita", "icon": "🔒"});name="mais"}
  if(MAIN_TABS.has(name)){try{localStorage.setItem(LAST_MAIN_TAB_KEY,name)}catch(e){}}
  document.body.classList.toggle("mobile-footer-visible",name==="mais");
  if(name!=="leituras"&&typeof closeBookBarcodeScanner==="function")closeBookBarcodeScanner();
@@ -3094,10 +3094,10 @@ async function selectBackendFamily(familyId){
     await syncFamilyFromBackend(false);
     renderAll();
  setTimeout(()=>startAdminPendingValidationWatch(),2500);
-    alert("Família ativa alterada neste dispositivo.");
+    showNotice("A família ativa foi alterada neste dispositivo.",{"title": "Família alterada", "icon": "👨‍👩‍👧"});
   }catch(e){
     console.error(e);
-    alert("Não foi possível abrir esta família: "+e.message);
+    showNotice("Não foi possível abrir esta família: "+e.message,{"title": "Não foi possível abrir a família", "type": "error"});
   }
 }
 
@@ -3142,7 +3142,7 @@ function addOnboardingChildRow(data={}){
   renderOnboardingChildren();
 }
 function removeOnboardingChildRow(id){
-  if(onboardingRows.length<=1)return alert("Cadastre pelo menos uma criança para continuar.");
+  if(onboardingRows.length<=1)return showNotice("Cadastre pelo menos uma criança para continuar.",{"title": "Falta uma criança", "icon": "🧒"});
   onboardingRows=onboardingRows.filter(r=>r.id!==id);
   renderOnboardingChildren();
 }
@@ -3174,7 +3174,7 @@ function refreshOnboardingUI(){
 async function finishOnboarding(){
   if(!appSessionValid()||!backendProfile?.user)return showNotice("Sua sessão expirou. Entre novamente com sua conta Google para continuar.",{title:"Sessão expirada",icon:"🔑"});
   const valid=onboardingRows.map(r=>({...r,name:(r.name||"").trim()})).filter(r=>r.name);
-  if(!valid.length)return alert("Cadastre pelo menos uma criança.");
+  if(!valid.length)return showNotice("Cadastre pelo menos uma criança.",{"title": "Falta uma criança", "icon": "🧒"});
   const btn=$("finishOnboardingBtn"),status=$("onboardingStatus");
   if(btn){btn.disabled=true;btn.textContent="Preparando…"}if(status)status.textContent="Criando sua estrutura no Diário…";
   try{
@@ -3207,19 +3207,19 @@ async function finishOnboarding(){
     if(status)status.textContent="Tudo pronto.";
     updateAuthUI();renderAll();showPage(savedMainTab());
     setCloudStatus("ok","Diário pronto para usar");
-  }catch(e){console.error(e);if(signupNotAllowed(e)){if(status)status.textContent="";showWaitlistScreen();return}if(status)status.textContent="Não foi possível concluir a configuração.";alert("Não foi possível preparar o Diário: "+(e.message||e))}
+  }catch(e){console.error(e);if(signupNotAllowed(e)){if(status)status.textContent="";showWaitlistScreen();return}if(status)status.textContent="Não foi possível concluir a configuração.";showNotice("Não foi possível preparar o Diário: "+(e.message||e),{"title": "Não foi possível preparar o Diário", "type": "error"})}
   finally{if(btn){btn.disabled=false;btn.textContent=backendFamilyFromProfile()?"Cadastrar e começar":"Criar e começar"}}
 }
 
 async function createCleanBackendFamily(){
- const name=$("newFamilyCleanName")?.value.trim();if(!name)return alert("Informe o nome da família.");
+ const name=$("newFamilyCleanName")?.value.trim();if(!name)return showNotice("Informe o nome da família.",{"title": "Nome da família", "icon": "✏️"});
  try{
   const created=await backendFetch("/families",{method:"POST",body:JSON.stringify({name})});
   const id=created?.family?.id;if(!id)throw new Error("O backend não retornou o ID da família.");
   localStorage.setItem(ACTIVE_BACKEND_FAMILY_KEY,id);setBackendFamilyId(id);
   state.family={name,social:"",updatedAt:now(),responsibles:[],children:[]};state.entries={};state.plans=[];state.tombstones={children:[],entries:[],plans:[]};activeChildId=null;setBackendChildMap({});saveLocal();
-  await refreshBackendProfile();await loadBackendFamilyData();await syncFamilyFromBackend(false);renderAll();alert("Família criada. Esta conta é o Administrador. Agora cadastre as crianças.");
- }catch(e){if(signupNotAllowed(e)){showWaitlistScreen();return}alert("Não foi possível criar a família: "+e.message)}
+  await refreshBackendProfile();await loadBackendFamilyData();await syncFamilyFromBackend(false);renderAll();showNotice("Esta conta é a administradora da família. Agora cadastre as crianças.",{"title": "Família criada", "icon": "👨‍👩‍👧"});
+ }catch(e){if(signupNotAllowed(e)){showWaitlistScreen();return}showNotice("Não foi possível criar a família: "+e.message,{"title": "Não foi possível criar a família", "type": "error"})}
 }
 async function resetLocalBetaData(){
  if(!await showConfirm("Apagar deste navegador as crianças, registros e planejamentos antigos do beta?\n\nA família do backend e o Drive não serão apagados.",{title:"Apagar dados locais",icon:"🗑️",okLabel:"Apagar",irreversible:true}))return;
@@ -3233,7 +3233,7 @@ async function resetLocalBetaData(){
    remove.forEach(k=>localStorage.removeItem(k));
  }catch(e){}
  await clearMediaDb();
- saveLocal(false);renderAll(true);alert("Dados locais antigos removidos deste dispositivo.");
+ saveLocal(false);renderAll(true);showNotice("Os dados antigos foram removidos deste dispositivo.",{"title": "Dados locais removidos", "icon": "🧹"});
 }
 async function editBackendFamilyName(){
  const fam=currentBackendFamily();if(!fam||fam.role!=="admin")return showNotice("Somente administradores podem alterar o nome.");
@@ -3379,7 +3379,7 @@ async function linkCurrentFamilyToBackend(){
     return;
   }
   if(!localFamilyReadyForBackend()){
-    alert("Informe o nome da família em Configurações antes de continuar.");
+    showNotice("Informe o nome da família em Configurações antes de continuar.",{"title": "Nome da família", "icon": "✏️"});
     return;
   }
 
@@ -3454,7 +3454,7 @@ async function linkCurrentFamilyToBackend(){
     console.error(e);
     if(signupNotAllowed(e)){showWaitlistScreen();return}
     setBackendStatus(e.message||"erro ao vincular família",false);
-    alert("Não foi possível vincular a família: "+(e.message||"erro desconhecido"));
+    showNotice("Não foi possível vincular a família: "+(e.message||"erro desconhecido"),{"title": "Não foi possível vincular a família", "type": "error"});
   }finally{
     if(btn){btn.disabled=false;btn.textContent="Vincular família atual ao backend"}
     renderBackendFamilyState();
@@ -3630,12 +3630,12 @@ async function repairSharedFamilyData(){
     const result=recoverLegacyBackupsIntoCanonicalChildren();
     await syncWithDrive({manual:true});
     if(result.recoveredEntries||result.recoveredPlans){
-      alert(`Recuperados ${result.recoveredEntries} registro(s) antigo(s) e ${result.recoveredPlans} planejamento(s).`);
+      showNotice(`Recuperados ${result.recoveredEntries} registro(s) antigo(s) e ${result.recoveredPlans} planejamento(s).`,{"title": "Registros recuperados", "icon": "✅"});
     }else{
       showNotice("Os dados foram conferidos e sincronizados com o Drive.",{title:"Sincronização concluída",icon:"✅"});
     }
   }catch(e){
-    alert("Não foi possível reparar/migrar os registros: "+e.message);
+    showNotice("Não foi possível reparar/migrar os registros: "+e.message,{"title": "Não foi possível recuperar", "type": "error"});
   }
 }
 
@@ -3643,7 +3643,7 @@ async function setupSharedFamilyPhotos(){
   try{
     await prepareSharedFamilyStorage(true);
   }catch(e){
-    alert("Não foi possível preparar o armazenamento: "+e.message);
+    showNotice("Não foi possível preparar o armazenamento: "+e.message,{"title": "Armazenamento não preparado", "type": "error"});
   }
 }
 
@@ -3652,7 +3652,7 @@ async function openSharedFamilyPhotos(){
     const s=await prepareSharedFamilyStorage(false);
     window.open(`https://drive.google.com/drive/folders/${encodeURIComponent(s.folderId)}`,"_blank","noopener");
   }catch(e){
-    alert("Não foi possível abrir a pasta: "+e.message);
+    showNotice("Não foi possível abrir a pasta: "+e.message,{"title": "Pasta indisponível", "type": "error"});
   }
 }
 
@@ -3718,12 +3718,12 @@ function findPossibleChildDuplicates(){
  return hits.sort((x,y)=>y.score-x.score);
 }
 async function mergeDuplicateChildren(keepId,removeId){
- if(!canManageFamily())return alert("Somente o Administrador pode mesclar crianças.");
+ if(!canManageFamily())return showNotice("Somente o administrador da família pode mesclar crianças.",{"title": "Somente administradores", "icon": "🔒"});
  if(!keepId||!removeId||keepId===removeId)return;
 
  const keep=state.family.children.find(c=>c.id===keepId);
  const rem=state.family.children.find(c=>c.id===removeId);
- if(!keep||!rem)return alert("Não foi possível localizar os dois cadastros.");
+ if(!keep||!rem)return showNotice("Não foi possível localizar os dois cadastros.",{"title": "Cadastros não encontrados", "type": "error"});
 
  const mapBefore=getBackendChildMap();
  const keepBackend=mapBefore[keepId]||"";
@@ -3794,9 +3794,9 @@ async function mergeDuplicateChildren(keepId,removeId){
    saveLocal();
 
    renderAll();
-   alert(`Cadastros mesclados. "${keep.name}" foi mantida e "${rem.name}" foi excluída definitivamente.`);
+   showNotice(`Cadastros mesclados. "${keep.name}" foi mantida e "${rem.name}" foi excluída definitivamente.`,{"title": "Cadastros mesclados", "icon": "✅"});
  }catch(e){
-   alert("Não foi possível concluir a mesclagem: "+e.message);
+   showNotice("Não foi possível concluir a mesclagem: "+e.message,{"title": "Mesclagem não concluída", "type": "error"});
  }
 }
 function renderDuplicateChildren(){
@@ -3845,11 +3845,11 @@ async function archiveBackendChild(backendChildId, localChildId){
     saveLocal();
     await loadBackendFamilyData();
     renderAll();
-    alert("Criança removida da família. Durante o beta, ela pode ser recuperada em Arquivadas.");
-  }catch(e){alert("Não foi possível arquivar: "+e.message)}
+    showNotice("A criança foi arquivada. Você pode restaurá-la quando quiser em Arquivadas.",{"title": "Criança arquivada", "icon": "📦"});
+  }catch(e){showNotice("Não foi possível arquivar: "+e.message,{"title": "Não foi possível arquivar", "type": "error"})}
 }
 async function restoreBackendChild(backendChildId){
-  if(!canManageFamily())return alert("Somente administradores podem restaurar crianças.");
+  if(!canManageFamily())return showNotice("Somente o administrador da família pode restaurar crianças.",{"title": "Somente administradores", "icon": "🔒"});
   try{
     await backendFetch(`/children/${encodeURIComponent(backendChildId)}/restore`,{method:"POST"});
     const map=getBackendChildMap();
@@ -3861,8 +3861,8 @@ async function restoreBackendChild(backendChildId){
     saveLocal();
     await loadBackendFamilyData();
     renderAll();
-    alert("Criança restaurada.");
-  }catch(e){alert("Não foi possível restaurar: "+e.message)}
+    showNotice("A criança voltou para as telas principais do Diário.",{"title": "Criança restaurada", "icon": "✅"});
+  }catch(e){showNotice("Não foi possível restaurar: "+e.message,{"title": "Não foi possível restaurar", "type": "error"})}
 }
 
 function childMatchesRemote(local, remote){
@@ -3988,7 +3988,7 @@ async function syncFamilyFromBackend(showMessage=false){
     }
   }catch(e){
     console.error(e);
-    if(showMessage)alert("Não foi possível atualizar a família: "+e.message);
+    if(showMessage)showNotice("Não foi possível atualizar a família: "+e.message,{"title": "Não foi possível atualizar a família", "type": "error"});
   }
 }
 
@@ -4110,13 +4110,13 @@ async function refreshAsaasBilling(){
  }catch(e){box.innerHTML=`<b>Não foi possível consultar o plano</b><div class="meta" style="margin-top:5px">${esc(e.message||"Tente novamente.")}</div><button type="button" class="btn small" style="margin-top:9px" onclick="refreshAsaasBilling()">Tentar novamente</button>`}
 }
 async function startAsaasCheckout(plan,button){
- const family=backendFamilyFromProfile();if(!family)return alert("Selecione uma família.");
+ const family=backendFamilyFromProfile();if(!family)return showNotice("Selecione uma família.",{"title": "Selecione uma família", "icon": "👨‍👩‍👧"});
  if(button){button.disabled=true;button.textContent="Abrindo Asaas…"}
- try{const data=await backendFetch("/payments/asaas/checkout",{method:"POST",body:JSON.stringify({family_id:family.id,plan})});if(!data.checkout_url)throw new Error("Link de pagamento não recebido.");location.href=data.checkout_url}catch(e){alert("Não foi possível iniciar: "+e.message);if(button){button.disabled=false;button.textContent=plan==="yearly"?"Assinar anual":"Assinar mensal"}}
+ try{const data=await backendFetch("/payments/asaas/checkout",{method:"POST",body:JSON.stringify({family_id:family.id,plan})});if(!data.checkout_url)throw new Error("Link de pagamento não recebido.");location.href=data.checkout_url}catch(e){showNotice("Não foi possível iniciar: "+e.message,{"title": "Não foi possível iniciar a assinatura", "type": "error"});if(button){button.disabled=false;button.textContent=plan==="yearly"?"Assinar anual":"Assinar mensal"}}
 }
 async function cancelAsaasSubscription(){
  const family=backendFamilyFromProfile();if(!family)return;if(!await showConfirm("Cancelar a renovação desta assinatura?",{title:"Cancelar renovação",icon:"💳",okLabel:"Cancelar renovação"}))return;
- try{const data=await backendFetch("/payments/asaas/cancel",{method:"POST",body:JSON.stringify({family_id:family.id})});alert(data.access_until?`Renovação cancelada. Seu acesso continua até ${fmtDate(data.access_until)}.`:"Renovação cancelada. Nenhuma nova cobrança será feita.");refreshAsaasBilling()}catch(e){alert("Não foi possível cancelar: "+e.message)}
+ try{const data=await backendFetch("/payments/asaas/cancel",{method:"POST",body:JSON.stringify({family_id:family.id})});showNotice(data.access_until?`Renovação cancelada. Seu acesso continua até ${fmtDate(data.access_until)}.`:"Renovação cancelada. Nenhuma nova cobrança será feita.",{"title": "Renovação cancelada", "icon": "💳"});refreshAsaasBilling()}catch(e){showNotice("Não foi possível cancelar: "+e.message,{"title": "Não foi possível cancelar", "type": "error"})}
 }
 
 async function loadAdminAccessGrants(){
@@ -4129,13 +4129,13 @@ async function loadAdminAccessGrants(){
 }
 async function grantFamilyAccess(){
  const family_id=$("adminAccessGrantFamily")?.value,grant_type=$("adminAccessGrantType")?.value,reason=$("adminAccessGrantReason")?.value.trim(),date=$("adminAccessGrantEnds")?.value;
- if(!reason)return alert("Informe o motivo da liberação.");
- try{await backendFetch("/admin/access-grants",{method:"POST",body:JSON.stringify({family_id,grant_type,reason,ends_at:date?date+"T23:59:59Z":null})});alert("Acesso liberado.");$("adminAccessGrantReason").value="";loadAdminAccessGrants()}catch(e){alert("Não foi possível liberar: "+e.message)}
+ if(!reason)return showNotice("Informe o motivo da liberação.",{"title": "Falta uma informação", "icon": "✏️"});
+ try{await backendFetch("/admin/access-grants",{method:"POST",body:JSON.stringify({family_id,grant_type,reason,ends_at:date?date+"T23:59:59Z":null})});showNotice("Acesso liberado.",{"title": "Acesso liberado", "icon": "✅"});$("adminAccessGrantReason").value="";loadAdminAccessGrants()}catch(e){showNotice("Não foi possível liberar: "+e.message,{"title": "Algo não deu certo", "type": "error"})}
 }
 async function revokeFamilyAccess(){
  const family_id=$("adminAccessGrantFamily")?.value;if(!family_id)return;
  if(!await showConfirm("Remover a gratuidade desta família?",{title:"Remover gratuidade",icon:"🎟️",okLabel:"Remover"}))return;
- try{await backendFetch("/admin/access-grants/revoke",{method:"POST",body:JSON.stringify({family_id})});loadAdminAccessGrants()}catch(e){alert("Não foi possível remover: "+e.message)}
+ try{await backendFetch("/admin/access-grants/revoke",{method:"POST",body:JSON.stringify({family_id})});loadAdminAccessGrants()}catch(e){showNotice("Não foi possível remover: "+e.message,{"title": "Algo não deu certo", "type": "error"})}
 }
 
 async function loadAllowedSignups(){
@@ -4146,12 +4146,12 @@ async function loadAllowedSignups(){
  }catch(e){box.textContent="Não foi possível carregar: "+e.message}
 }
 async function addAllowedSignup(){
- const email=$("adminAllowedEmailInput")?.value.trim(),note=$("adminAllowedEmailNote")?.value.trim();if(!email)return alert("Informe o e-mail.");
- try{await backendFetch("/admin/allowed-signups",{method:"POST",body:JSON.stringify({email,note})});$("adminAllowedEmailInput").value="";$("adminAllowedEmailNote").value="";loadAllowedSignups()}catch(e){alert("Não foi possível autorizar: "+e.message)}
+ const email=$("adminAllowedEmailInput")?.value.trim(),note=$("adminAllowedEmailNote")?.value.trim();if(!email)return showNotice("Informe o e-mail.",{"title": "Falta uma informação", "icon": "✏️"});
+ try{await backendFetch("/admin/allowed-signups",{method:"POST",body:JSON.stringify({email,note})});$("adminAllowedEmailInput").value="";$("adminAllowedEmailNote").value="";loadAllowedSignups()}catch(e){showNotice("Não foi possível autorizar: "+e.message,{"title": "Algo não deu certo", "type": "error"})}
 }
 async function removeAllowedSignup(email){
  if(!await showConfirm(`Remover ${email} da lista de novos cadastros?`,{title:"Remover cadastro liberado",icon:"✉️",okLabel:"Remover"}))return;
- try{await backendFetch("/admin/allowed-signups/remove",{method:"POST",body:JSON.stringify({email})});loadAllowedSignups()}catch(e){alert("Não foi possível remover: "+e.message)}
+ try{await backendFetch("/admin/allowed-signups/remove",{method:"POST",body:JSON.stringify({email})});loadAllowedSignups()}catch(e){showNotice("Não foi possível remover: "+e.message,{"title": "Algo não deu certo", "type": "error"})}
 }
 
 async function refreshGoogleServerStatus(){
@@ -4169,7 +4169,7 @@ async function beginPersistentGoogleAuthorization(){
     const data=await backendFetch("/google/oauth/start");
     if(!data?.authorization_url)throw new Error("URL de autorização não recebida.");
     location.href=data.authorization_url;
-  }catch(e){alert("Não foi possível iniciar a autorização Google: "+e.message)}
+  }catch(e){showNotice("Não foi possível iniciar a autorização Google: "+e.message,{"title": "Autorização não iniciada", "type": "error"})}
 }
 async function googleServerFetch(target,options={}){
   if(!appSessionValid()){const e=new Error("Sessão do Diário necessária.");e.code="APP_SESSION_REQUIRED";throw e}
@@ -4215,11 +4215,11 @@ async function testBackendConnection(){
     setBackendStatus("conectado",true);
 
     const families=live?.families||[];
-    alert(
+    showNotice(
       "Backend conectado com sucesso.\n\n"+
       `Conta: ${live?.user?.email||googleUser?.email||"não identificada"}\n`+
       `Famílias retornadas agora: ${families.length}`
-    );
+    ,{"title": "Conexão verificada", "icon": "✅"});
 
     await refreshBackendProfile();
     renderAll(true);
@@ -4229,11 +4229,11 @@ async function testBackendConnection(){
     setBackendStatus(lastBackendError,false);
     setCloudStatus("error","Backend não conectado");
 
-    alert(
+    showNotice(
       "O backend respondeu com erro na conexão atual:\n\n"+
       lastBackendError+
       "\n\nEsse é o erro que precisamos corrigir; os dados de família que apareciam antes podiam estar carregados de uma sessão anterior."
-    );
+    ,{"title": "Falha na conexão", "type": "error"});
   }
 }
 
@@ -4404,7 +4404,7 @@ function initGoogleAuth(){
 }
 function googleLogin(){
   initGoogleAuth();
-  if(!googleTokenClient) return alert("Login ainda carregando.");
+  if(!googleTokenClient) return showNotice("O login com Google ainda está carregando. Tente novamente em alguns segundos.",{"title": "Aguarde um instante", "icon": "⏳"});
   if(localStorage.getItem(REMEMBER_GOOGLE_KEY) === null){
     localStorage.setItem(REMEMBER_GOOGLE_KEY,"1");
   }
@@ -5331,7 +5331,7 @@ function saveReportInfoSettings(){
  state.family.updatedAt=now();
  saveLocal();
  renderReportPage();
- alert("Informações para relatórios salvas.");
+ showNotice("Informações para relatórios salvas.",{"title": "Informações salvas", "icon": "✅"});
 }
 function openReportInfoSettings(){
  showPage("configuracoes");
@@ -6370,7 +6370,7 @@ function planMaterialSearchChanged(){
 }
 async function quickCreatePlanMaterial(name){
  const title=String(name||$("planMaterialSearch")?.value||"").trim();if(!title)return;
- const fam=currentBackendFamily();if(!fam?.id)return alert("Crie ou selecione uma família primeiro.");
+ const fam=currentBackendFamily();if(!fam?.id)return showNotice("Crie ou selecione uma família primeiro.",{"title": "Família não conectada", "icon": "👨‍👩‍👧"});
  try{
   const data=await backendFetch("/materials",{method:"POST",body:JSON.stringify({family_id:fam.id,name:title,publisher:"",age_range:"",content_description:""})});
   const m=data?.material||{id:"",name:title,publisher:""};
@@ -6380,7 +6380,7 @@ async function quickCreatePlanMaterial(name){
   if($("planMaterialSearch"))$("planMaterialSearch").value="";
   if($("planMaterialResults"))$("planMaterialResults").innerHTML="";
   renderPlanMaterialSelection(m);
- }catch(e){alert("Não foi possível cadastrar o material: "+(e.message||e))}
+ }catch(e){showNotice("Não foi possível cadastrar o material: "+(e.message||e),{"title": "Algo não deu certo", "type": "error"})}
 }
 async function choosePlanMaterial(index){
  const m=planMaterialSearchResults[index]||catalogMaterialSearchResults[index];if(!m)return;
@@ -6435,8 +6435,8 @@ function openRecordMaterialInline(title){
 }
 function cancelRecordMaterialInline(){ const f=$("recordMaterialNewForm");if(f)f.open=false; }
 async function submitRecordMaterialInline(){
- const fam=currentBackendFamily();if(!fam?.id)return alert("Conecte a família antes de cadastrar um material.");
- const name=$("recordMaterialNewName")?.value.trim()||"";if(!name)return alert("Informe o nome do material.");
+ const fam=currentBackendFamily();if(!fam?.id)return showNotice("Conecte a família antes de cadastrar um material.",{"title": "Família não conectada", "icon": "👨‍👩‍👧"});
+ const name=$("recordMaterialNewName")?.value.trim()||"";if(!name)return showNotice("Informe o nome do material.",{"title": "Falta uma informação", "icon": "✏️"});
  const publisher=$("recordMaterialNewPublisher")?.value.trim()||"",age_range=$("recordMaterialNewAge")?.value.trim()||"",content_description=$("recordMaterialNewDescription")?.value.trim()||"";
  try{
   const data=await backendFetch("/materials",{method:"POST",body:JSON.stringify({family_id:fam.id,name,publisher,age_range,content_description})});
@@ -6444,7 +6444,7 @@ async function submitRecordMaterialInline(){
   if($("fMaterialId"))$("fMaterialId").value=m.id||"";if($("fMaterialName"))$("fMaterialName").value=m.name||name;if($("fMaterialPublisher"))$("fMaterialPublisher").value=m.publisher||publisher;
   renderRecordMaterialSelection({...m,name:m.name||name,publisher:m.publisher||publisher,age_range:m.age_range||age_range});
   if($("recordMaterialSearch"))$("recordMaterialSearch").value="";if($("recordMaterialResults"))$("recordMaterialResults").innerHTML="";cancelRecordMaterialInline();saveRecordDraft(true);
- }catch(e){alert("Não foi possível cadastrar o material: "+(e.message||e))}
+ }catch(e){showNotice("Não foi possível cadastrar o material: "+(e.message||e),{"title": "Algo não deu certo", "type": "error"})}
 }
 
 async function chooseRecordMaterial(index){
@@ -6551,9 +6551,9 @@ async function suggestMaterialBncc(){ return; }
 
 async function submitMaterialRequest(){
  const fam=currentBackendFamily();
- if(!fam?.id)return alert("Crie ou selecione uma família primeiro.");
+ if(!fam?.id)return showNotice("Crie ou selecione uma família primeiro.",{"title": "Família não conectada", "icon": "👨‍👩‍👧"});
  const name=$("materialSearchInput")?.value.trim()||"";
- if(!name)return alert("Informe o nome do material.");
+ if(!name)return showNotice("Informe o nome do material.",{"title": "Falta uma informação", "icon": "✏️"});
  try{
    await backendFetch("/materials",{
      method:"POST",
@@ -6565,11 +6565,11 @@ async function submitMaterialRequest(){
        content_description:$("materialDescription")?.value.trim()||""
      })
    });
-   alert("Material enviado para validação. Já está disponível para a sua família.");
+   showNotice("Material enviado para validação. Já está disponível para a sua família.",{"title": "Material enviado", "icon": "✅"});
    toggleMaterialSearch(false);
  }catch(e){
    console.error("Solicitar material:",e);
-   alert("Erro ao enviar: "+(e.message||"tente novamente"));
+   showNotice("Não foi possível enviar o material: "+(e.message||"tente novamente"),{"title": "Algo não deu certo", "type": "error"});
  }
 }
 
@@ -6649,10 +6649,10 @@ async function loadAdminAiUsage(){
  }catch(e){const msg=String(e.message||e);box.innerHTML=`<div class="notice">${esc(msg.includes("ai_usage_events")?"A tabela de medição ainda não existe no D1. Aplique primeiro o arquivo d1-ai-usage-v8_6.sql.":"Não foi possível carregar o consumo de IA: "+msg)}</div>`}
 }
 async function enableAdminValidationNotifications(){
- if(!("Notification" in window))return alert("Este navegador não oferece notificações do sistema para este aplicativo.");
+ if(!("Notification" in window))return showNotice("Este navegador não oferece notificações do sistema para este aplicativo.",{"title": "Atenção", "icon": "ℹ️"});
  const permission=await Notification.requestPermission();updateAdminValidationNotificationStatus();
  if(permission==="granted")await checkAdminPendingValidations(true);
- else if(permission==="denied")alert("As notificações foram bloqueadas pelo navegador. Você pode reativá-las nas permissões do site.");
+ else if(permission==="denied")showNotice("As notificações foram bloqueadas pelo navegador. Você pode reativá-las nas permissões do site.",{"title": "Atenção", "icon": "ℹ️"});
 }
 function updateAdminValidationNotificationStatus(){
  const el=$("adminValidationAlertStatus");if(!el)return;
@@ -6692,10 +6692,10 @@ function showAdminCatalogTab(tab){
 }
 async function loadAdminCommunityBooks(){const box=$('adminCommunityBooksBox');if(!box)return;box.innerHTML='Carregando livros…';try{const q=String($('adminCommunityBookQuery')?.value||'').trim(),data=await backendFetch('/community-books/admin-list?q='+encodeURIComponent(q));adminCommunityBooksCache=data?.books||[];if(!adminCommunityBooksCache.length){box.innerHTML='Nenhum livro encontrado.';return}box.innerHTML=adminCommunityBooksCache.map((b,i)=>`<div class="admin-library-item"><div class="admin-library-head">${b.thumbnail?`<img class="admin-library-cover" src="${esc(b.thumbnail)}" alt="">`:`<div class="admin-library-cover" style="display:grid;place-items:center">📖</div>`}<div><b>${esc(b.title||'Sem título')}</b><div class="meta">${esc((b.authors||[]).join(', ')||'Autor não informado')}${b.publisher?' · '+esc(b.publisher):''}</div>${b.isbn13?`<div class="meta">ISBN ${esc(b.isbn13)}</div>`:''}</div><span class="admin-library-status">Ativo</span></div><div class="admin-library-actions"><button class="btn small" type="button" onclick="editAdminCommunityBook(${i})">✏️ Editar</button></div><div id="adminCommunityBookEdit${i}" class="hidden"></div></div>`).join('')}catch(e){box.innerHTML=`<div class="notice">${esc(e.message||'Não foi possível carregar os livros.')}</div>`}}
 function editAdminCommunityBook(i){const b=adminCommunityBooksCache[i],box=$('adminCommunityBookEdit'+i);if(!b||!box)return;box.classList.remove('hidden');box.innerHTML=`<div class="admin-library-edit"><div class="grid"><div class="full"><label class="field">Título</label><input id="aclBookTitle${i}" value="${esc(b.title||'')}"></div><div><label class="field">Autor(es)</label><input id="aclBookAuthors${i}" value="${esc((b.authors||[]).join(', '))}"></div><div><label class="field">Editora</label><input id="aclBookPublisher${i}" value="${esc(b.publisher||'')}"></div><div><label class="field">ISBN-13</label><input id="aclBookIsbn${i}" value="${esc(b.isbn13||'')}"></div><div class="full"><label class="field">URL da capa</label><input id="aclBookCover${i}" value="${esc(b.thumbnail||'')}"></div></div><div class="toolbar" style="margin-top:8px"><button class="btn success small" onclick="saveAdminCommunityBook(${i})">Salvar alterações</button><button class="btn small" onclick="$('adminCommunityBookEdit${i}').classList.add('hidden')">Cancelar</button></div></div>`}
-async function saveAdminCommunityBook(i){const b=adminCommunityBooksCache[i],title=$('aclBookTitle'+i)?.value.trim()||'';if(!b||!title)return alert('Informe o título.');try{await backendFetch('/community-books/'+encodeURIComponent(b.id),{method:'PUT',body:JSON.stringify({title,authors:String($('aclBookAuthors'+i)?.value||'').split(',').map(x=>x.trim()).filter(Boolean),publisher:$('aclBookPublisher'+i)?.value.trim()||'',isbn13:$('aclBookIsbn'+i)?.value.trim()||'',thumbnail:$('aclBookCover'+i)?.value.trim()||''})});await loadAdminCommunityBooks()}catch(e){alert('Não foi possível salvar: '+(e.message||e))}}
+async function saveAdminCommunityBook(i){const b=adminCommunityBooksCache[i],title=$('aclBookTitle'+i)?.value.trim()||'';if(!b||!title)return showNotice('Informe o título.',{"title": "Falta uma informação", "icon": "✏️"});try{await backendFetch('/community-books/'+encodeURIComponent(b.id),{method:'PUT',body:JSON.stringify({title,authors:String($('aclBookAuthors'+i)?.value||'').split(',').map(x=>x.trim()).filter(Boolean),publisher:$('aclBookPublisher'+i)?.value.trim()||'',isbn13:$('aclBookIsbn'+i)?.value.trim()||'',thumbnail:$('aclBookCover'+i)?.value.trim()||''})});await loadAdminCommunityBooks()}catch(e){showNotice('Não foi possível salvar: '+(e.message||e),{"title": "Algo não deu certo", "type": "error"})}}
 async function loadAdminCommunityMaterials(){const box=$('adminCommunityMaterialsBox');if(!box)return;box.innerHTML='Carregando materiais…';try{const q=String($('adminCommunityMaterialQuery')?.value||'').trim(),data=await backendFetch('/materials/admin-list?q='+encodeURIComponent(q));adminCommunityMaterialsCache=data?.materials||[];if(!adminCommunityMaterialsCache.length){box.innerHTML='Nenhum material encontrado.';return}box.innerHTML=adminCommunityMaterialsCache.map((m,i)=>`<div class="admin-library-item"><div><b>${esc(m.name||'Sem nome')}</b><div class="meta">${esc(m.publisher||'')}${m.age_range?(m.publisher?' · ':'')+esc(m.age_range):''}</div>${m.content_description?`<div class="meta" style="margin-top:4px">${esc(m.content_description)}</div>`:''}</div><div class="admin-library-actions"><button class="btn small" type="button" onclick="editAdminCommunityMaterial(${i})">✏️ Editar</button></div><div id="adminCommunityMaterialEdit${i}" class="hidden"></div></div>`).join('')}catch(e){box.innerHTML=`<div class="notice">${esc(e.message||'Não foi possível carregar os materiais.')}</div>`}}
 function editAdminCommunityMaterial(i){const m=adminCommunityMaterialsCache[i],box=$('adminCommunityMaterialEdit'+i);if(!m||!box)return;box.classList.remove('hidden');box.innerHTML=`<div class="admin-library-edit"><div class="grid"><div class="full"><label class="field">Nome</label><input id="aclMatName${i}" value="${esc(m.name||'')}"></div><div><label class="field">Editora / autor</label><input id="aclMatPublisher${i}" value="${esc(m.publisher||'')}"></div><div><label class="field">Faixa / ano</label><input id="aclMatAge${i}" value="${esc(m.age_range||'')}"></div><div class="full"><label class="field">Descrição / observações</label><textarea id="aclMatDescription${i}" rows="3">${esc(m.content_description||'')}</textarea></div></div><div class="toolbar" style="margin-top:8px"><button class="btn success small" onclick="saveAdminCommunityMaterial(${i})">Salvar alterações</button><button class="btn small" onclick="$('adminCommunityMaterialEdit${i}').classList.add('hidden')">Cancelar</button></div></div>`}
-async function saveAdminCommunityMaterial(i){const m=adminCommunityMaterialsCache[i],name=$('aclMatName'+i)?.value.trim()||'';if(!m||!name)return alert('Informe o nome do material.');try{await backendFetch('/materials/'+encodeURIComponent(m.id),{method:'PUT',body:JSON.stringify({name,publisher:$('aclMatPublisher'+i)?.value.trim()||'',age_range:$('aclMatAge'+i)?.value.trim()||'',content_description:$('aclMatDescription'+i)?.value.trim()||''})});await loadAdminCommunityMaterials()}catch(e){alert('Não foi possível salvar: '+(e.message||e))}}
+async function saveAdminCommunityMaterial(i){const m=adminCommunityMaterialsCache[i],name=$('aclMatName'+i)?.value.trim()||'';if(!m||!name)return showNotice('Informe o nome do material.',{"title": "Falta uma informação", "icon": "✏️"});try{await backendFetch('/materials/'+encodeURIComponent(m.id),{method:'PUT',body:JSON.stringify({name,publisher:$('aclMatPublisher'+i)?.value.trim()||'',age_range:$('aclMatAge'+i)?.value.trim()||'',content_description:$('aclMatDescription'+i)?.value.trim()||''})});await loadAdminCommunityMaterials()}catch(e){showNotice('Não foi possível salvar: '+(e.message||e),{"title": "Algo não deu certo", "type": "error"})}}
 
 let pendingCommunityBooksCache=[];
 async function loadPendingCommunityBooks(){
@@ -6719,38 +6719,38 @@ function editPendingCommunityBook(i){
 }
 async function savePendingCommunityBook(i,approve){
  const b=pendingCommunityBooksCache[i];if(!b)return;
- const title=$("adminBookTitle"+i)?.value.trim()||"";if(!title)return alert("Informe o título.");
+ const title=$("adminBookTitle"+i)?.value.trim()||"";if(!title)return showNotice("Informe o título.",{"title": "Falta uma informação", "icon": "✏️"});
  try{
   await backendFetch(`/community-books/${encodeURIComponent(b.id)}`,{method:"PUT",body:JSON.stringify({title,authors:String($("adminBookAuthors"+i)?.value||"").split(",").map(x=>x.trim()).filter(Boolean),publisher:$("adminBookPublisher"+i)?.value.trim()||"",isbn13:$("adminBookIsbn"+i)?.value.trim()||"",thumbnail:$("adminBookCover"+i)?.value.trim()||""})});
   if(approve)await backendFetch(`/community-books/${encodeURIComponent(b.id)}/approve`,{method:"POST"});loadPendingCommunityBooks()
- }catch(e){alert("Não foi possível salvar: "+(e.message||e))}
+ }catch(e){showNotice("Não foi possível salvar: "+(e.message||e),{"title": "Algo não deu certo", "type": "error"})}
 }
-async function reviewCommunityBook(id,action){try{await backendFetch(`/community-books/${encodeURIComponent(id)}/${action}`,{method:"POST"});loadPendingCommunityBooks()}catch(e){alert("Não foi possível revisar: "+(e.message||e))}}
+async function reviewCommunityBook(id,action){try{await backendFetch(`/community-books/${encodeURIComponent(id)}/${action}`,{method:"POST"});loadPendingCommunityBooks()}catch(e){showNotice("Não foi possível revisar: "+(e.message||e),{"title": "Algo não deu certo", "type": "error"})}}
 async function mergeOrLinkCommunityBookPrompt(id){
- const q=prompt("Digite parte do título, autor ou ISBN do livro correto:");if(!q)return;
+ const asked=await showFormModal({title:"Vincular ou mesclar livro",icon:"🔎",message:"Busque o cadastro correto no catálogo ou no Google Books.",fields:[{id:"q",type:"text",label:"Título, autor ou ISBN",value:""}]});const q=String(asked?.q||"").trim();if(!q)return;
  try{
   const [communityResult,googleResult]=await Promise.allSettled([backendFetch("/community-books/admin-search?q="+encodeURIComponent(q)),backendFetch("/books/search?q="+encodeURIComponent(q))]),communityData=communityResult.status==="fulfilled"?communityResult.value:{},googleData=googleResult.status==="fulfilled"?googleResult.value:{};
   const list=[...(communityData?.items||[]).map(x=>({...x,target_type:"community"})),...(googleData?.items||[]).map(x=>({...x,target_type:"google_books"}))].slice(0,12);
-  if(!list.length)return alert("Nenhum livro correspondente foi encontrado.");
-  const options=list.map((b,i)=>`${i+1}. ${b.target_type==="google_books"?"Google Books":"Catálogo"} · ${b.title}${(b.authors||[]).length?" — "+b.authors.join(", "):""}`).join("\n");
-  const choice=Number(prompt("Escolha o cadastro principal:\n\n"+options));if(!choice||!list[choice-1])return;
-  const target=list[choice-1],body=target.target_type==="google_books"?{target_type:"google_books",google_volume_id:target.google_volume_id}:{target_type:"community",target_book_id:target.community_book_id};
-  await backendFetch(`/community-books/${encodeURIComponent(id)}/merge`,{method:"POST",body:JSON.stringify(body)});loadPendingCommunityBooks();alert(target.target_type==="google_books"?"Livro vinculado ao Google Books. Os históricos das famílias foram preservados.":"Cadastros mesclados. Os históricos das famílias foram preservados.")
- }catch(e){alert("Não foi possível mesclar ou vincular: "+(e.message||e))}
+  if(!list.length)return showNotice("Nenhum livro correspondente foi encontrado. Tente outro termo.",{title:"Nada encontrado",icon:"🔎"});
+  const picked=await showFormModal({title:"Escolha o cadastro principal",icon:"📚",message:"O livro pendente será vinculado ao cadastro escolhido. Os históricos das famílias são preservados.",fields:[{id:"choice",type:"select",label:"Cadastro principal",value:"0",options:list.map((b,i)=>({value:String(i),label:`${b.target_type==="google_books"?"Google Books":"Catálogo"} · ${b.title||"Sem título"}${(b.authors||[]).length?" — "+b.authors.join(", "):""}`}))}]});
+  if(!picked)return;const target=list[Number(picked.choice)];if(!target)return;
+  const body=target.target_type==="google_books"?{target_type:"google_books",google_volume_id:target.google_volume_id}:{target_type:"community",target_book_id:target.community_book_id};
+  await backendFetch(`/community-books/${encodeURIComponent(id)}/merge`,{method:"POST",body:JSON.stringify(body)});loadPendingCommunityBooks();showNotice(target.target_type==="google_books"?"Livro vinculado ao Google Books. Os históricos das famílias foram preservados.":"Cadastros mesclados. Os históricos das famílias foram preservados.",{title:"Livro atualizado",icon:"✅"})
+ }catch(e){showNotice("Não foi possível mesclar ou vincular: "+(e.message||e),{title:"Falha ao vincular",type:"error"})}
 }
 
 let adminCatalogGoogleBooks=[];
 function resetAdminCatalogBookForm(){adminCatalogGoogleBooks=[];if($("adminCatalogGoogleResults"))$("adminCatalogGoogleResults").innerHTML=""}
 async function searchAdminCatalogGoogleBooks(){
- const q=String($("adminCatalogGoogleQuery")?.value||"").trim(),box=$("adminCatalogGoogleResults");if(q.length<2)return alert("Informe pelo menos 2 caracteres.");if(box)box.innerHTML='<div class="meta" style="margin-top:7px">Buscando…</div>';
+ const q=String($("adminCatalogGoogleQuery")?.value||"").trim(),box=$("adminCatalogGoogleResults");if(q.length<2)return showNotice("Informe pelo menos 2 caracteres.",{"title": "Falta uma informação", "icon": "✏️"});if(box)box.innerHTML='<div class="meta" style="margin-top:7px">Buscando…</div>';
  try{const data=await backendFetch("/books/search?q="+encodeURIComponent(q));adminCatalogGoogleBooks=data?.items||[];if(box)box.innerHTML=adminCatalogGoogleBooks.map((b,i)=>`<div class="duplicate-card" style="margin-top:7px"><b>${esc(b.title||"Sem título")}</b><div class="meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.publisher?" · "+esc(b.publisher):""}</div><button class="btn small" style="margin-top:6px" type="button" onclick="fillAdminCatalogGoogleBook(${i})">Usar estes dados</button></div>`).join("")||'<div class="meta" style="margin-top:7px">Nenhum resultado.</div>'}catch(e){if(box)box.innerHTML=`<div class="meta" style="margin-top:7px">${esc(e.message||"Não foi possível buscar.")}</div>`}
 }
 function fillAdminCatalogGoogleBook(i){const b=adminCatalogGoogleBooks[i];if(!b)return;$("adminCatalogBookTitle").value=b.title||"";$("adminCatalogBookAuthors").value=(b.authors||[]).join(", ");$("adminCatalogBookPublisher").value=b.publisher||"";$("adminCatalogBookIsbn13").value=b.isbn13||"";$("adminCatalogBookIsbn10").value=b.isbn10||"";$("adminCatalogBookCover").value=b.thumbnail||"";$("adminCatalogBookTitle").dataset.googleVolumeId=b.google_volume_id||"";$("adminCatalogBookTitle").dataset.googleResultIndex=String(i)}
 async function addAdminCatalogBook(){
- const title=String($("adminCatalogBookTitle")?.value||"").trim();if(!title)return alert("Informe o título.");
+ const title=String($("adminCatalogBookTitle")?.value||"").trim();if(!title)return showNotice("Informe o título.",{"title": "Falta uma informação", "icon": "✏️"});
  const selected=adminCatalogGoogleBooks[Number($("adminCatalogBookTitle")?.dataset.googleResultIndex)]||{},body={title,authors:String($("adminCatalogBookAuthors")?.value||"").split(",").map(x=>x.trim()).filter(Boolean),publisher:$("adminCatalogBookPublisher")?.value.trim()||"",isbn13:$("adminCatalogBookIsbn13")?.value.trim()||"",isbn10:$("adminCatalogBookIsbn10")?.value.trim()||"",thumbnail:$("adminCatalogBookCover")?.value.trim()||"",google_volume_id:$("adminCatalogBookTitle")?.dataset.googleVolumeId||"",published_date:selected.published_date||"",description:selected.description||"",page_count:selected.page_count||null,categories:selected.categories||[],language:selected.language||""};
- try{await backendFetch("/community-books/admin",{method:"POST",body:JSON.stringify(body)});["adminCatalogBookTitle","adminCatalogBookAuthors","adminCatalogBookPublisher","adminCatalogBookIsbn13","adminCatalogBookIsbn10","adminCatalogBookCover","adminCatalogGoogleQuery"].forEach(id=>{if($(id))$(id).value=""});delete $("adminCatalogBookTitle").dataset.googleVolumeId;delete $("adminCatalogBookTitle").dataset.googleResultIndex;resetAdminCatalogBookForm();alert("Livro adicionado ao catálogo compartilhado.")}
- catch(e){alert("Não foi possível adicionar ao catálogo: "+(e.message||e))}
+ try{await backendFetch("/community-books/admin",{method:"POST",body:JSON.stringify(body)});["adminCatalogBookTitle","adminCatalogBookAuthors","adminCatalogBookPublisher","adminCatalogBookIsbn13","adminCatalogBookIsbn10","adminCatalogBookCover","adminCatalogGoogleQuery"].forEach(id=>{if($(id))$(id).value=""});delete $("adminCatalogBookTitle").dataset.googleVolumeId;delete $("adminCatalogBookTitle").dataset.googleResultIndex;resetAdminCatalogBookForm();showNotice("Livro adicionado ao catálogo compartilhado.",{"title": "Livro adicionado", "icon": "✅"})}
+ catch(e){showNotice("Não foi possível adicionar ao catálogo: "+(e.message||e),{"title": "Algo não deu certo", "type": "error"})}
 }
 
 let pendingMaterialsCache=[];
@@ -6794,7 +6794,7 @@ function editPendingMaterial(index){
 async function savePendingMaterial(index,approveAfter=false){
  const m=pendingMaterialsCache[index];if(!m)return;
  const name=$("adminMatName"+index)?.value.trim()||"";
- if(!name)return alert("Informe o nome do material.");
+ if(!name)return showNotice("Informe o nome do material.",{"title": "Falta uma informação", "icon": "✏️"});
  try{
    await backendFetch(`/materials/${encodeURIComponent(m.id)}`,{
      method:"PUT",
@@ -6808,7 +6808,7 @@ async function savePendingMaterial(index,approveAfter=false){
    if(approveAfter)await backendFetch(`/materials/${encodeURIComponent(m.id)}/approve`,{method:"POST"});
    await loadPendingMaterials();
  }catch(e){
-   alert("Erro ao salvar material: "+(e.message||"tente novamente"));
+   showNotice("Não foi possível salvar o material: "+(e.message||"tente novamente"),{"title": "Algo não deu certo", "type": "error"});
  }
 }
 
@@ -6817,7 +6817,7 @@ async function reviewMaterial(id,action){
    await backendFetch(`/materials/${encodeURIComponent(id)}/${action}`,{method:"POST"});
    loadPendingMaterials();
  }catch(e){
-   alert("Erro: "+(e.message||"tente novamente"));
+   showNotice("Não foi possível revisar o material: "+(e.message||"tente novamente"),{"title": "Algo não deu certo", "type": "error"});
  }
 }
 
@@ -7090,12 +7090,12 @@ function calendarEventTimeLabel(ev){
 function cleanCalendarDescription(text){return String(text||"").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim().slice(0,1200)}
 function reauthorizeGoogleCalendar(){
  if(!googleTokenClient){
-  return alert("O login do Google ainda não está pronto. Recarregue a página e tente novamente.");
+  return showNotice("O login do Google ainda não está pronto. Recarregue a página e tente novamente.",{"title": "Atenção", "icon": "ℹ️"});
  }
  try{
   googleTokenClient.requestAccessToken({prompt:"consent",include_granted_scopes:false});
  }catch(e){
-  alert("Não foi possível abrir a autorização do Google: "+(e.message||e));
+  showNotice("Não foi possível abrir a autorização do Google: "+(e.message||e),{"title": "Algo não deu certo", "type": "error"});
  }
 }
 function isGoogleInsufficientScopeError(e){
@@ -7194,7 +7194,7 @@ async function fetchOriginalCalendarEvent(plan){return calendarApiFetch(`https:/
 async function updateImportedCalendarCopy(planId,itemIndex){
  const plan=state.plans.find(p=>p.id===planId);if(!plan)return;let source=Number.isInteger(itemIndex)?(window.diaryCalendarImportItems||[])[itemIndex]:null;
  try{if(!source)source=await fetchOriginalCalendarEvent(plan);const desc=cleanCalendarDescription(source.description||"");plan.title=source.summary||plan.title;plan.date=calendarEventDate(source)||plan.date;plan.nextDate=plan.date;plan.place=source.location||"";if(desc)plan.notes=desc;plan.importedCalendarFingerprint=calendarEventFingerprint(source);plan.importedCalendarUpdated=source.updated||"";plan.importedCalendarChanged=false;plan.updatedAt=now();if(plan.calendarId&&plan.calendarEventId)await calendarApiFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(plan.calendarId)}/events/${encodeURIComponent(plan.calendarEventId)}`,{method:"PUT",body:JSON.stringify(importedCalendarCopyBody(plan,source))});else await createImportedCalendarCopy(plan,source);saveLocal();renderPlans();renderDashboard();if($("calendarImportCard")&&!$("calendarImportCard").classList.contains("hidden"))await loadSelectedCalendarEvents()}
- catch(e){alert("Não foi possível atualizar a cópia: "+(e.message||e))}
+ catch(e){showNotice("Não foi possível atualizar a cópia: "+(e.message||e),{"title": "Algo não deu certo", "type": "error"})}
 }
 let checkingImportedCalendarChanges=false;
 async function checkImportedCalendarChanges(){
@@ -7229,7 +7229,7 @@ function toggleInlineComplementary(open){
 }
 function createInlineComplementary(){
  const name=$("inlineCompName")?.value.trim()||"";
- if(!name)return alert("Informe o nome da atividade complementar.");
+ if(!name)return showNotice("Informe o nome da atividade complementar.",{"title": "Falta uma informação", "icon": "✏️"});
  let act=state.complementaryActivities.find(x=>x.name.toLowerCase()===name.toLowerCase());
  if(!act){act={id:uid(),name,category:$("inlineCompCategory")?.value.trim()||"",description:$("inlineCompDescription")?.value.trim()||"",createdAt:now(),updatedAt:now()};state.complementaryActivities.push(act);saveLocal();}
  refreshPlanComplementaryOptions(act.id);
@@ -7519,7 +7519,7 @@ function findFamilyReportAiSummary(childId,from,to,status,type,comp,rows){
  return candidates[0]||{saved:null,key:stableKey};
 }
 function reportAiBox(childId,from,to,status,type,comp,rows){const found=findFamilyReportAiSummary(childId,from,to,status,type,comp,rows),saved=found.saved,cached=typeof saved==="string"?saved:saved?.text||"",currentFingerprint=reportRowsFingerprint(rows),savedFingerprint=saved?.fingerprint||(found.key?.startsWith("v2::")?"":found.key?.split("::").slice(6).join("::")),stale=!!cached&&!!savedFingerprint&&savedFingerprint!==currentFingerprint,hasRows=rows.length>0;return `<div class="ai-period-summary"><div class="ai-period-head"><div><div class="title-with-icon"><span class="title-icon-box" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 1.4 4.1L17.5 8.5l-4.1 1.4L12 14l-1.4-4.1-4.1-1.4 4.1-1.4zM18.5 14l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8zM6 15l.7 1.8 1.8.7-1.8.7L6 20l-.7-1.8-1.8-.7 1.8-.7z"/></svg></span><h3>Resumo do período</h3></div><div class="learning-section-intro" style="margin:6px 0 0 52px">Uma leitura breve dos registros selecionados, guardada para toda a família.</div></div>${hasRows?`<button id="reportAiSummaryBtn" class="btn small" type="button" onclick="generateReportAiSummary()">${cached?"↻ Atualizar resumo":"Gerar resumo com IA"}</button>`:""}</div><div id="reportAiSummaryLoading" class="ai-period-loading hidden" role="status"><span class="ai-spinner" aria-hidden="true"></span>Analisando os registros do período. Isso pode levar alguns segundos…</div><div id="reportAiSummaryText" class="ai-period-text">${cached?esc(cached).replace(/\n/g,"<br>"):(hasRows?"Toque em “Gerar resumo com IA” para criar uma síntese deste período.":"Não há registros suficientes para gerar um resumo.")}</div>${stale?`<div class="notice" style="margin-top:10px">Existem registros novos ou alterados desde este resumo. Você pode atualizá-lo quando quiser.</div>`:""}${saved?.updatedAt?`<div class="meta" style="margin-top:8px">Atualizado em ${esc(fmtDateTime(saved.updatedAt))}${saved.updatedBy?` por ${esc(saved.updatedBy)}`:""}.</div>`:""}<div class="ai-period-note">Resumo elaborado por IA. A família pode atualizar esta síntese quando quiser.</div></div>`}
-async function generateReportAiSummary(){const childId=$("reportChild")?.value||activeChildId,child=state.family.children.find(c=>c.id===childId);if(!child)return;const all=state.entries[childId]||[],from=$("reportFrom")?.value||"",to=$("reportTo")?.value||"",status=$("reportStatus")?.value||"",type=$("reportType")?.value||"",comp=$("reportComponent")?.value||"",rows=all.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!status||x.status===status)&&(!type||(type==="complementar"?!!x.complementaryActivityName:entrySkills(x).length>0))&&(!comp||entryComponents(x).includes(comp)));if(!rows.length)return alert("Não há registros neste período para resumir.");const period=reportPeriodText(from,to),key=reportAiKey(childId,from,to,status,type,comp),backendChildId=localToBackendChildId(child.id);if(!backendChildId)return alert("Sincronize a criança com a família antes de gerar o resumo.");$("reportAiSummaryLoading")?.classList.remove("hidden");const aiBtn=$("reportAiSummaryBtn"),aiBtnText=aiBtn?.innerHTML||"";if(aiBtn){aiBtn.disabled=true;aiBtn.innerHTML=`<span class="ai-spinner" aria-hidden="true"></span>Gerando resumo…`}$("reportAiSummaryText")?.classList.add("is-updating");try{const data=await backendFetch("/ai/report-summary",{method:"POST",body:JSON.stringify({child_id:backendChildId,child_name:child.name||"",reference_stage:child.stage||"",period,activities:rows.slice(0,120).map(x=>({date:x.date||"",activity:String(x.atividade||"").slice(0,500),component:entryComponents(x).join(", "),status:x.status||"",bncc_code:entrySkills(x).map(s=>s.code).filter(Boolean).join(", "),bncc_skill:entrySkills(x).map(s=>s.description).filter(Boolean).join(" | ").slice(0,500),notes:String(x.observacoes||"").slice(0,350)}))})});const text=String(data?.summary||"").trim();if(!text)throw new Error("A IA não retornou um resumo.");familyReportAiSummaries()[key]={text,fingerprint:reportRowsFingerprint(rows),recordCount:rows.length,updatedAt:now(),updatedBy:backendProfile?.user?.name||googleUser?.name||"Família"};state.family.updatedAt=now();saveLocal();renderReportPage()}catch(e){alert("Não foi possível gerar o resumo: "+(e.message||e))}finally{$("reportAiSummaryLoading")?.classList.add("hidden");$("reportAiSummaryText")?.classList.remove("is-updating");if(aiBtn&&document.body.contains(aiBtn)){aiBtn.disabled=false;aiBtn.innerHTML=aiBtnText}}}
+async function generateReportAiSummary(){const childId=$("reportChild")?.value||activeChildId,child=state.family.children.find(c=>c.id===childId);if(!child)return;const all=state.entries[childId]||[],from=$("reportFrom")?.value||"",to=$("reportTo")?.value||"",status=$("reportStatus")?.value||"",type=$("reportType")?.value||"",comp=$("reportComponent")?.value||"",rows=all.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!status||x.status===status)&&(!type||(type==="complementar"?!!x.complementaryActivityName:entrySkills(x).length>0))&&(!comp||entryComponents(x).includes(comp)));if(!rows.length)return showNotice("Não há registros neste período para resumir.",{"title": "Atenção", "icon": "ℹ️"});const period=reportPeriodText(from,to),key=reportAiKey(childId,from,to,status,type,comp),backendChildId=localToBackendChildId(child.id);if(!backendChildId)return showNotice("Sincronize a criança com a família antes de gerar o resumo.",{"title": "Família não conectada", "icon": "👨‍👩‍👧"});$("reportAiSummaryLoading")?.classList.remove("hidden");const aiBtn=$("reportAiSummaryBtn"),aiBtnText=aiBtn?.innerHTML||"";if(aiBtn){aiBtn.disabled=true;aiBtn.innerHTML=`<span class="ai-spinner" aria-hidden="true"></span>Gerando resumo…`}$("reportAiSummaryText")?.classList.add("is-updating");try{const data=await backendFetch("/ai/report-summary",{method:"POST",body:JSON.stringify({child_id:backendChildId,child_name:child.name||"",reference_stage:child.stage||"",period,activities:rows.slice(0,120).map(x=>({date:x.date||"",activity:String(x.atividade||"").slice(0,500),component:entryComponents(x).join(", "),status:x.status||"",bncc_code:entrySkills(x).map(s=>s.code).filter(Boolean).join(", "),bncc_skill:entrySkills(x).map(s=>s.description).filter(Boolean).join(" | ").slice(0,500),notes:String(x.observacoes||"").slice(0,350)}))})});const text=String(data?.summary||"").trim();if(!text)throw new Error("A IA não retornou um resumo.");familyReportAiSummaries()[key]={text,fingerprint:reportRowsFingerprint(rows),recordCount:rows.length,updatedAt:now(),updatedBy:backendProfile?.user?.name||googleUser?.name||"Família"};state.family.updatedAt=now();saveLocal();renderReportPage()}catch(e){showNotice("Não foi possível gerar o resumo: "+(e.message||e),{"title": "Algo não deu certo", "type": "error"})}finally{$("reportAiSummaryLoading")?.classList.add("hidden");$("reportAiSummaryText")?.classList.remove("is-updating");if(aiBtn&&document.body.contains(aiBtn)){aiBtn.disabled=false;aiBtn.innerHTML=aiBtnText}}}
 
 
 const READING_LIBRARY_KEY="diario_reading_library_v1";
@@ -8142,7 +8142,7 @@ function buildPrintableReport(){
 }
 
 async function printReport(){
- if(!buildPrintableReport())return alert("Selecione uma criança para gerar o relatório.");
+ if(!buildPrintableReport())return showNotice("Selecione uma criança para gerar o relatório.",{"title": "Falta uma informação", "icon": "✏️"});
  const target=$("printableReport"),images=[...target.querySelectorAll("img")];
  await Promise.allSettled(images.map(img=>img.complete?Promise.resolve():img.decode?.()||new Promise(resolve=>{img.onload=img.onerror=resolve})));
  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
@@ -8297,7 +8297,7 @@ function renderHistoryBrowser(){
 
 function toggleHistoryBnccSelection(id,checked){
   if(checked){
-    if(historyBnccSelected.size>=10){alert("Analise no máximo 10 registros por rodada.");renderHistoryBrowser();return}
+    if(historyBnccSelected.size>=10){showNotice("Selecione no máximo 10 registros por rodada de análise.",{"title": "Falta uma informação", "icon": "✏️"});renderHistoryBrowser();return}
     historyBnccSelected.add(id);
   }else historyBnccSelected.delete(id);
   updateHistoryBnccBatchSelection();
@@ -8319,7 +8319,7 @@ async function startHistoryBnccBatch(){
   const childId=$("historyBrowseChild")?.value||activeChildId,backendChildId=localToBackendChildId(childId);
   if(!backendChildId)return showNotice("Esta criança ainda não foi sincronizada com a família. Sincronize e tente novamente.",{title:"Criança não sincronizada",type:"error"});
   const ids=[...historyBnccSelected].slice(0,10),entries=ids.map(id=>(state.entries[childId]||[]).find(x=>x.id===id)).filter(Boolean);
-  if(!entries.length)return alert("Selecione pelo menos um registro sem BNCC.");
+  if(!entries.length)return showNotice("Selecione pelo menos um registro sem BNCC.",{"title": "Falta uma informação", "icon": "✏️"});
   historyBnccBatchRunning=true;historyBnccBatchResults=[];historyBnccReviewIndex=0;updateHistoryBnccBatchSelection();
   const btn=$("historyBnccBatchBtn"),panel=$("historyBnccBatchPanel");
   if(btn)btn.innerHTML='<span class="ai-spinner"></span> Preparando análise…';
@@ -8390,10 +8390,10 @@ function renderHistoryBatchRows(){let b=$("historyBatchRows");if(!b)return;if(!h
 function updateHistoryRow(id,k,v){let r=historyBatchRows.find(x=>x.id===id);if(r)r[k]=v}
 function addHistoryBatchRow(){historyBatchRows.push(newHistoryBatchRow());renderHistoryBatchRows()}
 function removeHistoryBatchRow(id){historyBatchRows=historyBatchRows.filter(x=>x.id!==id);renderHistoryBatchRows()}
-function saveHistoryBatch(){let childId=$("historyChild").value,statusDefault=$("historyDefaultStatus").value,compDefault=$("historyDefaultComponent").value.trim(),valid=historyBatchRows.filter(x=>x.activity.trim());if(!valid.length)return alert("Preencha pelo menos uma linha.");let missing=valid.filter(x=>!(x.status||statusDefault));if(missing.length)return alert("Defina avaliação em todas as linhas ou use a avaliação padrão.");let created=valid.map(r=>({id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",date:r.date||today(),type:"bncc",classificationStatus:"pending",area:"",componente:r.component||compDefault,codigo:"",habilidade:"",atividade:r.activity.trim(),observacoes:"Registro histórico em lote",status:r.status||statusDefault,foto:"",audio:""}));state.entries[childId]=[...created,...(state.entries[childId]||[])];historyBatchRows=[];saveLocal();renderAll();alert(created.length+" registros adicionados.")}
+function saveHistoryBatch(){let childId=$("historyChild").value,statusDefault=$("historyDefaultStatus").value,compDefault=$("historyDefaultComponent").value.trim(),valid=historyBatchRows.filter(x=>x.activity.trim());if(!valid.length)return showNotice("Preencha pelo menos uma linha.",{"title": "Falta uma informação", "icon": "✏️"});let missing=valid.filter(x=>!(x.status||statusDefault));if(missing.length)return showNotice("Defina avaliação em todas as linhas ou use a avaliação padrão.",{"title": "Falta uma informação", "icon": "✏️"});let created=valid.map(r=>({id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",date:r.date||today(),type:"bncc",classificationStatus:"pending",area:"",componente:r.component||compDefault,codigo:"",habilidade:"",atividade:r.activity.trim(),observacoes:"Registro histórico em lote",status:r.status||statusDefault,foto:"",audio:""}));state.entries[childId]=[...created,...(state.entries[childId]||[])];historyBatchRows=[];saveLocal();renderAll();showNotice(created.length+" registros adicionados.",{"title": "Registros adicionados", "icon": "✅"})}
 function refreshHistoryActivityOptions(){let s=$("histPeriodActivity");if(s)s.innerHTML='<option value="">Selecione...</option>'+state.complementaryActivities.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("")}
 function parseISO(s){let[y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)}function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
-function savePeriodHistory(){let childId=$("historyChild").value,start=$("histPeriodStart").value,end=$("histPeriodEnd").value,act=state.complementaryActivities.find(x=>x.id===$("histPeriodActivity").value),freq=+$("histPeriodFreq").value,status=$("histPeriodStatus").value,desc=$("histPeriodDesc").value.trim();if(!childId||!start||!end||!act||!status)return alert("Preencha criança, período, atividade e avaliação.");let s=parseISO(start),e=parseISO(end);if(e<s)return alert("Período inválido.");let offsets=[0,2,4,1,3].slice(0,freq),created=[];for(let w=new Date(s);w<=e;w.setDate(w.getDate()+7)){let mon=new Date(w);mon.setDate(mon.getDate()-mon.getDay()+1);for(let o of offsets){let d=new Date(mon);d.setDate(mon.getDate()+o);if(d<s||d>e)continue;created.push({id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",date:iso(d),type:"complementar",complementaryId:act.id,area:"Atividades Complementares",componente:act.category||"Atividade Complementar",codigo:"",habilidade:act.name,atividade:desc||act.name,observacoes:"Registro histórico por período",status,foto:"",audio:""})}}state.entries[childId]=[...created,...(state.entries[childId]||[])];saveLocal();renderAll();alert(created.length+" registros criados.")}
+function savePeriodHistory(){let childId=$("historyChild").value,start=$("histPeriodStart").value,end=$("histPeriodEnd").value,act=state.complementaryActivities.find(x=>x.id===$("histPeriodActivity").value),freq=+$("histPeriodFreq").value,status=$("histPeriodStatus").value,desc=$("histPeriodDesc").value.trim();if(!childId||!start||!end||!act||!status)return showNotice("Preencha criança, período, atividade e avaliação.",{"title": "Falta uma informação", "icon": "✏️"});let s=parseISO(start),e=parseISO(end);if(e<s)return showNotice("A data final precisa ser igual ou posterior à data inicial.",{"title": "Atenção", "icon": "ℹ️"});let offsets=[0,2,4,1,3].slice(0,freq),created=[];for(let w=new Date(s);w<=e;w.setDate(w.getDate()+7)){let mon=new Date(w);mon.setDate(mon.getDate()-mon.getDay()+1);for(let o of offsets){let d=new Date(mon);d.setDate(mon.getDate()+o);if(d<s||d>e)continue;created.push({id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",date:iso(d),type:"complementar",complementaryId:act.id,area:"Atividades Complementares",componente:act.category||"Atividade Complementar",codigo:"",habilidade:act.name,atividade:desc||act.name,observacoes:"Registro histórico por período",status,foto:"",audio:""})}}state.entries[childId]=[...created,...(state.entries[childId]||[])];saveLocal();renderAll();showNotice(created.length+" registros criados.",{"title": "Registros criados", "icon": "✅"})}
 
 function fileDateToISO(file){const d=new Date(file.lastModified||Date.now());return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function prepareHistoricalPhotos(ev){
@@ -8404,16 +8404,16 @@ function renderHistoricalPhotoQueue(){const box=$("historicalPhotosPreview");if(
 function clearHistoricalPhotoImport(){historicalPhotoQueue=[];if($("historicalPhotosPreview"))$("historicalPhotosPreview").innerHTML="";$("historicalPhotosActions")?.classList.add("hidden")}
 async function createHistoricalPhotoRecords(){
  const childId=$("historyPhotoChild")?.value||"",status=$("historyPhotoStatus")?.value||"",activity=($("historyPhotoActivity")?.value||"").trim()||"Registro fotográfico de atividade";
- if(!childId)return alert("Escolha a criança.");if(!status)return alert("Escolha uma avaliação padrão.");if(!historicalPhotoQueue.length)return alert("Selecione fotos.");
+ if(!childId)return showNotice("Escolha a criança.",{"title": "Falta uma informação", "icon": "✏️"});if(!status)return showNotice("Escolha uma avaliação padrão.",{"title": "Falta uma informação", "icon": "✏️"});if(!historicalPhotoQueue.length)return showNotice("Selecione fotos.",{"title": "Falta uma informação", "icon": "✏️"});
  const created=[];for(const p of historicalPhotoQueue){const mediaId=`photo_${uid()}`;await mediaPut(mediaId,p.data,"image/jpeg");created.push({id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",date:p.date||today(),type:"bncc",classificationStatus:"pending",area:"",componente:"",codigo:"",habilidade:"",atividade:activity,observacoes:"Importado a partir de foto antiga. BNCC não classificada.",status,photos:[{mediaId,_previewData:p.data,takenAt:"",dateSource:"file",visibleDriveId:"",driveId:""}],foto:"",fotoDriveId:"",fotoVisibleDriveId:"",audio:"",audioDriveId:"",yearRefAtRecord:state.family.children.find(c=>c.id===childId)?.stage||""})}
- state.entries[childId]=[...created,...(state.entries[childId]||[])];clearHistoricalPhotoImport();saveLocal();renderAll();alert(`${created.length} registro(s) histórico(s) criados. Você pode classificar a BNCC depois.`)
+ state.entries[childId]=[...created,...(state.entries[childId]||[])];clearHistoricalPhotoImport();saveLocal();renderAll();showNotice(`${created.length} registro(s) histórico(s) criados. Você pode classificar a BNCC depois.`,{"title": "Registros criados", "icon": "✅"})
 }
 
 function downloadHistoryTemplate(){shareOrDownloadText("data;tipo;atividade;componente;codigo;habilidade;observacoes;avaliacao\n2025-03-10;bncc;Leitura;Língua Portuguesa;EF03LP00;Habilidade;Registro antigo;Dominado","modelo_historico.csv","text/csv","Modelo de histórico")}
 function parseCsvLine(line,sep){let out=[],cur="",q=false;for(let i=0;i<line.length;i++){let c=line[i];if(c==='"'){if(q&&line[i+1]==='"'){cur+='"';i++}else q=!q}else if(c===sep&&!q){out.push(cur);cur=""}else cur+=c}out.push(cur);return out}
-function importHistoryCSV(ev){let file=ev.target.files[0],childId=$("historyChild").value;if(!file||!childId)return;let fr=new FileReader();fr.onload=()=>{try{let lines=fr.result.replace(/^\uFEFF/,"").split(/\r?\n/).filter(Boolean),sep=lines[0].includes(";")?";":",",h=parseCsvLine(lines[0],sep).map(x=>x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")),idx=n=>h.indexOf(n),created=[];for(let i=1;i<lines.length;i++){let p=parseCsvLine(lines[i],sep),at=(p[idx("atividade")]||"").trim(),st=(p[idx("avaliacao")]||"").trim();if(!at)continue;if(!st)throw new Error("Linha "+(i+1)+" sem avaliação");let type=(p[idx("tipo")]||"bncc").toLowerCase()==="complementar"?"complementar":"bncc",code=type==="bncc"?(p[idx("codigo")]||"").trim():"";created.push({id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",date:(p[idx("data")]||today()).trim(),type,classificationStatus:type==="complementar"||code?"classified":"pending",area:type==="complementar"?"Atividades Complementares":"",componente:(p[idx("componente")]||"").trim(),codigo:code,habilidade:(p[idx("habilidade")]||"").trim(),atividade:at,observacoes:(p[idx("observacoes")]||"").trim(),status:st,foto:"",audio:""})}state.entries[childId]=[...created,...(state.entries[childId]||[])];saveLocal();renderAll();alert("Histórico importado.")}catch(e){alert("Erro no CSV: "+e.message)}};fr.readAsText(file,"UTF-8")}
+function importHistoryCSV(ev){let file=ev.target.files[0],childId=$("historyChild").value;if(!file||!childId)return;let fr=new FileReader();fr.onload=()=>{try{let lines=fr.result.replace(/^\uFEFF/,"").split(/\r?\n/).filter(Boolean),sep=lines[0].includes(";")?";":",",h=parseCsvLine(lines[0],sep).map(x=>x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")),idx=n=>h.indexOf(n),created=[];for(let i=1;i<lines.length;i++){let p=parseCsvLine(lines[i],sep),at=(p[idx("atividade")]||"").trim(),st=(p[idx("avaliacao")]||"").trim();if(!at)continue;if(!st)throw new Error("Linha "+(i+1)+" sem avaliação");let type=(p[idx("tipo")]||"bncc").toLowerCase()==="complementar"?"complementar":"bncc",code=type==="bncc"?(p[idx("codigo")]||"").trim():"";created.push({id:uid(),childId,createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",date:(p[idx("data")]||today()).trim(),type,classificationStatus:type==="complementar"||code?"classified":"pending",area:type==="complementar"?"Atividades Complementares":"",componente:(p[idx("componente")]||"").trim(),codigo:code,habilidade:(p[idx("habilidade")]||"").trim(),atividade:at,observacoes:(p[idx("observacoes")]||"").trim(),status:st,foto:"",audio:""})}state.entries[childId]=[...created,...(state.entries[childId]||[])];saveLocal();renderAll();showNotice("Histórico importado.",{"title": "Histórico importado", "icon": "✅"})}catch(e){showNotice("Não foi possível ler o arquivo CSV: "+e.message,{"title": "Algo não deu certo", "type": "error"})}};fr.readAsText(file,"UTF-8")}
 
-function addComplementaryActivity(){let name=$("compActivityName").value.trim();if(!name)return alert("Informe o nome.");if(state.complementaryActivities.some(x=>x.name.toLowerCase()===name.toLowerCase()))return alert("Atividade já cadastrada.");state.complementaryActivities.push({id:uid(),name,category:$("compActivityCategory").value.trim(),description:$("compActivityDescription").value.trim(),createdAt:now(),updatedAt:now()});$("compActivityName").value="";$("compActivityCategory").value="";$("compActivityDescription").value="";saveLocal();renderAll()}
+function addComplementaryActivity(){let name=$("compActivityName").value.trim();if(!name)return showNotice("Informe o nome da atividade.",{"title": "Falta uma informação", "icon": "✏️"});if(state.complementaryActivities.some(x=>x.name.toLowerCase()===name.toLowerCase()))return showNotice("Atividade já cadastrada.",{"title": "Atenção", "icon": "ℹ️"});state.complementaryActivities.push({id:uid(),name,category:$("compActivityCategory").value.trim(),description:$("compActivityDescription").value.trim(),createdAt:now(),updatedAt:now()});$("compActivityName").value="";$("compActivityCategory").value="";$("compActivityDescription").value="";saveLocal();renderAll()}
 function renderComplementaryList(){let b=$("complementaryList");if(!b)return;b.innerHTML=state.complementaryActivities.map(x=>`<div class="entry"><div class="entry-title">${esc(x.name)}</div><div class="skill">${esc(x.category||"")}</div><div class="obs">${esc(x.description||"")}</div><button class="btn danger small" onclick="deleteComplementaryActivity('${x.id}')">Excluir</button></div>`).join("")||"<div class='notice'>Nenhuma atividade complementar.</div>"}
 async function deleteComplementaryActivity(id){if(!await showConfirm("Excluir esta atividade complementar da lista?",{title:"Excluir atividade",icon:"🗑️",okLabel:"Excluir"}))return;state.complementaryActivities=state.complementaryActivities.filter(x=>x.id!==id);addTomb("complementary",id);saveLocal();renderAll()}
 
@@ -8450,8 +8450,8 @@ function importCustomBnccCSV(ev){
    state.customBncc=[...map.values()];
    saveLocal();
    renderAll();
-   alert(`${incoming.length} código(s) personalizado(s) importado(s)/atualizado(s).`);
-  }catch(e){alert("Não foi possível importar os códigos: "+e.message)}
+   showNotice(`${incoming.length} código(s) personalizado(s) importado(s)/atualizado(s).`,{"title": "Códigos importados", "icon": "✅"});
+  }catch(e){showNotice("Não foi possível importar os códigos: "+e.message,{"title": "Algo não deu certo", "type": "error"})}
   ev.target.value="";
  };
  fr.readAsText(file,"UTF-8");
@@ -8562,7 +8562,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "16.21";
+const APP_VERSION = "16.23";
 queueMicrotask(()=>{ const el=document.getElementById("healthFrontendVersion"); if(el) el.textContent=`v${APP_VERSION}`; });
 
 let deferredInstallPrompt=null;
