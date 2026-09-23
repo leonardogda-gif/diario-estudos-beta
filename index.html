@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#441015">
 <title>Diário de Estudos</title>
 
-<link rel="manifest" href="/manifest.json?v=16.19">
+<link rel="manifest" href="/manifest.json?v=16.21">
 <link rel="icon" type="image/png" sizes="32x32" href="/icon-192.png">
 <link rel="icon" type="image/png" sizes="48x48" href="/icon-192.png">
 
@@ -1685,9 +1685,26 @@ input,select,textarea{font-size:16px}
 .book-cover-zoom-overlay.hidden{display:none}
 .book-cover-zoom-overlay img{max-width:min(88vw,420px);max-height:78vh;width:auto;height:auto;object-fit:contain;border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,.45);background:#fff}
 .book-cover-zoom-close{position:absolute;top:calc(14px + env(safe-area-inset-top));right:16px;width:42px;height:42px;border:0;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:28px;line-height:1;cursor:pointer}
+
+/* v16.20 · chips "Para quem?" e estado do resumo de IA */
+.plan-child-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.plan-chip{position:relative;display:inline-flex;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.plan-chip input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.plan-chip span{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:8px 16px;border-radius:999px;border:1px solid #D8C7BA;background:#FFFCF7;color:#441015;font-weight:700;font-size:14px;transition:background .15s,color .15s,border-color .15s}
+.plan-chip input:checked+span{background:#441015;border-color:#441015;color:#fff}
+.plan-chip input:checked+span::before{content:"✓";font-size:12px}
+.plan-chip input:focus-visible+span{outline:2px solid #A23B2A;outline-offset:2px}
+.plan-chip-help{margin-top:6px;flex-basis:100%}
+#planChildrenPicker{display:block!important}
+.ai-spinner{display:inline-block;flex-shrink:0;width:14px;height:14px;margin-right:8px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:aiSpin .8s linear infinite;vertical-align:-2px}
+@keyframes aiSpin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.ai-spinner{animation-duration:2.4s}}
+#reportAiSummaryBtn:disabled{opacity:.85;cursor:progress}
+.ai-period-loading:not(.hidden){display:flex;align-items:center;margin:12px 0 4px;padding:10px 12px;border-radius:10px;background:#F2E3DA;color:#6B2737;font-weight:600;font-size:13.5px}
+.ai-period-text.is-updating{opacity:.45;transition:opacity .2s}
 </style>
 </head>
-<body data-build="16.19" class="auth-checking">
+<body data-build="16.21" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -3537,7 +3554,7 @@ async function continueFamilyStorageSetup(){
     await syncWithDrive({manual:true});
   }catch(e){
     console.error("Drive automático:",e);
-    showNotice("Não foi possível sincronizar com o Google Drive agora. Seus dados continuam salvos neste dispositivo e a próxima tentativa será automática.\n\nDetalhe: "+(e?.message||e),{title:"Drive não sincronizou",type:"error"});
+    showSyncFailure(e,"Drive não sincronizou");
   }
 }
 
@@ -4220,7 +4237,14 @@ async function testBackendConnection(){
   }
 }
 
+function isOfflineError(e){if(navigator.onLine===false)return true;return /failed to fetch|networkerror|network error|load failed|network request failed|err_internet_disconnected/i.test(String(e?.message||e||""))}
+function showSyncFailure(e,title="Falha na sincronização"){
+ if(isOfflineError(e))return showNotice("Sem conexão com a internet. Seus dados estão salvos neste dispositivo e serão sincronizados quando a conexão voltar.",{title:"Sem conexão",icon:"📡"});
+ const detail=e?String(e?.message||e):"";
+ return showNotice("Não foi possível sincronizar agora. Seus dados continuam salvos neste dispositivo e a próxima tentativa será automática."+(detail?"\n\nDetalhe: "+detail:""),{title,type:"error"});
+}
 function setCloudStatus(kind,msg){
+ if(kind==="error"&&navigator.onLine===false){kind="pending";msg="Sem internet · alterações ficam neste dispositivo"}
  const message=msg||"";
  if($("cloudStatus"))$("cloudStatus").innerHTML=`<span class="sync-dot ${kind||""}"></span>${esc(message)}`;
  if($("headerSyncDot"))$("headerSyncDot").className=`sync-dot ${kind||""}`;
@@ -4235,10 +4259,11 @@ function compactCloudStatus(msg){
    return m?`Sincronizado · ${m[1]}`:"Sincronizado agora";
  }
 
+ if(/sem internet/i.test(s))return "Sem conexão";
+ if(/não foi possível/i.test(s))return "Erro de sincronização";
  if(/sincronizando|sincronizar|sincroniza[cç][aã]o em andamento/i.test(s))return "Sincronizando…";
  if(/aguardando vínculo/i.test(s))return "Aguardando família";
  if(/selecione uma família/i.test(s))return "Selecione uma família";
- if(/sem internet/i.test(s))return "Offline · salvo no aparelho";
  if(/backend não conectado/i.test(s))return "Backend desconectado";
  if(/conecte o drive/i.test(s))return "Drive precisa ser conectado";
  if(/falha|erro/i.test(s))return "Erro de sincronização";
@@ -5073,7 +5098,7 @@ async function syncSharedFamilyDrive(opt={}){
     console.error(e);
     setCloudStatus("error","Falha na sincronização com o Drive; dados locais preservados");
     renderSharedStorageStatus(false,"Não foi possível sincronizar o Drive agora. A próxima tentativa será automática.");
-    if(opt.manual)showNotice("Não foi possível sincronizar agora. Seus dados continuam salvos neste dispositivo e a próxima tentativa será automática.\n\nDetalhe: "+(e?.message||e),{title:"Falha na sincronização",type:"error"});
+    if(opt.manual)showSyncFailure(e);
   }finally{
     syncing=false;
   }
@@ -5101,7 +5126,7 @@ async function syncLegacyPrivateDrive(opt={}){
   let p=remotePayload();state.updatedAt=p.updatedAt;await uploadState(p);saveLocal(false);
   setCloudStatus("online","Sincronizado · "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}));
   renderAll();hydrateMedia();
- }catch(e){console.error(e);setCloudStatus("error","Falha na sincronização; dados locais preservados");if(opt.manual)showNotice("Não foi possível sincronizar agora. Seus dados continuam salvos neste dispositivo e a próxima tentativa será automática.",{title:"Falha na sincronização",type:"error"})}
+ }catch(e){console.error(e);setCloudStatus("error","Falha na sincronização; dados locais preservados");if(opt.manual)showSyncFailure(e)}
  finally{syncing=false}
 }
 async function syncWithDrive(opt={}){
@@ -6982,7 +7007,7 @@ function renderPlanChildrenPicker(selected=[]){
  if(!chosen.size&&activeChildId)chosen.add(activeChildId);
  const names=kids.filter(c=>chosen.has(c.id)).map(c=>firstName(c.name));
  const summary=chosen.size===kids.length&&kids.length?"Todas as crianças":(names.length?names.join(" + "):"Selecionar criança");
- box.innerHTML=`<details class="plan-child-picker"><summary id="planChildrenSummary">${esc(summary)}</summary><div class="plan-child-options"><label class="plan-child-option"><input type="checkbox" id="planAllChildren" ${chosen.size===kids.length&&kids.length?"checked":""} onchange="toggleAllPlanChildren(this.checked)"> Todas</label>${kids.map(c=>`<label class="plan-child-option"><input type="checkbox" name="planChildChoice" value="${esc(c.id)}" ${chosen.has(c.id)?"checked":""} onchange="planChildrenChanged()"> ${esc(firstName(c.name))}</label>`).join("")}</div></details>`;
+ box.innerHTML=`<div class="plan-child-chips" role="group" aria-label="Crianças deste planejamento">${kids.length>1?`<label class="plan-chip plan-chip-all"><input type="checkbox" id="planAllChildren" ${chosen.size===kids.length&&kids.length?"checked":""} onchange="toggleAllPlanChildren(this.checked)"><span>Todas</span></label>`:""}${kids.map(c=>`<label class="plan-chip"><input type="checkbox" name="planChildChoice" value="${esc(c.id)}" ${chosen.has(c.id)?"checked":""} onchange="planChildrenChanged()"><span>${esc(firstName(c.name))}</span></label>`).join("")}</div>${kids.length>1?`<div class="field-help plan-chip-help">Toque para escolher uma ou mais crianças.</div>`:""}`;
 }
 function toggleAllPlanChildren(checked){document.querySelectorAll('#planChildrenPicker input[name="planChildChoice"]').forEach(x=>x.checked=checked);planChildrenChanged()}
 function planChildrenChanged(){const chosen=selectedPlanChildIds(),all=[...document.querySelectorAll('#planChildrenPicker input[name="planChildChoice"]')],kids=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan);if($("planAllChildren"))$("planAllChildren").checked=!!all.length&&chosen.length===all.length;const names=kids.filter(c=>chosen.includes(c.id)).map(c=>firstName(c.name));if($("planChildrenSummary"))$("planChildrenSummary").textContent=chosen.length===kids.length&&kids.length?"Todas as crianças":(names.length?names.join(" + "):"Selecionar criança");if($("planChild")&&chosen[0])$("planChild").value=chosen[0];if(chosen[0])localStorage.setItem(PLAN_LAST_CHILD_KEY,chosen[0])}
@@ -7493,8 +7518,8 @@ function findFamilyReportAiSummary(childId,from,to,status,type,comp,rows){
  const candidates=Object.entries(all).map(([key,saved])=>{const p=key.split("::");if(p[0]==="v2"||p.length<7||!filters.every((v,i)=>String(p[i+1]||"")===String(v||"")))return null;const ids=String(p.slice(6).join("::")||"").split("|").map(x=>x.split(":")[0]).filter(Boolean),overlap=ids.filter(id=>currentIds.has(id)).length,childMatch=p[0]===stableChildId||p[0]===childId;return {saved,key,overlap,childMatch}}).filter(Boolean).filter(x=>x.childMatch||x.overlap>0).sort((a,b)=>(Number(b.childMatch)-Number(a.childMatch))||(b.overlap-a.overlap)||(ts(b.saved?.updatedAt)-ts(a.saved?.updatedAt)));
  return candidates[0]||{saved:null,key:stableKey};
 }
-function reportAiBox(childId,from,to,status,type,comp,rows){const found=findFamilyReportAiSummary(childId,from,to,status,type,comp,rows),saved=found.saved,cached=typeof saved==="string"?saved:saved?.text||"",currentFingerprint=reportRowsFingerprint(rows),savedFingerprint=saved?.fingerprint||(found.key?.startsWith("v2::")?"":found.key?.split("::").slice(6).join("::")),stale=!!cached&&!!savedFingerprint&&savedFingerprint!==currentFingerprint,hasRows=rows.length>0;return `<div class="ai-period-summary"><div class="ai-period-head"><div><div class="title-with-icon"><span class="title-icon-box" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 1.4 4.1L17.5 8.5l-4.1 1.4L12 14l-1.4-4.1-4.1-1.4 4.1-1.4zM18.5 14l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8zM6 15l.7 1.8 1.8.7-1.8.7L6 20l-.7-1.8-1.8-.7 1.8-.7z"/></svg></span><h3>Resumo do período</h3></div><div class="learning-section-intro" style="margin:6px 0 0 52px">Uma leitura breve dos registros selecionados, guardada para toda a família.</div></div>${hasRows?`<button class="btn small" type="button" onclick="generateReportAiSummary()">${cached?"↻ Atualizar resumo":"Gerar resumo com IA"}</button>`:""}</div><div id="reportAiSummaryText" class="ai-period-text">${cached?esc(cached).replace(/\n/g,"<br>"):(hasRows?"Clique em “Gerar resumo com IA” para criar uma síntese deste período.":"Não há registros suficientes para gerar um resumo.")}</div><div id="reportAiSummaryLoading" class="ai-period-loading hidden">Analisando os registros do período...</div>${stale?`<div class="notice" style="margin-top:10px">Existem registros novos ou alterados desde este resumo. Você pode atualizá-lo quando quiser.</div>`:""}${saved?.updatedAt?`<div class="meta" style="margin-top:8px">Atualizado em ${esc(fmtDateTime(saved.updatedAt))}${saved.updatedBy?` por ${esc(saved.updatedBy)}`:""}.</div>`:""}<div class="ai-period-note">Resumo elaborado por IA. A família pode atualizar esta síntese quando quiser.</div></div>`}
-async function generateReportAiSummary(){const childId=$("reportChild")?.value||activeChildId,child=state.family.children.find(c=>c.id===childId);if(!child)return;const all=state.entries[childId]||[],from=$("reportFrom")?.value||"",to=$("reportTo")?.value||"",status=$("reportStatus")?.value||"",type=$("reportType")?.value||"",comp=$("reportComponent")?.value||"",rows=all.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!status||x.status===status)&&(!type||(type==="complementar"?!!x.complementaryActivityName:entrySkills(x).length>0))&&(!comp||entryComponents(x).includes(comp)));if(!rows.length)return alert("Não há registros neste período para resumir.");const period=reportPeriodText(from,to),key=reportAiKey(childId,from,to,status,type,comp),backendChildId=localToBackendChildId(child.id);if(!backendChildId)return alert("Sincronize a criança com a família antes de gerar o resumo.");$("reportAiSummaryLoading")?.classList.remove("hidden");try{const data=await backendFetch("/ai/report-summary",{method:"POST",body:JSON.stringify({child_id:backendChildId,child_name:child.name||"",reference_stage:child.stage||"",period,activities:rows.slice(0,120).map(x=>({date:x.date||"",activity:String(x.atividade||"").slice(0,500),component:entryComponents(x).join(", "),status:x.status||"",bncc_code:entrySkills(x).map(s=>s.code).filter(Boolean).join(", "),bncc_skill:entrySkills(x).map(s=>s.description).filter(Boolean).join(" | ").slice(0,500),notes:String(x.observacoes||"").slice(0,350)}))})});const text=String(data?.summary||"").trim();if(!text)throw new Error("A IA não retornou um resumo.");familyReportAiSummaries()[key]={text,fingerprint:reportRowsFingerprint(rows),recordCount:rows.length,updatedAt:now(),updatedBy:backendProfile?.user?.name||googleUser?.name||"Família"};state.family.updatedAt=now();saveLocal();renderReportPage()}catch(e){alert("Não foi possível gerar o resumo: "+(e.message||e))}finally{$("reportAiSummaryLoading")?.classList.add("hidden")}}
+function reportAiBox(childId,from,to,status,type,comp,rows){const found=findFamilyReportAiSummary(childId,from,to,status,type,comp,rows),saved=found.saved,cached=typeof saved==="string"?saved:saved?.text||"",currentFingerprint=reportRowsFingerprint(rows),savedFingerprint=saved?.fingerprint||(found.key?.startsWith("v2::")?"":found.key?.split("::").slice(6).join("::")),stale=!!cached&&!!savedFingerprint&&savedFingerprint!==currentFingerprint,hasRows=rows.length>0;return `<div class="ai-period-summary"><div class="ai-period-head"><div><div class="title-with-icon"><span class="title-icon-box" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 1.4 4.1L17.5 8.5l-4.1 1.4L12 14l-1.4-4.1-4.1-1.4 4.1-1.4zM18.5 14l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8zM6 15l.7 1.8 1.8.7-1.8.7L6 20l-.7-1.8-1.8-.7 1.8-.7z"/></svg></span><h3>Resumo do período</h3></div><div class="learning-section-intro" style="margin:6px 0 0 52px">Uma leitura breve dos registros selecionados, guardada para toda a família.</div></div>${hasRows?`<button id="reportAiSummaryBtn" class="btn small" type="button" onclick="generateReportAiSummary()">${cached?"↻ Atualizar resumo":"Gerar resumo com IA"}</button>`:""}</div><div id="reportAiSummaryLoading" class="ai-period-loading hidden" role="status"><span class="ai-spinner" aria-hidden="true"></span>Analisando os registros do período. Isso pode levar alguns segundos…</div><div id="reportAiSummaryText" class="ai-period-text">${cached?esc(cached).replace(/\n/g,"<br>"):(hasRows?"Toque em “Gerar resumo com IA” para criar uma síntese deste período.":"Não há registros suficientes para gerar um resumo.")}</div>${stale?`<div class="notice" style="margin-top:10px">Existem registros novos ou alterados desde este resumo. Você pode atualizá-lo quando quiser.</div>`:""}${saved?.updatedAt?`<div class="meta" style="margin-top:8px">Atualizado em ${esc(fmtDateTime(saved.updatedAt))}${saved.updatedBy?` por ${esc(saved.updatedBy)}`:""}.</div>`:""}<div class="ai-period-note">Resumo elaborado por IA. A família pode atualizar esta síntese quando quiser.</div></div>`}
+async function generateReportAiSummary(){const childId=$("reportChild")?.value||activeChildId,child=state.family.children.find(c=>c.id===childId);if(!child)return;const all=state.entries[childId]||[],from=$("reportFrom")?.value||"",to=$("reportTo")?.value||"",status=$("reportStatus")?.value||"",type=$("reportType")?.value||"",comp=$("reportComponent")?.value||"",rows=all.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!status||x.status===status)&&(!type||(type==="complementar"?!!x.complementaryActivityName:entrySkills(x).length>0))&&(!comp||entryComponents(x).includes(comp)));if(!rows.length)return alert("Não há registros neste período para resumir.");const period=reportPeriodText(from,to),key=reportAiKey(childId,from,to,status,type,comp),backendChildId=localToBackendChildId(child.id);if(!backendChildId)return alert("Sincronize a criança com a família antes de gerar o resumo.");$("reportAiSummaryLoading")?.classList.remove("hidden");const aiBtn=$("reportAiSummaryBtn"),aiBtnText=aiBtn?.innerHTML||"";if(aiBtn){aiBtn.disabled=true;aiBtn.innerHTML=`<span class="ai-spinner" aria-hidden="true"></span>Gerando resumo…`}$("reportAiSummaryText")?.classList.add("is-updating");try{const data=await backendFetch("/ai/report-summary",{method:"POST",body:JSON.stringify({child_id:backendChildId,child_name:child.name||"",reference_stage:child.stage||"",period,activities:rows.slice(0,120).map(x=>({date:x.date||"",activity:String(x.atividade||"").slice(0,500),component:entryComponents(x).join(", "),status:x.status||"",bncc_code:entrySkills(x).map(s=>s.code).filter(Boolean).join(", "),bncc_skill:entrySkills(x).map(s=>s.description).filter(Boolean).join(" | ").slice(0,500),notes:String(x.observacoes||"").slice(0,350)}))})});const text=String(data?.summary||"").trim();if(!text)throw new Error("A IA não retornou um resumo.");familyReportAiSummaries()[key]={text,fingerprint:reportRowsFingerprint(rows),recordCount:rows.length,updatedAt:now(),updatedBy:backendProfile?.user?.name||googleUser?.name||"Família"};state.family.updatedAt=now();saveLocal();renderReportPage()}catch(e){alert("Não foi possível gerar o resumo: "+(e.message||e))}finally{$("reportAiSummaryLoading")?.classList.add("hidden");$("reportAiSummaryText")?.classList.remove("is-updating");if(aiBtn&&document.body.contains(aiBtn)){aiBtn.disabled=false;aiBtn.innerHTML=aiBtnText}}}
 
 
 const READING_LIBRARY_KEY="diario_reading_library_v1";
@@ -8537,7 +8562,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "16.19";
+const APP_VERSION = "16.21";
 queueMicrotask(()=>{ const el=document.getElementById("healthFrontendVersion"); if(el) el.textContent=`v${APP_VERSION}`; });
 
 let deferredInstallPrompt=null;
