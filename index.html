@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#441015">
 <title>Diário de Estudos</title>
 
-<link rel="manifest" href="/manifest.json?v=15.0">
+<link rel="manifest" href="/manifest.json?v=16.15">
 <link rel="icon" type="image/png" sizes="32x32" href="/icon-192.png">
 <link rel="icon" type="image/png" sizes="48x48" href="/icon-192.png">
 
@@ -1661,7 +1661,7 @@ input,select,textarea{font-size:16px}
 .record-report-actions .record-erase-btn,#page-registro .record-report-actions .record-erase-btn{width:40px!important;min-width:40px!important;height:40px!important;min-height:40px!important;padding:0!important;font-size:19px!important}
 </style>
 </head>
-<body data-build="15.1" class="auth-checking">
+<body data-build="16.15" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -2638,7 +2638,7 @@ function showConfirm(message,opts={}){
  $("appConfirmBody").textContent=String(message??"");
  const okBtn=$("appConfirmOkBtn");
  okBtn.textContent=opts.okLabel||"Confirmar";
- okBtn.className="btn "+(opts.danger===false?"primary":"danger");
+ okBtn.className="btn "+(opts.irreversible?"irreversible":(opts.danger===false?"primary":"danger"));
  overlay.classList.remove("hidden");
  if(_appConfirmResolve){const prev=_appConfirmResolve;_appConfirmResolve=null;prev(false)}
  return new Promise(res=>{_appConfirmResolve=res});
@@ -2775,7 +2775,7 @@ function openRecordHelp(kind){
  overlay.classList.remove("hidden");document.body.classList.add("modal-open");setTimeout(()=>overlay.querySelector("button")?.focus(),0);
 }
 function closeRecordHelp(){const overlay=$("recordHelpOverlay");if(!overlay)return;overlay.classList.add("hidden");document.body.classList.remove("modal-open")}
-function confirmClearRecord(){if(confirm("Limpar este registro e começar novamente?"))startNewRecord()}
+async function confirmClearRecord(){if(await showConfirm("Limpar este registro e começar novamente?",{title:"Limpar registro",icon:"🧹",okLabel:"Limpar"}))startNewRecord()}
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("recordHelpOverlay")?.classList.contains("hidden"))closeRecordHelp()});
 
 const LAST_MAIN_TAB_KEY="DE_LAST_MAIN_TAB";
@@ -3170,7 +3170,7 @@ async function createCleanBackendFamily(){
  }catch(e){if(signupNotAllowed(e)){showWaitlistScreen();return}alert("Não foi possível criar a família: "+e.message)}
 }
 async function resetLocalBetaData(){
- if(!confirm("Apagar deste navegador as crianças, registros e planejamentos antigos do beta?\n\nA família do backend e o Drive não serão apagados."))return;
+ if(!await showConfirm("Apagar deste navegador as crianças, registros e planejamentos antigos do beta?\n\nA família do backend e o Drive não serão apagados.",{title:"Apagar dados locais",icon:"🗑️",okLabel:"Apagar",irreversible:true}))return;
  state.family={name:"",social:"",updatedAt:now(),responsibles:[],children:[]};state.entries={};state.plans=[];state.complementaryActivities=[];state.tombstones={children:[],entries:[],plans:[]};activeChildId=null;setBackendChildMap({});
  try{
    const remove=[];
@@ -3340,7 +3340,7 @@ async function linkCurrentFamilyToBackend(){
 
   const children=state.family.children||[];
   const msg=`Criar "${state.family.name}" no backend e vincular ${children.length} criança(s)?\n\nSeus registros de estudo ainda continuarão no Drive nesta versão.`;
-  if(!confirm(msg))return;
+  if(!await showConfirm(msg,{title:"Vincular família",icon:"🔗",okLabel:"Vincular",danger:false}))return;
 
   const btn=$("linkFamilyBtn");
   if(btn){btn.disabled=true;btn.textContent="Vinculando..."}
@@ -3680,7 +3680,7 @@ async function mergeDuplicateChildren(keepId,removeId){
  const planCount=(state.plans||[]).filter(p=>planIncludesChild(p,removeId)).length;
 
  const msg=`Mesclar "${rem.name}" em "${keep.name}"?\n\nSerão transferidos ${entryCount} registro(s) e ${planCount} planejamento(s).\n\nO cadastro duplicado "${rem.name}" será EXCLUÍDO DEFINITIVAMENTE após a transferência e não poderá ser restaurado.`;
- if(!confirm(msg))return;
+ if(!await showConfirm(msg,{title:"Mesclar cadastros",icon:"⚠️",okLabel:"Mesclar e excluir duplicado",irreversible:true}))return;
 
  try{
    // 1) Consolida imediatamente os dados locais.
@@ -4063,7 +4063,7 @@ async function startAsaasCheckout(plan,button){
  try{const data=await backendFetch("/payments/asaas/checkout",{method:"POST",body:JSON.stringify({family_id:family.id,plan})});if(!data.checkout_url)throw new Error("Link de pagamento não recebido.");location.href=data.checkout_url}catch(e){alert("Não foi possível iniciar: "+e.message);if(button){button.disabled=false;button.textContent=plan==="yearly"?"Assinar anual":"Assinar mensal"}}
 }
 async function cancelAsaasSubscription(){
- const family=backendFamilyFromProfile();if(!family||!confirm("Cancelar a renovação desta assinatura?"))return;
+ const family=backendFamilyFromProfile();if(!family)return;if(!await showConfirm("Cancelar a renovação desta assinatura?",{title:"Cancelar renovação",icon:"💳",okLabel:"Cancelar renovação"}))return;
  try{const data=await backendFetch("/payments/asaas/cancel",{method:"POST",body:JSON.stringify({family_id:family.id})});alert(data.access_until?`Renovação cancelada. Seu acesso continua até ${fmtDate(data.access_until)}.`:"Renovação cancelada. Nenhuma nova cobrança será feita.");refreshAsaasBilling()}catch(e){alert("Não foi possível cancelar: "+e.message)}
 }
 
@@ -4082,7 +4082,7 @@ async function grantFamilyAccess(){
 }
 async function revokeFamilyAccess(){
  const family_id=$("adminAccessGrantFamily")?.value;if(!family_id)return;
- if(!confirm("Remover a gratuidade desta família?"))return;
+ if(!await showConfirm("Remover a gratuidade desta família?",{title:"Remover gratuidade",icon:"🎟️",okLabel:"Remover"}))return;
  try{await backendFetch("/admin/access-grants/revoke",{method:"POST",body:JSON.stringify({family_id})});loadAdminAccessGrants()}catch(e){alert("Não foi possível remover: "+e.message)}
 }
 
@@ -4098,7 +4098,7 @@ async function addAllowedSignup(){
  try{await backendFetch("/admin/allowed-signups",{method:"POST",body:JSON.stringify({email,note})});$("adminAllowedEmailInput").value="";$("adminAllowedEmailNote").value="";loadAllowedSignups()}catch(e){alert("Não foi possível autorizar: "+e.message)}
 }
 async function removeAllowedSignup(email){
- if(!confirm(`Remover ${email} da lista de novos cadastros?`))return;
+ if(!await showConfirm(`Remover ${email} da lista de novos cadastros?`,{title:"Remover cadastro liberado",icon:"✉️",okLabel:"Remover"}))return;
  try{await backendFetch("/admin/allowed-signups/remove",{method:"POST",body:JSON.stringify({email})});loadAllowedSignups()}catch(e){alert("Não foi possível remover: "+e.message)}
 }
 
@@ -4651,7 +4651,7 @@ async function organizeExistingPhotos(){
     updateVisibleDriveStatus("Todas as fotos disponíveis já foram enviadas.");
     return alert("Não há fotos pendentes para enviar.");
   }
-  if(!confirm(`Enviar ${pendingCount} foto(s) pendente(s) para a pasta Fotos oficial?`)) return;
+  if(!await showConfirm(`Enviar ${pendingCount} foto(s) pendente(s) para a pasta Fotos oficial?`,{title:"Organizar fotos",icon:"🖼️",okLabel:"Enviar fotos",danger:false})) return;
   updateVisibleDriveStatus(`Enviando ${pendingCount} foto(s)...`);
   await ensureMediaRefs();
   const remaining=all.reduce((total,e)=>total+entryPhotos(e).filter(p=>!(p.visibleDriveId||p.driveId)&&(p.mediaId||photoDisplayData(p))).length,0),done=pendingCount-remaining;
@@ -5779,9 +5779,9 @@ function toggleRecordQuickMode(on){
  localStorage.setItem("DE_RECORD_QUICK_MODE",on?"1":"0");
  renderRecordPage();
 }
-function clearRecordReport(){
+async function clearRecordReport(){
  const field=$("fActivity");if(!field||!field.value)return;
- if(!confirm("Limpar o texto do relato?"))return;
+ if(!await showConfirm("Limpar o texto do relato?",{title:"Limpar relato",icon:"🧹",okLabel:"Limpar"}))return;
  field.value="";saveRecordDraft(true);updateRecordPreview();field.focus();
 }
 function renderRecordPage(){
@@ -7438,8 +7438,8 @@ function startCollectivePlan(id){
 }
 function startPlan(id,childId="",fromCollective=false){let p=state.plans.find(x=>x.id===id);if(!p)return;const pending=planPendingChildren(p);if(!childId){if(pending.length===1)childId=pending[0];else if(planViewChildFilter!=="all"&&pending.includes(planViewChildFilter))childId=planViewChildFilter;else return openPlanParticipantChooser(p)}if(!pending.includes(childId))return showNotice("Esta atividade já foi registrada para esta criança.");if(!fromCollective)collectiveRegistration=null;activeChildId=childId;recordFormOpen=true;const collective=fromCollective&&collectiveRegistration;editing={id:uid(),isNewFromPlan:true,childId,date:today(),type:p.type,complementaryId:p.complementaryId||"",area:"",componente:p.component||"",codigo:"",habilidade:"",materialId:p.materialId||"",materialName:p.materialName||"",materialPublisher:p.materialPublisher||"",materialBnccSkills:[],atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,planOccurrenceDate:p.nextDate||p.date,collectiveGroupId:collective?.groupId||"",collectivePosition:collective?collective.index+1:0,collectiveTotal:collective?.total||0};clearRecordDraft(childId);showPage("registro");renderRecordPage()}
 function completePlanOccurrence(planId,occurrenceDate,childId){const p=state.plans.find(x=>x.id===planId);if(!p)return;childId=childId||p.childId;p.participantProgress??={};p.participantProgress[occurrenceDate]??={};p.participantProgress[occurrenceDate][childId]={status:"completed",updatedAt:now()};const allDone=planChildIds(p).every(id=>["completed","skipped"].includes(p.participantProgress[occurrenceDate]?.[id]?.status));if(allDone){p.occurrences??=[];p.occurrences=p.occurrences.filter(x=>x.date!==occurrenceDate);p.occurrences.push({date:occurrenceDate,status:"completed",updatedAt:now()});if(p.recurrence==="none"){p.completedAt=now();p.nextDate=""}else{p.nextDate=nextPlanDate(p,occurrenceDate);if(!p.nextDate)p.completedAt=now()}}p.updatedAt=now()}
-function skipPlanOccurrence(id){const p=state.plans.find(x=>x.id===id);if(!p)return;const current=p.nextDate||p.date;if(!confirm(`Pular a ocorrência de ${fmtDate(current)}?`))return;p.occurrences??=[];p.occurrences.push({date:current,status:"skipped",updatedAt:now()});p.nextDate=nextPlanDate(p,current);if(!p.nextDate)p.completedAt=now();p.updatedAt=now();saveLocal();renderPlans();renderDashboard()}
-async function deletePlan(id){const p=state.plans.find(x=>x.id===id);if(!p)return;if(!confirm("Excluir este planejamento?"))return;state.plans=state.plans.filter(x=>x.id!==id);addTomb("plans",id);saveLocal();renderPlans();renderDashboard();if(p.calendarEventId)await deleteCalendarEventForPlan(p)}
+async function skipPlanOccurrence(id){const p=state.plans.find(x=>x.id===id);if(!p)return;const current=p.nextDate||p.date;if(!await showConfirm(`Pular a ocorrência de ${fmtDate(current)}?`,{title:"Pular ocorrência",icon:"⏭️",okLabel:"Pular",danger:false}))return;p.occurrences??=[];p.occurrences.push({date:current,status:"skipped",updatedAt:now()});p.nextDate=nextPlanDate(p,current);if(!p.nextDate)p.completedAt=now();p.updatedAt=now();saveLocal();renderPlans();renderDashboard()}
+async function deletePlan(id){const p=state.plans.find(x=>x.id===id);if(!p)return;if(!await showConfirm("Excluir este planejamento?",{title:"Excluir planejamento",icon:"🗑️",okLabel:"Excluir"}))return;state.plans=state.plans.filter(x=>x.id!==id);addTomb("plans",id);saveLocal();renderPlans();renderDashboard();if(p.calendarEventId)await deleteCalendarEventForPlan(p)}
 
 function viewPlanDetails(id,occurrenceStatus="planned",occurrenceDate=""){
  const plan=state.plans.find(p=>p.id===id);if(!plan)return showNotice("Planejamento não encontrado.");
@@ -8308,7 +8308,7 @@ function importHistoryCSV(ev){let file=ev.target.files[0],childId=$("historyChil
 
 function addComplementaryActivity(){let name=$("compActivityName").value.trim();if(!name)return alert("Informe o nome.");if(state.complementaryActivities.some(x=>x.name.toLowerCase()===name.toLowerCase()))return alert("Atividade já cadastrada.");state.complementaryActivities.push({id:uid(),name,category:$("compActivityCategory").value.trim(),description:$("compActivityDescription").value.trim(),createdAt:now(),updatedAt:now()});$("compActivityName").value="";$("compActivityCategory").value="";$("compActivityDescription").value="";saveLocal();renderAll()}
 function renderComplementaryList(){let b=$("complementaryList");if(!b)return;b.innerHTML=state.complementaryActivities.map(x=>`<div class="entry"><div class="entry-title">${esc(x.name)}</div><div class="skill">${esc(x.category||"")}</div><div class="obs">${esc(x.description||"")}</div><button class="btn danger small" onclick="deleteComplementaryActivity('${x.id}')">Excluir</button></div>`).join("")||"<div class='notice'>Nenhuma atividade complementar.</div>"}
-function deleteComplementaryActivity(id){if(!confirm("Excluir esta atividade complementar da lista?"))return;state.complementaryActivities=state.complementaryActivities.filter(x=>x.id!==id);addTomb("complementary",id);saveLocal();renderAll()}
+async function deleteComplementaryActivity(id){if(!await showConfirm("Excluir esta atividade complementar da lista?",{title:"Excluir atividade",icon:"🗑️",okLabel:"Excluir"}))return;state.complementaryActivities=state.complementaryActivities.filter(x=>x.id!==id);addTomb("complementary",id);saveLocal();renderAll()}
 
 function downloadCustomBnccTemplate(){
  const csv="codigo;componente;area;serie;abrange_varias_series;descricao\nFAM001;Atividade personalizada;Área personalizada;3º ano;Não;Descrição do código personalizado da família";
@@ -8354,7 +8354,7 @@ async function shareOrDownloadText(content,name,mime,title){let blob=new Blob([c
 function backupObject(){return{version:5,createdAt:now(),state}}
 function shareBackup(){shareOrDownloadText(JSON.stringify(backupObject()),"diario-estudos-backup.json","application/json","Backup Diário de Estudos")}
 function makeBackup(){shareBackup()}
-function restoreBackup(ev){let f=ev.target.files[0];if(!f)return;let fr=new FileReader();fr.onload=()=>{try{let b=JSON.parse(fr.result),s=b.state||b;if(!s.family||!s.entries)throw new Error();if(!confirm("Restaurar este backup e substituir os dados locais?"))return;state={...state,...s};activeChildId=state.family.children[0]?.id||null;saveLocal();renderAll();alert("Backup restaurado.")}catch(e){alert("Backup inválido.")}};fr.readAsText(f)}
+function restoreBackup(ev){let f=ev.target.files[0];if(!f)return;let fr=new FileReader();fr.onload=async()=>{try{let b=JSON.parse(fr.result),s=b.state||b;if(!s.family||!s.entries)throw new Error();if(!await showConfirm("Restaurar este backup e substituir os dados locais?\n\nOs dados atuais deste dispositivo serão sobrescritos.",{title:"Restaurar backup",icon:"♻️",okLabel:"Restaurar e substituir",irreversible:true})){ev.target.value="";return}state={...state,...s};activeChildId=state.family.children[0]?.id||null;saveLocal();renderAll();alert("Backup restaurado.")}catch(e){alert("Backup inválido.")}};fr.readAsText(f)}
 
 function bindSettings(){}
 async function init(){
@@ -8455,7 +8455,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "16.5";
+const APP_VERSION = "16.15";
 queueMicrotask(()=>{ const el=document.getElementById("healthFrontendVersion"); if(el) el.textContent=`v${APP_VERSION}`; });
 
 let deferredInstallPrompt=null;
