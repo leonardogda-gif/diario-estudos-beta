@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#441015">
 <title>Diário de Estudos</title>
 
-<link rel="manifest" href="/manifest.json?v=16.17">
+<link rel="manifest" href="/manifest.json?v=16.18">
 <link rel="icon" type="image/png" sizes="32x32" href="/icon-192.png">
 <link rel="icon" type="image/png" sizes="48x48" href="/icon-192.png">
 
@@ -1679,9 +1679,15 @@ input,select,textarea{font-size:16px}
 .reading-plan-book .book-title{font-size:14.5px;font-weight:800;line-height:1.3}
 .reading-plan-book .book-meta{font-size:12px;color:#756B63;margin-top:3px}
 .reading-plan-step-fields{text-align:left}
+
+.book-cover-zoomable{cursor:zoom-in}
+.book-cover-zoom-overlay{position:fixed;inset:0;z-index:9999;background:rgba(30,12,14,.82);display:flex;align-items:center;justify-content:center;padding:calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));cursor:zoom-out}
+.book-cover-zoom-overlay.hidden{display:none}
+.book-cover-zoom-overlay img{max-width:min(88vw,420px);max-height:78vh;width:auto;height:auto;object-fit:contain;border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,.45);background:#fff}
+.book-cover-zoom-close{position:absolute;top:calc(14px + env(safe-area-inset-top));right:16px;width:42px;height:42px;border:0;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:28px;line-height:1;cursor:pointer}
 </style>
 </head>
-<body data-build="16.17" class="auth-checking">
+<body data-build="16.18" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -2402,6 +2408,10 @@ input,select,textarea{font-size:16px}
   <div id="recordViewCard" class="record-view-card" role="dialog" aria-modal="true" aria-label="Visualizar registro"></div>
 </div>
 
+<div id="bookCoverZoomOverlay" class="book-cover-zoom-overlay hidden no-print" onclick="closeBookCoverZoom()" role="dialog" aria-modal="true" aria-label="Capa ampliada">
+  <img id="bookCoverZoomImg" src="" alt="">
+  <button class="book-cover-zoom-close" type="button" aria-label="Fechar">×</button>
+</div>
 <div id="readingPlanOverlay" class="diary-info-overlay hidden no-print" onclick="if(event.target===this)closeReadingPlanStep()">
   <div class="diary-info-modal reading-plan-modal" role="dialog" aria-modal="true" aria-labelledby="readingPlanTitle">
     <h2 id="readingPlanTitle">Adicionar à biblioteca</h2>
@@ -7540,10 +7550,10 @@ function renderReadingCards(books){
  const card=b=>`
   <div class="reading-card" data-reading-book-id="${esc(b.id)}">
    <button class="reading-delete-x" type="button" aria-label="Excluir ${esc(b.title||'livro')}" title="Excluir leitura" onclick="deleteFamilyBookReading('${b.id}')">×</button>
-   ${b.thumbnail?`<img class="book-cover" src="${esc(b.thumbnail)}" alt="">`:`<div class="book-cover-placeholder">📖</div>`}
-   <div><div class="book-title">${esc(b.title)}</div><div class="book-meta">${esc((b.authors||[]).join(", ")||"Autor não informado")}${b.publisher?" · "+esc(b.publisher):""}</div>
+   ${b.thumbnail?`<img class="book-cover book-cover-zoomable" src="${esc(b.thumbnail)}" alt="Capa de ${esc(b.title||"livro")}" role="button" tabindex="0" onclick="openBookCoverZoom(this)" title="Ampliar capa">`:`<div class="book-cover-placeholder">📖</div>`}
+   <div><div class="book-title">${esc(b.title)}</div><div class="book-meta">${bookResultMeta({authors:b.authors,publisher:b.publisher})}</div>
    <div style="margin-top:6px"><span class="reading-status">${esc(b.status||"Lendo")}</span>${b.catalog_status==="pending"?` <span class="reading-status">Aguardando validação</span>`:""}</div>
-   <div class="book-reading-dates">${b.status==="Planejado"&&b.started_at?`<span>Início previsto: <b>${fmtDate(b.started_at)}</b></span>`:b.started_at?`<span>Início: <b>${fmtDate(b.started_at)}</b></span>`:""}${b.target_finish_at?`<span>Previsão: <b>${fmtDate(b.target_finish_at)}</b></span>`:""}${b.finished_at?`<span>Conclusão: <b>${fmtDate(b.finished_at)}</b></span>`:""}</div>
+   <div class="book-reading-dates">${b.status==="Planejado"&&b.started_at?`<span>Início previsto: <b>${fmtDate(b.started_at)}</b></span>`:b.started_at?`<span>Início: <b>${fmtDate(b.started_at)}</b></span>`:""}${b.target_finish_at&&b.status!=="Concluído"?`<span>Previsão: <b>${fmtDate(b.target_finish_at)}</b></span>`:""}${b.finished_at?`<span>Conclusão: <b>${fmtDate(b.finished_at)}</b></span>`:""}</div>
    <div class="reading-actions">${b.status==="Planejado"?`<button class="btn small reading-main-action" type="button" onclick="startPlannedBook('${b.id}')">Iniciar leitura</button>`:b.status==="Lendo"?`<button class="btn small reading-main-action" type="button" onclick="startReadingActivity('${b.id}')"><span class="reading-label-desktop">+ Registrar atividade</span><span class="reading-label-mobile">+ Registrar</span></button><button class="btn small reading-icon-action reading-complete-icon" type="button" onclick="completeBookAndRegister('${b.id}')" aria-label="Concluir leitura" title="Concluir leitura">✓</button>`:`<button class="btn small reading-main-action" type="button" onclick="reopenCompletedBook('${b.id}')">Reabrir leitura</button>`}<button class="btn small reading-icon-action reading-edit-icon" type="button" onclick="editFamilyBookReading('${b.id}')" aria-label="Editar planejamento" title="Editar planejamento">✏️</button></div>
    </div>
   </div>`;
@@ -7561,6 +7571,9 @@ async function renderReadingPage(){
 function openBookSearch(){$("bookSearchPanel")?.classList.remove("hidden");$("bookSearchQuery")?.focus()}
 function syncReadingPlanFields(){const status=$("readingPlanStatus")?.value||"Lendo",start=$("readingPlanStart"),label=$("readingPlanStartLabel");if(start&&!start.value)start.value=today();if(status==="Lendo"){if(start){start.max=today();start.min="";if(start.value>today())start.value=today()}if(label)label.textContent="Início"}else{if(start){start.max="";start.min=today();if(start.value<today())start.value=today()}if(label)label.textContent="Início previsto"}}
 function readingPlanValues(){const status=$("readingPlanStatus")?.value||"Lendo",started_at=$("readingPlanStart")?.value||today(),target_finish_at=$("readingPlanTarget")?.value||"";if(target_finish_at&&target_finish_at<started_at)throw new Error("A previsão de conclusão não pode ser anterior ao início.");return {status,started_at,target_finish_at}}
+function openBookCoverZoom(img){const o=$("bookCoverZoomOverlay"),z=$("bookCoverZoomImg");if(!o||!z||!img?.src)return;z.src=img.src;z.alt=img.alt||"";o.classList.remove("hidden")}
+function closeBookCoverZoom(){const o=$("bookCoverZoomOverlay");if(o)o.classList.add("hidden");const z=$("bookCoverZoomImg");if(z)z.removeAttribute("src")}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeBookCoverZoom()});
 let readingPlanPending=null;
 function openReadingPlanStep(kind,i){
  let book;
@@ -7821,15 +7834,45 @@ async function reopenCompletedBook(id){
 }
 async function editFamilyBookReading(id){
  const b=readingBookById(id);if(!b)return;
- const isPlanned=b.status==="Planejado";
+ const isPlanned=b.status==="Planejado",isDone=b.status==="Concluído";
+ const re=/^\d{4}-\d{2}-\d{2}$/;
+ if(isDone){
+  const result=await showFormModal({title:"Editar leitura",icon:"📅",fields:[
+    {id:"started",label:"Data de início",value:b.started_at||"",max:today()},
+    {id:"finished",label:"Data de conclusão",value:b.finished_at||today(),max:today()}
+  ]});
+  if(!result)return;
+  const started=result.started,finished=result.finished;
+  if(started&&!re.test(started))return showNotice("Use o formato AAAA-MM-DD.");
+  if(!re.test(finished))return showNotice("Escolha a data de conclusão.");
+  if(finished>today())return showNotice("A data de conclusão não pode estar no futuro.");
+  if(started&&started>finished)return showNotice("A conclusão não pode ser anterior ao início.");
+  try{
+   await patchReadingBook(b,{started_at:started,finished_at:finished});
+   updateReadingCompletionEntryDates(b);
+   await renderReadingPage();renderDashboard();renderPlans();
+  }catch(e){showNotice("Não foi possível editar a leitura: "+(e.message||e))}
+  return;
+ }
  const result=await showFormModal({title:isPlanned?"Planejar leitura":"Editar leitura",icon:"📅",fields:[
    {id:"started",label:isPlanned?"Data prevista para iniciar":"Data de início",value:b.started_at||today()},
    {id:"target",label:"Previsão de conclusão (opcional)",value:b.target_finish_at||""}
  ]});
  if(!result)return;
  const started=result.started,target=result.target;
- if(!/^\d{4}-\d{2}-\d{2}$/.test(started))return showNotice("Use o formato AAAA-MM-DD.");if(target&&!/^\d{4}-\d{2}-\d{2}$/.test(target))return showNotice("Use o formato AAAA-MM-DD.");if(target&&target<started)return showNotice("A previsão não pode ser anterior ao início.");if(b.finished_at&&started>b.finished_at)return showNotice(`O início não pode ser depois da conclusão (${fmtDate(b.finished_at)}).`);
+ if(!re.test(started))return showNotice("Use o formato AAAA-MM-DD.");if(target&&!re.test(target))return showNotice("Use o formato AAAA-MM-DD.");if(target&&target<started)return showNotice("A previsão não pode ser anterior ao início.");if(b.finished_at&&started>b.finished_at)return showNotice(`O início não pode ser depois da conclusão (${fmtDate(b.finished_at)}).`);
  try{await patchReadingBook(b,{started_at:started,target_finish_at:target});await renderReadingPage();renderDashboard();renderPlans()}catch(e){showNotice("Não foi possível editar a leitura: "+(e.message||e))}
+}
+function updateReadingCompletionEntryDates(book){
+ try{
+  const childId=book.childId&&state.family.children.some(c=>c.id===book.childId)?book.childId:(backendToLocalChildId(book.child_id)||readingChildId());
+  const entry=readingCompletionEntry(book,childId);if(!entry||!book.finished_at)return;
+  entry.date=book.finished_at;
+  const period=book.started_at?`Leitura realizada de ${fmtDate(book.started_at)} a ${fmtDate(book.finished_at)}.`:"";
+  const obs=String(entry.observacoes||"").replace(/^Leitura realizada de \d{2}\/\d{2}\/\d{4} a \d{2}\/\d{2}\/\d{4}\.\s*/,"");
+  entry.observacoes=[period,obs].filter(Boolean).join(" ");
+  entry.updatedAt=now();saveLocal();
+ }catch(e){console.error("Falha ao atualizar o registro da leitura:",e)}
 }
 async function deleteFamilyBookReading(id){
  const b=(window.currentReadingBooks||[]).find(x=>x.id===id)||getReadingLibrary().find(x=>x.id===id);if(!b)return;
@@ -8494,7 +8537,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "16.17";
+const APP_VERSION = "16.18";
 queueMicrotask(()=>{ const el=document.getElementById("healthFrontendVersion"); if(el) el.textContent=`v${APP_VERSION}`; });
 
 let deferredInstallPrompt=null;
