@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#441015">
 <title>Diário de Estudos</title>
 
-<link rel="manifest" href="/manifest.json?v=16.18">
+<link rel="manifest" href="/manifest.json?v=16.19">
 <link rel="icon" type="image/png" sizes="32x32" href="/icon-192.png">
 <link rel="icon" type="image/png" sizes="48x48" href="/icon-192.png">
 
@@ -1687,7 +1687,7 @@ input,select,textarea{font-size:16px}
 .book-cover-zoom-close{position:absolute;top:calc(14px + env(safe-area-inset-top));right:16px;width:42px;height:42px;border:0;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:28px;line-height:1;cursor:pointer}
 </style>
 </head>
-<body data-build="16.18" class="auth-checking">
+<body data-build="16.19" class="auth-checking">
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -3155,7 +3155,7 @@ function refreshOnboardingUI(){
   const btn=$("finishOnboardingBtn");if(btn)btn.textContent=fam?"Cadastrar e começar":"Criar e começar";
 }
 async function finishOnboarding(){
-  if(!appSessionValid()||!backendProfile?.user)return alert("Sua sessão do Diário expirou. Entre com Google novamente.");
+  if(!appSessionValid()||!backendProfile?.user)return showNotice("Sua sessão expirou. Entre novamente com sua conta Google para continuar.",{title:"Sessão expirada",icon:"🔑"});
   const valid=onboardingRows.map(r=>({...r,name:(r.name||"").trim()})).filter(r=>r.name);
   if(!valid.length)return alert("Cadastre pelo menos uma criança.");
   const btn=$("finishOnboardingBtn"),status=$("onboardingStatus");
@@ -3358,7 +3358,7 @@ async function refreshBackendProfile(){
 
 async function linkCurrentFamilyToBackend(){
   if(!appSessionValid()){
-    alert("Sua sessão do Diário expirou. Entre com Google novamente.");
+    showNotice("Sua sessão expirou. Entre novamente com sua conta Google para continuar.",{title:"Sessão expirada",icon:"🔑"});
     return;
   }
   if(!localFamilyReadyForBackend()){
@@ -3369,7 +3369,7 @@ async function linkCurrentFamilyToBackend(){
   // Protege contra criação duplicada.
   if(backendProfile?.families?.length){
     renderBackendFamilyState();
-    alert("Sua conta já possui uma família no backend. Nenhuma nova família foi criada.");
+    showNotice("Sua conta já tem uma família cadastrada, então nenhuma nova família foi criada.",{title:"Família já existe",icon:"👨‍👩‍👧"});
     return;
   }
 
@@ -3429,9 +3429,9 @@ async function linkCurrentFamilyToBackend(){
     await loadBackendFamilyData();
 
     if(failed.length){
-      alert(`Família criada no backend.\n\n${linked} criança(s) vinculada(s).\nNão foi possível vincular agora: ${failed.join(", ")}.\n\nNenhum registro foi perdido.`);
+      showNotice(`${linked} criança(s) vinculada(s).\nNão foi possível vincular agora: ${failed.join(", ")}.\n\nNenhum registro foi perdido. Tente vincular de novo em instantes.`,{title:"Família vinculada em parte",type:"error"});
     }else{
-      alert(`Família vinculada com sucesso.\n${linked} criança(s) cadastrada(s) no backend.`);
+      showNotice(`${linked} criança(s) vinculada(s) à família.`,{title:"Família vinculada",icon:"✅"});
     }
   }catch(e){
     console.error(e);
@@ -3537,7 +3537,7 @@ async function continueFamilyStorageSetup(){
     await syncWithDrive({manual:true});
   }catch(e){
     console.error("Drive automático:",e);
-    alert("Não foi possível sincronizar o Drive agora: "+(e?.message||e));
+    showNotice("Não foi possível sincronizar com o Google Drive agora. Seus dados continuam salvos neste dispositivo e a próxima tentativa será automática.\n\nDetalhe: "+(e?.message||e),{title:"Drive não sincronizou",type:"error"});
   }
 }
 
@@ -3615,7 +3615,7 @@ async function repairSharedFamilyData(){
     if(result.recoveredEntries||result.recoveredPlans){
       alert(`Recuperados ${result.recoveredEntries} registro(s) antigo(s) e ${result.recoveredPlans} planejamento(s).`);
     }else{
-      alert("Sincronização de reparo concluída.");
+      showNotice("Os dados foram conferidos e sincronizados com o Drive.",{title:"Sincronização concluída",icon:"✅"});
     }
   }catch(e){
     alert("Não foi possível reparar/migrar os registros: "+e.message);
@@ -3951,7 +3951,7 @@ async function reconcileChildrenWithBackend(showMessage=false){
  Object.keys(map).forEach(id=>{if(!state.family.children.some(c=>c.id===id))delete map[id]});
  setBackendChildMap(map);state.family.name=fam.name||"Família";state.family.updatedAt=now();
  const active=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan);if(!active.some(c=>c.id===activeChildId))activeChildId=active[0]?.id||null;
- saveLocal(false);renderAll();if(showMessage)alert("Família e crianças atualizadas pelo backend.");return true;
+ saveLocal(false);renderAll();if(showMessage)showNotice("Os dados da família e das crianças foram atualizados.",{title:"Família atualizada",icon:"✅"});return true;
 }
 
 async function syncFamilyFromBackend(showMessage=false){
@@ -3967,7 +3967,7 @@ async function syncFamilyFromBackend(showMessage=false){
     await reconcileChildrenWithBackend(false);
 
     if(showMessage){
-      alert("Família e crianças atualizadas a partir do backend.");
+      showNotice("Os dados da família e das crianças foram atualizados.",{title:"Família atualizada",icon:"✅"});
     }
   }catch(e){
     console.error(e);
@@ -4185,7 +4185,7 @@ async function connectBackend(){
 
 async function testBackendConnection(){
   if(!appSessionValid()){
-    alert("Sua sessão do Diário expirou. Entre com Google novamente.");
+    showNotice("Sua sessão expirou. Entre novamente com sua conta Google para continuar.",{title:"Sessão expirada",icon:"🔑"});
     return;
   }
 
@@ -4667,7 +4667,7 @@ async function openVisiblePhotosFolder(){
   }catch(e){
     console.error(e);
     updateVisibleDriveStatus("Não foi possível abrir a pasta.");
-    alert("Não foi possível acessar a pasta de fotos no Drive.");
+    showNotice("Não foi possível abrir a pasta de fotos no Google Drive. Confira sua conexão e tente novamente.",{title:"Pasta indisponível",type:"error"});
   }
 }
 async function organizeExistingPhotos(){
@@ -4675,7 +4675,7 @@ async function organizeExistingPhotos(){
   const pendingCount=all.reduce((total,e)=>total+entryPhotos(e).filter(p=>!(p.visibleDriveId||p.driveId)&&(p.mediaId||photoDisplayData(p))).length,0);
   if(!pendingCount){
     updateVisibleDriveStatus("Todas as fotos disponíveis já foram enviadas.");
-    return alert("Não há fotos pendentes para enviar.");
+    return showNotice("Todas as fotos já estão no Drive.",{title:"Nada para enviar",icon:"🖼️"});
   }
   if(!await showConfirm(`Enviar ${pendingCount} foto(s) pendente(s) para a pasta Fotos oficial?`,{title:"Organizar fotos",icon:"🖼️",okLabel:"Enviar fotos",danger:false})) return;
   updateVisibleDriveStatus(`Enviando ${pendingCount} foto(s)...`);
@@ -4684,7 +4684,7 @@ async function organizeExistingPhotos(){
   saveLocal();
   scheduleSync();
   updateVisibleDriveStatus(`${done} foto(s) enviada(s) para a pasta Fotos.`);
-  alert(`${done} foto(s) enviada(s) para a pasta Fotos.`);
+  showNotice(`${done} foto(s) enviada(s) para a pasta Fotos no Drive.`,{title:"Fotos enviadas",icon:"✅"});
 }
 
 async function createFile(name,mime="application/json"){
@@ -5073,7 +5073,7 @@ async function syncSharedFamilyDrive(opt={}){
     console.error(e);
     setCloudStatus("error","Falha na sincronização com o Drive; dados locais preservados");
     renderSharedStorageStatus(false,"Não foi possível sincronizar o Drive agora. A próxima tentativa será automática.");
-    if(opt.manual)alert("Não foi possível sincronizar agora: "+e.message);
+    if(opt.manual)showNotice("Não foi possível sincronizar agora. Seus dados continuam salvos neste dispositivo e a próxima tentativa será automática.\n\nDetalhe: "+(e?.message||e),{title:"Falha na sincronização",type:"error"});
   }finally{
     syncing=false;
   }
@@ -5101,7 +5101,7 @@ async function syncLegacyPrivateDrive(opt={}){
   let p=remotePayload();state.updatedAt=p.updatedAt;await uploadState(p);saveLocal(false);
   setCloudStatus("online","Sincronizado · "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}));
   renderAll();hydrateMedia();
- }catch(e){console.error(e);setCloudStatus("error","Falha na sincronização; dados locais preservados");if(opt.manual)alert("Não foi possível sincronizar agora.")}
+ }catch(e){console.error(e);setCloudStatus("error","Falha na sincronização; dados locais preservados");if(opt.manual)showNotice("Não foi possível sincronizar agora. Seus dados continuam salvos neste dispositivo e a próxima tentativa será automática.",{title:"Falha na sincronização",type:"error"})}
  finally{syncing=false}
 }
 async function syncWithDrive(opt={}){
@@ -8290,9 +8290,9 @@ function updateHistoryBnccBatchSelection(){
 function historyBatchResultById(id){return historyBnccBatchResults.find(x=>x.entryId===id)}
 async function startHistoryBnccBatch(){
   if(historyBnccBatchRunning)return;
-  if(!appSessionValid())return alert("Sua sessão do Diário expirou. Entre com Google novamente.");
+  if(!appSessionValid())return showNotice("Sua sessão expirou. Entre novamente com sua conta Google para continuar.",{title:"Sessão expirada",icon:"🔑"});
   const childId=$("historyBrowseChild")?.value||activeChildId,backendChildId=localToBackendChildId(childId);
-  if(!backendChildId)return alert("Esta criança ainda não está vinculada ao backend.");
+  if(!backendChildId)return showNotice("Esta criança ainda não foi sincronizada com a família. Sincronize e tente novamente.",{title:"Criança não sincronizada",type:"error"});
   const ids=[...historyBnccSelected].slice(0,10),entries=ids.map(id=>(state.entries[childId]||[]).find(x=>x.id===id)).filter(Boolean);
   if(!entries.length)return alert("Selecione pelo menos um registro sem BNCC.");
   historyBnccBatchRunning=true;historyBnccBatchResults=[];historyBnccReviewIndex=0;updateHistoryBnccBatchSelection();
@@ -8436,7 +8436,7 @@ async function shareOrDownloadText(content,name,mime,title){let blob=new Blob([c
 function backupObject(){return{version:5,createdAt:now(),state}}
 function shareBackup(){shareOrDownloadText(JSON.stringify(backupObject()),"diario-estudos-backup.json","application/json","Backup Diário de Estudos")}
 function makeBackup(){shareBackup()}
-function restoreBackup(ev){let f=ev.target.files[0];if(!f)return;let fr=new FileReader();fr.onload=async()=>{try{let b=JSON.parse(fr.result),s=b.state||b;if(!s.family||!s.entries)throw new Error();if(!await showConfirm("Restaurar este backup e substituir os dados locais?\n\nOs dados atuais deste dispositivo serão sobrescritos.",{title:"Restaurar backup",icon:"♻️",okLabel:"Restaurar e substituir",irreversible:true})){ev.target.value="";return}state={...state,...s};activeChildId=state.family.children[0]?.id||null;saveLocal();renderAll();alert("Backup restaurado.")}catch(e){alert("Backup inválido.")}};fr.readAsText(f)}
+function restoreBackup(ev){let f=ev.target.files[0];if(!f)return;let fr=new FileReader();fr.onload=async()=>{try{let b=JSON.parse(fr.result),s=b.state||b;if(!s.family||!s.entries)throw new Error();if(!await showConfirm("Restaurar este backup e substituir os dados locais?\n\nOs dados atuais deste dispositivo serão sobrescritos.",{title:"Restaurar backup",icon:"♻️",okLabel:"Restaurar e substituir",irreversible:true})){ev.target.value="";return}state={...state,...s};activeChildId=state.family.children[0]?.id||null;saveLocal();renderAll();showNotice("Os dados do backup foram restaurados neste dispositivo.",{title:"Backup restaurado",icon:"✅"})}catch(e){showNotice("Este arquivo não é um backup válido do Diário.",{title:"Backup inválido",type:"error"})}};fr.readAsText(f)}
 
 function bindSettings(){}
 async function init(){
@@ -8537,7 +8537,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "16.18";
+const APP_VERSION = "16.19";
 queueMicrotask(()=>{ const el=document.getElementById("healthFrontendVersion"); if(el) el.textContent=`v${APP_VERSION}`; });
 
 let deferredInstallPrompt=null;
