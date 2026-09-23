@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#441015">
 <title>Diário de Estudos</title>
 
-<link rel="manifest" href="/manifest.json?v=16.23">
+<link rel="manifest" href="/manifest.json?v=16.24">
 <link rel="icon" type="image/png" sizes="32x32" href="/icon-192.png">
 <link rel="icon" type="image/png" sizes="48x48" href="/icon-192.png">
 
@@ -1702,9 +1702,41 @@ input,select,textarea{font-size:16px}
 #reportAiSummaryBtn:disabled{opacity:.85;cursor:progress}
 .ai-period-loading:not(.hidden){display:flex;align-items:center;margin:12px 0 4px;padding:10px 12px;border-radius:10px;background:#F2E3DA;color:#6B2737;font-weight:600;font-size:13.5px}
 .ai-period-text.is-updating{opacity:.45;transition:opacity .2s}
+
+/* v16.24 · ícones SVG, Relatórios e Leituras */
+.ic{width:1.15em;height:1.15em;flex-shrink:0;vertical-align:-.2em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
+.btn .ic{width:17px;height:17px;vertical-align:-3px}
+.diary-info-icon{color:#6B2737}
+.diary-info-icon .ic{width:26px;height:26px}
+.diary-info-icon[data-tone="error"],.diary-info-icon[data-tone="danger"]{color:#A23B2A;background:#F7E4DF}
+.more-list-icon{color:#6B2737}.more-list-icon .ic{width:21px;height:21px}
+.header-cloud-icon{display:inline-flex;align-items:center}.header-cloud-icon .ic{width:17px;height:17px}
+#bookSearchPanel .book-search-camera{color:#6B2737}#bookSearchPanel .book-search-camera .ic{width:21px;height:21px}
+.reading-edit-icon .ic,.attention-edit-icon .ic,.record-erase-btn .ic{width:19px;height:19px}
+.report-title-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 10px}
+.report-title-row h2{margin:0}
+.report-settings-btn{width:44px;height:44px;border-radius:12px;border:1px solid #E1D9CA;background:#F7F1E8;color:#6B2737;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.report-settings-btn .ic{width:20px;height:20px}
+.report-filter-details>summary{list-style:none;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;min-height:48px;padding:0 14px!important;border:1px solid #D8C7BA;border-radius:12px;background:#F7F1E8;color:#441015!important;font-size:14px!important}
+.report-filter-details>summary::-webkit-details-marker{display:none}
+.report-filter-details>summary .rf-ic,.report-filter-details>summary .rf-chev{display:inline-flex;color:#6B2737}
+.report-filter-details>summary .ic{width:20px;height:20px}
+.report-filter-details>summary .rf-text{flex-grow:1;color:#6A5F58}
+.report-filter-details>summary .rf-text b{color:#441015;font-weight:700}
+.report-filter-details>summary #reportFilterLabel{color:#6A5F58!important;font-weight:500}
+.report-filter-details[open]>summary .rf-chev{transform:rotate(180deg)}
+.report-actions-bar{position:sticky;bottom:0;z-index:20;display:flex;gap:8px;margin:14px -16px -16px;padding:10px 14px;background:#FFFDF8;border-top:1px solid #E1D9CA;border-radius:0 0 12px 12px;box-shadow:0 -6px 16px rgba(68,16,21,.08)}
+.report-actions-bar .btn{flex:1 1 0;min-height:48px;font-size:14.5px}
+.report-filter-details>summary::after,.report-filter-details>summary::before{content:none!important;display:none!important}
+@media(max-width:650px){#page-relatorios.active .report-actions-bar{position:fixed;left:0;right:0;bottom:calc(49px + env(safe-area-inset-bottom,0px));margin:0;border-radius:0;z-index:1700}#page-relatorios.active{padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))!important}}
+.app-form-extra{margin-top:12px;padding-top:10px;border-top:1px solid #EDE3D8;display:flex;justify-content:center}
+.app-form-extra.hidden{display:none}
+.app-form-extra-btn{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 14px;border:0;background:transparent;color:#A23B2A;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
+.app-form-extra-btn .ic{width:18px;height:18px}
 </style>
 </head>
-<body data-build="16.23" class="auth-checking">
+<body data-build="16.24" class="auth-checking">
+<svg class="ic-sprite" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><symbol id="i-lapis" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></symbol><symbol id="i-lixeira" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/><path d="M10 11v6M14 11v6"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol><symbol id="i-lanterna" viewBox="0 0 24 24"><path d="M8 3h8v5l-2 3v10h-4V11L8 8z"/><path d="M8 7h8"/><path d="M12 14v2"/></symbol><symbol id="i-borracha" viewBox="0 0 24 24"><path d="M15 4l5 5-9 9H7l-3-3z"/><path d="M10 9l5 5"/><path d="M7 20h13"/></symbol><symbol id="i-engrenagem" viewBox="0 0 24 24"><path d="M12.2 2h-.4a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.3a2 2 0 0 1-2 0l-.2-.1a2 2 0 0 0-2.7.7l-.2.4a2 2 0 0 0 .7 2.7l.2.1a2 2 0 0 1 1 1.7v.5a2 2 0 0 1-1 1.7l-.2.1a2 2 0 0 0-.7 2.7l.2.4a2 2 0 0 0 2.7.7l.2-.1a2 2 0 0 1 2 0l.4.3a2 2 0 0 1 1 1.7v.2a2 2 0 0 0 2 2h.4a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.3a2 2 0 0 1 2 0l.2.1a2 2 0 0 0 2.7-.7l.2-.4a2 2 0 0 0-.7-2.7l-.2-.1a2 2 0 0 1-1-1.7v-.5a2 2 0 0 1 1-1.7l.2-.1a2 2 0 0 0 .7-2.7l-.2-.4a2 2 0 0 0-2.7-.7l-.2.1a2 2 0 0 1-2 0l-.4-.3a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-lupa" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol><symbol id="i-pular" viewBox="0 0 24 24"><path d="M5 6l8 6-8 6z"/><path d="M18 6v12"/></symbol><symbol id="i-restaurar" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/></symbol><symbol id="i-lista" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r=".8"/><circle cx="4" cy="12" r=".8"/><circle cx="4" cy="18" r=".8"/></symbol><symbol id="i-sucesso" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/></symbol><symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.3" r=".6"/></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r=".6"/></symbol><symbol id="i-pergunta" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.6 2.6 0 1 1 3.6 2.4c-.8.4-1.1.9-1.1 1.7v.4"/><circle cx="12" cy="17" r=".6"/></symbol><symbol id="i-cadeado" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol><symbol id="i-cadeado-aberto" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 7.6-1.7"/></symbol><symbol id="i-chave" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2.5 2.5M14 9l2 2"/></symbol><symbol id="i-sem-conexao" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M5 12.5a10 10 0 0 1 4-2.3M19 12.5a10 10 0 0 0-3.2-2"/><circle cx="12" cy="19.5" r=".6"/></symbol><symbol id="i-cartao" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></symbol><symbol id="i-cupom" viewBox="0 0 24 24"><path d="M4 7h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4z"/><path d="M14 7v10" stroke-dasharray="2 2"/></symbol><symbol id="i-envelope" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6.5L20.5 7"/></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol><symbol id="i-arquivar" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="4.5" rx="1"/><path d="M5 9v10h14V9"/><path d="M10 13h4"/></symbol><symbol id="i-imagem" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M20.5 16l-5-5-8 8.5"/></symbol><symbol id="i-sino" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol><symbol id="i-raio" viewBox="0 0 24 24"><path d="M13 2.5L5 13.5h6l-1 8 8-11h-6z"/></symbol><symbol id="i-entrada" viewBox="0 0 24 24"><path d="M4 13l2-8h12l2 8v6H4z"/><path d="M4 13h4.5l1 2h5l1-2H20"/><path d="M12 5v6M9.5 8.5L12 11l2.5-2.5"/></symbol><symbol id="i-calendario" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol><symbol id="i-local" viewBox="0 0 24 24"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></symbol><symbol id="i-material" viewBox="0 0 24 24"><path d="M6 3.5h11.5v17H6a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 6 3.5z"/><path d="M4.5 17.5A1.5 1.5 0 0 1 6 16h11.5"/><path d="M9 8h5"/></symbol><symbol id="i-livro" viewBox="0 0 24 24"><path d="M4 5c3-1.5 5.5-1.5 8 0v15c-2.5-1.5-5-1.5-8 0z"/><path d="M20 5c-3-1.5-5.5-1.5-8 0v15c2.5-1.5 5-1.5 8 0z"/></symbol><symbol id="i-livros" viewBox="0 0 24 24"><rect x="4" y="4" width="4" height="16" rx="1"/><rect x="9.5" y="6" width="4" height="14" rx="1"/><path d="M15.5 7.5l3.8-1 3 13.2-3.8 1z"/></symbol><symbol id="i-ia" viewBox="0 0 24 24"><path d="M12 3l1.4 4.1 4.1 1.4-4.1 1.4L12 14l-1.4-4.1-4.1-1.4 4.1-1.4z"/><path d="M18.5 14l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/><path d="M6 15l.7 1.8 1.8.7-1.8.7L6 20l-.7-1.8-1.8-.7 1.8-.7z"/></symbol><symbol id="i-dica" viewBox="0 0 24 24"><path d="M9 17h6"/><path d="M10 20.5h4"/><path d="M8.5 14a5.5 5.5 0 1 1 7 0c-.9.8-1.5 1.7-1.5 3h-4c0-1.3-.6-2.2-1.5-3z"/></symbol><symbol id="i-clima" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><path d="M8 2v1.3M2 8h1.3M3.8 3.8l.9.9M12.2 3.8l-.9.9"/><path d="M9 19h9a3.5 3.5 0 0 0 0-7 5 5 0 0 0-9.5 1.5A2.8 2.8 0 0 0 9 19z"/></symbol><symbol id="i-familia" viewBox="0 0 24 24"><circle cx="8" cy="7" r="2.6"/><circle cx="16.5" cy="7.5" r="2.2"/><path d="M3.5 19v-2.5a4.5 4.5 0 0 1 9 0V19"/><path d="M13.5 19v-2a3.3 3.3 0 0 1 6.6 0v2"/></symbol><symbol id="i-pessoa" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></symbol><symbol id="i-crianca" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4.5"/><path d="M11 4.6c.4-1.3 1.8-2 3.1-1.6"/><path d="M6.5 21a5.5 5.5 0 0 1 11 0"/></symbol><symbol id="i-ano-escolar" viewBox="0 0 24 24"><path d="M2.5 9L12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c1.5 1.5 3.5 2.2 5.5 2.2s4-.7 5.5-2.2V11"/><path d="M21.5 9v5"/></symbol><symbol id="i-peca" viewBox="0 0 24 24"><path d="M5 8h3a2 2 0 1 1 4 0h3v3a2 2 0 1 1 0 4v4h-4a2 2 0 1 0-4 0H5v-4a2 2 0 1 0 0-4z"/></symbol><symbol id="i-documento" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5"/><path d="M9 13h7M9 17h5"/></symbol><symbol id="i-nuvem" viewBox="0 0 24 24"><path d="M7 18h10.5a4 4 0 0 0 .6-7.9A6 6 0 0 0 6.6 9 4.5 4.5 0 0 0 7 18z"/></symbol><symbol id="i-pastas" viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/><path d="M3 7V5h6l2 2"/></symbol><symbol id="i-celular" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></symbol><symbol id="i-balao" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol><symbol id="i-alvo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol><symbol id="i-olho" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-estrela" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></symbol><symbol id="i-filtro" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></symbol><symbol id="i-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol><symbol id="i-imprimir" viewBox="0 0 24 24"><path d="M7 9V3h10v6"/><rect x="3.5" y="9" width="17" height="8" rx="2"/><path d="M7 14h10v7H7z"/></symbol><symbol id="i-compartilhar" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></symbol></svg>
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -1713,7 +1745,7 @@ input,select,textarea{font-size:16px}
     </div>
     <div class="header-right">
       <div id="headerCloud" class="header-cloud hidden no-print">
-        <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização"><span class="header-cloud-icon" aria-hidden="true">☁</span><span id="headerSyncDot" class="sync-dot"></span><span id="headerCloudText" class="header-cloud-text">Aguardando login</span></div>
+        <div class="header-cloud-main" onclick="toggleHeaderCloudDetails()" title="Detalhes da sincronização"><span class="header-cloud-icon" aria-hidden="true"><svg class="ic ic-nuvem" aria-hidden="true" focusable="false"><use href="#i-nuvem"></use></svg></span><span id="headerSyncDot" class="sync-dot"></span><span id="headerCloudText" class="header-cloud-text">Aguardando login</span></div>
         <div class="header-cloud-actions"><button id="headerSyncBtn" class="btn hidden" onclick="event.stopPropagation();syncWithDrive({manual:true})" title="Sincronizar agora">↻</button></div>
       </div>
       <div class="header-message"><span>Pequenos passos</span><b>Grandes futuros</b></div>
@@ -1827,7 +1859,7 @@ input,select,textarea{font-size:16px}
         </div></div>
         <div class="full plan-final-actions"><button id="planSaveBtn" class="btn success" onclick="addPlan()">Salvar planejamento</button><button class="btn plan-cancel-link" onclick="cancelPlanEdit()">Cancelar</button></div>
       </div></div>
-      <div class="card plan-agenda-card"><div class="toolbar plan-agenda-head" style="justify-content:space-between;align-items:flex-end"><div><h3 style="margin-bottom:3px">Agenda da família</h3><div class="meta">Veja tudo junto ou filtre por criança.</div></div><div class="plan-view-switch" role="group" aria-label="Visualização da agenda"><button id="planListViewBtn" type="button" onclick="setPlanAgendaView('list')">☰ Lista</button><button id="planCalendarViewBtn" type="button" onclick="setPlanAgendaView('calendar')">📅 Calendário</button></div></div><div id="planViewChildren" class="child-tabs child-selector" style="margin:12px 0"></div><div id="planListView"><div id="plansPrimaryList"></div><div id="plannedReadingsAgenda"></div><div id="plansSecondaryList"></div></div><div id="planCalendarView" class="hidden"><div class="planner-month-head"><button type="button" class="planner-arrow" onclick="changePlannerMonth(-1)" aria-label="Mês anterior">‹</button><strong id="plannerMonthTitle"></strong><button type="button" class="planner-arrow" onclick="changePlannerMonth(1)" aria-label="Próximo mês">›</button></div><div class="planner-weekdays"><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span></div><div id="plannerMonthGrid" class="planner-month-grid"></div><div id="plannerDayPanel" class="planner-day-panel"></div></div></div>
+      <div class="card plan-agenda-card"><div class="toolbar plan-agenda-head" style="justify-content:space-between;align-items:flex-end"><div><h3 style="margin-bottom:3px">Agenda da família</h3><div class="meta">Veja tudo junto ou filtre por criança.</div></div><div class="plan-view-switch" role="group" aria-label="Visualização da agenda"><button id="planListViewBtn" type="button" onclick="setPlanAgendaView('list')"><svg class="ic ic-lista" aria-hidden="true" focusable="false"><use href="#i-lista"></use></svg> Lista</button><button id="planCalendarViewBtn" type="button" onclick="setPlanAgendaView('calendar')"><svg class="ic ic-calendario" aria-hidden="true" focusable="false"><use href="#i-calendario"></use></svg> Calendário</button></div></div><div id="planViewChildren" class="child-tabs child-selector" style="margin:12px 0"></div><div id="planListView"><div id="plansPrimaryList"></div><div id="plannedReadingsAgenda"></div><div id="plansSecondaryList"></div></div><div id="planCalendarView" class="hidden"><div class="planner-month-head"><button type="button" class="planner-arrow" onclick="changePlannerMonth(-1)" aria-label="Mês anterior">‹</button><strong id="plannerMonthTitle"></strong><button type="button" class="planner-arrow" onclick="changePlannerMonth(1)" aria-label="Próximo mês">›</button></div><div class="planner-weekdays"><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span></div><div id="plannerMonthGrid" class="planner-month-grid"></div><div id="plannerDayPanel" class="planner-day-panel"></div></div></div>
     </section>
 
     
@@ -1851,7 +1883,7 @@ input,select,textarea{font-size:16px}
       </div>
       <div class="book-search-row book-search-auto book-search-field">
         <input id="bookSearchQuery" enterkeyhint="search" placeholder="Título, autor ou ISBN" oninput="scheduleBookSearch()" autocomplete="off">
-        <button id="bookBarcodeButton" class="book-search-camera" type="button" onclick="openBookBarcodeScanner()" aria-label="Ler código de barras" title="Ler código de barras">📷</button>
+        <button id="bookBarcodeButton" class="book-search-camera" type="button" onclick="openBookBarcodeScanner()" aria-label="Ler código de barras" title="Ler código de barras"><svg class="ic ic-camera" aria-hidden="true" focusable="false"><use href="#i-camera"></use></svg></button>
       </div>
       <div id="bookBarcodeScanner" class="book-barcode-scanner hidden">
         <div class="book-barcode-video-wrap">
@@ -1861,7 +1893,7 @@ input,select,textarea{font-size:16px}
         <div class="book-camera-controls">
           <select id="bookCameraSelect" class="hidden" aria-label="Escolher câmera" onchange="restartBookBarcodeWithDevice(this.value)"></select>
           <button id="bookCameraFocusButton" class="btn small hidden" type="button" onclick="focusBookCamera()">◎ Refocar</button>
-          <button id="bookCameraTorchButton" class="btn small hidden" type="button" onclick="toggleBookCameraTorch()">🔦 Ligar luz</button>
+          <button id="bookCameraTorchButton" class="btn small hidden" type="button" onclick="toggleBookCameraTorch()"><svg class="ic ic-lanterna" aria-hidden="true" focusable="false"><use href="#i-lanterna"></use></svg> Ligar luz</button>
           <label id="bookCameraZoomBox" class="book-camera-zoom hidden">Zoom <input id="bookCameraZoom" type="range" oninput="setBookCameraZoom(this.value)"></label>
         </div>
         <div class="toolbar">
@@ -1889,14 +1921,9 @@ input,select,textarea{font-size:16px}
 
 <section id="page-relatorios" class="page">
       <div class="card">
-        <div class="toolbar no-print">
-          <button class="btn success action-primary" onclick="printReport()">Imprimir / Salvar PDF</button>
-          <button class="btn" onclick="shareReportHtml()">Compartilhar relatório</button>
-          <button type="button" class="info-btn" style="margin-left:auto" onclick="openReportInfoSettings()" aria-label="Informações para relatório" title="Informações para relatório">⚙️</button>
-        </div>
-        <h2 style="margin-top:12px">Relatórios</h2>
+        <div class="report-title-row"><h2>Relatórios</h2><button type="button" class="report-settings-btn no-print" onclick="openReportInfoSettings()" aria-label="Informações para relatório" title="Informações para relatório"><svg class="ic ic-engrenagem" aria-hidden="true" focusable="false"><use href="#i-engrenagem"></use></svg></button></div>
         <div class="report-child-picker no-print"><div class="meta" style="margin-bottom:7px">Criança</div><div id="reportChildButtons" class="child-tabs child-selector"></div><select id="reportChild" class="hidden" onchange="renderReportPage()"></select></div>
-      <details class="report-filter-details filter-panel no-print"><summary><b>Mais filtros</b><span id="reportFilterLabel">Todos os registros</span></summary>
+      <details class="report-filter-details filter-panel no-print"><summary><span class="rf-ic"><svg class="ic ic-filtro" aria-hidden="true" focusable="false"><use href="#i-filtro"></use></svg></span><span class="rf-text"><b>Filtros</b> · <span id="reportFilterLabel">Todos os registros</span></span><span class="rf-chev"><svg class="ic ic-chevron" aria-hidden="true" focusable="false"><use href="#i-chevron"></use></svg></span></summary>
       <div class="report-filters report-filters-subtle filter-panel-body">
         <div><label class="field">De</label><input id="reportFrom" type="date" onchange="renderReportPage()"></div>
         <div><label class="field">Até</label><input id="reportTo" type="date" onchange="renderReportPage()"></div>
@@ -1905,6 +1932,10 @@ input,select,textarea{font-size:16px}
         <div><label class="field clean-label">Componente <span class="field-pill optional-pill">Opcional</span></label><select id="reportComponent" onchange="renderReportPage()"><option value="">Todos</option></select></div>
       </div></details>
       <div id="reportContent"></div>
+      <div class="report-actions-bar no-print">
+        <button class="btn primary" type="button" onclick="printReport()"><svg class="ic ic-imprimir" aria-hidden="true" focusable="false"><use href="#i-imprimir"></use></svg> Imprimir / PDF</button>
+        <button class="btn" type="button" onclick="shareReportHtml()"><svg class="ic ic-compartilhar" aria-hidden="true" focusable="false"><use href="#i-compartilhar"></use></svg> Compartilhar</button>
+      </div>
       </div>
     </section>
 
@@ -1975,7 +2006,7 @@ input,select,textarea{font-size:16px}
             <div class="toolbar" style="margin-top:9px">
               <button type="button" class="btn small" onclick="toggleAllVisibleHistoryBncc(true)">Selecionar exibidos</button>
               <button type="button" class="btn small" onclick="toggleAllVisibleHistoryBncc(false)">Limpar seleção</button>
-              <button type="button" id="historyBnccBatchBtn" class="btn primary small" onclick="startHistoryBnccBatch()">✨ Analisar selecionados</button>
+              <button type="button" id="historyBnccBatchBtn" class="btn primary small" onclick="startHistoryBnccBatch()"><svg class="ic ic-ia" aria-hidden="true" focusable="false"><use href="#i-ia"></use></svg> Analisar selecionados</button>
             </div>
             <div id="historyBnccBatchSelection" class="meta" style="margin-top:7px"></div>
           </div>
@@ -2036,17 +2067,17 @@ input,select,textarea{font-size:16px}
     <section id="page-mais" class="page">
       <div class="card"><h2>Mais</h2><div class="meta" style="margin-bottom:12px">Opções que você não precisa usar todos os dias.</div>
         <div id="adminValidationNotice" class="admin-validation-notice hidden" onclick="showPage('administracao')">
-          <span>🔔</span><div><b id="adminValidationNoticeTitle">Itens aguardando validação</b><div id="adminValidationNoticeText" class="meta"></div></div>
+          <span><svg class="ic ic-sino" aria-hidden="true" focusable="false"><use href="#i-sino"></use></svg></span><div><b id="adminValidationNoticeTitle">Itens aguardando validação</b><div id="adminValidationNoticeText" class="meta"></div></div>
         </div>
         <div id="asaasPlanCard" class="billing-card"><div class="meta">Consultando acesso da família…</div></div>
         <div class="more-group"><h3 class="more-group-title">Conta e acesso</h3>
-          <div class="more-action-grid"><button class="more-list-action" onclick="showPage('configuracoes')"><span class="more-list-icon" aria-hidden="true">👨‍👩‍👧</span><span><b>Configurações da família</b><small>Crianças, responsáveis, integrações e dados</small></span><span class="more-chevron">›</span></button></div>
+          <div class="more-action-grid"><button class="more-list-action" onclick="showPage('configuracoes')"><span class="more-list-icon" aria-hidden="true"><svg class="ic ic-familia" aria-hidden="true" focusable="false"><use href="#i-familia"></use></svg></span><span><b>Configurações da família</b><small>Crianças, responsáveis, integrações e dados</small></span><span class="more-chevron">›</span></button></div>
         </div>
         <div class="more-group"><h3 class="more-group-title">Acompanhamento</h3>
-          <div class="more-action-grid"><button class="more-list-action" onclick="showPage('relatorios')"><span class="more-list-icon" aria-hidden="true">📄</span><span><b>Relatórios</b><small>Acompanhe e compartilhe os registros da família</small></span><span class="more-chevron">›</span></button></div>
+          <div class="more-action-grid"><button class="more-list-action" onclick="showPage('relatorios')"><span class="more-list-icon" aria-hidden="true"><svg class="ic ic-documento" aria-hidden="true" focusable="false"><use href="#i-documento"></use></svg></span><span><b>Relatórios</b><small>Acompanhe e compartilhe os registros da família</small></span><span class="more-chevron">›</span></button></div>
         </div>
         <div id="globalAdminMenuGroup" class="more-group hidden"><h3 class="more-group-title">Administração</h3>
-          <div class="more-action-grid"><button id="globalAdminMenuBtn" class="more-list-action" onclick="showPage('administracao')"><span class="more-list-icon" aria-hidden="true">⚙️</span><span><b>Administração do Diário</b><small>Painel técnico e gerenciamento do serviço</small></span><span class="more-chevron">›</span></button></div>
+          <div class="more-action-grid"><button id="globalAdminMenuBtn" class="more-list-action" onclick="showPage('administracao')"><span class="more-list-icon" aria-hidden="true"><svg class="ic ic-engrenagem" aria-hidden="true" focusable="false"><use href="#i-engrenagem"></use></svg></span><span><b>Administração do Diário</b><small>Painel técnico e gerenciamento do serviço</small></span><span class="more-chevron">›</span></button></div>
         </div>
       </div>
     </section>
@@ -2454,7 +2485,7 @@ input,select,textarea{font-size:16px}
 </div>
 <div id="quickModeInfoOverlay" class="diary-info-overlay hidden no-print" onclick="if(event.target===this)closeQuickModeInfo()">
   <div class="diary-info-modal" role="dialog" aria-modal="true" aria-labelledby="quickModeInfoTitle">
-    <div class="diary-info-icon" aria-hidden="true">⚡</div>
+    <div class="diary-info-icon" aria-hidden="true"><svg class="ic ic-raio" aria-hidden="true" focusable="false"><use href="#i-raio"></use></svg></div>
     <h2 id="quickModeInfoTitle">Modo rápido</h2>
     <p>Registre o essencial agora e complete os detalhes depois.</p>
     <div class="diary-info-summary"><b>Agora</b><span>Atividade · Data · Fotos</span></div>
@@ -2464,7 +2495,7 @@ input,select,textarea{font-size:16px}
 </div>
 <div id="recordHelpOverlay" class="diary-info-overlay hidden no-print" onclick="if(event.target===this)closeRecordHelp()">
   <div class="diary-info-modal record-help-modal" role="dialog" aria-modal="true" aria-labelledby="recordHelpTitle">
-    <div id="recordHelpIcon" class="diary-info-icon" aria-hidden="true">💡</div>
+    <div id="recordHelpIcon" class="diary-info-icon" aria-hidden="true"><svg class="ic ic-dica" aria-hidden="true" focusable="false"><use href="#i-dica"></use></svg></div>
     <h2 id="recordHelpTitle">Ajuda</h2>
     <div id="recordHelpContent" class="record-help-modal-content"></div>
     <button class="btn primary diary-info-ok" type="button" onclick="closeRecordHelp()">Entendi</button>
@@ -2472,7 +2503,7 @@ input,select,textarea{font-size:16px}
 </div>
 <div id="appNoticeOverlay" class="diary-info-overlay hidden no-print" onclick="if(event.target===this)closeAppNotice()">
   <div class="diary-info-modal" role="dialog" aria-modal="true" aria-labelledby="appNoticeTitle">
-    <div id="appNoticeIcon" class="diary-info-icon" aria-hidden="true">ℹ️</div>
+    <div id="appNoticeIcon" class="diary-info-icon" aria-hidden="true"><svg class="ic ic-info" aria-hidden="true" focusable="false"><use href="#i-info"></use></svg></div>
     <h2 id="appNoticeTitle">Aviso</h2>
     <div id="appNoticeBody" class="app-notice-body"></div>
     <button class="btn primary diary-info-ok" type="button" onclick="closeAppNotice()">Entendi</button>
@@ -2480,7 +2511,7 @@ input,select,textarea{font-size:16px}
 </div>
 <div id="appConfirmOverlay" class="diary-info-overlay hidden no-print" onclick="if(event.target===this)closeAppConfirm(false)">
   <div class="diary-info-modal" role="dialog" aria-modal="true" aria-labelledby="appConfirmTitle">
-    <div id="appConfirmIcon" class="diary-info-icon" aria-hidden="true">❓</div>
+    <div id="appConfirmIcon" class="diary-info-icon" aria-hidden="true"><svg class="ic ic-pergunta" aria-hidden="true" focusable="false"><use href="#i-pergunta"></use></svg></div>
     <h2 id="appConfirmTitle">Confirmar</h2>
     <div id="appConfirmBody" class="app-notice-body"></div>
     <div class="modal-actions">
@@ -2491,19 +2522,23 @@ input,select,textarea{font-size:16px}
 </div>
 <div id="appFormOverlay" class="diary-info-overlay hidden no-print" onclick="if(event.target===this)closeAppForm(null)">
   <div class="diary-info-modal" role="dialog" aria-modal="true" aria-labelledby="appFormTitle">
-    <div id="appFormIcon" class="diary-info-icon" aria-hidden="true">📅</div>
+    <div id="appFormIcon" class="diary-info-icon" aria-hidden="true"><svg class="ic ic-calendario" aria-hidden="true" focusable="false"><use href="#i-calendario"></use></svg></div>
     <h2 id="appFormTitle">Título</h2>
     <p id="appFormMessage" class="app-notice-body hidden"></p>
     <div id="appFormFields" class="app-form-fields"></div>
     <div class="modal-actions">
       <button class="btn" type="button" onclick="closeAppForm(null)">Cancelar</button>
-      <button class="btn primary" type="button" onclick="submitAppForm()">OK</button>
+      <button id="appFormOkBtn" class="btn primary" type="button" onclick="submitAppForm()">OK</button>
     </div>
+    <div id="appFormExtra" class="app-form-extra hidden"></div>
   </div>
 </div>
 <div id="printableReport" aria-hidden="true"></div>
 
 <script>
+const EMOJI_ICON={"✏": "lapis", "🗑": "lixeira", "📷": "camera", "🔦": "lanterna", "🧹": "borracha", "⚙": "engrenagem", "🔎": "lupa", "⏭": "pular", "♻": "restaurar", "☰": "lista", "✅": "sucesso", "⚠": "alerta", "🔶": "alerta", "ℹ": "info", "❓": "pergunta", "🔒": "cadeado", "🔓": "cadeado-aberto", "🔑": "chave", "📡": "sem-conexao", "💳": "cartao", "🎟": "cupom", "✉": "envelope", "🔗": "link", "📦": "arquivar", "🖼": "imagem", "🔔": "sino", "⚡": "raio", "📥": "entrada", "📅": "calendario", "📍": "local", "📘": "material", "📖": "livro", "📚": "livros", "✨": "ia", "🤖": "ia", "💡": "dica", "🌦": "clima", "👨‍👩‍👧": "familia", "👨‍👩‍👧‍👦": "familia", "👤": "pessoa", "🧒": "crianca", "👦": "crianca", "🎓": "ano-escolar", "🧩": "peca", "📄": "documento", "☁": "nuvem", "🗂": "pastas", "📱": "celular", "💬": "balao", "🎯": "alvo", "👁": "olho", "⭐": "estrela"};
+function ic(name){return `<svg class="ic ic-${name}" aria-hidden="true" focusable="false"><use href="#i-${name}"></use></svg>`}
+function iconFromEmoji(e){const k=String(e||"").replace(/\uFE0F/g,"").trim();const n=EMOJI_ICON[k];return n?ic(n):esc(e||"")}
 const GOOGLE_CLIENT_ID = "629410527657-f5b9r4o0jvcvf0517oracmhpvhsj19pn.apps.googleusercontent.com";
 const GOOGLE_SCOPES = "openid email profile https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/calendar.app.created";
 const DRIVE_SYNC_FILE = "diario-estudos-beta.json";
@@ -2670,7 +2705,7 @@ function showNotice(message,opts={}){
  const overlay=$("appNoticeOverlay");
  if(!overlay){alert(message);return Promise.resolve()}
  $("appNoticeTitle").textContent=opts.title||"Aviso";
- $("appNoticeIcon").textContent=opts.icon||(opts.type==="error"?"⚠️":"ℹ️");
+ {const ni=$("appNoticeIcon");ni.innerHTML=iconFromEmoji(opts.icon||(opts.type==="error"?"⚠️":"ℹ️"));ni.dataset.tone=opts.type==="error"?"error":""}
  $("appNoticeBody").textContent=String(message??"");
  overlay.classList.remove("hidden");
  if(_appNoticeResolve){const prev=_appNoticeResolve;_appNoticeResolve=null;prev()}
@@ -2686,7 +2721,7 @@ function showConfirm(message,opts={}){
  const overlay=$("appConfirmOverlay");
  if(!overlay)return Promise.resolve(confirm(message));
  $("appConfirmTitle").textContent=opts.title||"Confirmar";
- $("appConfirmIcon").textContent=opts.icon||"❓";
+ $("appConfirmIcon").innerHTML=iconFromEmoji(opts.icon||"❓");$("appConfirmIcon").dataset.tone=opts.danger===false?"":"danger";
  $("appConfirmBody").textContent=String(message??"");
  const okBtn=$("appConfirmOkBtn");
  okBtn.textContent=opts.okLabel||"Confirmar";
@@ -2706,10 +2741,12 @@ function showFormModal(config={}){
  if(!overlay)return Promise.resolve(null);
  const fields=config.fields||[];
  $("appFormTitle").textContent=config.title||"";
- $("appFormIcon").textContent=config.icon||"📅";
+ $("appFormIcon").innerHTML=iconFromEmoji(config.icon||"📅");
  const msgEl=$("appFormMessage");
  if(config.message){msgEl.textContent=config.message;msgEl.classList.remove("hidden")}
  else{msgEl.textContent="";msgEl.classList.add("hidden")}
+ if($("appFormOkBtn"))$("appFormOkBtn").textContent=config.okLabel||"OK";
+ const extra=$("appFormExtra");if(extra){if(config.extraAction){extra.innerHTML=`<button type="button" class="app-form-extra-btn">${config.extraAction.icon?ic(config.extraAction.icon):""}${esc(config.extraAction.label||"")}</button>`;extra.firstChild.onclick=()=>{closeAppForm(null);setTimeout(()=>config.extraAction.run?.(),60)};extra.classList.remove("hidden")}else{extra.innerHTML="";extra.classList.add("hidden")}}
  $("appFormFields").innerHTML=fields.map(f=>{
   if(f.type==="select")return `<label class="field">${esc(f.label||"")}<select id="appFormField_${esc(f.id)}">${(f.options||[]).map(o=>`<option value="${esc(o.value)}"${o.value===f.value?" selected":""}>${esc(o.label)}</option>`).join("")}</select></label>`;
   return `<label class="field">${esc(f.label||"")}<input type="${esc(f.type||"date")}" id="appFormField_${esc(f.id)}" value="${esc(f.value||"")}"${f.min?` min="${esc(f.min)}"`:""}${f.max?` max="${esc(f.max)}"`:""}></label>`;
@@ -2818,10 +2855,10 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("quickModeInfoOv
 function openRecordHelp(kind){
  const overlay=$("recordHelpOverlay"),title=$("recordHelpTitle"),icon=$("recordHelpIcon"),content=$("recordHelpContent");if(!overlay||!title||!content)return;
  if(kind==="analise"){
-   icon.textContent="✨";title.textContent="Como funciona a análise";
+   icon.innerHTML=ic("ia");title.textContent="Como funciona a análise";
    content.innerHTML='<p>O Diário usa o relato da experiência para sugerir possíveis relações educacionais.</p><p>Você revisa as sugestões antes de salvar. Nada é aplicado automaticamente.</p>';
  }else{
-   icon.textContent="💡";title.textContent="Dicas para o relato";
+   icon.innerHTML=ic("dica");title.textContent="Dicas para o relato";
    content.innerHTML='<p>Conte o que aconteceu, o que a criança fez e o que percebeu, descobriu ou conseguiu fazer.</p><p>Detalhes simples do processo ajudam a representar melhor a experiência.</p>';
  }
  overlay.classList.remove("hidden");document.body.classList.add("modal-open");setTimeout(()=>overlay.querySelector("button")?.focus(),0);
@@ -5380,14 +5417,14 @@ function renderDashboard(){
  const td=today();
  const due=state.plans.filter(x=>planPendingForChild(x,child.id)&&!x.completedAt&&(x.nextDate||x.date)).sort((a,b)=>String(a.nextDate||a.date).localeCompare(String(b.nextDate||b.date)));
  const todayPlans=due.filter(p=>(p.nextDate||p.date)===td),latePlans=due.filter(p=>(p.nextDate||p.date)<td),futurePlans=due.filter(p=>(p.nextDate||p.date)>td).slice(0,3);
- const planHtml=p=>`<div class="plan-card attention-plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><button type="button" class="attention-edit-icon" onclick="showPage('planejamento');editPlan('${p.id}')" aria-label="Editar planejamento" title="Editar planejamento">✏️</button><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div class="meta">👨‍👩‍👧‍👦 Planejamento compartilhado: ${esc(planChildNames(p).join(", "))}</div>`:""}<div class="meta">${esc(p.component||'')}</div>${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}<div class="attention-actions"><button class="btn success attention-primary" onclick="startPlan('${p.id}','${child.id}')">✓ Concluir</button></div></div>`;
+ const planHtml=p=>`<div class="plan-card attention-plan-card ${(p.nextDate||p.date)<td?'is-late':'is-today'}"><button type="button" class="attention-edit-icon" onclick="showPage('planejamento');editPlan('${p.id}')" aria-label="Editar planejamento" title="Editar planejamento"><svg class="ic ic-lapis" aria-hidden="true" focusable="false"><use href="#i-lapis"></use></svg></button><div class="plan-date">${fmtDate(p.nextDate||p.date)}</div><div class="entry-title">${esc(p.title)}</div>${planChildIds(p).length>1?`<div class="meta">👨‍👩‍👧‍👦 Planejamento compartilhado: ${esc(planChildNames(p).join(", "))}</div>`:""}<div class="meta">${esc(p.component||'')}</div>${p.place?`<div class="meta" style="margin-top:4px">📍 ${esc(p.place)}</div>`:""}<div class="attention-actions"><button class="btn success attention-primary" onclick="startPlan('${p.id}','${child.id}')">✓ Concluir</button></div></div>`;
  box.innerHTML=`<div class="card today-hero-card">
   <div class="today-top-row">
    <div class="today-top-info">${state.family.name?`<div class="meta">${esc(state.family.name)}</div>`:""}<h2 style="margin-bottom:4px">Hoje</h2><div class="meta">${fmtDate(td)}</div><div class="today-child-select"><select aria-label="Selecionar criança" onchange="selectChild(this.value);showPage('inicio')">${state.family.children.filter(c=>!c.archived&&!c.legacyOrphan).map(c=>`<option value="${esc(c.id)}" ${c.id===child.id?'selected':''}>${esc(firstName(c.name))}</option>`).join('')}</select></div></div>
    <div class="today-top-actions"><button class="btn success" onclick="openTodayRecord()"><span class="desktop-action-label">+ Registrar atividade</span><span class="mobile-action-label">+ Registrar</span></button><button class="btn" onclick="showPage('planejamento');openNewPlanForm()"><span class="desktop-action-label">+ Planejar atividade</span><span class="mobile-action-label">+ Planejar</span></button></div>
   </div>
   <hr class="today-divider">
-  <div class="today-view-switch" role="group" aria-label="Visualização do Hoje"><button id="todayListViewBtn" class="active" type="button" onclick="setTodayView('day')">Hoje</button><button id="todayCalendarViewBtn" type="button" onclick="setTodayView('calendar')">📅 Calendário</button></div>
+  <div class="today-view-switch" role="group" aria-label="Visualização do Hoje"><button id="todayListViewBtn" class="active" type="button" onclick="setTodayView('day')">Hoje</button><button id="todayCalendarViewBtn" type="button" onclick="setTodayView('calendar')"><svg class="ic ic-calendario" aria-hidden="true" focusable="false"><use href="#i-calendario"></use></svg> Calendário</button></div>
   <div id="todayDayView"><div class="today-plans-inline"><div class="toolbar" style="justify-content:flex-end"><button class="section-link" type="button" onclick="showPage('planejamento')">Ver planejamentos ›</button></div>${todayPlans.map(planHtml).join('')||"<div class='notice'>Nada planejado para hoje. Você pode registrar uma atividade que aconteceu sem planejamento.</div>"}</div></div>
   <div id="todayCalendarView" class="today-calendar-wrap hidden"><div id="todayCalendarChildLabel" class="meta" style="margin-bottom:2px"></div><div class="planner-month-head"><button type="button" class="planner-arrow" onclick="changeTodayCalendarMonth(-1)" aria-label="Mês anterior">‹</button><strong id="todayCalendarMonthTitle"></strong><button type="button" class="planner-arrow" onclick="changeTodayCalendarMonth(1)" aria-label="Próximo mês">›</button></div><div class="planner-weekdays"><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span></div><div id="todayCalendarMonthGrid" class="planner-month-grid"></div><div id="todayCalendarDayPanel" class="planner-day-panel"></div></div>
  </div><div id="todayActiveReading"></div>
@@ -5928,7 +5965,7 @@ function renderRecordPage(){
     <div class="full">
       <label class="field clean-label clean-label-lg record-label-with-help"><span>O que vocês fizeram ou aprenderam? <span class="field-pill required-pill">Obrigatório</span></span><button type="button" class="context-help-btn" onclick="openRecordHelp('relato')" aria-label="Dicas para descrever a experiência">ⓘ</button></label><div class="field-help">Conte o que realmente aconteceu durante a experiência.</div>
       <div class="record-report-wrap"><textarea id="fActivity" rows="5" placeholder="Ex.: Visitamos a exposição sobre o corpo humano. Ela observou os órgãos, comparou suas funções e fez perguntas sobre respiração e circulação.">${esc(f.atividade)}</textarea></div>
-      <div class="record-report-footer"><div id="draftStatus" class="record-autosave-status">✓ ${draft?"Rascunho restaurado":"Rascunho salvo"}</div><div class="record-report-actions"><button type="button" class="btn record-erase-btn" onclick="clearRecordReport()" aria-label="Limpar relato" title="Limpar relato">🧹</button></div></div>
+      <div class="record-report-footer"><div id="draftStatus" class="record-autosave-status">✓ ${draft?"Rascunho restaurado":"Rascunho salvo"}</div><div class="record-report-actions"><button type="button" class="btn record-erase-btn" onclick="clearRecordReport()" aria-label="Limpar relato" title="Limpar relato"><svg class="ic ic-borracha" aria-hidden="true" focusable="false"><use href="#i-borracha"></use></svg></button></div></div>
     </div>
     <details id="recordMaterialWrap" class="full record-more-options ${quick?"hidden":""}">
       <summary><b>Material utilizado</b><span>Opcional</span></summary><div style="margin-top:10px">
@@ -5954,7 +5991,7 @@ function renderRecordPage(){
     <div class="full experience-analysis-card ${quick?"hidden":""}">
       <div class="experience-analysis-head">
         <div class="analysis-title-wrap"><h3>✨ Analisar experiência <button type="button" class="context-help-btn" onclick="openRecordHelp('analise')" aria-label="Como funciona a análise">ⓘ</button></h3><div class="meta">Encontre relações educacionais a partir do relato.</div></div>
-        <button id="analyzeExperienceBtn" type="button" class="btn primary" onclick="analyzeRecordComponents()">✨ Analisar</button>
+        <button id="analyzeExperienceBtn" type="button" class="btn primary" onclick="analyzeRecordComponents()"><svg class="ic ic-ia" aria-hidden="true" focusable="false"><use href="#i-ia"></use></svg> Analisar</button>
       </div>
       <div id="experienceComponentStatus" class="meta experience-status" style="margin-top:8px"></div>
       <div id="experienceComponentResults" style="margin-top:8px"></div>
@@ -5963,7 +6000,7 @@ function renderRecordPage(){
     <div id="aiBnccMain" class="full ai-main-card hidden">
       <select id="fComp" class="hidden" aria-hidden="true">${groupedComponentOptions(f.componente)}</select>
       <select id="fArea" class="hidden" aria-hidden="true"><option value=""></option>${Object.keys(AREAS).map(x=>`<option value="${esc(x)}" ${x===f.area?"selected":""}>${esc(x)}</option>`).join("")}</select>
-      <button id="aiBnccTestBtn" type="button" class="btn ai-primary-btn" onclick="testAiBnccSuggestion()">✨ Sugerir habilidade BNCC</button>
+      <button id="aiBnccTestBtn" type="button" class="btn ai-primary-btn" onclick="testAiBnccSuggestion()"><svg class="ic ic-ia" aria-hidden="true" focusable="false"><use href="#i-ia"></use></svg> Sugerir habilidade BNCC</button>
       <div id="aiBnccTestStatus" class="meta"></div>
       <div id="aiBnccTestResults" class="ai-test-results"></div>
     </div>
@@ -6690,10 +6727,10 @@ function showAdminCatalogTab(tab){
  ['books','materials','pending','add'].forEach(x=>{const pane=$('adminCatalog'+x[0].toUpperCase()+x.slice(1)+'Pane'),btn=$('adminCatalogTab'+x[0].toUpperCase()+x.slice(1));pane?.classList.toggle('hidden',x!==tab);btn?.classList.toggle('active',x===tab)});
  if(tab==='books')loadAdminCommunityBooks();if(tab==='materials')loadAdminCommunityMaterials();if(tab==='pending'){loadPendingCommunityBooks();loadPendingMaterials()}if(tab==='add')resetAdminCatalogBookForm();
 }
-async function loadAdminCommunityBooks(){const box=$('adminCommunityBooksBox');if(!box)return;box.innerHTML='Carregando livros…';try{const q=String($('adminCommunityBookQuery')?.value||'').trim(),data=await backendFetch('/community-books/admin-list?q='+encodeURIComponent(q));adminCommunityBooksCache=data?.books||[];if(!adminCommunityBooksCache.length){box.innerHTML='Nenhum livro encontrado.';return}box.innerHTML=adminCommunityBooksCache.map((b,i)=>`<div class="admin-library-item"><div class="admin-library-head">${b.thumbnail?`<img class="admin-library-cover" src="${esc(b.thumbnail)}" alt="">`:`<div class="admin-library-cover" style="display:grid;place-items:center">📖</div>`}<div><b>${esc(b.title||'Sem título')}</b><div class="meta">${esc((b.authors||[]).join(', ')||'Autor não informado')}${b.publisher?' · '+esc(b.publisher):''}</div>${b.isbn13?`<div class="meta">ISBN ${esc(b.isbn13)}</div>`:''}</div><span class="admin-library-status">Ativo</span></div><div class="admin-library-actions"><button class="btn small" type="button" onclick="editAdminCommunityBook(${i})">✏️ Editar</button></div><div id="adminCommunityBookEdit${i}" class="hidden"></div></div>`).join('')}catch(e){box.innerHTML=`<div class="notice">${esc(e.message||'Não foi possível carregar os livros.')}</div>`}}
+async function loadAdminCommunityBooks(){const box=$('adminCommunityBooksBox');if(!box)return;box.innerHTML='Carregando livros…';try{const q=String($('adminCommunityBookQuery')?.value||'').trim(),data=await backendFetch('/community-books/admin-list?q='+encodeURIComponent(q));adminCommunityBooksCache=data?.books||[];if(!adminCommunityBooksCache.length){box.innerHTML='Nenhum livro encontrado.';return}box.innerHTML=adminCommunityBooksCache.map((b,i)=>`<div class="admin-library-item"><div class="admin-library-head">${b.thumbnail?`<img class="admin-library-cover" src="${esc(b.thumbnail)}" alt="">`:`<div class="admin-library-cover" style="display:grid;place-items:center">📖</div>`}<div><b>${esc(b.title||'Sem título')}</b><div class="meta">${esc((b.authors||[]).join(', ')||'Autor não informado')}${b.publisher?' · '+esc(b.publisher):''}</div>${b.isbn13?`<div class="meta">ISBN ${esc(b.isbn13)}</div>`:''}</div><span class="admin-library-status">Ativo</span></div><div class="admin-library-actions"><button class="btn small" type="button" onclick="editAdminCommunityBook(${i})"><svg class="ic ic-lapis" aria-hidden="true" focusable="false"><use href="#i-lapis"></use></svg> Editar</button></div><div id="adminCommunityBookEdit${i}" class="hidden"></div></div>`).join('')}catch(e){box.innerHTML=`<div class="notice">${esc(e.message||'Não foi possível carregar os livros.')}</div>`}}
 function editAdminCommunityBook(i){const b=adminCommunityBooksCache[i],box=$('adminCommunityBookEdit'+i);if(!b||!box)return;box.classList.remove('hidden');box.innerHTML=`<div class="admin-library-edit"><div class="grid"><div class="full"><label class="field">Título</label><input id="aclBookTitle${i}" value="${esc(b.title||'')}"></div><div><label class="field">Autor(es)</label><input id="aclBookAuthors${i}" value="${esc((b.authors||[]).join(', '))}"></div><div><label class="field">Editora</label><input id="aclBookPublisher${i}" value="${esc(b.publisher||'')}"></div><div><label class="field">ISBN-13</label><input id="aclBookIsbn${i}" value="${esc(b.isbn13||'')}"></div><div class="full"><label class="field">URL da capa</label><input id="aclBookCover${i}" value="${esc(b.thumbnail||'')}"></div></div><div class="toolbar" style="margin-top:8px"><button class="btn success small" onclick="saveAdminCommunityBook(${i})">Salvar alterações</button><button class="btn small" onclick="$('adminCommunityBookEdit${i}').classList.add('hidden')">Cancelar</button></div></div>`}
 async function saveAdminCommunityBook(i){const b=adminCommunityBooksCache[i],title=$('aclBookTitle'+i)?.value.trim()||'';if(!b||!title)return showNotice('Informe o título.',{"title": "Falta uma informação", "icon": "✏️"});try{await backendFetch('/community-books/'+encodeURIComponent(b.id),{method:'PUT',body:JSON.stringify({title,authors:String($('aclBookAuthors'+i)?.value||'').split(',').map(x=>x.trim()).filter(Boolean),publisher:$('aclBookPublisher'+i)?.value.trim()||'',isbn13:$('aclBookIsbn'+i)?.value.trim()||'',thumbnail:$('aclBookCover'+i)?.value.trim()||''})});await loadAdminCommunityBooks()}catch(e){showNotice('Não foi possível salvar: '+(e.message||e),{"title": "Algo não deu certo", "type": "error"})}}
-async function loadAdminCommunityMaterials(){const box=$('adminCommunityMaterialsBox');if(!box)return;box.innerHTML='Carregando materiais…';try{const q=String($('adminCommunityMaterialQuery')?.value||'').trim(),data=await backendFetch('/materials/admin-list?q='+encodeURIComponent(q));adminCommunityMaterialsCache=data?.materials||[];if(!adminCommunityMaterialsCache.length){box.innerHTML='Nenhum material encontrado.';return}box.innerHTML=adminCommunityMaterialsCache.map((m,i)=>`<div class="admin-library-item"><div><b>${esc(m.name||'Sem nome')}</b><div class="meta">${esc(m.publisher||'')}${m.age_range?(m.publisher?' · ':'')+esc(m.age_range):''}</div>${m.content_description?`<div class="meta" style="margin-top:4px">${esc(m.content_description)}</div>`:''}</div><div class="admin-library-actions"><button class="btn small" type="button" onclick="editAdminCommunityMaterial(${i})">✏️ Editar</button></div><div id="adminCommunityMaterialEdit${i}" class="hidden"></div></div>`).join('')}catch(e){box.innerHTML=`<div class="notice">${esc(e.message||'Não foi possível carregar os materiais.')}</div>`}}
+async function loadAdminCommunityMaterials(){const box=$('adminCommunityMaterialsBox');if(!box)return;box.innerHTML='Carregando materiais…';try{const q=String($('adminCommunityMaterialQuery')?.value||'').trim(),data=await backendFetch('/materials/admin-list?q='+encodeURIComponent(q));adminCommunityMaterialsCache=data?.materials||[];if(!adminCommunityMaterialsCache.length){box.innerHTML='Nenhum material encontrado.';return}box.innerHTML=adminCommunityMaterialsCache.map((m,i)=>`<div class="admin-library-item"><div><b>${esc(m.name||'Sem nome')}</b><div class="meta">${esc(m.publisher||'')}${m.age_range?(m.publisher?' · ':'')+esc(m.age_range):''}</div>${m.content_description?`<div class="meta" style="margin-top:4px">${esc(m.content_description)}</div>`:''}</div><div class="admin-library-actions"><button class="btn small" type="button" onclick="editAdminCommunityMaterial(${i})"><svg class="ic ic-lapis" aria-hidden="true" focusable="false"><use href="#i-lapis"></use></svg> Editar</button></div><div id="adminCommunityMaterialEdit${i}" class="hidden"></div></div>`).join('')}catch(e){box.innerHTML=`<div class="notice">${esc(e.message||'Não foi possível carregar os materiais.')}</div>`}}
 function editAdminCommunityMaterial(i){const m=adminCommunityMaterialsCache[i],box=$('adminCommunityMaterialEdit'+i);if(!m||!box)return;box.classList.remove('hidden');box.innerHTML=`<div class="admin-library-edit"><div class="grid"><div class="full"><label class="field">Nome</label><input id="aclMatName${i}" value="${esc(m.name||'')}"></div><div><label class="field">Editora / autor</label><input id="aclMatPublisher${i}" value="${esc(m.publisher||'')}"></div><div><label class="field">Faixa / ano</label><input id="aclMatAge${i}" value="${esc(m.age_range||'')}"></div><div class="full"><label class="field">Descrição / observações</label><textarea id="aclMatDescription${i}" rows="3">${esc(m.content_description||'')}</textarea></div></div><div class="toolbar" style="margin-top:8px"><button class="btn success small" onclick="saveAdminCommunityMaterial(${i})">Salvar alterações</button><button class="btn small" onclick="$('adminCommunityMaterialEdit${i}').classList.add('hidden')">Cancelar</button></div></div>`}
 async function saveAdminCommunityMaterial(i){const m=adminCommunityMaterialsCache[i],name=$('aclMatName'+i)?.value.trim()||'';if(!m||!name)return showNotice('Informe o nome do material.',{"title": "Falta uma informação", "icon": "✏️"});try{await backendFetch('/materials/'+encodeURIComponent(m.id),{method:'PUT',body:JSON.stringify({name,publisher:$('aclMatPublisher'+i)?.value.trim()||'',age_range:$('aclMatAge'+i)?.value.trim()||'',content_description:$('aclMatDescription'+i)?.value.trim()||''})});await loadAdminCommunityMaterials()}catch(e){showNotice('Não foi possível salvar: '+(e.message||e),{"title": "Algo não deu certo", "type": "error"})}}
 
@@ -7481,7 +7518,7 @@ function closePlanParticipantChooser(){$("planParticipantChooser")?.remove()}
 function openPlanParticipantChooser(plan){
  closePlanParticipantChooser();const pending=planPendingChildren(plan);if(!pending.length)return showNotice("Este planejamento já foi registrado para todas as crianças.");
  const overlay=document.createElement("div");overlay.id="planParticipantChooser";overlay.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px";
- overlay.innerHTML=`<div class="card" style="width:min(440px,100%);margin:0"><h3>Como deseja registrar?</h3><div class="meta" style="margin-bottom:12px">${esc(plan.title)}</div>${pending.length>1?`<button class="btn primary" style="width:100%;margin-bottom:12px" type="button" onclick="closePlanParticipantChooser();startCollectivePlan('${plan.id}')">👨‍👩‍👧‍👦 Registrar para todas (${pending.length})</button><div class="meta" style="margin-bottom:8px">Ou registre somente uma criança:</div>`:""}<div class="toolbar">${pending.map(id=>`<button class="btn success" type="button" onclick="closePlanParticipantChooser();startPlan('${plan.id}','${id}')">${esc(state.family.children.find(c=>c.id===id)?.name||"Criança")}</button>`).join("")}</div><button class="btn" type="button" style="margin-top:12px" onclick="closePlanParticipantChooser()">Cancelar</button></div>`;overlay.addEventListener("click",e=>{if(e.target===overlay)closePlanParticipantChooser()});document.body.appendChild(overlay);
+ overlay.innerHTML=`<div class="card" style="width:min(440px,100%);margin:0"><h3>Como deseja registrar?</h3><div class="meta" style="margin-bottom:12px">${esc(plan.title)}</div>${pending.length>1?`<button class="btn primary" style="width:100%;margin-bottom:12px" type="button" onclick="closePlanParticipantChooser();startCollectivePlan('${plan.id}')"><svg class="ic ic-familia" aria-hidden="true" focusable="false"><use href="#i-familia"></use></svg> Registrar para todas (${pending.length})</button><div class="meta" style="margin-bottom:8px">Ou registre somente uma criança:</div>`:""}<div class="toolbar">${pending.map(id=>`<button class="btn success" type="button" onclick="closePlanParticipantChooser();startPlan('${plan.id}','${id}')">${esc(state.family.children.find(c=>c.id===id)?.name||"Criança")}</button>`).join("")}</div><button class="btn" type="button" style="margin-top:12px" onclick="closePlanParticipantChooser()">Cancelar</button></div>`;overlay.addEventListener("click",e=>{if(e.target===overlay)closePlanParticipantChooser()});document.body.appendChild(overlay);
 }
 function startCollectivePlan(id){
  const p=state.plans.find(x=>x.id===id);if(!p)return;const childIds=planPendingChildren(p);if(childIds.length<2)return startPlan(id,childIds[0]||"");
@@ -7574,12 +7611,11 @@ function renderReadingCards(books){
  books.slice().sort((a,b)=>(order[a.status]??9)-(order[b.status]??9)||String(a.started_at||"").localeCompare(String(b.started_at||""))).forEach(b=>(groups[b.status]||groups.Lendo).push(b));
  const card=b=>`
   <div class="reading-card" data-reading-book-id="${esc(b.id)}">
-   <button class="reading-delete-x" type="button" aria-label="Excluir ${esc(b.title||'livro')}" title="Excluir leitura" onclick="deleteFamilyBookReading('${b.id}')">×</button>
    ${b.thumbnail?`<img class="book-cover book-cover-zoomable" src="${esc(b.thumbnail)}" alt="Capa de ${esc(b.title||"livro")}" role="button" tabindex="0" onclick="openBookCoverZoom(this)" title="Ampliar capa">`:`<div class="book-cover-placeholder">📖</div>`}
    <div><div class="book-title">${esc(b.title)}</div><div class="book-meta">${bookResultMeta({authors:b.authors,publisher:b.publisher})}</div>
    <div style="margin-top:6px"><span class="reading-status">${esc(b.status||"Lendo")}</span>${b.catalog_status==="pending"?` <span class="reading-status">Aguardando validação</span>`:""}</div>
-   <div class="book-reading-dates">${b.status==="Planejado"&&b.started_at?`<span>Início previsto: <b>${fmtDate(b.started_at)}</b></span>`:b.started_at?`<span>Início: <b>${fmtDate(b.started_at)}</b></span>`:""}${b.target_finish_at&&b.status!=="Concluído"?`<span>Previsão: <b>${fmtDate(b.target_finish_at)}</b></span>`:""}${b.finished_at?`<span>Conclusão: <b>${fmtDate(b.finished_at)}</b></span>`:""}</div>
-   <div class="reading-actions">${b.status==="Planejado"?`<button class="btn small reading-main-action" type="button" onclick="startPlannedBook('${b.id}')">Iniciar leitura</button>`:b.status==="Lendo"?`<button class="btn small reading-main-action" type="button" onclick="startReadingActivity('${b.id}')"><span class="reading-label-desktop">+ Registrar atividade</span><span class="reading-label-mobile">+ Registrar</span></button><button class="btn small reading-icon-action reading-complete-icon" type="button" onclick="completeBookAndRegister('${b.id}')" aria-label="Concluir leitura" title="Concluir leitura">✓</button>`:`<button class="btn small reading-main-action" type="button" onclick="reopenCompletedBook('${b.id}')">Reabrir leitura</button>`}<button class="btn small reading-icon-action reading-edit-icon" type="button" onclick="editFamilyBookReading('${b.id}')" aria-label="Editar planejamento" title="Editar planejamento">✏️</button></div>
+   <div class="book-reading-dates">${b.status==="Concluído"&&b.finished_at?`<span>Lida ${b.started_at?`de <b>${fmtDate(b.started_at).slice(0,5)}</b> a`:"em"} <b>${fmtDate(b.finished_at)}</b></span>`:b.status==="Planejado"&&b.started_at?`<span>Início previsto: <b>${fmtDate(b.started_at)}</b></span>`:b.started_at?`<span>Início: <b>${fmtDate(b.started_at)}</b></span>`:""}${b.target_finish_at&&b.status!=="Concluído"?`<span>Previsão: <b>${fmtDate(b.target_finish_at)}</b></span>`:""}${b.finished_at&&b.status!=="Concluído"?`<span>Conclusão: <b>${fmtDate(b.finished_at)}</b></span>`:""}</div>
+   <div class="reading-actions">${b.status==="Planejado"?`<button class="btn small reading-main-action" type="button" onclick="startPlannedBook('${b.id}')">Iniciar leitura</button>`:b.status==="Lendo"?`<button class="btn small reading-main-action" type="button" onclick="startReadingActivity('${b.id}')"><span class="reading-label-desktop">+ Registrar atividade</span><span class="reading-label-mobile">+ Registrar</span></button><button class="btn small reading-icon-action reading-complete-icon" type="button" onclick="completeBookAndRegister('${b.id}')" aria-label="Concluir leitura" title="Concluir leitura">✓</button>`:`<button class="btn small reading-main-action" type="button" onclick="reopenCompletedBook('${b.id}')">Reabrir leitura</button>`}<button class="btn small reading-icon-action reading-edit-icon" type="button" onclick="editFamilyBookReading('${b.id}')" aria-label="Editar planejamento" title="Editar leitura"><svg class="ic ic-lapis" aria-hidden="true" focusable="false"><use href="#i-lapis"></use></svg></button></div>
    </div>
   </div>`;
  const section=(title,list,open=true)=>list.length?`<div class="reading-section"><h3>${title} · ${list.length}</h3><div class="reading-list">${list.map(card).join("")}</div></div>`:"";
@@ -7647,11 +7683,11 @@ function stopBookBarcodeMedia(){
 function resetBookCameraControls(){
  $("bookCameraSelect")?.classList.add("hidden");$("bookCameraFocusButton")?.classList.add("hidden");$("bookCameraTorchButton")?.classList.add("hidden");$("bookCameraZoomBox")?.classList.add("hidden");
 }
-function closeBookBarcodeScanner(){stopBookBarcodeMedia();resetBookCameraControls();bookBarcodeAccepted=false;bookBarcodeInvalidReads=0;$("bookBarcodeScanner")?.classList.add("hidden");const btn=$("bookBarcodeButton");if(btn){btn.disabled=false;btn.textContent="📷"}}
+function closeBookBarcodeScanner(){stopBookBarcodeMedia();resetBookCameraControls();bookBarcodeAccepted=false;bookBarcodeInvalidReads=0;$("bookBarcodeScanner")?.classList.add("hidden");const btn=$("bookBarcodeButton");if(btn){btn.disabled=false;btn.innerHTML=ic("camera")}}
 async function acceptBookBarcode(rawValue){
  if(bookBarcodeAccepted)return;const isbn=validBookIsbn(rawValue);if(!isbn){bookBarcodeInvalidReads++;if(bookBarcodeInvalidReads>=6&&$("bookBarcodeStatus"))$("bookBarcodeStatus").textContent="Ainda não foi possível ler o ISBN completo. Toque em Refocar, escolha outra câmera ou ajuste o zoom.";return}
  bookBarcodeAccepted=true;stopBookBarcodeMedia();$("bookBarcodeScanner")?.classList.add("hidden");
- const btn=$("bookBarcodeButton");if(btn){btn.disabled=false;btn.textContent="📷"}
+ const btn=$("bookBarcodeButton");if(btn){btn.disabled=false;btn.innerHTML=ic("camera")}
  if($("bookSearchQuery"))$("bookSearchQuery").value=isbn;if($("manualBookIsbn"))$("manualBookIsbn").value=isbn;
  if($("bookSearchStatus"))$("bookSearchStatus").textContent=`ISBN ${isbn} identificado. Consultando biblioteca…`;
  await searchGoogleBooks();bookBarcodeAccepted=false;
@@ -7673,7 +7709,7 @@ async function configureBookCamera(video){
  const modes=Array.isArray(bookBarcodeCapabilities.focusMode)?bookBarcodeCapabilities.focusMode:[];
  if(modes.includes("continuous"))await applyBookTrackConstraint({focusMode:"continuous"});
  const focusBtn=$("bookCameraFocusButton");if(focusBtn)focusBtn.classList.toggle("hidden",!modes.length);
- const torchBtn=$("bookCameraTorchButton");if(torchBtn){torchBtn.classList.toggle("hidden",!bookBarcodeCapabilities.torch);torchBtn.textContent="🔦 Ligar luz"}
+ const torchBtn=$("bookCameraTorchButton");if(torchBtn){torchBtn.classList.toggle("hidden",!bookBarcodeCapabilities.torch);torchBtn.innerHTML=ic("lanterna")+" Ligar luz"}
  const zoom=bookBarcodeCapabilities.zoom,zoomBox=$("bookCameraZoomBox"),zoomInput=$("bookCameraZoom");
  if(zoom&&zoomInput){zoomInput.min=String(zoom.min);zoomInput.max=String(zoom.max);zoomInput.step=String(zoom.step||0.1);zoomInput.value=String(settings.zoom??zoom.min);zoomBox?.classList.remove("hidden")}else zoomBox?.classList.add("hidden");
  await listBookCameras();
@@ -7687,7 +7723,7 @@ async function focusBookCamera(){
 }
 async function setBookCameraZoom(value){const zoom=bookBarcodeCapabilities.zoom;if(!zoom)return;const n=Math.max(Number(zoom.min),Math.min(Number(zoom.max),Number(value)));await applyBookTrackConstraint({zoom:n})}
 async function toggleBookCameraTorch(){
- if(!bookBarcodeCapabilities.torch)return;bookBarcodeTorch=!bookBarcodeTorch;const ok=await applyBookTrackConstraint({torch:bookBarcodeTorch});if(!ok)bookBarcodeTorch=false;const btn=$("bookCameraTorchButton");if(btn)btn.textContent=bookBarcodeTorch?"🔦 Desligar luz":"🔦 Ligar luz";
+ if(!bookBarcodeCapabilities.torch)return;bookBarcodeTorch=!bookBarcodeTorch;const ok=await applyBookTrackConstraint({torch:bookBarcodeTorch});if(!ok)bookBarcodeTorch=false;const btn=$("bookCameraTorchButton");if(btn)btn.innerHTML=ic("lanterna")+(bookBarcodeTorch?" Desligar luz":" Ligar luz");
 }
 async function startNativeBookBarcode(video,deviceId=""){
  const formats=await BarcodeDetector.getSupportedFormats();if(!formats.includes("ean_13"))return false;
@@ -7710,9 +7746,9 @@ async function restartBookBarcodeWithDevice(deviceId){
 }
 async function openBookBarcodeScanner(){
  openBookSearch();if(bookBarcodeActive)return;const scanner=$("bookBarcodeScanner"),status=$("bookBarcodeStatus"),btn=$("bookBarcodeButton"),video=$("bookBarcodeVideo");if(!scanner||!video)return;
- scanner.classList.remove("hidden");bookBarcodeActive=true;bookBarcodeAccepted=false;bookBarcodeInvalidReads=0;if(btn){btn.disabled=true;btn.textContent="⏳"}if(status)status.textContent="Aponte a câmera para o código de barras do livro.";
- try{await startBookBarcodePipeline();if(btn)btn.textContent="📷"}
- catch(e){console.warn("Leitor de ISBN:",e);stopBookBarcodeMedia();scanner.classList.add("hidden");if(status)status.textContent=bookCameraErrorMessage(e);if($("bookSearchStatus"))$("bookSearchStatus").textContent=bookCameraErrorMessage(e);if(btn){btn.disabled=false;btn.textContent="📷";btn.title="Tentar câmera novamente"}}
+ scanner.classList.remove("hidden");bookBarcodeActive=true;bookBarcodeAccepted=false;bookBarcodeInvalidReads=0;if(btn){btn.disabled=true;btn.innerHTML='<span class="ai-spinner" aria-hidden="true"></span>'}if(status)status.textContent="Aponte a câmera para o código de barras do livro.";
+ try{await startBookBarcodePipeline();if(btn)btn.innerHTML=ic("camera")}
+ catch(e){console.warn("Leitor de ISBN:",e);stopBookBarcodeMedia();scanner.classList.add("hidden");if(status)status.textContent=bookCameraErrorMessage(e);if($("bookSearchStatus"))$("bookSearchStatus").textContent=bookCameraErrorMessage(e);if(btn){btn.disabled=false;btn.innerHTML=ic("camera");btn.title="Tentar câmera novamente"}}
 }
 function scheduleBookSearch(){
  clearTimeout(bookSearchTimer);
@@ -7862,7 +7898,7 @@ async function editFamilyBookReading(id){
  const isPlanned=b.status==="Planejado",isDone=b.status==="Concluído";
  const re=/^\d{4}-\d{2}-\d{2}$/;
  if(isDone){
-  const result=await showFormModal({title:"Editar leitura",icon:"📅",fields:[
+  const result=await showFormModal({title:"Editar leitura",icon:"📅",okLabel:"Salvar",extraAction:{label:"Excluir leitura",icon:"lixeira",run:()=>deleteFamilyBookReading(id)},fields:[
     {id:"started",label:"Data de início",value:b.started_at||"",max:today()},
     {id:"finished",label:"Data de conclusão",value:b.finished_at||today(),max:today()}
   ]});
@@ -7879,7 +7915,7 @@ async function editFamilyBookReading(id){
   }catch(e){showNotice("Não foi possível editar a leitura: "+(e.message||e))}
   return;
  }
- const result=await showFormModal({title:isPlanned?"Planejar leitura":"Editar leitura",icon:"📅",fields:[
+ const result=await showFormModal({title:isPlanned?"Planejar leitura":"Editar leitura",icon:"📅",okLabel:"Salvar",extraAction:{label:"Excluir leitura",icon:"lixeira",run:()=>deleteFamilyBookReading(id)},fields:[
    {id:"started",label:isPlanned?"Data prevista para iniciar":"Data de início",value:b.started_at||today()},
    {id:"target",label:"Previsão de conclusão (opcional)",value:b.target_finish_at||""}
  ]});
@@ -8340,7 +8376,7 @@ async function startHistoryBnccBatch(){
     }
   }
   historyBnccBatchRunning=false;
-  if(btn)btn.textContent="✨ Analisar selecionados";
+  if(btn)btn.innerHTML=ic("ia")+" Analisar selecionados";
   updateHistoryBnccBatchSelection();renderHistoryBnccBatchReview();
 }
 function nextHistoryBnccReviewIndex(from=0){
@@ -8562,7 +8598,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "16.23";
+const APP_VERSION = "16.24";
 queueMicrotask(()=>{ const el=document.getElementById("healthFrontendVersion"); if(el) el.textContent=`v${APP_VERSION}`; });
 
 let deferredInstallPrompt=null;
