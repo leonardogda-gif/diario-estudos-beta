@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#441015">
 <title>Diário de Estudos</title>
 
-<link rel="manifest" href="/manifest.json?v=16.56">
+<link rel="manifest" href="/manifest.json?v=16.57">
 <link rel="icon" type="image/png" sizes="32x32" href="/icon-192.png">
 <link rel="icon" type="image/png" sizes="48x48" href="/icon-192.png">
 
@@ -2029,9 +2029,100 @@ body.ds-v1 .ins-sub{font-size:12px;font-weight:800;letter-spacing:.8px;text-tran
 body.ds-v1 .ins-row{flex-direction:row!important;align-items:center;justify-content:space-between;gap:10px}
 body.ds-v1 .ins-row>div{display:flex;flex-direction:column;gap:2px;min-width:0}
 body.ds-v1 .ins-row .btn{width:auto!important;flex-shrink:0;white-space:nowrap}
+
+/* ===== Painel ADM v16.57 ===== */
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+#page-administracao .adm-v2{display:flex;flex-direction:column;gap:22px}
+#page-administracao .adm-header{display:flex;flex-direction:column;gap:8px}
+#page-administracao .adm-header-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+#page-administracao .adm-kicker{font-size:13px;font-weight:600;color:#746B64}
+#page-administracao .adm-title{margin:0;font-family:Fraunces,Georgia,serif;font-weight:750;font-size:30px;line-height:1.1;color:#441015}
+#page-administracao .adm-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;color:#746B64}
+#page-administracao .adm-pill{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:5px 10px;border-radius:999px;border:1px solid #E8D8CA;background:#FFFCF7;color:#746B64}
+#page-administracao .adm-pill i{width:8px;height:8px;border-radius:50%;background:#C08A24}
+#page-administracao .adm-pill.ok{color:#3E5636;background:#EEF4E9;border-color:#C9D9BD}
+#page-administracao .adm-pill.ok i{background:#3E5636}
+#page-administracao .adm-pill.bad{color:#8A2E1F;background:#F7E4DA;border-color:#EBC3B3}
+#page-administracao .adm-pill.bad i{background:#B42318}
+#page-administracao .adm-tag{display:inline-block;flex-shrink:0;font-size:12px;font-weight:700;padding:4px 9px;border-radius:999px;white-space:nowrap}
+#page-administracao .adm-tag.ok{color:#3E5636;background:#EEF4E9}
+#page-administracao .adm-tag.warn{color:#7A5A1E;background:#F4EBDA}
+#page-administracao .adm-tag.bad{color:#8A3B26;background:#F7E4DA}
+#page-administracao .adm-tag.info{color:#2F4A66;background:#E6EDF4}
+#page-administracao .adm-tag.neutral{color:#5F5852;background:#F0EAE3}
+/* seções recolhíveis */
+#page-administracao .adm-sec{display:flex;flex-direction:column;gap:12px}
+#page-administracao .adm-sec-title{margin:0}
+#page-administracao .adm-sec-toggle{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:44px;padding:0;border:0;background:transparent;text-align:left;cursor:pointer;color:#441015;font-family:Fraunces,Georgia,serif;border-radius:10px}
+#page-administracao .adm-sec-toggle:focus-visible,#page-administracao .adm-fam>summary:focus-visible,#page-administracao .adm-sys>summary:focus-visible,#page-administracao .adm-chip:focus-visible{outline:2px solid #6B2737;outline-offset:3px}
+#page-administracao .adm-sec-name{display:flex;align-items:center;gap:8px;font-size:21px;font-weight:750}
+#page-administracao .adm-count{font-family:"Work Sans",system-ui,sans-serif;font-size:13px;font-weight:700;color:#fff;background:#6B2737;padding:2px 8px;border-radius:999px}
+#page-administracao .adm-chev{width:22px;height:22px;flex-shrink:0;fill:none;stroke:#6B2737;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+#page-administracao .adm-sec.closed>.adm-sec-title .adm-chev{transform:rotate(-90deg)}
+#page-administracao .adm-sec.closed>.adm-sec-body{display:none}
+#page-administracao .adm-sec-body{display:flex;flex-direction:column;gap:10px}
+/* resumo */
+#page-administracao .adm-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:#FFFCF7;border:1px solid #E8D8CA;border-radius:16px;padding:14px 4px}
+#page-administracao .adm-strip>div{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;min-width:0}
+#page-administracao .adm-strip>div+div{border-left:1px solid #EAE2D8}
+#page-administracao .adm-strip b{font-family:Fraunces,Georgia,serif;font-size:23px;color:#441015;white-space:nowrap}
+#page-administracao .adm-strip span{font-size:12px;color:#746B64}
+/* precisa de você */
+#page-administracao .adm-attn-list{display:flex;flex-direction:column;gap:10px}
+#page-administracao .adm-attn{background:#fff;border:1px solid #E8D8CA;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
+#page-administracao .adm-attn-head{display:flex;gap:12px}
+#page-administracao .adm-attn-head>div{display:flex;flex-direction:column;gap:3px;min-width:0}
+#page-administracao .adm-attn-head b{font-size:16px;color:#342D29}
+#page-administracao .adm-attn-head span{font-size:14px;line-height:1.4;color:#746B64}
+#page-administracao .adm-attn-ic{flex-shrink:0;width:36px;height:36px;border-radius:10px;display:grid;place-items:center}
+#page-administracao .adm-attn-ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#page-administracao .adm-attn-ic.bad{background:#F7E4DA;color:#8A3B26}
+#page-administracao .adm-attn-ic.warn{background:#F4EBDA;color:#7A5A1E}
+#page-administracao .adm-attn-ic.info{background:#E6EDF4;color:#2F4A66}
+#page-administracao .adm-attn-actions{display:flex;flex-wrap:wrap;gap:8px}
+#page-administracao .adm-attn-actions .btn{flex:1 1 140px;min-height:44px;border-radius:12px;width:auto}
+#page-administracao .adm-all-clear{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:16px;background:#EEF4E9;color:#3E5636;font-weight:600}
+#page-administracao .adm-all-clear svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+/* famílias */
+#page-administracao .adm-search input{width:100%;min-height:46px;box-sizing:border-box;border:1px solid #E8D8CA;border-radius:12px;background:#fff;padding:0 14px;font-size:15px}
+#page-administracao .adm-chips{display:flex;flex-wrap:wrap;gap:8px}
+#page-administracao .adm-chip{min-height:38px;padding:0 14px;border-radius:999px;border:1px solid #E8D8CA;background:#FFFCF7;color:#342D29;font-weight:600;font-size:13px;cursor:pointer}
+#page-administracao .adm-chip.on{background:#6B2737;border-color:#6B2737;color:#fff}
+#page-administracao .adm-fam-list,#page-administracao .adm-sys-list{display:flex;flex-direction:column;background:#fff;border:1px solid #E8D8CA;border-radius:16px;overflow:hidden}
+#page-administracao .adm-fam+.adm-fam,#page-administracao .adm-sys+.adm-sys{border-top:1px solid #EAE2D8}
+#page-administracao .adm-fam>summary,#page-administracao .adm-sys>summary{display:flex;align-items:center;gap:10px;min-height:56px;padding:12px 14px 12px 16px;cursor:pointer;list-style:none}
+#page-administracao .adm-fam>summary::-webkit-details-marker,#page-administracao .adm-sys>summary::-webkit-details-marker{display:none}
+#page-administracao .adm-fam>summary .adm-chev,#page-administracao .adm-sys>summary .adm-chev{width:18px;height:18px;stroke:#746B64;transform:rotate(-90deg)}
+#page-administracao .adm-fam[open]>summary .adm-chev,#page-administracao .adm-sys[open]>summary .adm-chev{transform:rotate(0)}
+#page-administracao .adm-fam[open],#page-administracao .adm-sys[open]{background:#FFFCF7}
+#page-administracao .adm-fam-main{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+#page-administracao .adm-fam-main b{font-size:15px;color:#342D29}
+#page-administracao .adm-fam-main span{font-size:13px;color:#746B64}
+#page-administracao .adm-fam-body{padding:2px 16px 16px;display:flex;flex-direction:column;gap:12px}
+#page-administracao .adm-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px;font-size:14px}
+#page-administracao .adm-facts>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+#page-administracao .adm-facts span{font-size:12px;color:#746B64}
+#page-administracao .adm-fam-list>.meta,#page-administracao .adm-fam-list>.notice,#page-administracao .adm-sys-list>.meta{padding:14px 16px;margin:0}
+/* sistema */
+#page-administracao .adm-state{font-size:13px;font-weight:700}
+#page-administracao .adm-state.ok{color:#3E5636}
+#page-administracao .adm-state.bad{color:#B42318}
+#page-administracao .adm-line{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:14px;padding:8px 0;border-bottom:1px solid #F0E8DF}
+#page-administracao .adm-line span{color:#746B64;display:flex;align-items:center}
+#page-administracao .adm-line b{text-align:right}
+#page-administracao .adm-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px}
+#page-administracao .adm-dot.ok{background:#3E5636}
+#page-administracao .adm-dot.bad{background:#B42318}
+#page-administracao .adm-err-list{display:flex;flex-direction:column}
+#page-administracao .adm-err-list>div{display:flex;flex-direction:column;gap:2px;padding:8px 0;border-bottom:1px solid #F0E8DF;font-size:14px}
+#page-administracao .adm-err-list span{font-size:12.5px;color:#746B64}
+#page-administracao .adm-v2 .admin-panel{margin:0}
+@media(max-width:380px){#page-administracao .adm-strip b{font-size:19px}#page-administracao .adm-strip span{font-size:11px}}
+@media(prefers-reduced-motion:reduce){#page-administracao .adm-chev{transition:none}}
+
 </style>
 </head>
-<body data-build="16.56" class="auth-checking ds-v1">
+<body data-build="16.57" class="auth-checking ds-v1">
 <svg class="ic-sprite" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><symbol id="i-carregando" viewBox="0 0 24 24"><path d="M7 3h10M7 21h10"/><path d="M8 3c0 4 8 5 8 9s-8 5-8 9"/><path d="M16 3c0 4-8 5-8 9s8 5 8 9"/></symbol><symbol id="i-sair" viewBox="0 0 24 24"><path d="M15 4h4v16h-4"/><path d="M10 8l-4 4 4 4M6 12h10"/></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol><symbol id="i-repetir" viewBox="0 0 24 24"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></symbol><symbol id="i-seta" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol><symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></symbol><symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol><symbol id="i-mais" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="i-lapis" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></symbol><symbol id="i-lixeira" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/><path d="M10 11v6M14 11v6"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol><symbol id="i-lanterna" viewBox="0 0 24 24"><path d="M8 3h8v5l-2 3v10h-4V11L8 8z"/><path d="M8 7h8"/><path d="M12 14v2"/></symbol><symbol id="i-borracha" viewBox="0 0 24 24"><path d="M15 4l5 5-9 9H7l-3-3z"/><path d="M10 9l5 5"/><path d="M7 20h13"/></symbol><symbol id="i-engrenagem" viewBox="0 0 24 24"><path d="M12.2 2h-.4a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.3a2 2 0 0 1-2 0l-.2-.1a2 2 0 0 0-2.7.7l-.2.4a2 2 0 0 0 .7 2.7l.2.1a2 2 0 0 1 1 1.7v.5a2 2 0 0 1-1 1.7l-.2.1a2 2 0 0 0-.7 2.7l.2.4a2 2 0 0 0 2.7.7l.2-.1a2 2 0 0 1 2 0l.4.3a2 2 0 0 1 1 1.7v.2a2 2 0 0 0 2 2h.4a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.3a2 2 0 0 1 2 0l.2.1a2 2 0 0 0 2.7-.7l.2-.4a2 2 0 0 0-.7-2.7l-.2-.1a2 2 0 0 1-1-1.7v-.5a2 2 0 0 1 1-1.7l.2-.1a2 2 0 0 0 .7-2.7l-.2-.4a2 2 0 0 0-2.7-.7l-.2.1a2 2 0 0 1-2 0l-.4-.3a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-lupa" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol><symbol id="i-pular" viewBox="0 0 24 24"><path d="M5 6l8 6-8 6z"/><path d="M18 6v12"/></symbol><symbol id="i-restaurar" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/></symbol><symbol id="i-lista" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r=".8"/><circle cx="4" cy="12" r=".8"/><circle cx="4" cy="18" r=".8"/></symbol><symbol id="i-sucesso" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/></symbol><symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.3" r=".6"/></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r=".6"/></symbol><symbol id="i-pergunta" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.6 2.6 0 1 1 3.6 2.4c-.8.4-1.1.9-1.1 1.7v.4"/><circle cx="12" cy="17" r=".6"/></symbol><symbol id="i-cadeado" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol><symbol id="i-cadeado-aberto" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 7.6-1.7"/></symbol><symbol id="i-chave" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2.5 2.5M14 9l2 2"/></symbol><symbol id="i-sem-conexao" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M5 12.5a10 10 0 0 1 4-2.3M19 12.5a10 10 0 0 0-3.2-2"/><circle cx="12" cy="19.5" r=".6"/></symbol><symbol id="i-cartao" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></symbol><symbol id="i-cupom" viewBox="0 0 24 24"><path d="M4 7h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4z"/><path d="M14 7v10" stroke-dasharray="2 2"/></symbol><symbol id="i-envelope" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6.5L20.5 7"/></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol><symbol id="i-arquivar" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="4.5" rx="1"/><path d="M5 9v10h14V9"/><path d="M10 13h4"/></symbol><symbol id="i-imagem" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M20.5 16l-5-5-8 8.5"/></symbol><symbol id="i-sino" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol><symbol id="i-raio" viewBox="0 0 24 24"><path d="M13 2.5L5 13.5h6l-1 8 8-11h-6z"/></symbol><symbol id="i-entrada" viewBox="0 0 24 24"><path d="M4 13l2-8h12l2 8v6H4z"/><path d="M4 13h4.5l1 2h5l1-2H20"/><path d="M12 5v6M9.5 8.5L12 11l2.5-2.5"/></symbol><symbol id="i-calendario" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol><symbol id="i-local" viewBox="0 0 24 24"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></symbol><symbol id="i-material" viewBox="0 0 24 24"><path d="M6 3.5h11.5v17H6a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 6 3.5z"/><path d="M4.5 17.5A1.5 1.5 0 0 1 6 16h11.5"/><path d="M9 8h5"/></symbol><symbol id="i-livro" viewBox="0 0 24 24"><path d="M4 5c3-1.5 5.5-1.5 8 0v15c-2.5-1.5-5-1.5-8 0z"/><path d="M20 5c-3-1.5-5.5-1.5-8 0v15c2.5-1.5 5-1.5 8 0z"/></symbol><symbol id="i-livros" viewBox="0 0 24 24"><rect x="4" y="4" width="4" height="16" rx="1"/><rect x="9.5" y="6" width="4" height="14" rx="1"/><path d="M15.5 7.5l3.8-1 3 13.2-3.8 1z"/></symbol><symbol id="i-ia" viewBox="0 0 24 24"><path d="M12 3l1.4 4.1 4.1 1.4-4.1 1.4L12 14l-1.4-4.1-4.1-1.4 4.1-1.4z"/><path d="M18.5 14l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/><path d="M6 15l.7 1.8 1.8.7-1.8.7L6 20l-.7-1.8-1.8-.7 1.8-.7z"/></symbol><symbol id="i-dica" viewBox="0 0 24 24"><path d="M9 17h6"/><path d="M10 20.5h4"/><path d="M8.5 14a5.5 5.5 0 1 1 7 0c-.9.8-1.5 1.7-1.5 3h-4c0-1.3-.6-2.2-1.5-3z"/></symbol><symbol id="i-clima" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><path d="M8 2v1.3M2 8h1.3M3.8 3.8l.9.9M12.2 3.8l-.9.9"/><path d="M9 19h9a3.5 3.5 0 0 0 0-7 5 5 0 0 0-9.5 1.5A2.8 2.8 0 0 0 9 19z"/></symbol><symbol id="i-familia" viewBox="0 0 24 24"><circle cx="8" cy="7" r="2.6"/><circle cx="16.5" cy="7.5" r="2.2"/><path d="M3.5 19v-2.5a4.5 4.5 0 0 1 9 0V19"/><path d="M13.5 19v-2a3.3 3.3 0 0 1 6.6 0v2"/></symbol><symbol id="i-pessoa" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></symbol><symbol id="i-crianca" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4.5"/><path d="M11 4.6c.4-1.3 1.8-2 3.1-1.6"/><path d="M6.5 21a5.5 5.5 0 0 1 11 0"/></symbol><symbol id="i-ano-escolar" viewBox="0 0 24 24"><path d="M2.5 9L12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c1.5 1.5 3.5 2.2 5.5 2.2s4-.7 5.5-2.2V11"/><path d="M21.5 9v5"/></symbol><symbol id="i-peca" viewBox="0 0 24 24"><path d="M5 8h3a2 2 0 1 1 4 0h3v3a2 2 0 1 1 0 4v4h-4a2 2 0 1 0-4 0H5v-4a2 2 0 1 0 0-4z"/></symbol><symbol id="i-documento" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5"/><path d="M9 13h7M9 17h5"/></symbol><symbol id="i-nuvem" viewBox="0 0 24 24"><path d="M7 18h10.5a4 4 0 0 0 .6-7.9A6 6 0 0 0 6.6 9 4.5 4.5 0 0 0 7 18z"/></symbol><symbol id="i-pastas" viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/><path d="M3 7V5h6l2 2"/></symbol><symbol id="i-celular" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></symbol><symbol id="i-balao" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol><symbol id="i-alvo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol><symbol id="i-olho" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-estrela" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></symbol><symbol id="i-filtro" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></symbol><symbol id="i-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol><symbol id="i-imprimir" viewBox="0 0 24 24"><path d="M7 9V3h10v6"/><rect x="3.5" y="9" width="17" height="8" rx="2"/><path d="M7 14h10v7H7z"/></symbol><symbol id="i-compartilhar" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></symbol></svg>
 <header>
   <div class="header-branding">
@@ -2691,23 +2782,33 @@ body.ds-v1 .ins-row .btn{width:auto!important;flex-shrink:0;white-space:nowrap}
 </div></section>
 
 <section id="page-administracao" class="page">
-<div class="card admin-hub"><div class="admin-hub-head"><div><div class="admin-eyebrow">Acesso de administrador</div><h2>Administração do Diário</h2><p class="meta">Visão geral, saúde do sistema e ferramentas de gerenciamento.</p></div></div>
-<div class="admin-section-label">Visão geral</div>
-<div class="admin-overview-grid"><div class="admin-stat"><b id="adminStatFamilies">—</b><span>Famílias</span></div><div class="admin-stat"><b id="adminStatChildren">—</b><span>Crianças</span></div><div class="admin-stat"><b id="adminStatPendingBooks">—</b><span>Livros pendentes</span></div><div class="admin-stat"><b id="adminStatPendingMaterials">—</b><span>Materiais pendentes</span></div></div>
-<div id="adminAttention" class="admin-attention">Verificando pendências…</div>
-<div id="adminInsights" class="admin-insights"></div>
-<div class="admin-section-label">Saúde do sistema</div>
-<div class="system-health"><div class="health-row"><span><i id="healthWorkerDot" class="health-dot wait"></i>API / Worker</span><b id="healthWorker">Verificando…</b></div><div class="health-row"><span><i id="healthDbDot" class="health-dot wait"></i>Banco de dados (D1)</span><b id="healthDb">Verificando…</b></div><div class="health-row"><span>Worker</span><b id="healthWorkerVersion">—</b></div><div class="health-row"><span>Frontend</span><b id="healthFrontendVersion">—</b></div><div class="health-row"><span>Última verificação</span><span id="healthCheckedAt">—</span></div><div class="toolbar" style="margin-top:10px"><button class="btn small" type="button" onclick="loadAdminDashboard()">Verificar agora</button></div></div>
-<div class="admin-section-label">Gerenciamento</div>
+<div class="card admin-hub adm-v2">
+<div class="adm-header"><div class="adm-header-row"><span class="adm-kicker">Administração</span><span id="admHealthPill" class="adm-pill wait"><i></i><span>Verificando…</span></span></div>
+<h2 class="adm-title">Painel do Diário</h2>
+<div class="adm-meta"><span id="admUpdatedAt">Carregando…</span><span id="admEnvBadge"></span></div></div>
 
-<details class="tech-details admin-panel"><summary><svg class="ic ic-cadeado-aberto" aria-hidden="true" focusable="false"><use href="#i-cadeado-aberto"></use></svg> Acessos gratuitos <span>Beta, social, parcerias e cortesias</span></summary><div class="drive-folder-card" style="margin-top:8px">
+<div class="adm-sec" data-sec="resumo"><h3 class="adm-sec-title"><button type="button" class="adm-sec-toggle" aria-expanded="true" onclick="toggleAdmSection('resumo')"><span class="adm-sec-name">Resumo</span><svg class="adm-chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"></path></svg></button></h3>
+<div class="adm-sec-body"><div class="adm-strip">
+<div><b id="admStatFamilies">—</b><span>famílias</span></div>
+<div><b id="admStatPaying">—</b><span>pagantes</span></div>
+<div><b id="admStatMrr">—</b><span>por mês</span></div>
+<div><b id="admStatActive">—</b><span>ativas 7d</span></div>
+</div></div></div>
+
+<div class="adm-sec" data-sec="atencao"><h3 class="adm-sec-title"><button type="button" class="adm-sec-toggle" aria-expanded="true" onclick="toggleAdmSection('atencao')"><span class="adm-sec-name">Precisa de você<span id="admAttentionCount" class="adm-count hidden">0</span></span><svg class="adm-chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"></path></svg></button></h3>
+<div class="adm-sec-body"><div id="admAttentionList" class="adm-attn-list"><div class="meta">Verificando pendências…</div></div></div></div>
+
+<div class="adm-sec" data-sec="ferramentas"><h3 class="adm-sec-title"><button type="button" class="adm-sec-toggle" aria-expanded="true" onclick="toggleAdmSection('ferramentas')"><span class="adm-sec-name">Ferramentas</span><svg class="adm-chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"></path></svg></button></h3>
+<div class="adm-sec-body">
+
+<details id="admToolGrants" class="tech-details admin-panel"><summary><svg class="ic ic-cadeado-aberto" aria-hidden="true" focusable="false"><use href="#i-cadeado-aberto"></use></svg> Acessos gratuitos <span>Beta, social, parcerias e cortesias</span></summary><div class="drive-folder-card" style="margin-top:8px">
   <div class="notice"><b>Acessos especiais por família</b><div class="meta" style="margin-top:4px;color:#5F5B50">Use para beta testers, acesso social, parcerias e cortesias.</div></div>
   <div class="toolbar" style="margin-top:8px"><button class="btn small" type="button" onclick="loadAdminAccessGrants()">Atualizar lista</button></div><hr>
   <div class="grid"><div class="full"><label class="field">Família</label><select id="adminAccessGrantFamily"></select></div><div><label class="field">Tipo de acesso</label><select id="adminAccessGrantType"><option value="beta_tester">Beta tester</option><option value="social">Acesso social</option><option value="partnership">Parceria</option><option value="courtesy">Cortesia</option></select></div><div><label class="field">Válido até (opcional)</label><input id="adminAccessGrantEnds" type="date"></div><div class="full"><label class="field">Motivo</label><input id="adminAccessGrantReason" placeholder="Ex.: família participante do beta inicial"></div></div>
   <div class="toolbar" style="margin-top:8px"><button class="btn success small" type="button" onclick="grantFamilyAccess()">Liberar acesso</button><button class="btn danger small" type="button" onclick="revokeFamilyAccess()">Remover gratuidade</button></div><div id="adminAccessGrantFamilies" class="meta" style="margin-top:12px">Carregando famílias…</div>
 </div></details>
 
-<details class="tech-details admin-panel"><summary><svg class="ic ic-envelope" aria-hidden="true" focusable="false"><use href="#i-envelope"></use></svg> Convites para novas famílias <span>E-mails autorizados a criar uma família</span></summary><div class="drive-folder-card" style="margin-top:8px">
+<details id="admToolInvites" class="tech-details admin-panel"><summary><svg class="ic ic-envelope" aria-hidden="true" focusable="false"><use href="#i-envelope"></use></svg> Convites para novas famílias <span>E-mails autorizados a criar uma família</span></summary><div class="drive-folder-card" style="margin-top:8px">
   <div class="notice"><b>Lista de convites</b><div class="meta" style="margin-top:4px;color:#5F5B50">Somente estes e-mails conseguem criar uma família nova. Contas que já pertencem a uma família não são bloqueadas.</div></div>
   <div class="grid" style="margin-top:10px"><div><label class="field">E-mail</label><input id="adminAllowedEmailInput" type="email" placeholder="email@exemplo.com"></div><div><label class="field">Nota (opcional)</label><input id="adminAllowedEmailNote" placeholder="Ex.: Família Silva"></div></div>
   <div class="toolbar" style="margin-top:8px"><button class="btn success small" type="button" onclick="addAllowedSignup()">+ Adicionar e-mail</button><button class="btn small" type="button" onclick="loadAllowedSignups()">Atualizar lista</button></div>
@@ -2715,7 +2816,7 @@ body.ds-v1 .ins-row .btn{width:auto!important;flex-shrink:0;white-space:nowrap}
 </div></details>
 
 
-<details class="tech-details admin-panel"><summary><svg class="ic ic-ia" aria-hidden="true" focusable="false"><use href="#i-ia"></use></svg> Consumo de IA <span>Uso por família e período</span></summary><div class="drive-folder-card" style="margin-top:8px">
+<details id="admToolAi" class="tech-details admin-panel"><summary><svg class="ic ic-ia" aria-hidden="true" focusable="false"><use href="#i-ia"></use></svg> Consumo de IA <span>Uso por família e período</span></summary><div class="drive-folder-card" style="margin-top:8px">
   <div class="grid">
     <div><label class="field">De</label><input id="adminAiUsageFrom" type="date"></div>
     <div><label class="field">Até</label><input id="adminAiUsageTo" type="date"></div>
@@ -2724,14 +2825,14 @@ body.ds-v1 .ins-row .btn{width:auto!important;flex-shrink:0;white-space:nowrap}
   <div id="adminAiUsageBox" class="meta" style="margin-top:10px">Carregando consumo de IA…</div>
 </div></details>
 
-<details class="tech-details admin-panel"><summary><svg class="ic ic-sino" aria-hidden="true" focusable="false"><use href="#i-sino"></use></svg> Alertas de validação <span>Avisos sobre itens aguardando revisão</span></summary><div id="adminValidationAlertControls" class="drive-folder-card" style="margin-top:8px">
+<details id="admToolAlerts" class="tech-details admin-panel"><summary><svg class="ic ic-sino" aria-hidden="true" focusable="false"><use href="#i-sino"></use></svg> Alertas de validação <span>Avisos sobre itens aguardando revisão</span></summary><div id="adminValidationAlertControls" class="drive-folder-card" style="margin-top:8px">
             <div class="toolbar" style="justify-content:space-between">
               <div id="adminValidationAlertStatus" class="meta">O Diário pode avisar quando houver novos livros ou materiais aguardando revisão.</div>
               <button class="btn small" type="button" onclick="enableAdminValidationNotifications()">Ativar alertas</button>
             </div>
           </div></details>
           
-          <details class="tech-details admin-panel" ontoggle="if(this.open){openAdminCommunityCatalog();}"><summary><svg class="ic ic-livros" aria-hidden="true" focusable="false"><use href="#i-livros"></use></svg> Catálogo comunitário <span>Consultar, editar, adicionar e validar livros e materiais</span></summary><div class="drive-folder-card" style="margin-top:8px">
+          <details id="admToolCatalog" class="tech-details admin-panel" ontoggle="if(this.open){openAdminCommunityCatalog();}"><summary><svg class="ic ic-livros" aria-hidden="true" focusable="false"><use href="#i-livros"></use></svg> Catálogo comunitário <span>Consultar, editar, adicionar e validar livros e materiais</span></summary><div class="drive-folder-card" style="margin-top:8px">
             <div class="admin-catalog-tabs" role="tablist" aria-label="Catálogo comunitário">
               <button type="button" class="btn small admin-catalog-tab active" id="adminCatalogTabBooks" onclick="showAdminCatalogTab('books')"><svg class="ic ic-livros" aria-hidden="true" focusable="false"><use href="#i-livros"></use></svg> Livros</button>
               <button type="button" class="btn small admin-catalog-tab" id="adminCatalogTabMaterials" onclick="showAdminCatalogTab('materials')"><svg class="ic ic-peca" aria-hidden="true" focusable="false"><use href="#i-peca"></use></svg> Materiais</button>
@@ -2762,6 +2863,17 @@ body.ds-v1 .ins-row .btn{width:auto!important;flex-shrink:0;white-space:nowrap}
             </div>
             <div id="bnccEmbeddingAdmin" style="margin-top:18px;border-top:1px solid #E8E1D2;padding-top:12px"><details><summary style="cursor:pointer;font-weight:700">Ferramentas técnicas do catálogo</summary><div style="padding-top:10px"><b>Busca semântica BNCC</b><div id="bnccEmbeddingStatus" class="meta" style="margin:6px 0">Verificando índice...</div><button type="button" class="btn dark small" id="bnccEmbeddingBuildBtn" onclick="buildBnccEmbeddings()">Preparar embeddings da BNCC</button></div></details></div>
           </div></details>
+</div></div>
+
+<div class="adm-sec" data-sec="familias"><h3 class="adm-sec-title"><button type="button" class="adm-sec-toggle" aria-expanded="true" onclick="toggleAdmSection('familias')"><span class="adm-sec-name">Famílias</span><svg class="adm-chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"></path></svg></button></h3>
+<div class="adm-sec-body">
+<label class="adm-search"><span class="sr-only">Buscar família</span><input id="admFamilySearch" type="search" placeholder="Buscar família" oninput="renderAdmFamilies()"></label>
+<div id="admFamilyFilters" class="adm-chips" role="group" aria-label="Filtrar famílias"></div>
+<div id="admFamilyList" class="adm-fam-list"><div class="meta">Carregando famílias…</div></div>
+</div></div>
+
+<div class="adm-sec" data-sec="sistema"><h3 class="adm-sec-title"><button type="button" class="adm-sec-toggle" aria-expanded="true" onclick="toggleAdmSection('sistema')"><span class="adm-sec-name">Sistema</span><svg class="adm-chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"></path></svg></button></h3>
+<div class="adm-sec-body"><div id="admSystemList" class="adm-sys-list"><div class="meta">Verificando…</div></div></div></div>
 </div></section>
     <footer class="app-footer no-print">
       <div><div class="app-footer-brand"><img src="./logo-emblema.svg" alt=""><span>Meu Diário de Estudos</span></div><p>Organização da aprendizagem em família com planejamento, registros, leituras, relatórios e apoio à BNCC. Seus dados permanecem no Google Drive da família.</p></div>
@@ -3286,7 +3398,7 @@ function showPage(name){
  document.querySelectorAll(".nav-tab").forEach(x=>x.classList.toggle("active",x.dataset.page===name));
  if(name==="inicio"){renderDashboard()}
  if(name==="registro")renderRecordPage();
- if(name==="planejamento"){renderPlans();refreshCalendarIntegrationUI();} if(name==="configuracoes"){setTimeout(initFamilySettingsCollapsibles,0);} if(name==="mais"){refreshCalendarIntegrationUI();checkAdminPendingValidations(false);refreshAsaasBilling();} if(name==="administracao"){loadAdminDashboard();updateAdminValidationNotificationStatus();loadAdminAccessGrants();loadAllowedSignups();loadAdminAiUsage();}
+ if(name==="planejamento"){renderPlans();refreshCalendarIntegrationUI();} if(name==="configuracoes"){setTimeout(initFamilySettingsCollapsibles,0);} if(name==="mais"){refreshCalendarIntegrationUI();checkAdminPendingValidations(false);refreshAsaasBilling();} if(name==="administracao"){applyAdmSections();loadAdminDashboard();updateAdminValidationNotificationStatus();loadAdminAccessGrants();loadAllowedSignups();loadAdminAiUsage();}
  if(name==="relatorios")renderReportPage();
  if(name==="historico"){renderHistoryBrowser();renderHistoryBatchRows();refreshHistoryActivityOptions();}
  if(name==="leituras"){renderReadingPage();}
@@ -4505,61 +4617,210 @@ function refreshFamilyAdminOverview(){
 }
 function setHealth(id,dotId,text,ok){const el=$(id),dot=$(dotId);if(el)el.textContent=text;if(dot){dot.classList.remove('ok','bad','wait');dot.classList.add(ok?'ok':'bad')}}
 async function prepareGrantFor(familyId){
- const sel=$("adminAccessGrantFamily");const det=sel?.closest("details");if(det)det.open=true;
+ openAdmSection("ferramentas");const sel=$("adminAccessGrantFamily");const det=sel?.closest("details");if(det)det.open=true;
  try{if(sel&&![...sel.options].some(o=>o.value===familyId)&&typeof loadAdminAccessGrants==="function")await loadAdminAccessGrants()}catch(e){}
  if(sel){sel.value=familyId;sel.dispatchEvent(new Event("change",{bubbles:true}))}
  (det||sel)?.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>$("adminAccessGrantReason")?.focus(),400);
 }
-async function loadAdminInsights(){
- const box=$("adminInsights");if(!box)return;
- if(!box.children.length)box.innerHTML='<div class="meta">Carregando indicadores…</div>';
- try{
-  const d=await backendFetch("/admin/insights"),sub=d.subscriptions||{},u=d.usage||{},ai=d.ai||{},er=d.errors||{};
-  const brl=v=>Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
-  const usd=v=>"US$ "+Number(v||0).toFixed(2);
-  const fmtWhen=v=>v?new Date(String(v).replace(" ","T")+(String(v).includes("Z")?"":"Z")).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"nunca";
-  const stat=(n,l)=>`<div class="ins-stat"><b>${n}</b><span>${l}</span></div>`;
-  const kindLabel={cancel_ending:"Renovação cancelada, acesso termina",past_due:"Pagamento em atraso (tolerância)",payment_late:"Pagamento ainda não confirmado"};
-  const envBadge=d.environment==="production"?'<span class="ins-badge ok">Asaas em produção</span>':'<span class="ins-badge warn">Asaas em TESTE (sandbox)</span>';
-  const versions=Object.entries(u.versions||{}).sort((a,b)=>b[0].localeCompare(a[0],undefined,{numeric:true}));
-  box.innerHTML=`
-  <div class="admin-section-label">Assinaturas</div>
-  <div class="ins-card">${envBadge}
-   <div class="ins-grid">${stat(sub.subscription||0,"pagantes")}${stat(sub.grant||0,"gratuidades")}${stat(sub.canceled_period||0,"canceladas no período")}${stat((sub.expired||0)+(sub.none||0),"sem acesso")}</div>
-   <div class="ins-line"><span>Receita mensal estimada</span><b>${brl(sub.mrr_brl)}</b></div>
-   <div class="ins-line"><span>Último aviso do Asaas (webhook)</span><b>${fmtWhen(sub.last_webhook_at)}</b></div>
-   ${(sub.no_access||[]).length?`<div class="ins-sub">Famílias sem acesso</div><div class="ins-list">${sub.no_access.map(f=>`<div class="ins-item warn ins-row"><div><b>${esc(f.family||"Família sem nome")}</b><span>${f.reason==="none"?"Nunca assinou e não tem gratuidade":"Acesso expirado"+(f.last_due?" · pago até "+esc(fmtDate(String(f.last_due).slice(0,10))):"")}</span></div><button type="button" class="btn small" onclick="prepareGrantFor('${esc(f.family_id)}')">Liberar gratuidade</button></div>`).join("")}</div>`:""}
-   ${(d.attention||[]).length?`<div class="ins-list">${d.attention.map(a=>`<div class="ins-item warn"><b>${esc(a.family||"Família")}</b><span>${esc(kindLabel[a.kind]||a.kind)}${a.until?` · ${esc(fmtDate(a.until))}`:""}</span></div>`).join("")}</div>`:'<div class="meta">Nenhuma assinatura pedindo atenção.</div>'}
-  </div>
-  <div class="admin-section-label">Uso das famílias</div>
-  <div class="ins-card">
-   <div class="ins-grid">${stat(u.active_7d||0,"ativas nos últimos 7 dias")}${stat((u.inactive_14d||[]).length,"paradas há 14+ dias")}</div>
-   ${(u.inactive_14d||[]).length?`<div class="ins-list">${u.inactive_14d.map(f=>`<div class="ins-item"><b>${esc(f.family||"Família")}</b><span>${f.last_entry_date?"último registro em "+esc(fmtDate(f.last_entry_date)):"sem registros"}</span></div>`).join("")}</div>`:""}
-   ${versions.length?`<div class="ins-line"><span>Versões do app em uso</span><b>${versions.map(([v,n])=>`v${esc(v)} (${n})`).join(" · ")}</b></div>`:'<div class="meta">As versões aparecem conforme as famílias sincronizam.</div>'}
-  </div>
-  <div class="admin-section-label">Alertas</div>
-  <div class="ins-card">
-   <div class="ins-grid">${stat(ai.failures_24h||0,"falhas de IA em 24h")}${stat(er.count_24h||0,"erros do app em 24h")}${stat(ai.month_fallback_calls||0,"usos do modelo reserva no mês")}</div>
-   <div class="ins-line"><span>IA no mês</span><b>${ai.month_requests||0} análises · ${usd(ai.month_cost_usd)}</b></div>
-   ${(er.last||[]).length?`<div class="ins-list">${er.last.map(e=>`<div class="ins-item"><b>${esc(e.message||"Erro")}</b><span>${esc(e.family||"—")} · v${esc(e.app_version||"?")} · ${esc(e.page||"")} · ${fmtWhen(e.created_at)}</span></div>`).join("")}</div>`:""}
-  </div>`;
- }catch(e){box.innerHTML=`<div class="notice">Não foi possível carregar os indicadores: ${esc(e.message||e)}</div>`}
+/* ===== Painel ADM v16.57: seções recolhíveis, "Precisa de você", lista de famílias ===== */
+const ADM_SEC_KEY="DE_ADMIN_SECTIONS",ADM_IGNORED_KEY="DE_ADMIN_IGNORED_FAMILIES";
+let admPanelData={dash:null,ins:null,error:null},admFamilyFilter="all";
+function admSecState(){try{return JSON.parse(localStorage.getItem(ADM_SEC_KEY)||"{}")||{}}catch(e){return{}}}
+function applyAdmSections(){
+ const st=admSecState();
+ document.querySelectorAll("#page-administracao .adm-sec").forEach(sec=>{
+  const closed=st[sec.dataset.sec]===false;sec.classList.toggle("closed",closed);
+  sec.querySelector(".adm-sec-toggle")?.setAttribute("aria-expanded",String(!closed));
+ });
+}
+function setAdmSection(key,open){const st=admSecState();st[key]=!!open;try{localStorage.setItem(ADM_SEC_KEY,JSON.stringify(st))}catch(e){}applyAdmSections()}
+function toggleAdmSection(key){const sec=document.querySelector(`#page-administracao .adm-sec[data-sec="${key}"]`);setAdmSection(key,!!sec?.classList.contains("closed"))}
+function openAdmSection(key){const sec=document.querySelector(`#page-administracao .adm-sec[data-sec="${key}"]`);if(sec?.classList.contains("closed"))setAdmSection(key,true);return sec}
+function openAdminTool(id,after){
+ openAdmSection("ferramentas");const det=$(id);if(!det)return;
+ if(!det.open)det.open=true;if(typeof after==="function")after();
+ setTimeout(()=>det.scrollIntoView({behavior:"smooth",block:"start"}),60);
+}
+function admIgnored(){try{return JSON.parse(localStorage.getItem(ADM_IGNORED_KEY)||"[]")||[]}catch(e){return[]}}
+function setAdmIgnored(id,on){const list=new Set(admIgnored());on?list.add(id):list.delete(id);try{localStorage.setItem(ADM_IGNORED_KEY,JSON.stringify([...list]))}catch(e){}renderAdminPanel()}
+function admBrl(v,compact){const n=Number(v||0);return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL",minimumFractionDigits:compact&&Number.isInteger(n)?0:2,maximumFractionDigits:2})}
+function admUsd(v){const n=Number(v||0);return "US$ "+n.toLocaleString("pt-BR",{minimumFractionDigits:n>0&&n<1?4:2,maximumFractionDigits:4})}
+function admWhen(v){if(!v)return null;const d=new Date(String(v).replace(" ","T")+(/[zZ]|[+-]\d\d:?\d\d$/.test(String(v))?"":"Z"));return isNaN(d)?null:d}
+function admDaysSince(v){const d=v instanceof Date?v:(v?new Date(String(v).slice(0,10)+"T00:00:00"):null);if(!d||isNaN(d))return null;return Math.floor((Date.now()-d.getTime())/86400000)}
+function admRelDays(n){return n===0?"hoje":n===1?"ontem":`há ${n} dias`}
+const ADM_GRANT_LABEL={beta_tester:"beta tester",social:"acesso social",partnership:"parceria",courtesy:"cortesia"};
+const ADM_STATUS={
+ active:{label:"Ativa",tone:"ok"},quiet:{label:"Sem registros na semana",tone:"neutral"},never:{label:"Não começou",tone:"info"},
+ stalled:{label:"Parada",tone:"info"},no_access:{label:"Sem acesso",tone:"bad"},canceled:{label:"Cancelou",tone:"warn"},
+ past_due:{label:"Pagamento atrasado",tone:"warn"},test:{label:"Conta de teste",tone:"neutral"}
+};
+function admFamilyStatus(f,ignored){
+ if(ignored.has(f.id))return "test";
+ if(!f.access_active)return "no_access";
+ if(f.access_reason==="past_due_grace")return "past_due";
+ if(f.access_reason==="canceled_period")return "canceled";
+ return f.activity||"quiet";
+}
+function admAccessText(f){
+ const r=f.access_reason;
+ if(r==="grant")return "Gratuita"+(f.grant_type?` (${ADM_GRANT_LABEL[f.grant_type]||f.grant_type})`:"")+(f.access_until?` até ${fmtDate(String(f.access_until).slice(0,10))}`:"");
+ if(r==="subscription")return (f.plan_code==="yearly"?"Plano anual":"Plano mensal")+(f.access_until?` · renova ${fmtDate(String(f.access_until).slice(0,10))}`:"");
+ if(r==="canceled_period")return (f.plan_code==="yearly"?"Plano anual":"Plano mensal")+(f.access_until?` · acesso até ${fmtDate(String(f.access_until).slice(0,10))}`:"");
+ if(r==="past_due_grace")return "Pagamento atrasado"+(f.access_until?` desde ${fmtDate(String(f.access_until).slice(0,10))}`:"");
+ if(r==="expired")return "Acesso expirado"+(f.access_until?` em ${fmtDate(String(f.access_until).slice(0,10))}`:"");
+ return "Nunca assinou";
+}
+function admActivityText(f){
+ if(!f.access_active&&!f.last_entry_date)return "";
+ if(!f.last_entry_date)return "nenhum registro";
+ const n=admDaysSince(f.last_entry_date);return n==null?"":`último registro ${admRelDays(n)}`;
+}
+function admFamilies(){
+ const ins=admPanelData.ins,ignored=new Set(admIgnored());
+ return (ins?.families||[]).map(f=>({...f,status:admFamilyStatus(f,ignored)}));
+}
+function admNeedsAttention(f){
+ if(f.status==="no_access"||f.status==="never"||f.status==="stalled"||f.status==="past_due")return true;
+ if(f.status==="canceled"&&f.access_until){const left=-admDaysSince(f.access_until);return left<=7}
+ return false;
 }
 async function loadAdminDashboard(){
- loadAdminInsights();
- const checked=$("healthCheckedAt"); if(checked)checked.textContent="Verificando…";
- try{
-  const data=await backendFetch('/admin/dashboard');
-  const o=data.overview||{};
-  [["adminStatFamilies",o.families],["adminStatChildren",o.children],["adminStatPendingBooks",o.pending_books],["adminStatPendingMaterials",o.pending_materials]].forEach(([id,v])=>{if($(id))$(id).textContent=Number(v||0)});
-  setHealth('healthWorker','healthWorkerDot',data.health?.worker==='ok'?'Operacional':'Indisponível',data.health?.worker==='ok');
-  setHealth('healthDb','healthDbDot',data.health?.database==='ok'?'Conectado':'Falha',data.health?.database==='ok');
-  if($("healthWorkerVersion")) $("healthWorkerVersion").textContent=data.worker_version||'—';
-  if(checked) checked.textContent=new Date(data.checked_at||Date.now()).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-  const pending=Number(o.pending_books||0)+Number(o.pending_materials||0),att=$("adminAttention");
-  if(att){att.classList.toggle('ok',pending===0);att.innerHTML=pending?`<b>Requer atenção</b><div class="meta" style="margin-top:4px">${Number(o.pending_books||0)} livro(s) e ${Number(o.pending_materials||0)} material(is) aguardando validação.</div>`:'<b>✓ Nenhuma pendência de catálogo no momento</b>';}
- }catch(e){setHealth('healthWorker','healthWorkerDot','Indisponível',false);setHealth('healthDb','healthDbDot','Não verificado',false);if(checked)checked.textContent=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});const a=$("adminAttention");if(a)a.innerHTML='<b>Não foi possível carregar o painel.</b><div class="meta">'+esc(e.message||'Erro de conexão')+'</div>';}
+ const upd=$("admUpdatedAt");if(upd)upd.textContent="Atualizando…";
+ const [dash,ins]=await Promise.allSettled([backendFetch("/admin/dashboard"),backendFetch("/admin/insights")]);
+ admPanelData={dash:dash.status==="fulfilled"?dash.value:null,ins:ins.status==="fulfilled"?ins.value:null,
+  error:dash.status==="rejected"?(dash.reason?.message||"Erro de conexão"):null,
+  insError:ins.status==="rejected"?(ins.reason?.message||"Erro de conexão"):null,at:new Date()};
+ renderAdminPanel();
 }
+function renderAdminPanel(){
+ const {dash,ins,error,insError,at}=admPanelData;
+ const sub=ins?.subscriptions||{},u=ins?.usage||{},ai=ins?.ai||{},er=ins?.errors||{},o=dash?.overview||{};
+ const healthOk=!!dash&&dash.health?.worker==="ok"&&dash.health?.database==="ok";
+ // cabeçalho
+ const pill=$("admHealthPill");
+ if(pill){pill.className="adm-pill "+(healthOk?"ok":"bad");pill.querySelector("span").textContent=healthOk?"Sistema ok":"Sistema com falha"}
+ if($("admUpdatedAt"))$("admUpdatedAt").textContent=at?"Atualizado às "+at.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}):"";
+ if($("admEnvBadge"))$("admEnvBadge").innerHTML=ins?(ins.environment==="production"?'<span class="adm-tag ok">Asaas em produção</span>':'<span class="adm-tag warn">Asaas em teste</span>'):"";
+ // resumo
+ const fams=admFamilies(),withAccess=ins?(Number(sub.total||fams.length||0)-(sub.no_access||[]).length):null;
+ const paying=Number(sub.subscription||0)+Number(sub.past_due_grace||0);
+ const set=(id,v)=>{if($(id))$(id).textContent=v};
+ set("admStatFamilies",dash?Number(o.families||0):(ins?Number(sub.total||0):"—"));
+ set("admStatPaying",ins?paying:"—");
+ set("admStatMrr",ins?admBrl(sub.mrr_brl,true):"—");
+ set("admStatActive",ins?`${Number(u.active_7d||0)}/${withAccess}`:"—");
+ renderAdmAttention();renderAdmFamilyFilters();renderAdmFamilies();renderAdmSystem();
+}
+function renderAdmAttention(){
+ const box=$("admAttentionList"),badge=$("admAttentionCount");if(!box)return;
+ const {dash,ins,error,insError}=admPanelData,o=dash?.overview||{},sub=ins?.subscriptions||{},ai=ins?.ai||{},er=ins?.errors||{};
+ const fams=admFamilies(),items=[];
+ const card=(tone,icon,title,text,actions="")=>`<div class="adm-attn"><div class="adm-attn-head"><span class="adm-attn-ic ${tone}" aria-hidden="true">${icon}</span><div><b>${title}</b>${text?`<span>${text}</span>`:""}</div></div>${actions?`<div class="adm-attn-actions">${actions}</div>`:""}</div>`;
+ const IC={lock:'<svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+  pen:'<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+  clock:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  book:'<svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2Z"/><path d="M4 19a2 2 0 0 0 2 2h13"/></svg>',
+  alert:'<svg viewBox="0 0 24 24"><path d="M12 3 2 20h20Z"/><path d="M12 10v4M12 17h.01"/></svg>',
+  card:'<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>'};
+ if(error)items.push(card("bad",IC.alert,"Não foi possível verificar o sistema",esc(error),`<button type="button" class="btn small" onclick="loadAdminDashboard()">Tentar de novo</button>`));
+ else if(dash&&!(dash.health?.worker==="ok"&&dash.health?.database==="ok"))items.push(card("bad",IC.alert,"O banco de dados não respondeu","A API está no ar, mas a consulta ao D1 falhou.",`<button type="button" class="btn small" onclick="loadAdminDashboard()">Verificar de novo</button>`));
+ if(insError)items.push(card("bad",IC.alert,"Indicadores indisponíveis",esc(insError)));
+ fams.filter(f=>f.status==="no_access").forEach(f=>items.push(card("bad",IC.lock,`${esc(f.name||"Família sem nome")} está sem acesso`,esc(admAccessText(f))+".",
+  `<button type="button" class="btn primary small" onclick="prepareGrantFor('${esc(f.id)}')">Liberar gratuidade</button><button type="button" class="btn small" onclick="setAdmIgnored('${esc(f.id)}',true)">É conta de teste</button>`)));
+ // família sem acesso vinda de worker antigo (sem lista de famílias)
+ if(ins&&!ins.families)(sub.no_access||[]).filter(f=>!admIgnored().includes(f.family_id)).forEach(f=>items.push(card("bad",IC.lock,`${esc(f.family||"Família sem nome")} está sem acesso`,f.reason==="none"?"Nunca assinou e não tem gratuidade.":"Acesso expirado.",
+  `<button type="button" class="btn primary small" onclick="prepareGrantFor('${esc(f.family_id)}')">Liberar gratuidade</button><button type="button" class="btn small" onclick="setAdmIgnored('${esc(f.family_id)}',true)">É conta de teste</button>`)));
+ const group=(status,one,many,text)=>{const list=fams.filter(f=>f.status===status);if(!list.length)return;
+  items.push(card("info",IC.pen,list.length===1?one:many.replace("{n}",list.length),text(list.map(f=>esc(f.name||"Família")).join(", ")),`<button type="button" class="btn small" onclick="showAdmFamilies('${status}')">Ver ${list.length===1?"família":"essas famílias"}</button>`))};
+ group("never","1 família ainda não começou","{n} famílias ainda não começaram",n=>`${n}: têm acesso, mas nenhum registro.`);
+ group("stalled","1 família parada há 14+ dias","{n} famílias paradas há 14+ dias",n=>`${n}: sem registros há mais de duas semanas.`);
+ fams.filter(f=>f.status==="past_due").forEach(f=>items.push(card("warn",IC.card,`Pagamento atrasado: ${esc(f.name)}`,esc(admAccessText(f))+". O acesso continua durante a tolerância de 5 dias.")));
+ fams.filter(f=>f.status==="canceled"&&admNeedsAttention(f)).forEach(f=>items.push(card("warn",IC.card,`${esc(f.name)} cancelou a renovação`,esc(admAccessText(f))+".")));
+ (ins?.attention||[]).filter(a=>a.kind==="payment_late").forEach(a=>items.push(card("warn",IC.card,`Pagamento não confirmado: ${esc(a.family||"Família")}`,a.until?`Vencimento em ${esc(fmtDate(a.until))}.`:"")));
+ const pend=Number(o.pending_books||0)+Number(o.pending_materials||0);
+ if(pend)items.push(card("warn",IC.book,pend===1?"1 item aguardando validação":`${pend} itens aguardando validação`,`${Number(o.pending_books||0)} livro(s) e ${Number(o.pending_materials||0)} material(is) no catálogo.`,`<button type="button" class="btn small" onclick="openAdminTool('admToolCatalog',()=>showAdminCatalogTab('pending'))">Revisar agora</button>`));
+ if(ins){const hook=admWhen(sub.last_webhook_at),days=hook?Math.floor((Date.now()-hook.getTime())/86400000):null;
+  if(days==null||days>7)items.push(card("warn",IC.clock,days==null?"O Asaas nunca enviou avisos":`Asaas sem avisos há ${days} dias`,(hook?`Último aviso em ${hook.toLocaleDateString("pt-BR")}. `:"")+(ins.environment==="production"?"Confira o webhook no painel do Asaas.":"Em teste é esperado; em produção, confira o webhook.")))}
+ if(Number(ai.failures_24h||0))items.push(card("bad",IC.alert,`${ai.failures_24h} falha(s) de IA nas últimas 24h`,"As análises dessas famílias podem não ter sido concluídas.",`<button type="button" class="btn small" onclick="openAdminTool('admToolAi',loadAdminAiUsage)">Ver consumo de IA</button>`));
+ if(Number(er.count_24h||0))items.push(card("bad",IC.alert,`${er.count_24h} erro(s) do app nas últimas 24h`,"Veja os detalhes em Sistema › Erros do app.",`<button type="button" class="btn small" onclick="showAdmSystemRow('admSysErrors')">Ver erros</button>`));
+ if(badge){badge.textContent=String(items.length);badge.classList.toggle("hidden",!items.length)}
+ box.innerHTML=items.length?items.join(""):(dash||ins?'<div class="adm-all-clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>Tudo em ordem por aqui.</div>':'<div class="meta">Verificando pendências…</div>');
+}
+function showAdmFamilies(filter){
+ admFamilyFilter=filter||"all";const sec=openAdmSection("familias");renderAdmFamilyFilters();renderAdmFamilies();
+ setTimeout(()=>sec?.scrollIntoView({behavior:"smooth",block:"start"}),60);
+}
+function setAdmFamilyFilter(f){admFamilyFilter=f;renderAdmFamilyFilters();renderAdmFamilies()}
+function renderAdmFamilyFilters(){
+ const box=$("admFamilyFilters");if(!box)return;const fams=admFamilies();
+ if(!fams.length){box.innerHTML="";return}
+ const defs=[["all","Todas",fams.length],["attention","Atenção",fams.filter(admNeedsAttention).length],["active","Ativas",fams.filter(f=>f.status==="active").length],["never","Não começaram",fams.filter(f=>f.status==="never").length],["stalled","Paradas",fams.filter(f=>f.status==="stalled").length],["no_access","Sem acesso",fams.filter(f=>f.status==="no_access").length]];
+ if(!defs.some(d=>d[0]===admFamilyFilter&&(d[2]||d[0]==="all")))admFamilyFilter="all";
+ box.innerHTML=defs.filter(d=>d[0]==="all"||d[2]).map(([k,l,n])=>`<button type="button" class="adm-chip${admFamilyFilter===k?" on":""}" aria-pressed="${admFamilyFilter===k}" onclick="setAdmFamilyFilter('${k}')">${l} · ${n}</button>`).join("");
+}
+function renderAdmFamilies(){
+ const box=$("admFamilyList");if(!box)return;const {ins,insError}=admPanelData;
+ if(insError){box.innerHTML=`<div class="notice">Não foi possível carregar as famílias: ${esc(insError)}</div>`;return}
+ if(!ins){box.innerHTML='<div class="meta">Carregando famílias…</div>';return}
+ if(!ins.families){box.innerHTML='<div class="notice">Publique o worker v13.31 para ver a lista completa de famílias.</div>';return}
+ const q=String($("admFamilySearch")?.value||"").trim().toLocaleLowerCase("pt-BR");
+ let fams=admFamilies();
+ if(admFamilyFilter==="attention")fams=fams.filter(admNeedsAttention);else if(admFamilyFilter!=="all")fams=fams.filter(f=>f.status===admFamilyFilter);
+ if(q)fams=fams.filter(f=>String(f.name||"").toLocaleLowerCase("pt-BR").includes(q));
+ const order={no_access:0,past_due:1,canceled:2,never:3,stalled:4,quiet:5,active:6,test:7};
+ fams.sort((a,b)=>(order[a.status]??9)-(order[b.status]??9)||String(a.name||"").localeCompare(String(b.name||""),"pt-BR"));
+ if(!fams.length){box.innerHTML='<div class="meta">Nenhuma família neste filtro.</div>';return}
+ const CH='<svg class="adm-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+ box.innerHTML=fams.map(f=>{const st=ADM_STATUS[f.status]||ADM_STATUS.quiet,act=admActivityText(f),id=esc(f.id);
+  const sub=[admAccessText(f),act].filter(Boolean).join(" · ");
+  const actions=[];
+  if(f.status==="test")actions.push(`<button type="button" class="btn small" onclick="setAdmIgnored('${id}',false)">Voltar a alertar</button>`);
+  if(f.access_reason==="grant")actions.push(`<button type="button" class="btn small" onclick="prepareGrantFor('${id}')">Editar gratuidade</button><button type="button" class="btn danger small" onclick="revokeGrantFor('${id}')">Remover gratuidade</button>`);
+  else if(!f.access_active)actions.push(`<button type="button" class="btn primary small" onclick="prepareGrantFor('${id}')">Liberar gratuidade</button>`+(f.status!=="test"?`<button type="button" class="btn small" onclick="setAdmIgnored('${id}',true)">É conta de teste</button>`:""));
+  const fact=(l,v)=>`<div><span>${l}</span><b>${v}</b></div>`;
+  return `<details class="adm-fam"><summary><div class="adm-fam-main"><b>${esc(f.name||"Família sem nome")}</b><span>${esc(sub)}</span></div><span class="adm-tag ${st.tone}">${st.label}</span>${CH}</summary>
+  <div class="adm-fam-body"><div class="adm-facts">${fact("Acesso",esc(admAccessText(f)))}${fact("Crianças",f.children_count==null?"—":Number(f.children_count))}${fact("Último registro",f.last_entry_date?esc(fmtDate(String(f.last_entry_date).slice(0,10))):"Nenhum")}${fact("Registros na semana",Number(f.entries_7d||0))}${fact("Registros no total",Number(f.entries_total||0))}${fact("Versão do app",f.app_version?"v"+esc(f.app_version):"—")}</div>
+  ${actions.length?`<div class="adm-attn-actions">${actions.join("")}</div>`:""}</div></details>`}).join("");
+}
+async function revokeGrantFor(familyId){
+ const sel=$("adminAccessGrantFamily");
+ try{if(sel&&![...sel.options].some(o=>o.value===familyId))await loadAdminAccessGrants()}catch(e){}
+ if(!sel)return;sel.value=familyId;await revokeFamilyAccess();loadAdminDashboard();
+}
+function showAdmSystemRow(id){openAdmSection("sistema");const d=$(id);if(d){d.open=true;setTimeout(()=>d.scrollIntoView({behavior:"smooth",block:"start"}),60)}}
+function renderAdmSystem(){
+ const box=$("admSystemList");if(!box)return;const {dash,ins,error,insError,at}=admPanelData;
+ if(!dash&&!ins&&!error&&!insError){box.innerHTML='<div class="meta">Verificando…</div>';return}
+ const sub=ins?.subscriptions||{},u=ins?.usage||{},ai=ins?.ai||{},er=ins?.errors||{};
+ const open=new Set([...box.querySelectorAll("details[open]")].map(d=>d.id));
+ const CH='<svg class="adm-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+ const line=(l,v)=>`<div class="adm-line"><span>${l}</span><b>${v}</b></div>`;
+ const row=(id,title,summary,right,body)=>`<details id="${id}" class="adm-sys"${open.has(id)?" open":""}><summary><div class="adm-fam-main"><b>${title}</b><span>${summary}</span></div>${right||""}${CH}</summary><div class="adm-fam-body">${body}</div></details>`;
+ const okW=dash?.health?.worker==="ok",okD=dash?.health?.database==="ok",ok=okW&&okD;
+ const dot=good=>`<span class="adm-dot ${good?"ok":"bad"}"></span>`;
+ const versions=Object.entries(u.versions||{}).sort((a,b)=>b[0].localeCompare(a[0],undefined,{numeric:true}));
+ const month=new Date().toLocaleDateString("pt-BR",{month:"long"});
+ const hook=admWhen(sub.last_webhook_at);
+ let html=row("admSysHealth","Saúde",`API e banco D1 · worker ${esc(dash?.worker_version?String(dash.worker_version).replace("-worker",""):"—")} · app v${esc(APP_VERSION)}`,`<span class="adm-state ${ok?"ok":"bad"}">${ok?"ok":"falha"}</span>`,
+  line(`${dot(okW)}API / Worker`,dash?(okW?"Operacional":"Indisponível"):"Indisponível")+line(`${dot(okD)}Banco de dados (D1)`,dash?(okD?"Conectado":"Falha"):"Não verificado")+
+  line("Worker",esc(dash?.worker_version||"—"))+line("App neste aparelho","v"+esc(APP_VERSION))+
+  line("Versões em uso pelas famílias",versions.length?versions.map(([v,n])=>`v${esc(v)} (${n})`).join(", "):"—")+
+  line("Verificado às",at?at.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}):"—")+
+  `<div class="adm-attn-actions"><button type="button" class="btn small" onclick="loadAdminDashboard()">Verificar agora</button></div>`);
+ if(ins){
+  html+=row("admSysSubs","Assinaturas",`${ins.environment==="production"?"Asaas em produção":"Asaas em teste"} · ${admBrl(sub.mrr_brl,true)} por mês`,"",
+   line("Pagantes",Number(sub.subscription||0)+Number(sub.past_due_grace||0))+line("Gratuidades",Number(sub.grant||0))+line("Canceladas com acesso até o fim do período",Number(sub.canceled_period||0))+line("Sem acesso",Number(sub.expired||0)+Number(sub.none||0))+
+   line("Receita mensal estimada",admBrl(sub.mrr_brl))+line("Último aviso do Asaas",hook?hook.toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"nunca"));
+  html+=row("admSysAi",`IA em ${month}`,`${Number(ai.month_requests||0)} análises · ${admUsd(ai.month_cost_usd)} · ${Number(ai.failures_24h||0)} falhas em 24h`,"",
+   line("Análises no mês",Number(ai.month_requests||0))+line("Custo estimado no mês",admUsd(ai.month_cost_usd))+line(`Chamadas ao modelo reserva${ai.fallback_model?` (${esc(ai.fallback_model)})`:""}`,Number(ai.month_fallback_calls||0))+line("Falhas nas últimas 24h",Number(ai.failures_24h||0))+
+   `<div class="adm-attn-actions"><button type="button" class="btn small" onclick="openAdminTool('admToolAi',loadAdminAiUsage)">Consumo por família</button></div>`);
+  const last=er.last||[];
+  html+=row("admSysErrors","Erros do app",Number(er.count_24h||0)?`${er.count_24h} nas últimas 24h`:"Nenhum nas últimas 24h","",
+   last.length?`<div class="adm-err-list">${last.map(e=>{const w=admWhen(e.created_at);return `<div><b>${esc(e.message||"Erro")}</b><span>${esc(e.family||"—")} · v${esc(e.app_version||"?")}${e.page?" · "+esc(e.page):""}${w?" · "+w.toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):""}</span></div>`}).join("")}</div>`:'<div class="meta">Nenhum erro registrado.</div>');
+ }
+ box.innerHTML=html;
+}
+
 
 async function backendFetch(path, options={}){
   if(!appSessionValid()){
@@ -9374,7 +9635,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "16.56";
+const APP_VERSION = "16.57";
 queueMicrotask(()=>{ const el=document.getElementById("healthFrontendVersion"); if(el) el.textContent=`v${APP_VERSION}`; });
 
 let deferredInstallPrompt=null;
