@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#441015">
 <title>Diário de Estudos</title>
 
-<link rel="manifest" href="/manifest.json?v=16.61">
+<link rel="manifest" href="/manifest.json?v=17.0">
 <link rel="icon" type="image/png" sizes="32x32" href="/icon-192.png">
 <link rel="icon" type="image/png" sizes="48x48" href="/icon-192.png">
 
@@ -2136,6 +2136,10 @@ body.ds-v1 .ins-row .btn{width:auto!important;flex-shrink:0;white-space:nowrap}
 #page-me-ajuda .ajuda-ideas{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
 #page-me-ajuda .ajuda-idea{min-height:40px;padding:8px 14px;border-radius:999px;border:1.5px dashed #C9B4A3;background:transparent;color:#6B2737;font:600 14px/1.3 inherit;text-align:left;cursor:pointer}
 #page-me-ajuda .ajuda-idea:hover{background:#FBF1EA}
+#page-me-ajuda .ajuda-retake{display:flex;flex-direction:column;gap:2px;border-radius:14px;width:100%;box-sizing:border-box}
+#page-me-ajuda .ajuda-retake b{font-weight:600;color:#441015}
+#page-me-ajuda .ajuda-retake span{font-size:12.5px;font-weight:500;color:#6A5F58}
+#page-me-ajuda .ajuda-retake.on{border-style:solid;border-color:#6B2737;background:#FBF1EA}
 #page-me-ajuda .ajuda-ask{min-height:52px;width:100%;font-size:16px;display:flex;align-items:center;justify-content:center;gap:8px}
 #page-me-ajuda .ajuda-ask .ic{width:20px;height:20px}
 #page-me-ajuda .ajuda-usage{font-size:13px;color:#6A5F58;text-align:center;margin-top:-6px}
@@ -2191,7 +2195,7 @@ body.ds-v1 .ins-row .btn{width:auto!important;flex-shrink:0;white-space:nowrap}
 @media(prefers-reduced-motion:reduce){#page-me-ajuda .ajuda-chev{transition:none}}
 </style>
 </head>
-<body data-build="16.61" class="auth-checking ds-v1">
+<body data-build="17.0" class="auth-checking ds-v1">
 <svg class="ic-sprite" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><symbol id="i-ajuda" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.1V16h5v-.1c0-.8.4-1.6 1.1-2.1A6 6 0 0 0 12 3Z"/></symbol><symbol id="i-carregando" viewBox="0 0 24 24"><path d="M7 3h10M7 21h10"/><path d="M8 3c0 4 8 5 8 9s-8 5-8 9"/><path d="M16 3c0 4-8 5-8 9s8 5 8 9"/></symbol><symbol id="i-sair" viewBox="0 0 24 24"><path d="M15 4h4v16h-4"/><path d="M10 8l-4 4 4 4M6 12h10"/></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol><symbol id="i-repetir" viewBox="0 0 24 24"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></symbol><symbol id="i-seta" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol><symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></symbol><symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol><symbol id="i-mais" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="i-lapis" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></symbol><symbol id="i-lixeira" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/><path d="M10 11v6M14 11v6"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol><symbol id="i-lanterna" viewBox="0 0 24 24"><path d="M8 3h8v5l-2 3v10h-4V11L8 8z"/><path d="M8 7h8"/><path d="M12 14v2"/></symbol><symbol id="i-borracha" viewBox="0 0 24 24"><path d="M15 4l5 5-9 9H7l-3-3z"/><path d="M10 9l5 5"/><path d="M7 20h13"/></symbol><symbol id="i-engrenagem" viewBox="0 0 24 24"><path d="M12.2 2h-.4a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.3a2 2 0 0 1-2 0l-.2-.1a2 2 0 0 0-2.7.7l-.2.4a2 2 0 0 0 .7 2.7l.2.1a2 2 0 0 1 1 1.7v.5a2 2 0 0 1-1 1.7l-.2.1a2 2 0 0 0-.7 2.7l.2.4a2 2 0 0 0 2.7.7l.2-.1a2 2 0 0 1 2 0l.4.3a2 2 0 0 1 1 1.7v.2a2 2 0 0 0 2 2h.4a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.3a2 2 0 0 1 2 0l.2.1a2 2 0 0 0 2.7-.7l.2-.4a2 2 0 0 0-.7-2.7l-.2-.1a2 2 0 0 1-1-1.7v-.5a2 2 0 0 1 1-1.7l.2-.1a2 2 0 0 0 .7-2.7l-.2-.4a2 2 0 0 0-2.7-.7l-.2.1a2 2 0 0 1-2 0l-.4-.3a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-lupa" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol><symbol id="i-pular" viewBox="0 0 24 24"><path d="M5 6l8 6-8 6z"/><path d="M18 6v12"/></symbol><symbol id="i-restaurar" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/></symbol><symbol id="i-lista" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r=".8"/><circle cx="4" cy="12" r=".8"/><circle cx="4" cy="18" r=".8"/></symbol><symbol id="i-sucesso" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/></symbol><symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.3" r=".6"/></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r=".6"/></symbol><symbol id="i-pergunta" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.6 2.6 0 1 1 3.6 2.4c-.8.4-1.1.9-1.1 1.7v.4"/><circle cx="12" cy="17" r=".6"/></symbol><symbol id="i-cadeado" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol><symbol id="i-cadeado-aberto" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 7.6-1.7"/></symbol><symbol id="i-chave" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2.5 2.5M14 9l2 2"/></symbol><symbol id="i-sem-conexao" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M5 12.5a10 10 0 0 1 4-2.3M19 12.5a10 10 0 0 0-3.2-2"/><circle cx="12" cy="19.5" r=".6"/></symbol><symbol id="i-cartao" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></symbol><symbol id="i-cupom" viewBox="0 0 24 24"><path d="M4 7h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4z"/><path d="M14 7v10" stroke-dasharray="2 2"/></symbol><symbol id="i-envelope" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6.5L20.5 7"/></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol><symbol id="i-arquivar" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="4.5" rx="1"/><path d="M5 9v10h14V9"/><path d="M10 13h4"/></symbol><symbol id="i-imagem" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M20.5 16l-5-5-8 8.5"/></symbol><symbol id="i-sino" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol><symbol id="i-raio" viewBox="0 0 24 24"><path d="M13 2.5L5 13.5h6l-1 8 8-11h-6z"/></symbol><symbol id="i-entrada" viewBox="0 0 24 24"><path d="M4 13l2-8h12l2 8v6H4z"/><path d="M4 13h4.5l1 2h5l1-2H20"/><path d="M12 5v6M9.5 8.5L12 11l2.5-2.5"/></symbol><symbol id="i-calendario" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol><symbol id="i-local" viewBox="0 0 24 24"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></symbol><symbol id="i-material" viewBox="0 0 24 24"><path d="M6 3.5h11.5v17H6a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 6 3.5z"/><path d="M4.5 17.5A1.5 1.5 0 0 1 6 16h11.5"/><path d="M9 8h5"/></symbol><symbol id="i-livro" viewBox="0 0 24 24"><path d="M4 5c3-1.5 5.5-1.5 8 0v15c-2.5-1.5-5-1.5-8 0z"/><path d="M20 5c-3-1.5-5.5-1.5-8 0v15c2.5-1.5 5-1.5 8 0z"/></symbol><symbol id="i-livros" viewBox="0 0 24 24"><rect x="4" y="4" width="4" height="16" rx="1"/><rect x="9.5" y="6" width="4" height="14" rx="1"/><path d="M15.5 7.5l3.8-1 3 13.2-3.8 1z"/></symbol><symbol id="i-ia" viewBox="0 0 24 24"><path d="M12 3l1.4 4.1 4.1 1.4-4.1 1.4L12 14l-1.4-4.1-4.1-1.4 4.1-1.4z"/><path d="M18.5 14l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/><path d="M6 15l.7 1.8 1.8.7-1.8.7L6 20l-.7-1.8-1.8-.7 1.8-.7z"/></symbol><symbol id="i-dica" viewBox="0 0 24 24"><path d="M9 17h6"/><path d="M10 20.5h4"/><path d="M8.5 14a5.5 5.5 0 1 1 7 0c-.9.8-1.5 1.7-1.5 3h-4c0-1.3-.6-2.2-1.5-3z"/></symbol><symbol id="i-clima" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><path d="M8 2v1.3M2 8h1.3M3.8 3.8l.9.9M12.2 3.8l-.9.9"/><path d="M9 19h9a3.5 3.5 0 0 0 0-7 5 5 0 0 0-9.5 1.5A2.8 2.8 0 0 0 9 19z"/></symbol><symbol id="i-familia" viewBox="0 0 24 24"><circle cx="8" cy="7" r="2.6"/><circle cx="16.5" cy="7.5" r="2.2"/><path d="M3.5 19v-2.5a4.5 4.5 0 0 1 9 0V19"/><path d="M13.5 19v-2a3.3 3.3 0 0 1 6.6 0v2"/></symbol><symbol id="i-pessoa" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></symbol><symbol id="i-crianca" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4.5"/><path d="M11 4.6c.4-1.3 1.8-2 3.1-1.6"/><path d="M6.5 21a5.5 5.5 0 0 1 11 0"/></symbol><symbol id="i-ano-escolar" viewBox="0 0 24 24"><path d="M2.5 9L12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c1.5 1.5 3.5 2.2 5.5 2.2s4-.7 5.5-2.2V11"/><path d="M21.5 9v5"/></symbol><symbol id="i-peca" viewBox="0 0 24 24"><path d="M5 8h3a2 2 0 1 1 4 0h3v3a2 2 0 1 1 0 4v4h-4a2 2 0 1 0-4 0H5v-4a2 2 0 1 0 0-4z"/></symbol><symbol id="i-documento" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5"/><path d="M9 13h7M9 17h5"/></symbol><symbol id="i-nuvem" viewBox="0 0 24 24"><path d="M7 18h10.5a4 4 0 0 0 .6-7.9A6 6 0 0 0 6.6 9 4.5 4.5 0 0 0 7 18z"/></symbol><symbol id="i-pastas" viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/><path d="M3 7V5h6l2 2"/></symbol><symbol id="i-celular" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></symbol><symbol id="i-balao" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol><symbol id="i-alvo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol><symbol id="i-olho" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-estrela" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></symbol><symbol id="i-filtro" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></symbol><symbol id="i-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol><symbol id="i-imprimir" viewBox="0 0 24 24"><path d="M7 9V3h10v6"/><rect x="3.5" y="9" width="17" height="8" rx="2"/><path d="M7 14h10v7H7z"/></symbol><symbol id="i-compartilhar" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></symbol></svg>
 <header>
   <div class="header-branding">
@@ -4900,7 +4904,7 @@ function renderAdmSystem(){
 /* ===== Me ajuda, Diário (v16.59) ===== */
 const AJUDA_DRAFT_KEY="DE_AJUDA_DRAFT";
 const AJUDA_IDEAS=["Como ensino frações com pizza?","O que é fotossíntese, de um jeito simples?","Como explico a diferença entre mas e mais?"];
-let ajudaChildId="",ajudaBusy=false,ajudaResult=null,ajudaError="",ajudaGabarito=false,ajudaHistory=null,ajudaHistoryLoading=false,ajudaShowAll=false,ajudaRecentOpen=true,ajudaUsage=null,ajudaSearch="";
+let ajudaRetakeOf="",ajudaChildId="",ajudaBusy=false,ajudaResult=null,ajudaError="",ajudaGabarito=false,ajudaHistory=null,ajudaHistoryLoading=false,ajudaShowAll=false,ajudaRecentOpen=true,ajudaUsage=null,ajudaSearch="";
 function ajudaKids(){return currentBackendFamily()?state.family.children.filter(c=>!c.archived&&!c.legacyOrphan):[]}
 function ajudaChild(){const k=ajudaKids();return k.find(c=>c.id===ajudaChildId)||k.find(c=>c.id===activeChildId)||k[0]||null}
 function ajudaDraft(){try{return localStorage.getItem(AJUDA_DRAFT_KEY)||""}catch(e){return""}}
@@ -4912,8 +4916,27 @@ function ajudaStripNames(text){
  return t;
 }
 function ajudaChildLabel(c){const a=ageFromBirth(c?.birth);return esc(firstName(c?.name||"Criança"))+(a!==""?` · ${a} ${a===1?"ano":"anos"}`:"")}
-function ajudaSelectChild(id){ajudaChildId=id;renderAjudaPage()}
-function ajudaFillIdea(i){const t=$("ajudaQuestion");if(!t)return;t.value=AJUDA_IDEAS[i]||"";saveAjudaDraft(t.value);t.focus()}
+function ajudaSelectChild(id){ajudaChildId=id;ajudaRetakeOf="";renderAjudaPage()}
+function ajudaFillIdea(i){const t=$("ajudaQuestion");if(!t)return;ajudaRetakeOf="";t.value=AJUDA_IDEAS[i]||"";saveAjudaDraft(t.value);t.focus()}
+function ajudaEntrySkillCodes(e){return [e?.codigo,...(Array.isArray(e?.selectedSkills)?e.selectedSkills.map(x=>x?.code):[])].filter(Boolean)}
+function ajudaRetakeSuggestions(child){
+ if(!child)return[];
+ const rows=state.entries?.[child.id]||[],cutoff=new Date(Date.now()-60*86400000).toISOString().slice(0,10);
+ const doneKey=x=>`${x.date||""}|${x.createdAt||""}`;
+ return rows.filter(e=>(e.status==="Precisa de revisão"||e.status==="Em progresso")&&String(e.date||"")>=cutoff&&String(e.atividade||"").trim())
+  .filter(e=>!rows.some(o=>o.id!==e.id&&o.retakeOf===e.id))
+  .filter(e=>!state.plans?.some(p=>p.sourceEntryId===e.id&&p.completedAt))
+  .filter(e=>{const codes=ajudaEntrySkillCodes(e);if(!codes.length)return true;return !rows.some(o=>o.id!==e.id&&o.status==="Dominado"&&doneKey(o)>doneKey(e)&&ajudaEntrySkillCodes(o).some(c=>codes.includes(c)))})
+  .sort((a,b)=>(a.status==="Precisa de revisão"?0:1)-(b.status==="Precisa de revisão"?0:1)||String(b.date||"").localeCompare(String(a.date||"")))
+  .slice(0,3);
+}
+function ajudaSnippet(t,n){t=String(t||"").replace(/\s+/g," ").trim();return t.length>n?t.slice(0,n-1).trimEnd()+"…":t}
+function ajudaFillRetake(id){
+ const child=ajudaChild(),e=(state.entries?.[child?.id]||[]).find(x=>x.id===id),t=$("ajudaQuestion");if(!e||!t)return;
+ ajudaRetakeOf=e.id;
+ t.value=`A criança ficou em "${e.status}" em: ${ajudaSnippet(e.atividade,240)}${e.codigo?` (habilidade ${e.codigo})`:""}. Como posso retomar esse conteúdo de um jeito diferente?`;
+ saveAjudaDraft(t.value);t.focus();
+}
 function ajudaUsageText(){if(!ajudaUsage)return"";const left=Math.max(0,Number(ajudaUsage.limit||0)-Number(ajudaUsage.used||0));return left===1?"1 pergunta disponível hoje":`${left} de ${Number(ajudaUsage.limit||0)} perguntas disponíveis hoje`}
 function ajudaWhen(v){const d=new Date(String(v||"").replace(" ","T")+(/[zZ]$/.test(String(v||""))?"":"Z"));if(isNaN(d))return"";const days=Math.floor((new Date(today()+"T00:00:00")-new Date(d.toISOString().slice(0,10)+"T00:00:00"))/86400000);return days<=0?"hoje":days===1?"ontem":d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})}
 
@@ -4938,9 +4961,11 @@ function renderAjudaPage(){
  <div class="card ajuda-form">
   <div><label class="field">Para quem?</label><div class="child-tabs ajuda-kids">${kids.map(c=>`<button type="button" class="child ${c.id===child.id?"active":""}" aria-pressed="${c.id===child.id}" onclick="ajudaSelectChild('${c.id}')">${ajudaChildLabel(c)}</button>`).join("")}</div></div>
   <div><label class="field" for="ajudaQuestion">Qual é a sua dúvida?</label>
-   <textarea id="ajudaQuestion" rows="4" placeholder="Ex.: Como explico pretérito perfeito e imperfeito?" oninput="saveAjudaDraft(this.value)">${esc(draft)}</textarea>
+   <textarea id="ajudaQuestion" rows="4" placeholder="Ex.: Como explico pretérito perfeito e imperfeito?" oninput="saveAjudaDraft(this.value);if(!this.value.trim())ajudaRetakeOf=''">${esc(draft)}</textarea>
    <div class="ajuda-privacy">${lock}<span>Só a idade e o ano escolar são enviados. Nomes viram "a criança".</span></div></div>
-  <div><div class="ajuda-ideas-label">Ou comece por uma ideia</div><div class="ajuda-ideas">${AJUDA_IDEAS.map((t,i)=>`<button type="button" class="ajuda-idea" onclick="ajudaFillIdea(${i})">${esc(t)}</button>`).join("")}</div></div>
+  ${(()=>{const sug=ajudaRetakeSuggestions(child);return sug.length
+   ?`<div><div class="ajuda-ideas-label">Para retomar com ${esc(firstName(child.name))}</div><div class="ajuda-ideas">${sug.map(e=>`<button type="button" class="ajuda-idea ajuda-retake${ajudaRetakeOf===e.id?" on":""}" onclick="ajudaFillRetake('${esc(e.id)}')"><b>${esc(ajudaSnippet(e.atividade,60))}</b><span>${esc([e.componente,e.status,fmtDate(e.date)].filter(Boolean).join(" · "))}</span></button>`).join("")}</div></div>`
+   :`<div><div class="ajuda-ideas-label">Ou comece por uma ideia</div><div class="ajuda-ideas">${AJUDA_IDEAS.map((t,i)=>`<button type="button" class="ajuda-idea" onclick="ajudaFillIdea(${i})">${esc(t)}</button>`).join("")}</div></div>`})()}
   <button type="button" id="ajudaAskBtn" class="btn success ajuda-ask" onclick="ajudaAsk()" ${ajudaBusy?"disabled":""}>${ajudaBusy?'<span class="ai-spinner" aria-hidden="true"></span> Preparando…':ic("ia")+" Perguntar ao Diário"}</button>
   ${ajudaUsage?`<div class="ajuda-usage">${ajudaUsageText()}</div>`:""}
  </div>
@@ -5030,7 +5055,7 @@ async function ajudaAsk(){
  try{
   const age=ageFromBirth(child.birth);
   const data=await aiFetchWithRetry("/ai/ajuda",{method:"POST",body:JSON.stringify({child_id:backendChildId,duvida:ajudaStripNames(q),idade:age===""?null:age})});
-  ajudaResult={...data.result,id:data.id,childId:child.id,question:q,createdAt:data.created_at};
+  ajudaResult={...data.result,id:data.id,childId:child.id,question:q,createdAt:data.created_at,retakeOf:ajudaRetakeOf||""};ajudaRetakeOf="";
   if(data.usage)ajudaUsage=data.usage;
   saveAjudaDraft("");
   ajudaHistory=[{id:data.id,child_id:backendChildId,question:data.question||q,created_at:data.created_at,result:data.result},...(ajudaHistory||[]).filter(x=>x.id!==data.id)];
@@ -5073,7 +5098,7 @@ async function ajudaToRecord(){
  collectiveRegistration=null;editing=null;recordFormOpen=true;resetRecordAiState();
  photoData="";photosData=[];audioData="";photoTakenAt="";photoDateSource="";
  const {components,skills}=ajudaClassification(r),first=skills[0]||null;
- const draft={version:1,mode:"new",childId:child.id,savedAt:now(),date:today(),type:"bncc",origin:"ajuda",
+ const draft={version:1,mode:"new",childId:child.id,savedAt:now(),date:today(),type:"bncc",origin:"ajuda",retakeOf:r.retakeOf||"",
   area:components[0]?.area||first?.knowledge_area||"",componente:components[0]?.component||first?.curricular_component||"",codigo:first?.code||"",habilidade:first?.description||"",
   aiComponents:components,selectedComponents:components,aiSkills:skills,selectedSkills:skills,aiCompetencies:[],selectedCompetencies:[],
   aiExperience:components.length?{kind:"curriculum",complementary_activity:"",evidence_level:"sufficient",reason:""}:null,complementarySelected:false,
@@ -5094,7 +5119,7 @@ function ajudaToPlan(){
   if($("planNotes"))$("planNotes").value=ajudaPlanNotes(r);
   if(typeof setPlanWhen==="function")setPlanWhen(today());
   if(typeof setPlanDetailsOpen==="function")setPlanDetailsOpen(true);
-  window.pendingAjudaForPlan={...ajudaClassification(r),tema:r.tema||""};
+  window.pendingAjudaForPlan={...ajudaClassification(r),tema:r.tema||"",retakeOf:r.retakeOf||""};
   $("planFormCard")?.scrollIntoView({behavior:"smooth",block:"start"});
  },80);
 }
@@ -6604,6 +6629,7 @@ function collectRecordDraft(){
    selectedCompetencies:Array.isArray(recordSelectedCompetencies)?recordSelectedCompetencies:[],
    aiExperience:recordAiExperience||null,
    origin:recordOrigin||"",
+   retakeOf:recordRetakeOf||"",
    complementarySelected:!!recordComplementarySelected,
    materialId:$("fMaterialId")?.value||"",
    materialName:$("fMaterialName")?.value||"",
@@ -6788,7 +6814,7 @@ let recordSelectedSkills=[];
 let recordAiCompetencies=[];
 let recordSelectedCompetencies=[];
 let recordAiExperience=null;
-let recordComplementarySelected=false,recordOrigin="";
+let recordComplementarySelected=false,recordOrigin="",recordRetakeOf="";
 let collectiveRegistration=null;
 
 function currentPlanningContext(){
@@ -6883,7 +6909,7 @@ function syncPrimaryRecordComponent(){
  if($("fSkill")){$("fSkill").innerHTML=skill?`<option data-code="${esc(skill.code)}" value="${esc(skill.description||"")}" selected>${esc(skill.code)} — ${esc(skill.description||"")}</option>`:'<option value=""></option>'}
  saveRecordDraft(true);updateRecordPreview();
 }
-function resetRecordAiState(){recordAiStatusHtml="";recordAiRunId++;recordAiBusy=false;recordAiComponents=[];recordSelectedComponents=[];recordAiSkills=[];recordSelectedSkills=[];recordAiCompetencies=[];recordSelectedCompetencies=[];recordAiExperience=null;recordComplementarySelected=false;recordOrigin=""}
+function resetRecordAiState(){recordAiStatusHtml="";recordAiRunId++;recordAiBusy=false;recordAiComponents=[];recordSelectedComponents=[];recordAiSkills=[];recordSelectedSkills=[];recordAiCompetencies=[];recordSelectedCompetencies=[];recordAiExperience=null;recordComplementarySelected=false;recordOrigin="";recordRetakeOf=""}
 function setRecordAiStatus(html){recordAiStatusHtml=html;const st=$("experienceComponentStatus");if(st)st.innerHTML=html}
 function setRecordAiButton(){const b=$("analyzeExperienceBtn");if(!b)return;b.disabled=recordAiBusy;b.innerHTML=recordAiBusy?'<span class="ai-spinner"></span> Analisando':(recordAiStatusHtml?"↻ Analisar novamente":ic("ia")+" Analisar")}
 async function analyzeRecordComponents(){
@@ -7022,7 +7048,7 @@ function renderRecordPage(){
  recordSelectedCompetencies=Array.isArray(draft?.selectedCompetencies)?draft.selectedCompetencies:(Array.isArray(editing?.selectedCompetencies)?editing.selectedCompetencies:[]);
  recordAiExperience=draft?.aiExperience||editing?.aiExperience||null;
  recordComplementarySelected=draft?.complementarySelected??editing?.complementarySelected??!!editing?.complementaryActivityName;
- recordOrigin=draft?.origin||editing?.origin||"";
+ recordOrigin=draft?.origin||editing?.origin||"";recordRetakeOf=draft?.retakeOf||editing?.retakeOf||"";
  if(recordOrigin==="ajuda"&&!recordAiBusy&&!recordAiStatusHtml&&(recordAiComponents.length||recordAiSkills.length))recordAiStatusHtml=esc("Classificação trazida do Me ajuda. Ajuste o relato para contar o que realmente aconteceu; analisar de novo é opcional.");
 
  box.innerHTML=`<div class="card record-form-card">
@@ -7754,9 +7780,9 @@ async function buildBnccEmbeddings(){
 let isGlobalDiaryAdmin=false;
 let adminValidationLastCount=Number(localStorage.getItem("DE_ADMIN_PENDING_COUNT")||"0");
 let adminValidationTimer=null;
-function adminAiFeatureLabel(value){return value==="analyze_experience"?"Análise de experiência":value==="report_summary"?"Resumo de relatório":value==="components_classify"?"Classificação de componentes":value==="bncc_suggest"?"Sugestão BNCC":value==="material_bncc_suggest"?"BNCC de material":value||"Outro recurso"}
-function adminAiModelLabel(value){return value==="gemini-embedding-2"?"Gemini Embedding 2":value==="gemini-3.5-flash-lite"?"Gemini 3.5 Flash-Lite":value||"Modelo não informado"}
-function adminAiOperationLabel(value){return value==="semantic_search"?"Embedding do relato":value==="classify_experience"?"Classificação da experiência":value==="select_bncc"?"Seleção de BNCC":value==="generate_summary"?"Resumo do relatório":value||"Operação de IA"}
+function adminAiFeatureLabel(value){return value==="analyze_experience"?"Análise de experiência":value==="report_summary"?"Resumo de relatório":value==="components_classify"?"Classificação de componentes":value==="bncc_suggest"?"Sugestão BNCC":value==="material_bncc_suggest"?"BNCC de material":value==="ajuda"?"Me ajuda":value==="history_batch_classification"?"Classificação em lote":value||"Outro recurso"}
+function adminAiModelLabel(value){return value==="gemini-embedding-2"?"Gemini Embedding 2":value==="gemini-3.5-flash-lite"?"Gemini 3.5 Flash-Lite":value==="gemini-3.6-flash"?"Gemini 3.6 Flash (reserva)":value||"Modelo não informado"}
+function adminAiOperationLabel(value){return value==="semantic_search"?"Embedding do relato":value==="classify_experience"?"Classificação da experiência":value==="select_bncc"?"Seleção de BNCC":value==="generate_summary"?"Resumo do relatório":value==="generate_lesson"?"Geração da aula":value||"Operação de IA"}
 function adminAiNumber(value){return Number(value||0).toLocaleString("pt-BR")}
 function adminAiUsd(micros){return (Number(micros||0)/1000000).toLocaleString("pt-BR",{style:"currency",currency:"USD",minimumFractionDigits:4,maximumFractionDigits:6})}
 async function loadAdminAiUsage(){
@@ -8017,7 +8043,7 @@ function saveEntry(){
  let type=complementaryName?"complementar":"bncc";
  let e={id:editing?.id||uid(),childId:activeChildId,collectiveGroupId:editing?.collectiveGroupId||"",createdAt:editing?.createdAt||now(),updatedAt:now(),createdByUserId:editing?.createdByUserId||backendProfile?.user?.id||"",createdByEmail:editing?.createdByEmail||backendProfile?.user?.email||googleUser?.email||"",createdByName:editing?.createdByName||backendProfile?.user?.name||googleUser?.name||"",date:$("fDate").value,activityDateSource:(photoTakenAt&&isoDateFromTimestamp(photoTakenAt)===$("fDate").value)?(photoDateSource==="exif"?"photo_exif":"photo_file"):(editing?.activityDateSource||"manual"),photoTakenAt:photoTakenAt||editing?.photoTakenAt||"",photoDateSource:photoDateSource||editing?.photoDateSource||"",type,classificationStatus:(!editing&&recordQuickMode())?"pending":"classified",yearRefAtRecord:currentChild()?.stage||"",complementaryId:type==="complementar"?compId:"",
  area:$("fArea")?.value||recordSelectedComponents[0]?.area||"",componente:$("fComp")?.value||recordSelectedComponents[0]?.component||"",codigo:$("fCode")?.value||"",
- habilidade:$("fSkill")?.value||"",origin:recordOrigin||editing?.origin||"",aiExperience:recordAiExperience||null,complementarySelected:!!recordComplementarySelected,complementaryActivityName:complementaryName,aiComponents:Array.isArray(recordAiComponents)?recordAiComponents:[],selectedComponents:Array.isArray(recordSelectedComponents)?recordSelectedComponents:[],aiSkills:Array.isArray(recordAiSkills)?recordAiSkills:[],selectedSkills:Array.isArray(recordSelectedSkills)?recordSelectedSkills:[],aiCompetencies:Array.isArray(recordAiCompetencies)?recordAiCompetencies:[],selectedCompetencies:Array.isArray(recordSelectedCompetencies)?recordSelectedCompetencies:[],materialId:$("fMaterialId")?.value||"",materialName:$("fMaterialName")?.value||"",materialPublisher:$("fMaterialPublisher")?.value||"",atividade:$("fActivity").value.trim(),observacoes:$("fObs").value.trim(),status:$("fStatus").value,
+ habilidade:$("fSkill")?.value||"",origin:recordOrigin||editing?.origin||"",retakeOf:recordRetakeOf||editing?.retakeOf||"",aiExperience:recordAiExperience||null,complementarySelected:!!recordComplementarySelected,complementaryActivityName:complementaryName,aiComponents:Array.isArray(recordAiComponents)?recordAiComponents:[],selectedComponents:Array.isArray(recordSelectedComponents)?recordSelectedComponents:[],aiSkills:Array.isArray(recordAiSkills)?recordAiSkills:[],selectedSkills:Array.isArray(recordSelectedSkills)?recordSelectedSkills:[],aiCompetencies:Array.isArray(recordAiCompetencies)?recordAiCompetencies:[],selectedCompetencies:Array.isArray(recordSelectedCompetencies)?recordSelectedCompetencies:[],materialId:$("fMaterialId")?.value||"",materialName:$("fMaterialName")?.value||"",materialPublisher:$("fMaterialPublisher")?.value||"",atividade:$("fActivity").value.trim(),observacoes:$("fObs").value.trim(),status:$("fStatus").value,
  photos:photosData.map(p=>({...p})),foto:"",fotoDriveId:photosData[0]?.driveId||editing?.fotoDriveId||"",fotoVisibleDriveId:photosData[0]?.visibleDriveId||editing?.fotoVisibleDriveId||"",audio:editing?.audio||"",audioDriveId:editing?.audioDriveId||""};
  e.classificationStatus=entryHasPedagogicalClassification(e)?"classified":(editing?.classificationStatus==="not_applicable"?"not_applicable":"pending");
  if(!e.date)missing.push("Data");if(!e.atividade)missing.push("Atividade realizada");if(!e.status&&!(!editing&&recordQuickMode()))missing.push("Avaliação");
@@ -8601,7 +8627,7 @@ async function addPlan(){
  const existing=editingPlanId?state.plans.find(x=>x.id===editingPlanId):null;
  if(!weather&&existing&&(existing.nextDate||existing.date)===start&&existing.place===planPlaceValue())weather=existing.weather||null;
  const plan=existing?{...existing,childId,childIds,title,notes:$("planNotes").value.trim(),place:planPlaceValue(),placeDetails,weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",time:$("planTime")?.value||"",durationMinutes:Number($("planDuration")?.value||0)||0,recurrence,weekdays,endDate:$("planEndDate")?.value||"",nextDate:start,date:(existing.occurrences||[]).length?existing.date:start,updatedAt:now()}:{id:uid(),sourceEntryId:window.v135RetakeSource?.entryId||"",childId,childIds,date:start,nextDate:start,type:"planned",complementaryId:"",component:"",title,notes:$("planNotes").value.trim(),place:planPlaceValue(),placeDetails,weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",materialBnccCode:"",materialBnccDescription:"",materialBnccComponent:"",materialBnccArea:"",materialBnccSkills:[],time:$("planTime")?.value||"",durationMinutes:Number($("planDuration")?.value||0)||0,recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],participantProgress:{},createdAt:now(),updatedAt:now(),completedAt:"",importedCalendarId:imported?.calendarId||"",importedCalendarName:imported?.calendarName||"",importedCalendarEventId:imported?.eventId||"",importedCalendarHtmlLink:imported?.htmlLink||"",importedCalendarUpdated:imported?.updated||"",importedCalendarFingerprint:imported?.fingerprint||"",importedCalendarChanged:false};
- if(!existing&&window.pendingAjudaForPlan)plan.ajuda={components:window.pendingAjudaForPlan.components||[],skills:window.pendingAjudaForPlan.skills||[]};window.pendingAjudaForPlan=null;
+ if(!existing&&window.pendingAjudaForPlan){plan.ajuda={components:window.pendingAjudaForPlan.components||[],skills:window.pendingAjudaForPlan.skills||[]};if(window.pendingAjudaForPlan.retakeOf&&!plan.sourceEntryId)plan.sourceEntryId=window.pendingAjudaForPlan.retakeOf}window.pendingAjudaForPlan=null;
  if(!existing)state.plans.push(plan);else Object.assign(existing,plan);window.v135RetakeSource=null;
  const shouldAddCalendar=!!$("planAddToCalendar")?.checked&&!imported;
  clearPlanForm();togglePlanForm(false);saveLocal();renderPlans();renderDashboard();
@@ -8673,7 +8699,7 @@ function startCollectivePlan(id){
  const p=state.plans.find(x=>x.id===id);if(!p)return;const childIds=planPendingChildren(p);if(childIds.length<2)return startPlan(id,childIds[0]||"");
  collectiveRegistration={groupId:uid(),planId:id,occurrenceDate:p.nextDate||p.date,childIds,index:0,total:childIds.length};startPlan(id,childIds[0],true);
 }
-function startPlan(id,childId="",fromCollective=false){let p=state.plans.find(x=>x.id===id);if(!p)return;const pending=planPendingChildren(p);if(!childId){if(pending.length===1)childId=pending[0];else if(planViewChildFilter!=="all"&&pending.includes(planViewChildFilter))childId=planViewChildFilter;else return openPlanParticipantChooser(p)}if(!pending.includes(childId))return showNotice("Esta atividade já foi registrada para esta criança.");if(!fromCollective)collectiveRegistration=null;activeChildId=childId;recordFormOpen=true;resetRecordAiState();const collective=fromCollective&&collectiveRegistration;editing={id:uid(),isNewFromPlan:true,childId,date:today(),type:p.type,complementaryId:p.complementaryId||"",area:"",componente:p.component||"",codigo:"",habilidade:"",materialId:p.materialId||"",materialName:p.materialName||"",materialPublisher:p.materialPublisher||"",materialBnccSkills:[],atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,...(p.ajuda?{origin:"ajuda",aiComponents:p.ajuda.components||[],selectedComponents:p.ajuda.components||[],aiSkills:p.ajuda.skills||[],selectedSkills:p.ajuda.skills||[],aiExperience:(p.ajuda.components||[]).length?{kind:"curriculum",complementary_activity:"",evidence_level:"sufficient",reason:""}:null,area:p.ajuda.components?.[0]?.area||"",componente:p.ajuda.components?.[0]?.component||p.component||"",codigo:p.ajuda.skills?.[0]?.code||"",habilidade:p.ajuda.skills?.[0]?.description||""}:{}),planOccurrenceDate:p.nextDate||p.date,collectiveGroupId:collective?.groupId||"",collectivePosition:collective?collective.index+1:0,collectiveTotal:collective?.total||0};clearRecordDraft(childId);showPage("registro");renderRecordPage()}
+function startPlan(id,childId="",fromCollective=false){let p=state.plans.find(x=>x.id===id);if(!p)return;const pending=planPendingChildren(p);if(!childId){if(pending.length===1)childId=pending[0];else if(planViewChildFilter!=="all"&&pending.includes(planViewChildFilter))childId=planViewChildFilter;else return openPlanParticipantChooser(p)}if(!pending.includes(childId))return showNotice("Esta atividade já foi registrada para esta criança.");if(!fromCollective)collectiveRegistration=null;activeChildId=childId;recordFormOpen=true;resetRecordAiState();const collective=fromCollective&&collectiveRegistration;editing={id:uid(),isNewFromPlan:true,childId,date:today(),type:p.type,complementaryId:p.complementaryId||"",area:"",componente:p.component||"",codigo:"",habilidade:"",materialId:p.materialId||"",materialName:p.materialName||"",materialPublisher:p.materialPublisher||"",materialBnccSkills:[],atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,retakeOf:p.sourceEntryId||"",...(p.ajuda?{origin:"ajuda",aiComponents:p.ajuda.components||[],selectedComponents:p.ajuda.components||[],aiSkills:p.ajuda.skills||[],selectedSkills:p.ajuda.skills||[],aiExperience:(p.ajuda.components||[]).length?{kind:"curriculum",complementary_activity:"",evidence_level:"sufficient",reason:""}:null,area:p.ajuda.components?.[0]?.area||"",componente:p.ajuda.components?.[0]?.component||p.component||"",codigo:p.ajuda.skills?.[0]?.code||"",habilidade:p.ajuda.skills?.[0]?.description||""}:{}),planOccurrenceDate:p.nextDate||p.date,collectiveGroupId:collective?.groupId||"",collectivePosition:collective?collective.index+1:0,collectiveTotal:collective?.total||0};clearRecordDraft(childId);showPage("registro");renderRecordPage()}
 function completePlanOccurrence(planId,occurrenceDate,childId){const p=state.plans.find(x=>x.id===planId);if(!p)return;childId=childId||p.childId;p.participantProgress??={};p.participantProgress[occurrenceDate]??={};p.participantProgress[occurrenceDate][childId]={status:"completed",updatedAt:now()};const allDone=planChildIds(p).every(id=>["completed","skipped"].includes(p.participantProgress[occurrenceDate]?.[id]?.status));if(allDone){p.occurrences??=[];p.occurrences=p.occurrences.filter(x=>x.date!==occurrenceDate);p.occurrences.push({date:occurrenceDate,status:"completed",updatedAt:now()});if(p.recurrence==="none"){p.completedAt=now();p.nextDate=""}else{p.nextDate=nextPlanDate(p,occurrenceDate);if(!p.nextDate)p.completedAt=now()}}p.updatedAt=now()}
 async function skipPlanOccurrence(id){const p=state.plans.find(x=>x.id===id);if(!p)return;const current=p.nextDate||p.date;if(!await showConfirm(`Pular a ocorrência de ${fmtDate(current)}?`,{title:"Pular ocorrência",icon:"⏭️",okLabel:"Pular",danger:false}))return;p.occurrences??=[];p.occurrences.push({date:current,status:"skipped",updatedAt:now()});p.nextDate=nextPlanDate(p,current);if(!p.nextDate)p.completedAt=now();p.updatedAt=now();saveLocal();renderPlans();renderDashboard()}
 async function deletePlan(id){const p=state.plans.find(x=>x.id===id);if(!p)return;if(!await showConfirm("Excluir este planejamento?",{title:"Excluir planejamento",icon:"🗑️",okLabel:"Excluir"}))return;state.plans=state.plans.filter(x=>x.id!==id);addTomb("plans",id);saveLocal();renderPlans();renderDashboard();if(p.calendarEventId)await deleteCalendarEventForPlan(p)}
@@ -9548,7 +9574,7 @@ button{font-size:inherit}
 @media(min-width:901px){header,main{max-width:920px}.record-actions .btn{width:auto;min-width:150px}.attention-actions{max-width:560px}}
 @media(max-width:650px){
  header{margin:6px 8px 10px!important;border-radius:18px!important;padding:8px 10px!important;min-height:56px}.brand .brand-logo{width:38px!important;height:44px!important;margin:0!important}header h1{font-size:20px!important}.header-right{min-height:44px!important}.header-message{display:none!important}.header-cloud{padding:3px 5px!important}.header-cloud-text{font-size:10px!important}
- .nav-tab{font-size:11px!important;min-height:52px}.nav-tab-icon{width:20px;height:20px}
+ .nav-tab{font-size:11px!important;min-height:56px}.nav-tab-icon{width:24px;height:24px;stroke-width:1.8}
  input,select,textarea{font-size:16px!important}.meta{font-size:12px!important}
  .app-footer{padding:20px 18px calc(84px + env(safe-area-inset-bottom))!important}.app-footer-brand{font-size:14px!important}.app-footer-brand img{width:30px;height:30px}.app-footer p{font-size:12px!important}.app-footer-links{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px 14px!important}
 }
@@ -9918,7 +9944,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "16.61";
+const APP_VERSION = "17.0";
 queueMicrotask(()=>{ const el=document.getElementById("healthFrontendVersion"); if(el) el.textContent=`v${APP_VERSION}`; });
 
 let deferredInstallPrompt=null;
