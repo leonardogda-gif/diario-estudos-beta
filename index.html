@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#441015">
 <title>Diário de Estudos</title>
 
-<link rel="manifest" href="/manifest.json?v=17.2">
+<link rel="manifest" href="/manifest.json?v=17.4">
 <link rel="icon" type="image/png" sizes="32x32" href="/icon-192.png">
 <link rel="icon" type="image/png" sizes="48x48" href="/icon-192.png">
 
@@ -2193,10 +2193,12 @@ body.ds-v1 .ins-row .btn{width:auto!important;flex-shrink:0;white-space:nowrap}
 .history-entry-card .ajuda-origin{margin-top:6px}
 @media(max-width:380px){.nav-tab{font-size:10px!important}.nav-tab span{white-space:nowrap}}
 @media(prefers-reduced-motion:reduce){#page-me-ajuda .ajuda-chev{transition:none}}
+.pending-book-edit{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pending-book-edit .btn{min-height:40px}
 @media(max-width:650px){.nav-tabs .nav-tab{flex:1 1 auto;min-width:auto;padding-left:3px;padding-right:3px}.nav-tabs .nav-tab span{white-space:nowrap}}
 </style>
 </head>
-<body data-build="17.2" class="auth-checking ds-v1">
+<body data-build="17.4" class="auth-checking ds-v1">
 <svg class="ic-sprite" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><symbol id="i-ajuda" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.1V16h5v-.1c0-.8.4-1.6 1.1-2.1A6 6 0 0 0 12 3Z"/></symbol><symbol id="i-carregando" viewBox="0 0 24 24"><path d="M7 3h10M7 21h10"/><path d="M8 3c0 4 8 5 8 9s-8 5-8 9"/><path d="M16 3c0 4-8 5-8 9s8 5 8 9"/></symbol><symbol id="i-sair" viewBox="0 0 24 24"><path d="M15 4h4v16h-4"/><path d="M10 8l-4 4 4 4M6 12h10"/></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol><symbol id="i-repetir" viewBox="0 0 24 24"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></symbol><symbol id="i-seta" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol><symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></symbol><symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol><symbol id="i-mais" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="i-lapis" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></symbol><symbol id="i-lixeira" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/><path d="M10 11v6M14 11v6"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol><symbol id="i-lanterna" viewBox="0 0 24 24"><path d="M8 3h8v5l-2 3v10h-4V11L8 8z"/><path d="M8 7h8"/><path d="M12 14v2"/></symbol><symbol id="i-borracha" viewBox="0 0 24 24"><path d="M15 4l5 5-9 9H7l-3-3z"/><path d="M10 9l5 5"/><path d="M7 20h13"/></symbol><symbol id="i-engrenagem" viewBox="0 0 24 24"><path d="M12.2 2h-.4a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.3a2 2 0 0 1-2 0l-.2-.1a2 2 0 0 0-2.7.7l-.2.4a2 2 0 0 0 .7 2.7l.2.1a2 2 0 0 1 1 1.7v.5a2 2 0 0 1-1 1.7l-.2.1a2 2 0 0 0-.7 2.7l.2.4a2 2 0 0 0 2.7.7l.2-.1a2 2 0 0 1 2 0l.4.3a2 2 0 0 1 1 1.7v.2a2 2 0 0 0 2 2h.4a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.3a2 2 0 0 1 2 0l.2.1a2 2 0 0 0 2.7-.7l.2-.4a2 2 0 0 0-.7-2.7l-.2-.1a2 2 0 0 1-1-1.7v-.5a2 2 0 0 1 1-1.7l.2-.1a2 2 0 0 0 .7-2.7l-.2-.4a2 2 0 0 0-2.7-.7l-.2.1a2 2 0 0 1-2 0l-.4-.3a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-lupa" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol><symbol id="i-pular" viewBox="0 0 24 24"><path d="M5 6l8 6-8 6z"/><path d="M18 6v12"/></symbol><symbol id="i-restaurar" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/></symbol><symbol id="i-lista" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r=".8"/><circle cx="4" cy="12" r=".8"/><circle cx="4" cy="18" r=".8"/></symbol><symbol id="i-sucesso" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/></symbol><symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.3" r=".6"/></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r=".6"/></symbol><symbol id="i-pergunta" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.6 2.6 0 1 1 3.6 2.4c-.8.4-1.1.9-1.1 1.7v.4"/><circle cx="12" cy="17" r=".6"/></symbol><symbol id="i-cadeado" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol><symbol id="i-cadeado-aberto" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 7.6-1.7"/></symbol><symbol id="i-chave" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2.5 2.5M14 9l2 2"/></symbol><symbol id="i-sem-conexao" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M5 12.5a10 10 0 0 1 4-2.3M19 12.5a10 10 0 0 0-3.2-2"/><circle cx="12" cy="19.5" r=".6"/></symbol><symbol id="i-cartao" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></symbol><symbol id="i-cupom" viewBox="0 0 24 24"><path d="M4 7h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4z"/><path d="M14 7v10" stroke-dasharray="2 2"/></symbol><symbol id="i-envelope" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6.5L20.5 7"/></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol><symbol id="i-arquivar" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="4.5" rx="1"/><path d="M5 9v10h14V9"/><path d="M10 13h4"/></symbol><symbol id="i-imagem" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M20.5 16l-5-5-8 8.5"/></symbol><symbol id="i-sino" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol><symbol id="i-raio" viewBox="0 0 24 24"><path d="M13 2.5L5 13.5h6l-1 8 8-11h-6z"/></symbol><symbol id="i-entrada" viewBox="0 0 24 24"><path d="M4 13l2-8h12l2 8v6H4z"/><path d="M4 13h4.5l1 2h5l1-2H20"/><path d="M12 5v6M9.5 8.5L12 11l2.5-2.5"/></symbol><symbol id="i-calendario" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol><symbol id="i-local" viewBox="0 0 24 24"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></symbol><symbol id="i-material" viewBox="0 0 24 24"><path d="M6 3.5h11.5v17H6a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 6 3.5z"/><path d="M4.5 17.5A1.5 1.5 0 0 1 6 16h11.5"/><path d="M9 8h5"/></symbol><symbol id="i-livro" viewBox="0 0 24 24"><path d="M4 5c3-1.5 5.5-1.5 8 0v15c-2.5-1.5-5-1.5-8 0z"/><path d="M20 5c-3-1.5-5.5-1.5-8 0v15c2.5-1.5 5-1.5 8 0z"/></symbol><symbol id="i-livros" viewBox="0 0 24 24"><rect x="4" y="4" width="4" height="16" rx="1"/><rect x="9.5" y="6" width="4" height="14" rx="1"/><path d="M15.5 7.5l3.8-1 3 13.2-3.8 1z"/></symbol><symbol id="i-ia" viewBox="0 0 24 24"><path d="M12 3l1.4 4.1 4.1 1.4-4.1 1.4L12 14l-1.4-4.1-4.1-1.4 4.1-1.4z"/><path d="M18.5 14l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/><path d="M6 15l.7 1.8 1.8.7-1.8.7L6 20l-.7-1.8-1.8-.7 1.8-.7z"/></symbol><symbol id="i-dica" viewBox="0 0 24 24"><path d="M9 17h6"/><path d="M10 20.5h4"/><path d="M8.5 14a5.5 5.5 0 1 1 7 0c-.9.8-1.5 1.7-1.5 3h-4c0-1.3-.6-2.2-1.5-3z"/></symbol><symbol id="i-clima" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><path d="M8 2v1.3M2 8h1.3M3.8 3.8l.9.9M12.2 3.8l-.9.9"/><path d="M9 19h9a3.5 3.5 0 0 0 0-7 5 5 0 0 0-9.5 1.5A2.8 2.8 0 0 0 9 19z"/></symbol><symbol id="i-familia" viewBox="0 0 24 24"><circle cx="8" cy="7" r="2.6"/><circle cx="16.5" cy="7.5" r="2.2"/><path d="M3.5 19v-2.5a4.5 4.5 0 0 1 9 0V19"/><path d="M13.5 19v-2a3.3 3.3 0 0 1 6.6 0v2"/></symbol><symbol id="i-pessoa" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></symbol><symbol id="i-crianca" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4.5"/><path d="M11 4.6c.4-1.3 1.8-2 3.1-1.6"/><path d="M6.5 21a5.5 5.5 0 0 1 11 0"/></symbol><symbol id="i-ano-escolar" viewBox="0 0 24 24"><path d="M2.5 9L12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c1.5 1.5 3.5 2.2 5.5 2.2s4-.7 5.5-2.2V11"/><path d="M21.5 9v5"/></symbol><symbol id="i-peca" viewBox="0 0 24 24"><path d="M5 8h3a2 2 0 1 1 4 0h3v3a2 2 0 1 1 0 4v4h-4a2 2 0 1 0-4 0H5v-4a2 2 0 1 0 0-4z"/></symbol><symbol id="i-documento" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5"/><path d="M9 13h7M9 17h5"/></symbol><symbol id="i-nuvem" viewBox="0 0 24 24"><path d="M7 18h10.5a4 4 0 0 0 .6-7.9A6 6 0 0 0 6.6 9 4.5 4.5 0 0 0 7 18z"/></symbol><symbol id="i-pastas" viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/><path d="M3 7V5h6l2 2"/></symbol><symbol id="i-celular" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></symbol><symbol id="i-balao" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol><symbol id="i-alvo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol><symbol id="i-olho" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-estrela" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></symbol><symbol id="i-filtro" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></symbol><symbol id="i-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol><symbol id="i-imprimir" viewBox="0 0 24 24"><path d="M7 9V3h10v6"/><rect x="3.5" y="9" width="17" height="8" rx="2"/><path d="M7 14h10v7H7z"/></symbol><symbol id="i-compartilhar" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></symbol></svg>
 <header>
   <div class="header-branding">
@@ -5128,6 +5130,32 @@ function ajudaToPlan(){
  },80);
 }
 
+
+/* ===== Família edita o próprio cadastro enquanto aguarda validação (v17.4) ===== */
+function pendingBookById(id){return (window.currentReadingBooks||[]).find(x=>x.id===id)||null}
+async function savePendingBook(b,patch){
+ const fam=currentBackendFamily();if(!fam?.id||!b?.community_book_id)return showNotice("Não foi possível identificar o cadastro.");
+ await backendFetch(`/community-books/${encodeURIComponent(b.community_book_id)}/family-edit`,{method:"PUT",body:JSON.stringify({family_id:fam.id,...patch})});
+ await renderReadingPage();
+}
+function changePendingBookCover(id){
+ const b=pendingBookById(id);if(!b)return;
+ const inp=document.createElement("input");inp.type="file";inp.accept="image/*";inp.style.display="none";
+ inp.onchange=async()=>{const file=inp.files?.[0];inp.remove();if(!file)return;
+  try{const data=await compressCoverImage(file);await savePendingBook(b,{cover_data:data});showNotice("Foto da capa atualizada.",{title:"Capa salva",icon:"✅"})}
+  catch(e){showNotice("Não foi possível salvar a foto: "+(e.message||e),{type:"error"})}};
+ document.body.appendChild(inp);inp.click();
+}
+async function editPendingBookData(id){
+ const b=pendingBookById(id);if(!b)return;
+ const r=await showFormModal({title:"Corrigir cadastro",icon:"📖",message:"Dá para corrigir enquanto o livro aguarda validação.",okLabel:"Salvar",fields:[
+  {id:"title",type:"text",label:"Título",value:b.title||""},{id:"author",type:"text",label:"Autor",value:(b.authors||[]).join(", ")},
+  {id:"publisher",type:"text",label:"Editora",value:b.publisher||""},{id:"isbn",type:"text",label:"ISBN",value:b.isbn13||""}]});
+ if(!r)return;const title=String(r.title||"").trim();if(!title)return showNotice("Informe o título.");
+ try{await savePendingBook(b,{title,authors:String(r.author||"").split(",").map(x=>x.trim()).filter(Boolean),publisher:String(r.publisher||"").trim(),isbn13:String(r.isbn||"").replace(/\D/g,"")});showNotice("Cadastro corrigido.",{title:"Salvo",icon:"✅"})}
+ catch(e){showNotice("Não foi possível salvar: "+(e.message||e),{type:"error"})}
+}
+
 async function backendFetch(path, options={}){
   if(!appSessionValid()){
     if(tokenValid())await createAppSessionFromGoogle();
@@ -7903,12 +7931,38 @@ function showChoiceModal({title="Escolha uma opção",message="",items=[],noneLa
   document.addEventListener("keydown",onKey);document.body.appendChild(ov);
  });
 }
+function bookMatchTokens(t){const stop=new Set(["a","o","as","os","e","de","da","do","das","dos","em","no","na","um","uma","para","com","por","the","of","and"]);return String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").split(" ").filter(w=>w.length>=2&&!stop.has(w))}
+function bookMatchScore(ref,cand){
+ const isbn=x=>String(x||"").replace(/\D/g,"");
+ if(ref.isbn&&(isbn(cand.isbn13)===ref.isbn||isbn(cand.isbn10)===ref.isbn))return 2;
+ const want=bookMatchTokens(ref.title);if(!want.length)return 0;
+ const have=new Set(bookMatchTokens([cand.title,cand.subtitle].join(" ")));
+ let score=want.filter(w=>have.has(w)).length/want.length;
+ const authWant=bookMatchTokens(ref.author),authHave=new Set(bookMatchTokens((Array.isArray(cand.authors)?cand.authors:[cand.authors]).join(" ")));
+ if(authWant.length&&authWant.some(w=>authHave.has(w)))score+=0.3;
+ return score;
+}
 async function mergeOrLinkCommunityBookPrompt(id,defaultQuery=""){
+ const src=(typeof pendingCommunityBooksCache!=="undefined"&&pendingCommunityBooksCache.find(x=>x.id===id))||{};
+ const srcAuthor=Array.isArray(src.authors)?src.authors[0]:String(src.authors||src.author||"").split(",")[0];
+ const srcIsbn=String(src.isbn13||src.isbn||src.isbn10||"").replace(/\D/g,"");
+ if(srcIsbn)defaultQuery=srcIsbn;else if(srcAuthor&&defaultQuery&&!defaultQuery.toLowerCase().includes(String(srcAuthor).toLowerCase()))defaultQuery=`${defaultQuery} ${srcAuthor}`.trim();
  const asked=await showFormModal({title:"Vincular ou mesclar livro",icon:"🔎",message:"Busque o cadastro correto no catálogo ou no Google Books. Este cadastro será substituído pelo escolhido.",fields:[{id:"q",type:"text",label:"Título, autor ou ISBN",value:defaultQuery}]});const q=String(asked?.q||"").trim();if(!q)return;
  try{
-  const [communityResult,googleResult]=await Promise.allSettled([backendFetch("/community-books/admin-search?q="+encodeURIComponent(q)),backendFetch("/books/search?q="+encodeURIComponent(q))]),communityData=communityResult.status==="fulfilled"?communityResult.value:{},googleData=googleResult.status==="fulfilled"?googleResult.value:{};
-  const list=[...(communityData?.items||[]).filter(x=>x.community_book_id!==id).map(x=>({...x,target_type:"community"})),...(googleData?.items||[]).map(x=>({...x,target_type:"google_books"}))].slice(0,12);
-  if(!list.length)return showNotice("Nenhum livro correspondente foi encontrado. Tente outro termo.",{title:"Nada encontrado",icon:"🔎"});
+  const qIsbn=/^[\d\s-]{10,17}$/.test(q)?q.replace(/\D/g,""):"";
+  const qTokens=bookMatchTokens(q);
+  const gQueries=qIsbn?["isbn:"+qIsbn]:[q,...(qTokens.length>=2?[qTokens.slice(0,6).map(w=>"intitle:"+w).join(" ")]:[])];
+  const results=await Promise.allSettled([backendFetch("/community-books/admin-search?q="+encodeURIComponent(q)),...gQueries.map(g=>backendFetch("/books/search?q="+encodeURIComponent(g)))]);
+  const communityData=results[0].status==="fulfilled"?results[0].value:{};
+  const seenG=new Set(),googleItems=results.slice(1).flatMap(r=>r.status==="fulfilled"?(r.value?.items||[]):[]).filter(x=>x.google_volume_id&&!seenG.has(x.google_volume_id)&&seenG.add(x.google_volume_id));
+  // Compara com o livro pendente (título/autor/ISBN) e com o que foi digitado; mostra só o que é parecido.
+  const ref={title:src.title||q,author:srcAuthor||"",isbn:qIsbn||srcIsbn};
+  const refTyped={title:q,author:"",isbn:qIsbn};
+  const scored=x=>Math.max(bookMatchScore(ref,x),bookMatchScore(refTyped,x));
+  const community=(communityData?.items||[]).filter(x=>x.community_book_id!==id).map(x=>({...x,target_type:"community",_score:scored(x)})).filter(x=>x._score>=0.34);
+  const google=googleItems.map(x=>({...x,target_type:"google_books",_score:scored(x)})).filter(x=>x._score>=0.6);
+  const list=[...community,...google].sort((a,b)=>b._score-a._score).slice(0,10);
+  if(!list.length)return showNotice("Nenhum livro parecido foi encontrado no catálogo nem no Google Books. Se o cadastro estiver correto, use Aprovar para mantê-lo.",{title:"Nada parecido",icon:"🔎"});
   const pick=await showChoiceModal({title:"Escolha o cadastro principal",message:"Este cadastro será vinculado ao escolhido. Os históricos das famílias são preservados.",items:list.map(b=>({title:b.title+(b.subtitle?": "+b.subtitle:""),subtitle:[(b.authors||[]).join(", "),b.publisher,String(b.published_date||"").slice(0,4),b.isbn13?"ISBN "+b.isbn13:""].filter(Boolean).join(" · "),thumbnail:b.thumbnail||"",badge:b.target_type==="google_books"?"Google Books":"Catálogo do Diário"}))});
   if(pick===null||pick==="none")return;const target=list[Number(pick)];if(!target)return;
   const body=target.target_type==="google_books"?{target_type:"google_books",google_volume_id:target.google_volume_id}:{target_type:"community",target_book_id:target.community_book_id};
@@ -8824,6 +8878,7 @@ function renderReadingCards(books){
    ${b.thumbnail?`<img class="book-cover book-cover-zoomable" src="${esc(b.thumbnail)}" alt="Capa de ${esc(b.title||"livro")}" role="button" tabindex="0" onclick="openBookCoverZoom(this)" title="Ampliar capa">`:`<div class="book-cover-placeholder"><svg class="ic ic-livro" aria-hidden="true" focusable="false"><use href="#i-livro"></use></svg></div>`}
    <div><div class="book-title">${esc(b.title)}</div><div class="book-meta">${bookResultMeta({authors:b.authors,publisher:b.publisher})}</div>
    <div style="margin-top:6px"><span class="reading-status">${esc(b.status||"Lendo")}</span>${b.status==="Planejado"&&b.started_at?(b.started_at<today()?` <span class="reading-status is-late">Era para ${fmtDate(b.started_at).slice(0,5)}</span>`:b.started_at===today()?` <span class="reading-status is-today">Começa hoje</span>`:""):""}${b.catalog_status==="pending"?` <span class="reading-status">Aguardando validação</span>`:""}</div>
+   ${b.can_edit_catalog?`<div class="pending-book-edit"><button type="button" class="btn small" onclick="changePendingBookCover('${esc(b.id)}')">${b.thumbnail?"Trocar foto":"Adicionar foto"}</button><button type="button" class="btn small" onclick="editPendingBookData('${esc(b.id)}')">Corrigir dados</button></div>`:""}
    <div class="book-reading-dates">${b.status==="Concluído"&&b.finished_at?`<span>Lida ${b.started_at?`de <b>${fmtDate(b.started_at).slice(0,5)}</b> a`:"em"} <b>${fmtDate(b.finished_at)}</b></span>`:b.status==="Planejado"&&b.started_at?`<span>Início previsto: <b>${fmtDate(b.started_at)}</b></span>`:b.started_at?`<span>Início: <b>${fmtDate(b.started_at)}</b></span>`:""}${b.target_finish_at&&b.status!=="Concluído"?`<span>Previsão: <b>${fmtDate(b.target_finish_at)}</b></span>`:""}${b.finished_at&&b.status!=="Concluído"?`<span>Conclusão: <b>${fmtDate(b.finished_at)}</b></span>`:""}</div>
    <div class="reading-actions${b.status==="Lendo"?" is-reading":""}">${b.status==="Planejado"?`<button class="btn small reading-main-action" type="button" onclick="startPlannedBook('${b.id}')">Iniciar leitura</button>`:b.status==="Lendo"?`<button class="btn small reading-main-action" type="button" onclick="startReadingActivity('${b.id}')"><span class="reading-label-desktop">+ Registrar atividade</span><span class="reading-label-mobile">+ Registrar</span></button><button class="btn small reading-complete-btn" type="button" onclick="completeBookAndRegister('${b.id}')" title="Concluir leitura"><svg class="ic ic-sucesso" aria-hidden="true" focusable="false"><use href="#i-sucesso"></use></svg> Concluir</button>`:`<button class="btn small reading-main-action" type="button" onclick="reopenCompletedBook('${b.id}')">Reabrir leitura</button>`}<button class="btn small reading-icon-action reading-edit-icon" type="button" onclick="editFamilyBookReading('${b.id}')" aria-label="Editar planejamento" title="Editar leitura"><svg class="ic ic-lapis" aria-hidden="true" focusable="false"><use href="#i-lapis"></use></svg></button></div>
    </div>
@@ -8921,7 +8976,7 @@ async function findSimilarBooks(title){
  const words=bookSimilarityWords(title);if(!words.length)return [];
  const [g,c]=await Promise.allSettled([backendFetch("/books/search?q="+encodeURIComponent(title)),backendFetch("/community-books/search?q="+encodeURIComponent(title))]);
  const list=[...(c.status==="fulfilled"?c.value?.items||[]:[]).map(x=>({...x,source:"community"})),...(g.status==="fulfilled"?g.value?.items||[]:[])];
- return list.filter(b=>{const tw=bookSimilarityWords(`${b.title||""} ${b.subtitle||""}`);return words.some(w=>tw.includes(w))}).slice(0,6);
+ return list.filter(b=>{const tw=bookSimilarityWords(`${b.title||""} ${b.subtitle||""}`);return words.filter(w=>tw.includes(w)).length/words.length>=0.5}).slice(0,6);
 }
 async function openManualWithDuplicateCheck(){
  const title=String($("manualBookTitle")?.value||"").trim();if(!title)return showNotice("Informe o título.",{title:"Falta uma informação",icon:"✏️"});
@@ -9073,6 +9128,7 @@ function highlightQuery(text,q){
  let out="",pos=0;marks.forEach(([a,b])=>{if(a<pos)return;out+=esc(t.slice(pos,a))+"<mark>"+esc(t.slice(a,b))+"</mark>";pos=b});return out+esc(t.slice(pos));
 }
 function bookResultMeta(b){const parts=[(b.authors||[]).join(", "),b.publisher||"",String(b.published_date||"").slice(0,4)].filter(Boolean);return esc(parts.join(" · "))}
+function bookQueryScore(q,b){const want=bookMatchTokens(q);if(!want.length)return 0;const have=new Set(bookMatchTokens([b.title,b.subtitle,...(Array.isArray(b.authors)?b.authors:[b.authors])].join(" ")));const hit=want.filter(w=>have.has(w)).length/want.length;const titleN=bookMatchTokens(b.title).join(" ");return hit+(titleN&&titleN.startsWith(want.slice(0,2).join(" "))?0.2:0)}
 function showMoreBookResults(){bookVisibleCount+=3;renderBookSearchResults()}
 async function searchGoogleBooks(){
  const q=String($("bookSearchQuery")?.value||"").trim();if(q.length<2)return;
@@ -9080,9 +9136,11 @@ async function searchGoogleBooks(){
  const seq=++bookSearchSeq;bookVisibleCount=3;
  $("bookSearchStatus").textContent="Consultando biblioteca…";$("bookSearchResults").innerHTML="";$("manualBookBox").classList.add("hidden");
  try{
-  const [googleResult,communityResult]=await Promise.allSettled([backendFetch("/books/search?q="+encodeURIComponent(googleQuery)),backendFetch("/community-books/search?q="+encodeURIComponent(communityQuery))]);
+  const qTok=bookMatchTokens(q),extraQuery=!isbn&&qTok.length>=2?qTok.slice(0,6).map(w=>"intitle:"+w).join(" "):"";
+  const [googleResult,communityResult,googleExtra]=await Promise.allSettled([backendFetch("/books/search?q="+encodeURIComponent(googleQuery)),backendFetch("/community-books/search?q="+encodeURIComponent(communityQuery)),extraQuery?backendFetch("/books/search?q="+encodeURIComponent(extraQuery)):Promise.resolve({items:[]})]);
   if(seq!==bookSearchSeq)return;
-  const google=googleResult.status==="fulfilled"&&Array.isArray(googleResult.value?.items)?googleResult.value.items:[];
+  const gSeen=new Set(),googleRaw=[googleResult,googleExtra].flatMap(r=>r.status==="fulfilled"&&Array.isArray(r.value?.items)?r.value.items:[]).filter(x=>!x.google_volume_id||(!gSeen.has(x.google_volume_id)&&gSeen.add(x.google_volume_id)));
+  const google=isbn?googleRaw:googleRaw.map(x=>({...x,_score:bookQueryScore(q,x)})).filter(x=>x._score>=0.5).sort((a,b)=>b._score-a._score);
   const community=communityResult.status==="fulfilled"&&Array.isArray(communityResult.value?.items)?communityResult.value.items.map(x=>({...x,source:"community"})):[];
   const nq=communityQuery.toLowerCase(),family=(window.currentReadingBooks||[]).filter(b=>`${b.title||""} ${(b.authors||[]).join(" ")} ${b.isbn13||""} ${b.isbn10||""}`.toLowerCase().includes(nq)).map(b=>({...b,source:"family",alreadyAdded:true}));
   const key=b=>String(b.community_book_id||b.google_volume_id||b.isbn13||`${b.title||""}|${(b.authors||[])[0]||""}`).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim();
@@ -9948,7 +10006,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "17.2";
+const APP_VERSION = "17.4";
 queueMicrotask(()=>{ const el=document.getElementById("healthFrontendVersion"); if(el) el.textContent=`v${APP_VERSION}`; });
 
 let deferredInstallPrompt=null;
