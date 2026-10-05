@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#441015">
 <title>Diário de Estudos</title>
 
-<link rel="manifest" href="/manifest.json?v=16.58">
+<link rel="manifest" href="/manifest.json?v=16.59">
 <link rel="icon" type="image/png" sizes="32x32" href="/icon-192.png">
 <link rel="icon" type="image/png" sizes="48x48" href="/icon-192.png">
 
@@ -2120,10 +2120,75 @@ body.ds-v1 .ins-row .btn{width:auto!important;flex-shrink:0;white-space:nowrap}
 @media(max-width:380px){#page-administracao .adm-strip b{font-size:19px}#page-administracao .adm-strip span{font-size:11px}}
 @media(prefers-reduced-motion:reduce){#page-administracao .adm-chev{transition:none}}
 
+
+/* ===== Me ajuda, Diário (v16.59) ===== */
+#page-ajuda .ajuda-wrap{display:flex;flex-direction:column;gap:16px;padding-bottom:24px}
+#page-ajuda .ajuda-head{display:flex;flex-direction:column;gap:6px;padding:4px 2px 0}
+#page-ajuda .ajuda-head h2{margin:0;font-family:Fraunces,Georgia,serif;font-weight:750;font-size:28px;line-height:1.1;color:#441015}
+#page-ajuda .ajuda-head p{margin:0;font-size:15px;line-height:1.45;color:#6A5F58}
+#page-ajuda .ajuda-form{display:flex;flex-direction:column;gap:16px}
+#page-ajuda .ajuda-form label.field{font-size:14px;font-weight:600;color:#342D29;margin:0 0 8px}
+#page-ajuda .ajuda-kids{display:flex;flex-wrap:wrap;gap:8px}
+#page-ajuda #ajudaQuestion{width:100%;box-sizing:border-box;min-height:112px;border:1px solid #E8D8CA;border-radius:14px;background:#FFFCF7;padding:12px 14px;font:16px/1.45 inherit;color:#342D29;resize:vertical}
+#page-ajuda .ajuda-privacy{display:flex;align-items:flex-start;gap:6px;margin-top:8px;font-size:13px;line-height:1.4;color:#6A5F58}
+#page-ajuda .ajuda-privacy svg{flex-shrink:0;width:15px;height:15px;margin-top:1px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#page-ajuda .ajuda-ideas-label{font-size:13px;font-weight:600;color:#6A5F58;margin-bottom:8px}
+#page-ajuda .ajuda-ideas{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+#page-ajuda .ajuda-idea{min-height:40px;padding:8px 14px;border-radius:999px;border:1.5px dashed #C9B4A3;background:transparent;color:#6B2737;font:600 14px/1.3 inherit;text-align:left;cursor:pointer}
+#page-ajuda .ajuda-idea:hover{background:#FBF1EA}
+#page-ajuda .ajuda-ask{min-height:52px;width:100%;font-size:16px;display:flex;align-items:center;justify-content:center;gap:8px}
+#page-ajuda .ajuda-ask .ic{width:20px;height:20px}
+#page-ajuda .ajuda-usage{font-size:13px;color:#6A5F58;text-align:center;margin-top:-6px}
+#page-ajuda .ajuda-loading{display:flex;align-items:center;gap:10px;padding:16px;border-radius:16px;background:#FFFCF7;border:1px solid #E8D8CA;font-size:15px;color:#342D29}
+#page-ajuda .ajuda-error{margin:0}
+#page-ajuda #ajudaResult{display:flex;flex-direction:column;gap:14px}
+#page-ajuda #ajudaResult:empty{display:none}
+#page-ajuda .ajuda-question{padding:12px 14px;border-radius:14px;background:#fff;border:1px solid #E8D8CA;font-size:14px;line-height:1.4;color:#6A5F58}
+#page-ajuda .ajuda-card{display:flex;flex-direction:column;gap:12px;margin:0}
+#page-ajuda .ajuda-badges{display:flex;flex-wrap:wrap;gap:6px}
+#page-ajuda .ajuda-title{margin:0;font-family:Fraunces,Georgia,serif;font-weight:750;font-size:23px;line-height:1.15;color:#441015}
+#page-ajuda .ajuda-title.small{font-size:20px}
+#page-ajuda .ajuda-text{margin:0;font-size:15px;line-height:1.55;color:#342D29;white-space:pre-line}
+#page-ajuda .ajuda-text.muted{color:#6A5F58}
+#page-ajuda .ajuda-analogy{margin:0;padding:4px 0 4px 14px;border-left:3px solid #DDBA78;font-family:Fraunces,Georgia,serif;font-weight:650;font-size:19px;line-height:1.4;color:#441015}
+#page-ajuda .ajuda-sub{font-size:13px;font-weight:600;color:#6A5F58}
+#page-ajuda .ajuda-list{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:15px;line-height:1.45}
+#page-ajuda .ajuda-items{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px;font-size:15px;line-height:1.45}
+#page-ajuda .ajuda-items li span{display:block}
+#page-ajuda .ajuda-answer{margin-top:2px;font-size:14px;font-weight:600;color:#2F6B45}
+#page-ajuda .ajuda-gab{min-height:44px;width:100%}
+#page-ajuda .ajuda-skill{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border-radius:12px;background:#FFFCF7;border:1px solid #EAE2D8;font-size:14px;line-height:1.45}
+#page-ajuda .ajuda-skill-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+#page-ajuda .ajuda-skill-head b{font-size:15px;color:#441015}
+#page-ajuda .ajuda-ok{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#2F6B45}
+#page-ajuda .ajuda-ok svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+#page-ajuda .ajuda-tip{display:flex;flex-direction:column;gap:4px;padding-top:4px;font-size:15px;line-height:1.5}
+#page-ajuda .ajuda-tip b{font-size:14px}
+#page-ajuda .ajuda-actions .btn{min-height:52px;width:100%;font-size:16px;display:flex;align-items:center;justify-content:center;gap:8px}
+#page-ajuda .ajuda-actions .meta{margin-top:-4px;line-height:1.45}
+#page-ajuda .ajuda-recent{display:flex;flex-direction:column;gap:10px}
+#page-ajuda .ajuda-recent h3{margin:0}
+#page-ajuda .ajuda-recent-toggle{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:44px;padding:0;border:0;background:transparent;cursor:pointer;font-family:Fraunces,Georgia,serif;font-weight:750;font-size:20px;color:#441015;text-align:left}
+#page-ajuda .ajuda-chev{width:22px;height:22px;fill:none;stroke:#6B2737;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+#page-ajuda .ajuda-recent.closed .ajuda-chev{transform:rotate(-90deg)}
+#page-ajuda .ajuda-recent-body{display:flex;flex-direction:column;gap:10px}
+#page-ajuda .ajuda-search{width:100%;box-sizing:border-box;min-height:46px;border:1px solid #E8D8CA;border-radius:12px;background:#fff;padding:0 14px;font-size:15px}
+#page-ajuda .ajuda-recent-list{display:flex;flex-direction:column;background:#fff;border:1px solid #E8D8CA;border-radius:16px;overflow:hidden}
+#page-ajuda .ajuda-recent-row{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:60px;padding:12px 16px;border:0;border-bottom:1px solid #EAE2D8;background:transparent;text-align:left;cursor:pointer;font:inherit;color:#342D29}
+#page-ajuda .ajuda-recent-row:last-child{border-bottom:0}
+#page-ajuda .ajuda-recent-row>span{display:flex;flex-direction:column;gap:2px;min-width:0}
+#page-ajuda .ajuda-recent-row b{font-size:15px}
+#page-ajuda .ajuda-recent-row>span>span{font-size:13px;color:#6A5F58}
+#page-ajuda .ajuda-recent-row svg{flex-shrink:0;width:16px;height:16px;fill:none;stroke:#6A5F58;stroke-width:2;stroke-linecap:round}
+#page-ajuda .ajuda-more{min-height:44px}
+#page-ajuda .ajuda-recent-toggle:focus-visible,#page-ajuda .ajuda-recent-row:focus-visible,#page-ajuda .ajuda-idea:focus-visible{outline:2px solid #6B2737;outline-offset:2px}
+.history-entry-card .ajuda-origin{margin-top:6px}
+@media(max-width:380px){.nav-tab{font-size:10px!important}.nav-tab span{white-space:nowrap}}
+@media(prefers-reduced-motion:reduce){#page-ajuda .ajuda-chev{transition:none}}
 </style>
 </head>
-<body data-build="16.58" class="auth-checking ds-v1">
-<svg class="ic-sprite" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><symbol id="i-carregando" viewBox="0 0 24 24"><path d="M7 3h10M7 21h10"/><path d="M8 3c0 4 8 5 8 9s-8 5-8 9"/><path d="M16 3c0 4-8 5-8 9s8 5 8 9"/></symbol><symbol id="i-sair" viewBox="0 0 24 24"><path d="M15 4h4v16h-4"/><path d="M10 8l-4 4 4 4M6 12h10"/></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol><symbol id="i-repetir" viewBox="0 0 24 24"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></symbol><symbol id="i-seta" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol><symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></symbol><symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol><symbol id="i-mais" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="i-lapis" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></symbol><symbol id="i-lixeira" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/><path d="M10 11v6M14 11v6"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol><symbol id="i-lanterna" viewBox="0 0 24 24"><path d="M8 3h8v5l-2 3v10h-4V11L8 8z"/><path d="M8 7h8"/><path d="M12 14v2"/></symbol><symbol id="i-borracha" viewBox="0 0 24 24"><path d="M15 4l5 5-9 9H7l-3-3z"/><path d="M10 9l5 5"/><path d="M7 20h13"/></symbol><symbol id="i-engrenagem" viewBox="0 0 24 24"><path d="M12.2 2h-.4a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.3a2 2 0 0 1-2 0l-.2-.1a2 2 0 0 0-2.7.7l-.2.4a2 2 0 0 0 .7 2.7l.2.1a2 2 0 0 1 1 1.7v.5a2 2 0 0 1-1 1.7l-.2.1a2 2 0 0 0-.7 2.7l.2.4a2 2 0 0 0 2.7.7l.2-.1a2 2 0 0 1 2 0l.4.3a2 2 0 0 1 1 1.7v.2a2 2 0 0 0 2 2h.4a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.3a2 2 0 0 1 2 0l.2.1a2 2 0 0 0 2.7-.7l.2-.4a2 2 0 0 0-.7-2.7l-.2-.1a2 2 0 0 1-1-1.7v-.5a2 2 0 0 1 1-1.7l.2-.1a2 2 0 0 0 .7-2.7l-.2-.4a2 2 0 0 0-2.7-.7l-.2.1a2 2 0 0 1-2 0l-.4-.3a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-lupa" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol><symbol id="i-pular" viewBox="0 0 24 24"><path d="M5 6l8 6-8 6z"/><path d="M18 6v12"/></symbol><symbol id="i-restaurar" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/></symbol><symbol id="i-lista" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r=".8"/><circle cx="4" cy="12" r=".8"/><circle cx="4" cy="18" r=".8"/></symbol><symbol id="i-sucesso" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/></symbol><symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.3" r=".6"/></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r=".6"/></symbol><symbol id="i-pergunta" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.6 2.6 0 1 1 3.6 2.4c-.8.4-1.1.9-1.1 1.7v.4"/><circle cx="12" cy="17" r=".6"/></symbol><symbol id="i-cadeado" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol><symbol id="i-cadeado-aberto" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 7.6-1.7"/></symbol><symbol id="i-chave" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2.5 2.5M14 9l2 2"/></symbol><symbol id="i-sem-conexao" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M5 12.5a10 10 0 0 1 4-2.3M19 12.5a10 10 0 0 0-3.2-2"/><circle cx="12" cy="19.5" r=".6"/></symbol><symbol id="i-cartao" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></symbol><symbol id="i-cupom" viewBox="0 0 24 24"><path d="M4 7h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4z"/><path d="M14 7v10" stroke-dasharray="2 2"/></symbol><symbol id="i-envelope" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6.5L20.5 7"/></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol><symbol id="i-arquivar" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="4.5" rx="1"/><path d="M5 9v10h14V9"/><path d="M10 13h4"/></symbol><symbol id="i-imagem" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M20.5 16l-5-5-8 8.5"/></symbol><symbol id="i-sino" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol><symbol id="i-raio" viewBox="0 0 24 24"><path d="M13 2.5L5 13.5h6l-1 8 8-11h-6z"/></symbol><symbol id="i-entrada" viewBox="0 0 24 24"><path d="M4 13l2-8h12l2 8v6H4z"/><path d="M4 13h4.5l1 2h5l1-2H20"/><path d="M12 5v6M9.5 8.5L12 11l2.5-2.5"/></symbol><symbol id="i-calendario" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol><symbol id="i-local" viewBox="0 0 24 24"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></symbol><symbol id="i-material" viewBox="0 0 24 24"><path d="M6 3.5h11.5v17H6a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 6 3.5z"/><path d="M4.5 17.5A1.5 1.5 0 0 1 6 16h11.5"/><path d="M9 8h5"/></symbol><symbol id="i-livro" viewBox="0 0 24 24"><path d="M4 5c3-1.5 5.5-1.5 8 0v15c-2.5-1.5-5-1.5-8 0z"/><path d="M20 5c-3-1.5-5.5-1.5-8 0v15c2.5-1.5 5-1.5 8 0z"/></symbol><symbol id="i-livros" viewBox="0 0 24 24"><rect x="4" y="4" width="4" height="16" rx="1"/><rect x="9.5" y="6" width="4" height="14" rx="1"/><path d="M15.5 7.5l3.8-1 3 13.2-3.8 1z"/></symbol><symbol id="i-ia" viewBox="0 0 24 24"><path d="M12 3l1.4 4.1 4.1 1.4-4.1 1.4L12 14l-1.4-4.1-4.1-1.4 4.1-1.4z"/><path d="M18.5 14l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/><path d="M6 15l.7 1.8 1.8.7-1.8.7L6 20l-.7-1.8-1.8-.7 1.8-.7z"/></symbol><symbol id="i-dica" viewBox="0 0 24 24"><path d="M9 17h6"/><path d="M10 20.5h4"/><path d="M8.5 14a5.5 5.5 0 1 1 7 0c-.9.8-1.5 1.7-1.5 3h-4c0-1.3-.6-2.2-1.5-3z"/></symbol><symbol id="i-clima" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><path d="M8 2v1.3M2 8h1.3M3.8 3.8l.9.9M12.2 3.8l-.9.9"/><path d="M9 19h9a3.5 3.5 0 0 0 0-7 5 5 0 0 0-9.5 1.5A2.8 2.8 0 0 0 9 19z"/></symbol><symbol id="i-familia" viewBox="0 0 24 24"><circle cx="8" cy="7" r="2.6"/><circle cx="16.5" cy="7.5" r="2.2"/><path d="M3.5 19v-2.5a4.5 4.5 0 0 1 9 0V19"/><path d="M13.5 19v-2a3.3 3.3 0 0 1 6.6 0v2"/></symbol><symbol id="i-pessoa" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></symbol><symbol id="i-crianca" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4.5"/><path d="M11 4.6c.4-1.3 1.8-2 3.1-1.6"/><path d="M6.5 21a5.5 5.5 0 0 1 11 0"/></symbol><symbol id="i-ano-escolar" viewBox="0 0 24 24"><path d="M2.5 9L12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c1.5 1.5 3.5 2.2 5.5 2.2s4-.7 5.5-2.2V11"/><path d="M21.5 9v5"/></symbol><symbol id="i-peca" viewBox="0 0 24 24"><path d="M5 8h3a2 2 0 1 1 4 0h3v3a2 2 0 1 1 0 4v4h-4a2 2 0 1 0-4 0H5v-4a2 2 0 1 0 0-4z"/></symbol><symbol id="i-documento" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5"/><path d="M9 13h7M9 17h5"/></symbol><symbol id="i-nuvem" viewBox="0 0 24 24"><path d="M7 18h10.5a4 4 0 0 0 .6-7.9A6 6 0 0 0 6.6 9 4.5 4.5 0 0 0 7 18z"/></symbol><symbol id="i-pastas" viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/><path d="M3 7V5h6l2 2"/></symbol><symbol id="i-celular" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></symbol><symbol id="i-balao" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol><symbol id="i-alvo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol><symbol id="i-olho" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-estrela" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></symbol><symbol id="i-filtro" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></symbol><symbol id="i-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol><symbol id="i-imprimir" viewBox="0 0 24 24"><path d="M7 9V3h10v6"/><rect x="3.5" y="9" width="17" height="8" rx="2"/><path d="M7 14h10v7H7z"/></symbol><symbol id="i-compartilhar" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></symbol></svg>
+<body data-build="16.59" class="auth-checking ds-v1">
+<svg class="ic-sprite" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><symbol id="i-ajuda" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.1V16h5v-.1c0-.8.4-1.6 1.1-2.1A6 6 0 0 0 12 3Z"/></symbol><symbol id="i-carregando" viewBox="0 0 24 24"><path d="M7 3h10M7 21h10"/><path d="M8 3c0 4 8 5 8 9s-8 5-8 9"/><path d="M16 3c0 4-8 5-8 9s8 5 8 9"/></symbol><symbol id="i-sair" viewBox="0 0 24 24"><path d="M15 4h4v16h-4"/><path d="M10 8l-4 4 4 4M6 12h10"/></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol><symbol id="i-repetir" viewBox="0 0 24 24"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></symbol><symbol id="i-seta" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol><symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></symbol><symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol><symbol id="i-mais" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="i-lapis" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></symbol><symbol id="i-lixeira" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/><path d="M10 11v6M14 11v6"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol><symbol id="i-lanterna" viewBox="0 0 24 24"><path d="M8 3h8v5l-2 3v10h-4V11L8 8z"/><path d="M8 7h8"/><path d="M12 14v2"/></symbol><symbol id="i-borracha" viewBox="0 0 24 24"><path d="M15 4l5 5-9 9H7l-3-3z"/><path d="M10 9l5 5"/><path d="M7 20h13"/></symbol><symbol id="i-engrenagem" viewBox="0 0 24 24"><path d="M12.2 2h-.4a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.3a2 2 0 0 1-2 0l-.2-.1a2 2 0 0 0-2.7.7l-.2.4a2 2 0 0 0 .7 2.7l.2.1a2 2 0 0 1 1 1.7v.5a2 2 0 0 1-1 1.7l-.2.1a2 2 0 0 0-.7 2.7l.2.4a2 2 0 0 0 2.7.7l.2-.1a2 2 0 0 1 2 0l.4.3a2 2 0 0 1 1 1.7v.2a2 2 0 0 0 2 2h.4a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.3a2 2 0 0 1 2 0l.2.1a2 2 0 0 0 2.7-.7l.2-.4a2 2 0 0 0-.7-2.7l-.2-.1a2 2 0 0 1-1-1.7v-.5a2 2 0 0 1 1-1.7l.2-.1a2 2 0 0 0 .7-2.7l-.2-.4a2 2 0 0 0-2.7-.7l-.2.1a2 2 0 0 1-2 0l-.4-.3a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-lupa" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol><symbol id="i-pular" viewBox="0 0 24 24"><path d="M5 6l8 6-8 6z"/><path d="M18 6v12"/></symbol><symbol id="i-restaurar" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/></symbol><symbol id="i-lista" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r=".8"/><circle cx="4" cy="12" r=".8"/><circle cx="4" cy="18" r=".8"/></symbol><symbol id="i-sucesso" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/></symbol><symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.3" r=".6"/></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r=".6"/></symbol><symbol id="i-pergunta" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.6 2.6 0 1 1 3.6 2.4c-.8.4-1.1.9-1.1 1.7v.4"/><circle cx="12" cy="17" r=".6"/></symbol><symbol id="i-cadeado" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol><symbol id="i-cadeado-aberto" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 7.6-1.7"/></symbol><symbol id="i-chave" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2.5 2.5M14 9l2 2"/></symbol><symbol id="i-sem-conexao" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M5 12.5a10 10 0 0 1 4-2.3M19 12.5a10 10 0 0 0-3.2-2"/><circle cx="12" cy="19.5" r=".6"/></symbol><symbol id="i-cartao" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></symbol><symbol id="i-cupom" viewBox="0 0 24 24"><path d="M4 7h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4z"/><path d="M14 7v10" stroke-dasharray="2 2"/></symbol><symbol id="i-envelope" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6.5L20.5 7"/></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol><symbol id="i-arquivar" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="4.5" rx="1"/><path d="M5 9v10h14V9"/><path d="M10 13h4"/></symbol><symbol id="i-imagem" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M20.5 16l-5-5-8 8.5"/></symbol><symbol id="i-sino" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol><symbol id="i-raio" viewBox="0 0 24 24"><path d="M13 2.5L5 13.5h6l-1 8 8-11h-6z"/></symbol><symbol id="i-entrada" viewBox="0 0 24 24"><path d="M4 13l2-8h12l2 8v6H4z"/><path d="M4 13h4.5l1 2h5l1-2H20"/><path d="M12 5v6M9.5 8.5L12 11l2.5-2.5"/></symbol><symbol id="i-calendario" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol><symbol id="i-local" viewBox="0 0 24 24"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></symbol><symbol id="i-material" viewBox="0 0 24 24"><path d="M6 3.5h11.5v17H6a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 6 3.5z"/><path d="M4.5 17.5A1.5 1.5 0 0 1 6 16h11.5"/><path d="M9 8h5"/></symbol><symbol id="i-livro" viewBox="0 0 24 24"><path d="M4 5c3-1.5 5.5-1.5 8 0v15c-2.5-1.5-5-1.5-8 0z"/><path d="M20 5c-3-1.5-5.5-1.5-8 0v15c2.5-1.5 5-1.5 8 0z"/></symbol><symbol id="i-livros" viewBox="0 0 24 24"><rect x="4" y="4" width="4" height="16" rx="1"/><rect x="9.5" y="6" width="4" height="14" rx="1"/><path d="M15.5 7.5l3.8-1 3 13.2-3.8 1z"/></symbol><symbol id="i-ia" viewBox="0 0 24 24"><path d="M12 3l1.4 4.1 4.1 1.4-4.1 1.4L12 14l-1.4-4.1-4.1-1.4 4.1-1.4z"/><path d="M18.5 14l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/><path d="M6 15l.7 1.8 1.8.7-1.8.7L6 20l-.7-1.8-1.8-.7 1.8-.7z"/></symbol><symbol id="i-dica" viewBox="0 0 24 24"><path d="M9 17h6"/><path d="M10 20.5h4"/><path d="M8.5 14a5.5 5.5 0 1 1 7 0c-.9.8-1.5 1.7-1.5 3h-4c0-1.3-.6-2.2-1.5-3z"/></symbol><symbol id="i-clima" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><path d="M8 2v1.3M2 8h1.3M3.8 3.8l.9.9M12.2 3.8l-.9.9"/><path d="M9 19h9a3.5 3.5 0 0 0 0-7 5 5 0 0 0-9.5 1.5A2.8 2.8 0 0 0 9 19z"/></symbol><symbol id="i-familia" viewBox="0 0 24 24"><circle cx="8" cy="7" r="2.6"/><circle cx="16.5" cy="7.5" r="2.2"/><path d="M3.5 19v-2.5a4.5 4.5 0 0 1 9 0V19"/><path d="M13.5 19v-2a3.3 3.3 0 0 1 6.6 0v2"/></symbol><symbol id="i-pessoa" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></symbol><symbol id="i-crianca" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4.5"/><path d="M11 4.6c.4-1.3 1.8-2 3.1-1.6"/><path d="M6.5 21a5.5 5.5 0 0 1 11 0"/></symbol><symbol id="i-ano-escolar" viewBox="0 0 24 24"><path d="M2.5 9L12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c1.5 1.5 3.5 2.2 5.5 2.2s4-.7 5.5-2.2V11"/><path d="M21.5 9v5"/></symbol><symbol id="i-peca" viewBox="0 0 24 24"><path d="M5 8h3a2 2 0 1 1 4 0h3v3a2 2 0 1 1 0 4v4h-4a2 2 0 1 0-4 0H5v-4a2 2 0 1 0 0-4z"/></symbol><symbol id="i-documento" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5"/><path d="M9 13h7M9 17h5"/></symbol><symbol id="i-nuvem" viewBox="0 0 24 24"><path d="M7 18h10.5a4 4 0 0 0 .6-7.9A6 6 0 0 0 6.6 9 4.5 4.5 0 0 0 7 18z"/></symbol><symbol id="i-pastas" viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/><path d="M3 7V5h6l2 2"/></symbol><symbol id="i-celular" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></symbol><symbol id="i-balao" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol><symbol id="i-alvo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol><symbol id="i-olho" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-estrela" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></symbol><symbol id="i-filtro" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></symbol><symbol id="i-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol><symbol id="i-imprimir" viewBox="0 0 24 24"><path d="M7 9V3h10v6"/><rect x="3.5" y="9" width="17" height="8" rx="2"/><path d="M7 14h10v7H7z"/></symbol><symbol id="i-compartilhar" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></symbol></svg>
 <header>
   <div class="header-branding">
     <div class="brand">
@@ -2210,6 +2275,7 @@ body.ds-v1 .ins-row .btn{width:auto!important;flex-shrink:0;white-space:nowrap}
       <nav class="nav-tabs">
         <button class="nav-tab active" data-page="inicio" onclick="showPage('inicio')"><svg class="nav-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg><span>Hoje</span></button>
         <button class="nav-tab" data-page="planejamento" onclick="showPage('planejamento')"><svg class="nav-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>Planejar</span></button>
+        <button class="nav-tab" data-page="ajuda" onclick="showPage('ajuda')"><svg class="nav-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.1V16h5v-.1c0-.8.4-1.6 1.1-2.1A6 6 0 0 0 12 3Z"/></svg><span>Me ajuda</span></button>
         <button class="nav-tab" data-page="leituras" onclick="showPage('leituras')"><svg class="nav-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H11v17H7.5A3.5 3.5 0 0 0 4 22zM20 5.5A3.5 3.5 0 0 0 16.5 2H13v17h3.5A3.5 3.5 0 0 1 20 22z"/></svg><span>Leituras</span></button>
         <button class="nav-tab" data-page="historico" onclick="showPage('historico')"><svg class="nav-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Histórico</span><span id="historyPendingBadge" class="history-pending-badge hidden" aria-label="Registros aguardando classificação"></span></button>
         <button class="nav-tab" data-page="mais" onclick="showPage('mais')"><svg class="nav-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg><span>Mais</span></button>
@@ -2218,6 +2284,10 @@ body.ds-v1 .ins-row .btn{width:auto!important;flex-shrink:0;white-space:nowrap}
 
     <section id="page-inicio" class="page active">
       <div id="dashboard"></div>
+    </section>
+
+    <section id="page-ajuda" class="page">
+      <div id="ajudaApp"></div>
     </section>
 
     <section id="page-registro" class="page">
@@ -3373,7 +3443,7 @@ async function confirmClearRecord(){if(await showConfirm("Limpar este registro e
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("recordHelpOverlay")?.classList.contains("hidden"))closeRecordHelp()});
 
 const LAST_MAIN_TAB_KEY="DE_LAST_MAIN_TAB";
-const MAIN_TABS=new Set(["inicio","planejamento","leituras","historico","mais"]);
+const MAIN_TABS=new Set(["inicio","planejamento","ajuda","leituras","historico","mais"]);
 let mainTabRestored=false;
 function savedMainTab(){
  try{const v=localStorage.getItem(LAST_MAIN_TAB_KEY);return MAIN_TABS.has(v)?v:"inicio"}catch(e){return "inicio"}
@@ -3398,6 +3468,7 @@ function showPage(name){
  document.querySelectorAll(".nav-tab").forEach(x=>x.classList.toggle("active",x.dataset.page===name));
  if(name==="inicio"){renderDashboard()}
  if(name==="registro")renderRecordPage();
+ if(name==="ajuda")renderAjudaPage();
  if(name==="planejamento"){renderPlans();refreshCalendarIntegrationUI();} if(name==="configuracoes"){setTimeout(initFamilySettingsCollapsibles,0);} if(name==="mais"){refreshCalendarIntegrationUI();checkAdminPendingValidations(false);refreshAsaasBilling();} if(name==="administracao"){applyAdmSections();loadAdminDashboard();updateAdminValidationNotificationStatus();loadAdminAccessGrants();loadAllowedSignups();loadAdminAiUsage();}
  if(name==="relatorios")renderReportPage();
  if(name==="historico"){renderHistoryBrowser();renderHistoryBatchRows();refreshHistoryActivityOptions();}
@@ -4821,6 +4892,207 @@ function renderAdmSystem(){
  box.innerHTML=html;
 }
 
+
+/* ===== Me ajuda, Diário (v16.59) ===== */
+const AJUDA_DRAFT_KEY="DE_AJUDA_DRAFT";
+const AJUDA_IDEAS=["Como ensino frações com pizza?","O que é fotossíntese, de um jeito simples?","Como explico a diferença entre mas e mais?"];
+let ajudaChildId="",ajudaBusy=false,ajudaResult=null,ajudaError="",ajudaGabarito=false,ajudaHistory=null,ajudaHistoryLoading=false,ajudaShowAll=false,ajudaRecentOpen=true,ajudaUsage=null,ajudaSearch="";
+function ajudaKids(){return currentBackendFamily()?state.family.children.filter(c=>!c.archived&&!c.legacyOrphan):[]}
+function ajudaChild(){const k=ajudaKids();return k.find(c=>c.id===ajudaChildId)||k.find(c=>c.id===activeChildId)||k[0]||null}
+function ajudaDraft(){try{return localStorage.getItem(AJUDA_DRAFT_KEY)||""}catch(e){return""}}
+function saveAjudaDraft(v){try{String(v||"").trim()?localStorage.setItem(AJUDA_DRAFT_KEY,v):localStorage.removeItem(AJUDA_DRAFT_KEY)}catch(e){}}
+function ajudaStripNames(text){
+ let t=String(text||"");
+ const names=[...new Set((state.family.children||[]).flatMap(c=>{const n=String(c.name||"").trim();return n?[n,n.split(/\s+/)[0]]:[]}).filter(n=>n.length>=2))].sort((a,b)=>b.length-a.length);
+ for(const n of names)t=t.replace(new RegExp(`(^|[^\\p{L}])${n.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}(?=[^\\p{L}]|$)`,"giu"),"$1a criança");
+ return t;
+}
+function ajudaChildLabel(c){const a=ageFromBirth(c?.birth);return esc(firstName(c?.name||"Criança"))+(a!==""?` · ${a} ${a===1?"ano":"anos"}`:"")}
+function ajudaSelectChild(id){ajudaChildId=id;renderAjudaPage()}
+function ajudaFillIdea(i){const t=$("ajudaQuestion");if(!t)return;t.value=AJUDA_IDEAS[i]||"";saveAjudaDraft(t.value);t.focus()}
+function ajudaUsageText(){if(!ajudaUsage)return"";const left=Math.max(0,Number(ajudaUsage.limit||0)-Number(ajudaUsage.used||0));return left===1?"1 pergunta disponível hoje":`${left} de ${Number(ajudaUsage.limit||0)} perguntas disponíveis hoje`}
+function ajudaWhen(v){const d=new Date(String(v||"").replace(" ","T")+(/[zZ]$/.test(String(v||""))?"":"Z"));if(isNaN(d))return"";const days=Math.floor((new Date(today()+"T00:00:00")-new Date(d.toISOString().slice(0,10)+"T00:00:00"))/86400000);return days<=0?"hoje":days===1?"ontem":d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})}
+
+async function loadAjudaHistory(force=false){
+ const fam=currentBackendFamily()?.id;if(!fam||ajudaHistoryLoading||(ajudaHistory&&!force))return;
+ if(!navigator.onLine)return;
+ ajudaHistoryLoading=true;
+ try{const data=await backendFetch(`/ai/ajuda/history?family_id=${encodeURIComponent(fam)}&limit=50`);ajudaHistory=Array.isArray(data?.items)?data.items:[];if(data?.usage)ajudaUsage=data.usage}
+ catch(e){console.warn("[ajuda] histórico:",e);if(!ajudaHistory)ajudaHistory=[]}
+ finally{ajudaHistoryLoading=false;if(document.querySelector("#page-ajuda.active"))renderAjudaPage()}
+}
+
+function renderAjudaPage(){
+ const box=$("ajudaApp");if(!box)return;
+ const kids=ajudaKids(),child=ajudaChild();
+ if(!child){box.innerHTML="<div class='card notice'>Cadastre uma criança em Configurações para usar o Me ajuda.</div>";return}
+ if(!ajudaHistory&&!ajudaHistoryLoading)loadAjudaHistory();
+ const draft=ajudaDraft();
+ const lock='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+ box.innerHTML=`<div class="ajuda-wrap">
+ <div class="ajuda-head"><h2>Me ajuda, Diário</h2><p>Pergunte do seu jeito. O Diário explica para você, sugere como ensinar e monta uma atividade.</p></div>
+ <div class="card ajuda-form">
+  <div><label class="field">Para quem?</label><div class="child-tabs ajuda-kids">${kids.map(c=>`<button type="button" class="child ${c.id===child.id?"active":""}" aria-pressed="${c.id===child.id}" onclick="ajudaSelectChild('${c.id}')">${ajudaChildLabel(c)}</button>`).join("")}</div></div>
+  <div><label class="field" for="ajudaQuestion">Qual é a sua dúvida?</label>
+   <textarea id="ajudaQuestion" rows="4" placeholder="Ex.: Como explico pretérito perfeito e imperfeito?" oninput="saveAjudaDraft(this.value)">${esc(draft)}</textarea>
+   <div class="ajuda-privacy">${lock}<span>Só a idade e o ano escolar são enviados. Nomes viram "a criança".</span></div></div>
+  <div><div class="ajuda-ideas-label">Ou comece por uma ideia</div><div class="ajuda-ideas">${AJUDA_IDEAS.map((t,i)=>`<button type="button" class="ajuda-idea" onclick="ajudaFillIdea(${i})">${esc(t)}</button>`).join("")}</div></div>
+  <button type="button" id="ajudaAskBtn" class="btn success ajuda-ask" onclick="ajudaAsk()" ${ajudaBusy?"disabled":""}>${ajudaBusy?'<span class="ai-spinner" aria-hidden="true"></span> Preparando…':ic("ia")+" Perguntar ao Diário"}</button>
+  ${ajudaUsage?`<div class="ajuda-usage">${ajudaUsageText()}</div>`:""}
+ </div>
+ ${ajudaBusy?`<div class="ai-period-loading ajuda-loading" role="status"><span class="ai-spinner" aria-hidden="true"></span>O Diário está preparando a aula…</div>`:""}
+ ${ajudaError?`<div class="notice ajuda-error" role="alert">${esc(ajudaError)}</div>`:""}
+ <div id="ajudaResult">${ajudaResult?renderAjudaResult(ajudaResult):""}</div>
+ ${renderAjudaRecent()}
+ </div>`;
+}
+
+function renderAjudaResult(r){
+ const kids=ajudaKids(),c=kids.find(k=>k.id===r.childId)||null,age=r.age!=null&&r.age!==""?r.age:(c?ageFromBirth(c.birth):"");
+ const forName=c?firstName(c.name):"a criança";
+ const q=r.question?`<div class="ajuda-question">"${esc(r.question)}"</div>`:"";
+ const first=`<div class="card ajuda-card"><div class="ajuda-badges"><span class="badge status-terracotta">Para você</span>${r.disciplina&&!r.fora_do_escopo?`<span class="badge status-neutral">${esc(r.disciplina)}</span>`:""}</div><h3 class="ajuda-title">${esc(r.tema)}</h3><p class="ajuda-text">${esc(r.para_mae)}</p></div>`;
+ if(r.fora_do_escopo)return q+first;
+ const ex=(r.para_crianca?.exemplos||[]).map(x=>`<li>${esc(x)}</li>`).join("");
+ const items=(r.atividade?.itens||[]).map(i=>`<li><span>${esc(i.pergunta)}</span>${ajudaGabarito?`<span class="ajuda-answer">${esc(i.resposta)}</span>`:""}</li>`).join("");
+ const skills=r.skills||[];
+ const bncc=skills.length?skills.map(s=>`<div class="ajuda-skill"><div class="ajuda-skill-head"><b>${esc(s.code)}</b><span class="ajuda-ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>Na base BNCC</span></div><span>${esc(s.description||"")}</span></div>`).join(""):`<div class="meta">Nenhuma habilidade da BNCC ficou próxima o bastante deste conteúdo. Ao registrar, você pode analisar o relato.</div>`;
+ return `${q}${first}
+ <div class="card ajuda-card"><div class="ajuda-badges"><span class="badge status-gold">Para ${esc(forName)}${age!==""?`, ${esc(age)} ${Number(age)===1?"ano":"anos"}`:""}</span></div>
+  <p class="ajuda-analogy">${esc(r.para_crianca?.analogia||"")}</p>
+  ${ex?`<div class="ajuda-sub">Exemplos para falar em voz alta</div><ul class="ajuda-list">${ex}</ul>`:""}</div>
+ <div class="card ajuda-card"><div class="ajuda-badges"><span class="badge status-green">Atividade</span></div>
+  <h3 class="ajuda-title small">${esc(r.atividade?.titulo||"")}</h3><p class="ajuda-text muted">${esc(r.atividade?.instrucao||"")}</p>
+  <ol class="ajuda-items">${items}</ol>
+  <button type="button" class="btn ajuda-gab" aria-expanded="${ajudaGabarito}" onclick="ajudaToggleGabarito()">${ajudaGabarito?"Esconder gabarito":"Mostrar gabarito"}</button></div>
+ <div class="card ajuda-card"><h3 class="ajuda-title small">Habilidade da BNCC</h3>${bncc}
+  ${skills.length?`<div class="meta">Encontradas na base oficial pela proximidade com o conteúdo. Você revisa ao registrar.</div>`:""}
+  ${r.dica_extra?`<div class="ajuda-tip"><b>Dica para o dia a dia</b><span>${esc(r.dica_extra)}</span></div>`:""}</div>
+ <div class="card ajuda-card ajuda-actions"><h3 class="ajuda-title small">E agora?</h3>
+  <button type="button" class="btn success" onclick="ajudaToRecord()">${ic("lapis")} Registrar agora</button>
+  <div class="meta">Para quando a aula já aconteceu. Abre o registro preenchido; você ajusta o relato e escolhe a avaliação.</div>
+  <button type="button" class="btn" onclick="ajudaToPlan()">${ic("calendario")} Planejar para hoje</button>
+  <div class="meta">Para dar a aula depois. Vai para o Planejar com a atividade anexada.</div></div>`;
+}
+function ajudaToggleGabarito(){ajudaGabarito=!ajudaGabarito;const box=$("ajudaResult");if(box&&ajudaResult)box.innerHTML=renderAjudaResult(ajudaResult)}
+
+function renderAjudaRecent(){
+ const items=ajudaHistory||[];
+ if(!items.length&&!ajudaHistoryLoading)return"";
+ const kids=state.family.children||[];
+ const q=ajudaSearch.trim().toLocaleLowerCase("pt-BR");
+ let list=items;
+ if(ajudaShowAll&&q)list=list.filter(x=>[x.result?.tema,x.result?.disciplina,x.question].join(" ").toLocaleLowerCase("pt-BR").includes(q));
+ if(!ajudaShowAll)list=list.slice(0,5);
+ const chev='<svg class="ajuda-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+ return `<div class="ajuda-recent ${ajudaRecentOpen?"":"closed"}">
+  <h3><button type="button" class="ajuda-recent-toggle" aria-expanded="${ajudaRecentOpen}" onclick="ajudaRecentOpen=!ajudaRecentOpen;renderAjudaPage()"><span>Perguntas recentes</span>${chev}</button></h3>
+  ${ajudaRecentOpen?`<div class="ajuda-recent-body">
+   ${ajudaShowAll?`<input type="search" class="ajuda-search" placeholder="Buscar pergunta" aria-label="Buscar pergunta" value="${esc(ajudaSearch)}" oninput="ajudaSearch=this.value;ajudaRenderRecentList()">`:""}
+   <div id="ajudaRecentList" class="ajuda-recent-list">${ajudaRecentRows(list,kids)}</div>
+   ${items.length>5?`<button type="button" class="btn ajuda-more" onclick="ajudaShowAll=!ajudaShowAll;ajudaSearch='';renderAjudaPage()">${ajudaShowAll?"Mostrar só as recentes":`Ver todas (${items.length})`}</button>`:""}
+   <div class="meta">Ficam salvas para a família. Reabrir não gasta pergunta.</div></div>`:""}
+ </div>`;
+}
+function ajudaRecentRows(list,kids){
+ if(ajudaHistoryLoading&&!list.length)return'<div class="meta" style="padding:12px 14px">Carregando…</div>';
+ if(!list.length)return'<div class="meta" style="padding:12px 14px">Nenhuma pergunta encontrada.</div>';
+ return list.map(x=>{const local=backendToLocalChildId(x.child_id),c=kids.find(k=>k.id===local);return `<button type="button" class="ajuda-recent-row" onclick="ajudaOpenHistory('${esc(x.id)}')"><span><b>${esc(x.result?.tema||"Pergunta")}</b><span>${[x.result?.disciplina,c?firstName(c.name):"",ajudaWhen(x.created_at)].filter(Boolean).map(esc).join(" · ")}</span></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>`}).join("");
+}
+function ajudaRenderRecentList(){
+ const box=$("ajudaRecentList");if(!box)return;const q=ajudaSearch.trim().toLocaleLowerCase("pt-BR");
+ const list=(ajudaHistory||[]).filter(x=>!q||[x.result?.tema,x.result?.disciplina,x.question].join(" ").toLocaleLowerCase("pt-BR").includes(q));
+ box.innerHTML=ajudaRecentRows(list,state.family.children||[]);
+}
+function ajudaOpenHistory(id){
+ const x=(ajudaHistory||[]).find(i=>i.id===id);if(!x?.result)return;
+ ajudaResult={...x.result,id:x.id,childId:backendToLocalChildId(x.child_id),question:x.question,createdAt:x.created_at};
+ ajudaGabarito=false;ajudaError="";renderAjudaPage();
+ setTimeout(()=>$("ajudaResult")?.scrollIntoView({behavior:"smooth",block:"start"}),60);
+}
+
+async function ajudaAsk(){
+ if(ajudaBusy)return;
+ const child=ajudaChild();if(!child)return showNotice("Cadastre uma criança em Configurações.");
+ const q=String($("ajudaQuestion")?.value||"").trim();saveAjudaDraft(q);
+ if(q.length<8)return showNotice("Escreva a dúvida com um pouco mais de detalhe.",{title:"Conte um pouco mais",icon:"✏️"});
+ if(!navigator.onLine){ajudaError="Sem internet no momento. Sua dúvida continua aqui para enviar depois.";renderAjudaPage();return}
+ if(!appSessionValid()&&!tokenValid())return showNotice("Sua sessão do Diário expirou. Entre com Google novamente.");
+ const backendChildId=localToBackendChildId(child.id);
+ if(!backendChildId)return showNotice("Esta criança ainda não está vinculada ao backend.");
+ ajudaBusy=true;ajudaError="";ajudaResult=null;ajudaGabarito=false;renderAjudaPage();
+ $("page-ajuda")?.querySelector(".ajuda-loading")?.scrollIntoView({behavior:"smooth",block:"center"});
+ try{
+  const age=ageFromBirth(child.birth);
+  const data=await aiFetchWithRetry("/ai/ajuda",{method:"POST",body:JSON.stringify({child_id:backendChildId,duvida:ajudaStripNames(q),idade:age===""?null:age})});
+  ajudaResult={...data.result,id:data.id,childId:child.id,question:q,createdAt:data.created_at};
+  if(data.usage)ajudaUsage=data.usage;
+  saveAjudaDraft("");
+  ajudaHistory=[{id:data.id,child_id:backendChildId,question:data.question||q,created_at:data.created_at,result:data.result},...(ajudaHistory||[]).filter(x=>x.id!==data.id)];
+ }catch(e){
+  console.warn("[ajuda]",e);
+  if(e?.payload?.usage)ajudaUsage=e.payload.usage;
+  ajudaError=(!navigator.onLine||e instanceof TypeError)?"Sem internet no momento. Sua dúvida continua aqui para enviar depois."
+   :(e?.payload?.code==="AJUDA_LIMIT")?"Você usou todas as perguntas de hoje. Amanhã tem mais."
+   :"Não deu para gerar a resposta agora. Tente de novo.";
+ }finally{
+  ajudaBusy=false;renderAjudaPage();
+  setTimeout(()=>(ajudaResult?$("ajudaResult"):document.querySelector("#page-ajuda .ajuda-error"))?.scrollIntoView({behavior:"smooth",block:"start"}),60);
+ }
+}
+
+function ajudaClassification(r){
+ const skills=Array.isArray(r?.skills)?r.skills:[],components=Array.isArray(r?.components)?r.components:[];
+ return {components,skills};
+}
+function ajudaRecordText(r){
+ const parts=[r.resumo||`Estudamos ${r.tema}.`];
+ if(r.atividade?.titulo)parts.push(`Fizemos a atividade "${r.atividade.titulo}".`);
+ return parts.join(" ");
+}
+function ajudaPlanNotes(r){
+ const a=r.atividade||{},lines=[];
+ if(r.resumo)lines.push(r.resumo,"");
+ if(r.para_crianca?.analogia)lines.push("Como explicar: "+r.para_crianca.analogia,"");
+ if(a.titulo){lines.push(`Atividade: ${a.titulo}${a.instrucao?" — "+a.instrucao:""}`);(a.itens||[]).forEach((i,n)=>lines.push(`${n+1}. ${i.pergunta}`));lines.push("","Gabarito: "+(a.itens||[]).map((i,n)=>`${n+1}) ${i.resposta}`).join("; "))}
+ if(r.dica_extra)lines.push("","Dica: "+r.dica_extra);
+ return lines.join("\n").trim();
+}
+async function ajudaToRecord(){
+ const r=ajudaResult;if(!r)return;
+ const kids=ajudaKids(),child=kids.find(k=>k.id===r.childId)||ajudaChild();if(!child)return;
+ const existing=loadRecordDraft(child.id);
+ if(existing&&existing.mode==="new"&&String(existing.atividade||"").trim()&&!confirm(`Já existe um registro em andamento para ${firstName(child.name)}. Substituir pelo conteúdo do Me ajuda?`))return;
+ activeChildId=child.id;
+ if(typeof releaseUnreferencedFormMedia==="function")await releaseUnreferencedFormMedia();
+ collectiveRegistration=null;editing=null;recordFormOpen=true;resetRecordAiState();
+ photoData="";photosData=[];audioData="";photoTakenAt="";photoDateSource="";
+ const {components,skills}=ajudaClassification(r),first=skills[0]||null;
+ const draft={version:1,mode:"new",childId:child.id,savedAt:now(),date:today(),type:"bncc",origin:"ajuda",
+  area:components[0]?.area||first?.knowledge_area||"",componente:components[0]?.component||first?.curricular_component||"",codigo:first?.code||"",habilidade:first?.description||"",
+  aiComponents:components,selectedComponents:components,aiSkills:skills,selectedSkills:skills,aiCompetencies:[],selectedCompetencies:[],
+  aiExperience:components.length?{kind:"curriculum",complementary_activity:"",evidence_level:"sufficient",reason:""}:null,complementarySelected:false,
+  atividade:ajudaRecordText(r),observacoes:""};
+ try{localStorage.setItem(recordDraftKey(child.id),JSON.stringify(draft))}catch(e){}
+ showPage("registro");renderRecordPage();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function ajudaToPlan(){
+ const r=ajudaResult;if(!r)return;
+ const kids=ajudaKids(),child=kids.find(k=>k.id===r.childId)||ajudaChild();if(!child)return;
+ activeChildId=child.id;
+ showPage("planejamento");openNewPlanForm();
+ setTimeout(()=>{
+  if($("planChild"))$("planChild").value=child.id;
+  renderPlanChildrenPicker([child.id]);
+  if($("planTitle"))$("planTitle").value=r.tema||"";
+  if($("planNotes"))$("planNotes").value=ajudaPlanNotes(r);
+  if(typeof setPlanWhen==="function")setPlanWhen(today());
+  if(typeof setPlanDetailsOpen==="function")setPlanDetailsOpen(true);
+  window.pendingAjudaForPlan={...ajudaClassification(r),tema:r.tema||""};
+  $("planFormCard")?.scrollIntoView({behavior:"smooth",block:"start"});
+ },80);
+}
 
 async function backendFetch(path, options={}){
   if(!appSessionValid()){
@@ -6326,6 +6598,7 @@ function collectRecordDraft(){
    aiCompetencies:Array.isArray(recordAiCompetencies)?recordAiCompetencies:[],
    selectedCompetencies:Array.isArray(recordSelectedCompetencies)?recordSelectedCompetencies:[],
    aiExperience:recordAiExperience||null,
+   origin:recordOrigin||"",
    complementarySelected:!!recordComplementarySelected,
    materialId:$("fMaterialId")?.value||"",
    materialName:$("fMaterialName")?.value||"",
@@ -6510,7 +6783,7 @@ let recordSelectedSkills=[];
 let recordAiCompetencies=[];
 let recordSelectedCompetencies=[];
 let recordAiExperience=null;
-let recordComplementarySelected=false;
+let recordComplementarySelected=false,recordOrigin="";
 let collectiveRegistration=null;
 
 function currentPlanningContext(){
@@ -6605,7 +6878,7 @@ function syncPrimaryRecordComponent(){
  if($("fSkill")){$("fSkill").innerHTML=skill?`<option data-code="${esc(skill.code)}" value="${esc(skill.description||"")}" selected>${esc(skill.code)} — ${esc(skill.description||"")}</option>`:'<option value=""></option>'}
  saveRecordDraft(true);updateRecordPreview();
 }
-function resetRecordAiState(){recordAiStatusHtml="";recordAiRunId++;recordAiBusy=false;recordAiComponents=[];recordSelectedComponents=[];recordAiSkills=[];recordSelectedSkills=[];recordAiCompetencies=[];recordSelectedCompetencies=[];recordAiExperience=null;recordComplementarySelected=false}
+function resetRecordAiState(){recordAiStatusHtml="";recordAiRunId++;recordAiBusy=false;recordAiComponents=[];recordSelectedComponents=[];recordAiSkills=[];recordSelectedSkills=[];recordAiCompetencies=[];recordSelectedCompetencies=[];recordAiExperience=null;recordComplementarySelected=false;recordOrigin=""}
 function setRecordAiStatus(html){recordAiStatusHtml=html;const st=$("experienceComponentStatus");if(st)st.innerHTML=html}
 function setRecordAiButton(){const b=$("analyzeExperienceBtn");if(!b)return;b.disabled=recordAiBusy;b.innerHTML=recordAiBusy?'<span class="ai-spinner"></span> Analisando':(recordAiStatusHtml?"↻ Analisar novamente":ic("ia")+" Analisar")}
 async function analyzeRecordComponents(){
@@ -6744,6 +7017,8 @@ function renderRecordPage(){
  recordSelectedCompetencies=Array.isArray(draft?.selectedCompetencies)?draft.selectedCompetencies:(Array.isArray(editing?.selectedCompetencies)?editing.selectedCompetencies:[]);
  recordAiExperience=draft?.aiExperience||editing?.aiExperience||null;
  recordComplementarySelected=draft?.complementarySelected??editing?.complementarySelected??!!editing?.complementaryActivityName;
+ recordOrigin=draft?.origin||editing?.origin||"";
+ if(recordOrigin==="ajuda"&&!recordAiBusy&&!recordAiStatusHtml&&(recordAiComponents.length||recordAiSkills.length))recordAiStatusHtml=esc("Classificação trazida do Me ajuda. Ajuste o relato para contar o que realmente aconteceu; analisar de novo é opcional.");
 
  box.innerHTML=`<div class="card record-form-card">
  <div class="record-title-row">
@@ -7737,7 +8012,7 @@ function saveEntry(){
  let type=complementaryName?"complementar":"bncc";
  let e={id:editing?.id||uid(),childId:activeChildId,collectiveGroupId:editing?.collectiveGroupId||"",createdAt:editing?.createdAt||now(),updatedAt:now(),createdByUserId:editing?.createdByUserId||backendProfile?.user?.id||"",createdByEmail:editing?.createdByEmail||backendProfile?.user?.email||googleUser?.email||"",createdByName:editing?.createdByName||backendProfile?.user?.name||googleUser?.name||"",date:$("fDate").value,activityDateSource:(photoTakenAt&&isoDateFromTimestamp(photoTakenAt)===$("fDate").value)?(photoDateSource==="exif"?"photo_exif":"photo_file"):(editing?.activityDateSource||"manual"),photoTakenAt:photoTakenAt||editing?.photoTakenAt||"",photoDateSource:photoDateSource||editing?.photoDateSource||"",type,classificationStatus:(!editing&&recordQuickMode())?"pending":"classified",yearRefAtRecord:currentChild()?.stage||"",complementaryId:type==="complementar"?compId:"",
  area:$("fArea")?.value||recordSelectedComponents[0]?.area||"",componente:$("fComp")?.value||recordSelectedComponents[0]?.component||"",codigo:$("fCode")?.value||"",
- habilidade:$("fSkill")?.value||"",aiExperience:recordAiExperience||null,complementarySelected:!!recordComplementarySelected,complementaryActivityName:complementaryName,aiComponents:Array.isArray(recordAiComponents)?recordAiComponents:[],selectedComponents:Array.isArray(recordSelectedComponents)?recordSelectedComponents:[],aiSkills:Array.isArray(recordAiSkills)?recordAiSkills:[],selectedSkills:Array.isArray(recordSelectedSkills)?recordSelectedSkills:[],aiCompetencies:Array.isArray(recordAiCompetencies)?recordAiCompetencies:[],selectedCompetencies:Array.isArray(recordSelectedCompetencies)?recordSelectedCompetencies:[],materialId:$("fMaterialId")?.value||"",materialName:$("fMaterialName")?.value||"",materialPublisher:$("fMaterialPublisher")?.value||"",atividade:$("fActivity").value.trim(),observacoes:$("fObs").value.trim(),status:$("fStatus").value,
+ habilidade:$("fSkill")?.value||"",origin:recordOrigin||editing?.origin||"",aiExperience:recordAiExperience||null,complementarySelected:!!recordComplementarySelected,complementaryActivityName:complementaryName,aiComponents:Array.isArray(recordAiComponents)?recordAiComponents:[],selectedComponents:Array.isArray(recordSelectedComponents)?recordSelectedComponents:[],aiSkills:Array.isArray(recordAiSkills)?recordAiSkills:[],selectedSkills:Array.isArray(recordSelectedSkills)?recordSelectedSkills:[],aiCompetencies:Array.isArray(recordAiCompetencies)?recordAiCompetencies:[],selectedCompetencies:Array.isArray(recordSelectedCompetencies)?recordSelectedCompetencies:[],materialId:$("fMaterialId")?.value||"",materialName:$("fMaterialName")?.value||"",materialPublisher:$("fMaterialPublisher")?.value||"",atividade:$("fActivity").value.trim(),observacoes:$("fObs").value.trim(),status:$("fStatus").value,
  photos:photosData.map(p=>({...p})),foto:"",fotoDriveId:photosData[0]?.driveId||editing?.fotoDriveId||"",fotoVisibleDriveId:photosData[0]?.visibleDriveId||editing?.fotoVisibleDriveId||"",audio:editing?.audio||"",audioDriveId:editing?.audioDriveId||""};
  e.classificationStatus=entryHasPedagogicalClassification(e)?"classified":(editing?.classificationStatus==="not_applicable"?"not_applicable":"pending");
  if(!e.date)missing.push("Data");if(!e.atividade)missing.push("Atividade realizada");if(!e.status&&!(!editing&&recordQuickMode()))missing.push("Avaliação");
@@ -8295,8 +8570,8 @@ function renderPlanWhen(forceCustom){
 }
 function setPlanWhen(v){const d=$("planDate");if(!d)return;d.value=v;d.dispatchEvent(new Event("input",{bubbles:true}));d.dispatchEvent(new Event("change",{bubbles:true}));renderPlanWhen()}
 function openPlanOtherDate(){renderPlanWhen(true);const d=$("planDate");if(!d)return;d.focus();try{d.showPicker()}catch(e){}}
-function openNewPlanForm(){window.v135RetakeSource=null;clearPlanForm();togglePlanForm(true);setTimeout(planPdInit,0)}
-function cancelPlanEdit(){clearPlanForm();togglePlanForm(false)}
+function openNewPlanForm(){window.pendingAjudaForPlan=null;window.v135RetakeSource=null;clearPlanForm();togglePlanForm(true);setTimeout(planPdInit,0)}
+function cancelPlanEdit(){window.pendingAjudaForPlan=null;clearPlanForm();togglePlanForm(false)}
 async function editPlan(id){setTimeout(planPdInit,120);
  const p=state.plans.find(x=>x.id===id);if(!p)return;resetPlanCalendarOrigin();editingPlanId=id;activeChildId=planChildIds(p)[0]||p.childId;
  togglePlanForm(true);if($("planFormTitle"))$("planFormTitle").textContent="Editar planejamento";if($("planSaveBtn"))$("planSaveBtn").textContent="Salvar alterações";
@@ -8321,6 +8596,7 @@ async function addPlan(){
  const existing=editingPlanId?state.plans.find(x=>x.id===editingPlanId):null;
  if(!weather&&existing&&(existing.nextDate||existing.date)===start&&existing.place===planPlaceValue())weather=existing.weather||null;
  const plan=existing?{...existing,childId,childIds,title,notes:$("planNotes").value.trim(),place:planPlaceValue(),placeDetails,weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",time:$("planTime")?.value||"",durationMinutes:Number($("planDuration")?.value||0)||0,recurrence,weekdays,endDate:$("planEndDate")?.value||"",nextDate:start,date:(existing.occurrences||[]).length?existing.date:start,updatedAt:now()}:{id:uid(),sourceEntryId:window.v135RetakeSource?.entryId||"",childId,childIds,date:start,nextDate:start,type:"planned",complementaryId:"",component:"",title,notes:$("planNotes").value.trim(),place:planPlaceValue(),placeDetails,weather,materialId:$("planMaterialId")?.value||"",materialName:$("planMaterialName")?.value||"",materialPublisher:$("planMaterialPublisher")?.value||"",materialBnccCode:"",materialBnccDescription:"",materialBnccComponent:"",materialBnccArea:"",materialBnccSkills:[],time:$("planTime")?.value||"",durationMinutes:Number($("planDuration")?.value||0)||0,recurrence,weekdays,endDate:$("planEndDate")?.value||"",occurrences:[],participantProgress:{},createdAt:now(),updatedAt:now(),completedAt:"",importedCalendarId:imported?.calendarId||"",importedCalendarName:imported?.calendarName||"",importedCalendarEventId:imported?.eventId||"",importedCalendarHtmlLink:imported?.htmlLink||"",importedCalendarUpdated:imported?.updated||"",importedCalendarFingerprint:imported?.fingerprint||"",importedCalendarChanged:false};
+ if(!existing&&window.pendingAjudaForPlan)plan.ajuda={components:window.pendingAjudaForPlan.components||[],skills:window.pendingAjudaForPlan.skills||[]};window.pendingAjudaForPlan=null;
  if(!existing)state.plans.push(plan);else Object.assign(existing,plan);window.v135RetakeSource=null;
  const shouldAddCalendar=!!$("planAddToCalendar")?.checked&&!imported;
  clearPlanForm();togglePlanForm(false);saveLocal();renderPlans();renderDashboard();
@@ -8392,7 +8668,7 @@ function startCollectivePlan(id){
  const p=state.plans.find(x=>x.id===id);if(!p)return;const childIds=planPendingChildren(p);if(childIds.length<2)return startPlan(id,childIds[0]||"");
  collectiveRegistration={groupId:uid(),planId:id,occurrenceDate:p.nextDate||p.date,childIds,index:0,total:childIds.length};startPlan(id,childIds[0],true);
 }
-function startPlan(id,childId="",fromCollective=false){let p=state.plans.find(x=>x.id===id);if(!p)return;const pending=planPendingChildren(p);if(!childId){if(pending.length===1)childId=pending[0];else if(planViewChildFilter!=="all"&&pending.includes(planViewChildFilter))childId=planViewChildFilter;else return openPlanParticipantChooser(p)}if(!pending.includes(childId))return showNotice("Esta atividade já foi registrada para esta criança.");if(!fromCollective)collectiveRegistration=null;activeChildId=childId;recordFormOpen=true;resetRecordAiState();const collective=fromCollective&&collectiveRegistration;editing={id:uid(),isNewFromPlan:true,childId,date:today(),type:p.type,complementaryId:p.complementaryId||"",area:"",componente:p.component||"",codigo:"",habilidade:"",materialId:p.materialId||"",materialName:p.materialName||"",materialPublisher:p.materialPublisher||"",materialBnccSkills:[],atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,planOccurrenceDate:p.nextDate||p.date,collectiveGroupId:collective?.groupId||"",collectivePosition:collective?collective.index+1:0,collectiveTotal:collective?.total||0};clearRecordDraft(childId);showPage("registro");renderRecordPage()}
+function startPlan(id,childId="",fromCollective=false){let p=state.plans.find(x=>x.id===id);if(!p)return;const pending=planPendingChildren(p);if(!childId){if(pending.length===1)childId=pending[0];else if(planViewChildFilter!=="all"&&pending.includes(planViewChildFilter))childId=planViewChildFilter;else return openPlanParticipantChooser(p)}if(!pending.includes(childId))return showNotice("Esta atividade já foi registrada para esta criança.");if(!fromCollective)collectiveRegistration=null;activeChildId=childId;recordFormOpen=true;resetRecordAiState();const collective=fromCollective&&collectiveRegistration;editing={id:uid(),isNewFromPlan:true,childId,date:today(),type:p.type,complementaryId:p.complementaryId||"",area:"",componente:p.component||"",codigo:"",habilidade:"",materialId:p.materialId||"",materialName:p.materialName||"",materialPublisher:p.materialPublisher||"",materialBnccSkills:[],atividade:p.title,observacoes:p.notes,status:"",foto:"",audio:"",createdAt:now(),updatedAt:now(),createdByUserId:backendProfile?.user?.id||"",createdByEmail:backendProfile?.user?.email||googleUser?.email||"",createdByName:backendProfile?.user?.name||googleUser?.name||"",planId:p.id,...(p.ajuda?{origin:"ajuda",aiComponents:p.ajuda.components||[],selectedComponents:p.ajuda.components||[],aiSkills:p.ajuda.skills||[],selectedSkills:p.ajuda.skills||[],aiExperience:(p.ajuda.components||[]).length?{kind:"curriculum",complementary_activity:"",evidence_level:"sufficient",reason:""}:null,area:p.ajuda.components?.[0]?.area||"",componente:p.ajuda.components?.[0]?.component||p.component||"",codigo:p.ajuda.skills?.[0]?.code||"",habilidade:p.ajuda.skills?.[0]?.description||""}:{}),planOccurrenceDate:p.nextDate||p.date,collectiveGroupId:collective?.groupId||"",collectivePosition:collective?collective.index+1:0,collectiveTotal:collective?.total||0};clearRecordDraft(childId);showPage("registro");renderRecordPage()}
 function completePlanOccurrence(planId,occurrenceDate,childId){const p=state.plans.find(x=>x.id===planId);if(!p)return;childId=childId||p.childId;p.participantProgress??={};p.participantProgress[occurrenceDate]??={};p.participantProgress[occurrenceDate][childId]={status:"completed",updatedAt:now()};const allDone=planChildIds(p).every(id=>["completed","skipped"].includes(p.participantProgress[occurrenceDate]?.[id]?.status));if(allDone){p.occurrences??=[];p.occurrences=p.occurrences.filter(x=>x.date!==occurrenceDate);p.occurrences.push({date:occurrenceDate,status:"completed",updatedAt:now()});if(p.recurrence==="none"){p.completedAt=now();p.nextDate=""}else{p.nextDate=nextPlanDate(p,occurrenceDate);if(!p.nextDate)p.completedAt=now()}}p.updatedAt=now()}
 async function skipPlanOccurrence(id){const p=state.plans.find(x=>x.id===id);if(!p)return;const current=p.nextDate||p.date;if(!await showConfirm(`Pular a ocorrência de ${fmtDate(current)}?`,{title:"Pular ocorrência",icon:"⏭️",okLabel:"Pular",danger:false}))return;p.occurrences??=[];p.occurrences.push({date:current,status:"skipped",updatedAt:now()});p.nextDate=nextPlanDate(p,current);if(!p.nextDate)p.completedAt=now();p.updatedAt=now();saveLocal();renderPlans();renderDashboard()}
 async function deletePlan(id){const p=state.plans.find(x=>x.id===id);if(!p)return;if(!await showConfirm("Excluir este planejamento?",{title:"Excluir planejamento",icon:"🗑️",okLabel:"Excluir"}))return;state.plans=state.plans.filter(x=>x.id!==id);addTomb("plans",id);saveLocal();renderPlans();renderDashboard();if(p.calendarEventId)await deleteCalendarEventForPlan(p)}
@@ -9350,6 +9626,7 @@ function renderHistoryBrowser(){
         ${link==="pending"?`<label onclick="event.stopPropagation()" style="display:flex;gap:7px;align-items:center;font-weight:800"><input type="checkbox" ${historyBnccSelected.has(x.id)?"checked":""} onchange="toggleHistoryBnccSelection('${x.id}',this.checked)"> Selecionar</label>`:""}
       </div>
       <div class="entry-title">${esc(x.atividade||"Registro")}</div>
+      ${x.origin==="ajuda"?'<div class="ajuda-origin"><span class="badge status-green">Criado com o Diário</span></div>':""}
       <div class="history-entry-footer">
         <span class="badge ${historyStatusClass(x.status)}">${esc(x.status||"Sem avaliação")}</span>
         <div style="display:flex;align-items:center;gap:8px">
@@ -9636,7 +9913,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "16.58";
+const APP_VERSION = "16.59";
 queueMicrotask(()=>{ const el=document.getElementById("healthFrontendVersion"); if(el) el.textContent=`v${APP_VERSION}`; });
 
 let deferredInstallPrompt=null;
