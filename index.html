@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#441015">
 <title>Diário de Estudos</title>
 
-<link rel="manifest" href="/manifest.json?v=17.7">
+<link rel="manifest" href="/manifest.json?v=17.8">
 <link rel="icon" type="image/png" sizes="32x32" href="/icon-192.png">
 <link rel="icon" type="image/png" sizes="48x48" href="/icon-192.png">
 
@@ -2230,10 +2230,11 @@ body.ds-v1 .ins-row .btn{width:auto!important;flex-shrink:0;white-space:nowrap}
 .cat-rev-actions{display:flex;gap:6px}
 .cat-src{display:block;margin-top:4px;font-size:11.5px;color:#8A7F78}
 .cat-reset-link{margin-top:8px;padding:6px 0;border:0;background:transparent;color:#6A5F58;font-size:12.5px;text-decoration:underline;cursor:pointer}
+.cat-merge-h{display:block;margin-top:6px}
 .cat-prog{display:flex;align-items:center;gap:8px;font-size:13px;color:#342D29}
 </style>
 </head>
-<body data-build="17.7" class="auth-checking ds-v1">
+<body data-build="17.8" class="auth-checking ds-v1">
 <svg class="ic-sprite" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><symbol id="i-ajuda" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.1V16h5v-.1c0-.8.4-1.6 1.1-2.1A6 6 0 0 0 12 3Z"/></symbol><symbol id="i-carregando" viewBox="0 0 24 24"><path d="M7 3h10M7 21h10"/><path d="M8 3c0 4 8 5 8 9s-8 5-8 9"/><path d="M16 3c0 4-8 5-8 9s8 5 8 9"/></symbol><symbol id="i-sair" viewBox="0 0 24 24"><path d="M15 4h4v16h-4"/><path d="M10 8l-4 4 4 4M6 12h10"/></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol><symbol id="i-repetir" viewBox="0 0 24 24"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></symbol><symbol id="i-seta" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol><symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></symbol><symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol><symbol id="i-mais" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="i-lapis" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></symbol><symbol id="i-lixeira" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/><path d="M10 11v6M14 11v6"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol><symbol id="i-lanterna" viewBox="0 0 24 24"><path d="M8 3h8v5l-2 3v10h-4V11L8 8z"/><path d="M8 7h8"/><path d="M12 14v2"/></symbol><symbol id="i-borracha" viewBox="0 0 24 24"><path d="M15 4l5 5-9 9H7l-3-3z"/><path d="M10 9l5 5"/><path d="M7 20h13"/></symbol><symbol id="i-engrenagem" viewBox="0 0 24 24"><path d="M12.2 2h-.4a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.3a2 2 0 0 1-2 0l-.2-.1a2 2 0 0 0-2.7.7l-.2.4a2 2 0 0 0 .7 2.7l.2.1a2 2 0 0 1 1 1.7v.5a2 2 0 0 1-1 1.7l-.2.1a2 2 0 0 0-.7 2.7l.2.4a2 2 0 0 0 2.7.7l.2-.1a2 2 0 0 1 2 0l.4.3a2 2 0 0 1 1 1.7v.2a2 2 0 0 0 2 2h.4a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.3a2 2 0 0 1 2 0l.2.1a2 2 0 0 0 2.7-.7l.2-.4a2 2 0 0 0-.7-2.7l-.2-.1a2 2 0 0 1-1-1.7v-.5a2 2 0 0 1 1-1.7l.2-.1a2 2 0 0 0 .7-2.7l-.2-.4a2 2 0 0 0-2.7-.7l-.2.1a2 2 0 0 1-2 0l-.4-.3a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-lupa" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol><symbol id="i-pular" viewBox="0 0 24 24"><path d="M5 6l8 6-8 6z"/><path d="M18 6v12"/></symbol><symbol id="i-restaurar" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/></symbol><symbol id="i-lista" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r=".8"/><circle cx="4" cy="12" r=".8"/><circle cx="4" cy="18" r=".8"/></symbol><symbol id="i-sucesso" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/></symbol><symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.3" r=".6"/></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r=".6"/></symbol><symbol id="i-pergunta" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.6 2.6 0 1 1 3.6 2.4c-.8.4-1.1.9-1.1 1.7v.4"/><circle cx="12" cy="17" r=".6"/></symbol><symbol id="i-cadeado" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol><symbol id="i-cadeado-aberto" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 7.6-1.7"/></symbol><symbol id="i-chave" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2.5 2.5M14 9l2 2"/></symbol><symbol id="i-sem-conexao" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M5 12.5a10 10 0 0 1 4-2.3M19 12.5a10 10 0 0 0-3.2-2"/><circle cx="12" cy="19.5" r=".6"/></symbol><symbol id="i-cartao" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></symbol><symbol id="i-cupom" viewBox="0 0 24 24"><path d="M4 7h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4z"/><path d="M14 7v10" stroke-dasharray="2 2"/></symbol><symbol id="i-envelope" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6.5L20.5 7"/></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol><symbol id="i-arquivar" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="4.5" rx="1"/><path d="M5 9v10h14V9"/><path d="M10 13h4"/></symbol><symbol id="i-imagem" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M20.5 16l-5-5-8 8.5"/></symbol><symbol id="i-sino" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol><symbol id="i-raio" viewBox="0 0 24 24"><path d="M13 2.5L5 13.5h6l-1 8 8-11h-6z"/></symbol><symbol id="i-entrada" viewBox="0 0 24 24"><path d="M4 13l2-8h12l2 8v6H4z"/><path d="M4 13h4.5l1 2h5l1-2H20"/><path d="M12 5v6M9.5 8.5L12 11l2.5-2.5"/></symbol><symbol id="i-calendario" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol><symbol id="i-local" viewBox="0 0 24 24"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></symbol><symbol id="i-material" viewBox="0 0 24 24"><path d="M6 3.5h11.5v17H6a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 6 3.5z"/><path d="M4.5 17.5A1.5 1.5 0 0 1 6 16h11.5"/><path d="M9 8h5"/></symbol><symbol id="i-livro" viewBox="0 0 24 24"><path d="M4 5c3-1.5 5.5-1.5 8 0v15c-2.5-1.5-5-1.5-8 0z"/><path d="M20 5c-3-1.5-5.5-1.5-8 0v15c2.5-1.5 5-1.5 8 0z"/></symbol><symbol id="i-livros" viewBox="0 0 24 24"><rect x="4" y="4" width="4" height="16" rx="1"/><rect x="9.5" y="6" width="4" height="14" rx="1"/><path d="M15.5 7.5l3.8-1 3 13.2-3.8 1z"/></symbol><symbol id="i-ia" viewBox="0 0 24 24"><path d="M12 3l1.4 4.1 4.1 1.4-4.1 1.4L12 14l-1.4-4.1-4.1-1.4 4.1-1.4z"/><path d="M18.5 14l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/><path d="M6 15l.7 1.8 1.8.7-1.8.7L6 20l-.7-1.8-1.8-.7 1.8-.7z"/></symbol><symbol id="i-dica" viewBox="0 0 24 24"><path d="M9 17h6"/><path d="M10 20.5h4"/><path d="M8.5 14a5.5 5.5 0 1 1 7 0c-.9.8-1.5 1.7-1.5 3h-4c0-1.3-.6-2.2-1.5-3z"/></symbol><symbol id="i-clima" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><path d="M8 2v1.3M2 8h1.3M3.8 3.8l.9.9M12.2 3.8l-.9.9"/><path d="M9 19h9a3.5 3.5 0 0 0 0-7 5 5 0 0 0-9.5 1.5A2.8 2.8 0 0 0 9 19z"/></symbol><symbol id="i-familia" viewBox="0 0 24 24"><circle cx="8" cy="7" r="2.6"/><circle cx="16.5" cy="7.5" r="2.2"/><path d="M3.5 19v-2.5a4.5 4.5 0 0 1 9 0V19"/><path d="M13.5 19v-2a3.3 3.3 0 0 1 6.6 0v2"/></symbol><symbol id="i-pessoa" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></symbol><symbol id="i-crianca" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4.5"/><path d="M11 4.6c.4-1.3 1.8-2 3.1-1.6"/><path d="M6.5 21a5.5 5.5 0 0 1 11 0"/></symbol><symbol id="i-ano-escolar" viewBox="0 0 24 24"><path d="M2.5 9L12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c1.5 1.5 3.5 2.2 5.5 2.2s4-.7 5.5-2.2V11"/><path d="M21.5 9v5"/></symbol><symbol id="i-peca" viewBox="0 0 24 24"><path d="M5 8h3a2 2 0 1 1 4 0h3v3a2 2 0 1 1 0 4v4h-4a2 2 0 1 0-4 0H5v-4a2 2 0 1 0 0-4z"/></symbol><symbol id="i-documento" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5"/><path d="M9 13h7M9 17h5"/></symbol><symbol id="i-nuvem" viewBox="0 0 24 24"><path d="M7 18h10.5a4 4 0 0 0 .6-7.9A6 6 0 0 0 6.6 9 4.5 4.5 0 0 0 7 18z"/></symbol><symbol id="i-pastas" viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/><path d="M3 7V5h6l2 2"/></symbol><symbol id="i-celular" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></symbol><symbol id="i-balao" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol><symbol id="i-alvo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol><symbol id="i-olho" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-estrela" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></symbol><symbol id="i-filtro" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></symbol><symbol id="i-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol><symbol id="i-imprimir" viewBox="0 0 24 24"><path d="M7 9V3h10v6"/><rect x="3.5" y="9" width="17" height="8" rx="2"/><path d="M7 14h10v7H7z"/></symbol><symbol id="i-compartilhar" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></symbol></svg>
 <header>
   <div class="header-branding">
@@ -2977,7 +2978,7 @@ body.ds-v1 .ins-row .btn{width:auto!important;flex-shrink:0;white-space:nowrap}
                 <div class="full"><label class="field">Capa (link ou foto)</label><input id="adminCatalogBookCover" placeholder="Cole o link da capa ou envie uma foto"><div class="cover-picker" data-for="adminCatalogBookCover"><label class="btn small cover-pick-btn"><svg class="ic ic-camera" aria-hidden="true" focusable="false"><use href="#i-camera"></use></svg> Enviar foto da capa<input type="file" accept="image/*" hidden onchange="pickCoverFile(event,'adminCatalogBookCover')"></label><span class="cover-pick-preview" id="adminCatalogBookCoverPreview"></span></div></div>
               </div><button class="btn success" style="margin-top:10px" type="button" onclick="addAdminCatalogBook()">Adicionar ao catálogo</button>
             </div>
-            <div id="bnccEmbeddingAdmin" style="margin-top:18px;border-top:1px solid #E8E1D2;padding-top:12px"><details><summary style="cursor:pointer;font-weight:700">Ferramentas técnicas do catálogo</summary><div style="padding-top:10px"><div class="cat-review"><b>Padronização do catálogo</b><div class="meta" id="catReviewSummary">Confira os livros aprovados que estão fora do padrão. Nada muda sem você aplicar, e tudo pode ser desfeito.</div><div class="toolbar" style="margin-top:8px"><button type="button" class="btn small" onclick="catCheckRules()">Verificar pela regra</button><button type="button" class="btn small" id="catAiBtn" onclick="catRunAi()">Revisar com IA</button><button type="button" class="btn small" onclick="catLoadRevisions()">Alterações recentes</button></div><button type="button" class="cat-reset-link" onclick="catRunAi(true)">Revisar todos de novo</button><div id="catReviewList" class="cat-rev-list"></div><div id="catRevisionsList" class="cat-rev-list"></div></div><b>Busca semântica BNCC</b><div id="bnccEmbeddingStatus" class="meta" style="margin:6px 0">Verificando índice...</div><button type="button" class="btn dark small" id="bnccEmbeddingBuildBtn" onclick="buildBnccEmbeddings()">Preparar embeddings da BNCC</button></div></details></div>
+            <div id="bnccEmbeddingAdmin" style="margin-top:18px;border-top:1px solid #E8E1D2;padding-top:12px"><details><summary style="cursor:pointer;font-weight:700">Ferramentas técnicas do catálogo</summary><div style="padding-top:10px"><div class="cat-review"><b>Padronização do catálogo</b><div class="meta" id="catReviewSummary">Confira os livros aprovados que estão fora do padrão. Nada muda sem você aplicar, e tudo pode ser desfeito.</div><div class="toolbar" style="margin-top:8px"><button type="button" class="btn small" onclick="catCheckRules()">Verificar pela regra</button><button type="button" class="btn small" id="catAiBtn" onclick="catRunAi()">Revisar com IA</button><button type="button" class="btn small" onclick="catLoadRevisions()">Alterações recentes</button><button type="button" class="btn small" onclick="catLoadMerges()">Mesclados</button></div><button type="button" class="cat-reset-link" onclick="catRunAi(true)">Revisar todos de novo</button><div id="catReviewList" class="cat-rev-list"></div><div id="catRevisionsList" class="cat-rev-list"></div><div id="catMergesList" class="cat-rev-list"></div></div><b>Busca semântica BNCC</b><div id="bnccEmbeddingStatus" class="meta" style="margin:6px 0">Verificando índice...</div><button type="button" class="btn dark small" id="bnccEmbeddingBuildBtn" onclick="buildBnccEmbeddings()">Preparar embeddings da BNCC</button></div></details></div>
           </div></details>
 </div></div>
 
@@ -5283,6 +5284,32 @@ async function catLoadRevisions(){
 async function catUndo(id){
  try{await backendFetch(`/community-books/revisions/${encodeURIComponent(id)}/undo`,{method:"POST"});catLoadRevisions();showNotice("Alteração desfeita.",{title:"Pronto",icon:"↩️"})}
  catch(e){showNotice("Não foi possível desfazer: "+(e.message||e),{type:"error"})}
+}
+
+
+/* ---- Mesclados (v17.8) ---- */
+async function catLoadMerges(){
+ const box=$("catMergesList");if(!box)return;box.innerHTML='<div class="meta">Carregando…</div>';
+ try{
+  const d=await backendFetch("/community-books/merges"),m=d.merges||[],l=d.legacy||[];
+  const when=v=>esc(String(v||"").slice(0,16).replace("T"," "));
+  const dest=x=>x.target_type==="google_books"?"Google Books":esc(x.target_title||"livro do catálogo");
+  let html='<b class="cat-merge-h">Mesclados</b>';
+  html+=m.length?m.map(x=>`<div class="cat-rev-row${x.undone_at?" is-undone":""}"><div><b>${esc(x.source_title||"Cadastro")}</b><span class="cat-src">→ ${dest(x)} · ${x.family_books} livro(s) de família · ${when(x.created_at)}${x.undone_at?" · desfeita":""}</span></div>${x.undone_at?"":`<div class="cat-rev-actions"><button type="button" class="btn small" onclick="catUndoMerge('${esc(x.id)}')">Desfazer</button></div>`}</div>`).join(""):"";
+  if(l.length)html+=`<div class="meta" style="margin-top:6px">Mesclagens antigas, feitas antes do registro. Reativar volta o cadastro para Pendentes e devolve a ele o livro da família que o cadastrou; as demais famílias continuam no livro escolhido.</div>`+l.map(x=>`<div class="cat-rev-row"><div><b>${esc(x.title||"Cadastro")}</b><span class="cat-src">→ ${dest(x)}${x.family_name?` · cadastrado por ${esc(x.family_name)}`:""} · ${when(x.merged_at)}</span></div><div class="cat-rev-actions"><button type="button" class="btn small" onclick="catReactivate('${esc(x.id)}')">Reativar</button></div></div>`).join("");
+  if(!m.length&&!l.length)html+='<div class="meta">Nenhum cadastro mesclado.</div>';
+  box.innerHTML=html;
+ }catch(e){box.innerHTML=`<div class="meta">Não foi possível carregar: ${esc(e.message||e)}</div>`}
+}
+async function catUndoMerge(id){
+ if(!confirm("Desfazer esta mesclagem? O cadastro volta e os livros das famílias voltam a apontar para ele."))return;
+ try{const r=await backendFetch(`/community-books/merges/${encodeURIComponent(id)}/undo`,{method:"POST"});catLoadMerges();showNotice(`Mesclagem desfeita. ${r.restored_family_books||0} livro(s) de família devolvido(s).`,{title:"Pronto",icon:"↩️"})}
+ catch(e){showNotice("Não foi possível desfazer: "+(e.message||e),{type:"error"})}
+}
+async function catReactivate(id){
+ if(!confirm("Reativar este cadastro? Ele volta para Pendentes para você revisar."))return;
+ try{const r=await backendFetch(`/community-books/${encodeURIComponent(id)}/reactivate`,{method:"POST"});catLoadMerges();if(typeof loadPendingCommunityBooks==="function")loadPendingCommunityBooks({silent:true});showNotice(`Cadastro reativado e enviado para Pendentes.${r.restored_family_books?` ${r.restored_family_books} livro(s) da família devolvido(s).`:""}`,{title:"Pronto",icon:"↩️"})}
+ catch(e){showNotice("Não foi possível reativar: "+(e.message||e),{type:"error"})}
 }
 
 async function backendFetch(path, options={}){
@@ -8062,7 +8089,9 @@ function showChoiceModal({title="Escolha uma opção",message="",items=[],noneLa
  });
 }
 function bookNormText(t){return String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\b(?:volume|vols?|vl|v|livro|n[o°º]?)\s*\.?\s*(\d+)/g," $1 ").replace(/[^a-z0-9]+/g," ").trim()}
-function bookMatchTokens(t){const stop=new Set(["a","o","as","os","e","de","da","do","das","dos","em","no","na","nos","nas","um","uma","para","com","por","the","of","and"]);return bookNormText(t).split(" ").filter(w=>w&&(/^\d+$/.test(w)||w.length>=2)&&!stop.has(w))}
+const BOOK_SYN={esse:"este",essa:"esta",isso:"isto",esses:"estes",essas:"estas"};
+function bookCanon(w){w=BOOK_SYN[w]||w;if(w.length>3&&!/^\d+$/.test(w)){if(w.length>4&&/oes$|aes$/.test(w))w=w.slice(0,-3)+"ao";else if(/[^s]s$/.test(w))w=w.slice(0,-1)}return w}
+function bookMatchTokens(t){const stop=new Set(["a","o","as","os","e","de","da","do","das","dos","em","no","na","nos","nas","um","uma","para","com","por","the","of","and"]);return bookNormText(t).split(" ").filter(w=>w&&(/^\d+$/.test(w)||w.length>=2)&&!stop.has(w)).map(bookCanon)}
 function bookLev(a,b){if(a===b)return 0;if(Math.abs(a.length-b.length)>2)return 9;let p=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){const c=[i];for(let j=1;j<=b.length;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c}return p[b.length]}
 function bookMatchScore(ref,cand){
  const isbn=x=>String(x||"").replace(/\D/g,"");
@@ -9238,10 +9267,30 @@ async function openBookBarcodeScanner(){
  try{await startBookBarcodePipeline();if(btn)btn.innerHTML=ic("camera")}
  catch(e){console.warn("Leitor de ISBN:",e);stopBookBarcodeMedia();scanner.classList.add("hidden");if(status)status.textContent=bookCameraErrorMessage(e);if($("bookSearchStatus"))$("bookSearchStatus").textContent=bookCameraErrorMessage(e);if(btn){btn.disabled=false;btn.innerHTML=ic("camera");btn.title="Tentar câmera novamente"}}
 }
+let bookQuickTimer=null;
+function bookFamilyMatches(q,isbn){
+ const want=bookMatchTokens(q),digits=String(isbn||"").replace(/\D/g,"");
+ return (window.currentReadingBooks||[]).filter(b=>{
+  if(digits)return [b.isbn13,b.isbn10].some(x=>String(x||"").replace(/\D/g,"")===digits);
+  if(!want.length)return false;const have=bookMatchTokens([b.title,b.subtitle,...(b.authors||[])].join(" "));
+  return want.filter(w=>have.includes(w)).length/want.length>=0.5;
+ }).map(b=>({...b,source:"family",alreadyAdded:true}));
+}
 function scheduleBookSearch(){
- clearTimeout(bookSearchTimer);
+ clearTimeout(bookSearchTimer);clearTimeout(bookQuickTimer);
  const q=String($("bookSearchQuery")?.value||"").trim();
  if(q.length<2){$("bookSearchStatus").textContent="";$("bookSearchResults").innerHTML="";$("manualBookBox")?.classList.add("hidden");return}
+ // Catálogo do Diário aparece enquanto a família digita; o Google entra quando ela para.
+ if(q.length>=3&&!bookQueryIsbn())bookQuickTimer=setTimeout(async()=>{
+  const seqAtStart=bookSearchSeq;
+  try{const d=await backendFetch("/community-books/search?q="+encodeURIComponent(q));
+   if(seqAtStart!==bookSearchSeq||String($("bookSearchQuery")?.value||"").trim()!==q)return;
+   const community=(d?.items||[]).map(x=>({...x,source:"community"})),family=bookFamilyMatches(q,"");
+   const seen=new Set(),items=[...family,...community].filter(b=>{const k=b.community_book_id||b.id;if(seen.has(k))return false;seen.add(k);return true});
+   if(!items.length)return;
+   bookVisibleCount=3;window.lastGoogleBookResults=items;$("bookSearchStatus").textContent="Buscando mais opções…";renderBookSearchResults();
+  }catch(e){}
+ },250);
  bookSearchTimer=setTimeout(()=>searchGoogleBooks(),650);
 }
 function renderBookSearchResults(){
@@ -9262,7 +9311,23 @@ function highlightQuery(text,q){
  let out="",pos=0;marks.forEach(([a,b])=>{if(a<pos)return;out+=esc(t.slice(pos,a))+"<mark>"+esc(t.slice(a,b))+"</mark>";pos=b});return out+esc(t.slice(pos));
 }
 function bookResultMeta(b){const parts=[(b.authors||[]).join(", "),b.publisher||"",String(b.published_date||"").slice(0,4)].filter(Boolean);return esc(parts.join(" · "))}
-function bookQueryScore(q,b){const want=bookMatchTokens(q);if(!want.length)return 0;const have=new Set(bookMatchTokens([b.title,b.subtitle,...(Array.isArray(b.authors)?b.authors:[b.authors])].join(" ")));const hit=want.filter(w=>have.has(w)).length/want.length;const titleN=bookMatchTokens(b.title).join(" ");return hit+(titleN&&titleN.startsWith(want.slice(0,2).join(" "))?0.2:0)}
+function bookQueryScore(q,b){
+ const want=bookMatchTokens(q);if(!want.length)return 0;
+ const titleT=bookMatchTokens([b.title,b.subtitle].join(" ")),authT=bookMatchTokens((Array.isArray(b.authors)?b.authors:[b.authors]).join(" "));
+ const near=(w,list,fuzzy)=>list.some(t=>t===w||(fuzzy&&w.length>=5&&t.length>=5&&bookLev(t,w)<=1));
+ const hit=want.filter(w=>near(w,titleT,true)||near(w,authT,w.length>=4)).length/want.length;
+ const mainT=bookMatchTokens(b.title).filter(t=>!/^\d+$/.test(t));
+ const contained=mainT.length&&mainT.every(t=>want.includes(t))?0.75:0;
+ return Math.max(hit,contained)+(mainT.join(" ").startsWith(want.slice(0,2).join(" "))?0.2:0);
+}
+function bookIsPt(b){const l=String(b.language||"").toLowerCase();return !l||l.startsWith("pt")}
+function bookSameBook(a,b){
+ const d=x=>String(x||"").replace(/\D/g,"");
+ if(d(a.isbn13)&&(d(a.isbn13)===d(b.isbn13)))return true;if(d(a.isbn10)&&d(a.isbn10)===d(b.isbn10))return true;
+ const ta=bookMatchTokens(a.title).join(" "),tb=bookMatchTokens(b.title).join(" ");if(!ta||ta!==tb)return false;
+ const aa=bookMatchTokens((a.authors||[]).join(" ")),ab=bookMatchTokens((b.authors||[]).join(" "));
+ return !aa.length||!ab.length||aa.some(w=>ab.includes(w));
+}
 function showMoreBookResults(){bookVisibleCount+=3;renderBookSearchResults()}
 async function searchGoogleBooks(){
  const q=String($("bookSearchQuery")?.value||"").trim();if(q.length<2)return;
@@ -9270,17 +9335,19 @@ async function searchGoogleBooks(){
  const seq=++bookSearchSeq;bookVisibleCount=3;
  $("bookSearchStatus").textContent="Consultando biblioteca…";$("bookSearchResults").innerHTML="";$("manualBookBox").classList.add("hidden");
  try{
-  const qTok=bookMatchTokens(q),extraQuery=!isbn&&qTok.length>=2?qTok.slice(0,6).map(w=>"intitle:"+w).join(" "):"";
+  const qTok=bookMatchTokens(q),extraQuery=!isbn&&qTok.length>=1?bookNormText(q).split(" ").filter(w=>w.length>=2).slice(0,6).map(w=>"intitle:"+w).join(" "):"";
   const [googleResult,communityResult,googleExtra]=await Promise.allSettled([backendFetch("/books/search?q="+encodeURIComponent(googleQuery)),backendFetch("/community-books/search?q="+encodeURIComponent(communityQuery)),extraQuery?backendFetch("/books/search?q="+encodeURIComponent(extraQuery)):Promise.resolve({items:[]})]);
   if(seq!==bookSearchSeq)return;
   const gSeen=new Set(),googleRaw=[googleResult,googleExtra].flatMap(r=>r.status==="fulfilled"&&Array.isArray(r.value?.items)?r.value.items:[]).filter(x=>!x.google_volume_id||(!gSeen.has(x.google_volume_id)&&gSeen.add(x.google_volume_id)));
-  const google=isbn?googleRaw:googleRaw.map(x=>({...x,_score:bookQueryScore(q,x)})).filter(x=>x._score>=0.5).sort((a,b)=>b._score-a._score);
-  const community=communityResult.status==="fulfilled"&&Array.isArray(communityResult.value?.items)?communityResult.value.items.map(x=>({...x,source:"community"})):[];
-  const nq=communityQuery.toLowerCase(),family=(window.currentReadingBooks||[]).filter(b=>`${b.title||""} ${(b.authors||[]).join(" ")} ${b.isbn13||""} ${b.isbn10||""}`.toLowerCase().includes(nq)).map(b=>({...b,source:"family",alreadyAdded:true}));
+    const community=communityResult.status==="fulfilled"&&Array.isArray(communityResult.value?.items)?communityResult.value.items.map(x=>({...x,source:"community"})):[];
+  const google=(isbn?googleRaw:googleRaw.map(x=>({...x,_score:bookQueryScore(q,x)})).filter(x=>x._score>=0.5))
+   .filter(g=>!community.some(c=>bookSameBook(c,g)))
+   .sort((a,b)=>(bookIsPt(b)?1:0)-(bookIsPt(a)?1:0)||(b._score||0)-(a._score||0));
+  const family=bookFamilyMatches(communityQuery,isbn);
   const key=b=>String(b.community_book_id||b.google_volume_id||b.isbn13||`${b.title||""}|${(b.authors||[])[0]||""}`).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim();
   const map=new Map();[...family,...community,...google].forEach(b=>{const k=key(b);if(!k)return;const current=map.get(k);if(!current||b.alreadyAdded)map.set(k,b)});let items=[...map.values()];
   window.lastGoogleBookResults=items;
-  $("bookSearchStatus").textContent=items.length?(isbn?`Livro encontrado para o ISBN ${isbn}. Confirme os dados antes de adicionar.`:`${items.length} opções na biblioteca`):(isbn?`Nenhum livro encontrado para o ISBN ${isbn}. Você pode cadastrá-lo manualmente.`:"Nenhum livro encontrado na biblioteca.");
+  $("bookSearchStatus").textContent=items.length?(isbn?`Livro encontrado para o ISBN ${isbn}. Confirme os dados antes de adicionar.`:`${items.length} ${items.length===1?"opção":"opções"} na biblioteca`):(isbn?`Nenhum livro encontrado para o ISBN ${isbn}. Você pode cadastrá-lo manualmente.`:"Nada encontrado. Tente só o título, sem subtítulo, ou leia o código de barras pela câmera.");
   renderBookSearchResults();
   if(!items.length){$("manualBookBox").classList.remove("hidden");if(isbn){$("manualBookIsbn").value=isbn;if($("manualBookTitle").value===isbn)$("manualBookTitle").value=""}else $("manualBookTitle").value=q}
  }catch(e){if(seq!==bookSearchSeq)return;$("bookSearchStatus").textContent="Não foi possível consultar a biblioteca agora.";$("manualBookBox").classList.remove("hidden");if(isbn)$("manualBookIsbn").value=isbn;else $("manualBookTitle").value=q}
@@ -10140,7 +10207,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "17.7";
+const APP_VERSION = "17.8";
 queueMicrotask(()=>{ const el=document.getElementById("healthFrontendVersion"); if(el) el.textContent=`v${APP_VERSION}`; });
 
 let deferredInstallPrompt=null;
