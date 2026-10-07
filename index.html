@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#441015">
 <title>Diário de Estudos</title>
 
-<link rel="manifest" href="/manifest.json?v=17.15">
+<link rel="manifest" href="/manifest.json?v=17.17">
 <link rel="icon" type="image/png" sizes="32x32" href="/icon-192.png">
 <link rel="icon" type="image/png" sizes="48x48" href="/icon-192.png">
 
@@ -2301,6 +2301,35 @@ body.ds-v1 .ins-row .btn{width:auto!important;flex-shrink:0;white-space:nowrap}
 .reading-done-section h3 .reading-done-toggle{flex:1}
 .reading-share-btn{flex-shrink:0;width:44px;height:44px;border:1px solid #E8D8CA;border-radius:12px;background:#FFFCF7;display:grid;place-items:center;cursor:pointer;color:#6B2737}
 .reading-share-btn .ic{width:18px;height:18px}
+.cat-confira{font-style:normal;font-size:11.5px;font-weight:700;color:#7A5A1E;background:#F6EAD2;padding:1px 8px;border-radius:999px}
+.cat-auth{display:flex;flex-direction:column;gap:8px;margin:10px 0;padding:12px;border:1px solid #E8D8CA;border-radius:14px;background:#FFFCF7}
+.cat-auth-group{display:flex;flex-direction:column;gap:6px;padding:8px;border-radius:12px;background:#F7F1E8}
+.cat-auth-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px;border-radius:10px;background:#fff;border:1px solid #EAE2D8}
+.cat-auth-row.sug{border-color:#3E5636}
+.cat-auth-row>div{min-width:0;display:flex;flex-direction:column;gap:2px}
+.cat-auth-row>div span{font-size:12.5px;color:#6A5F58;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cat-auth-ign{align-self:flex-start}
+.share-preview{position:relative;cursor:zoom-in}
+.share-zoom-hint{position:absolute;right:10px;bottom:10px;font-size:12px;font-weight:600;color:#441015;background:rgba(255,252,247,.92);padding:4px 10px;border-radius:999px}
+.share-pick-btn{align-self:center;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border:1px solid #E8D8CA;border-radius:999px;background:#FFFCF7;color:#441015;font:600 13.5px 'Work Sans',sans-serif;cursor:pointer}
+.share-pick-btn .ic{width:16px;height:16px}
+.share-pick-head{display:flex;flex-direction:column;gap:2px}
+.share-pick-head b{font-size:16px;color:#441015}
+.share-pick-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-height:52vh;overflow:auto;padding:2px}
+.share-pick{position:relative;display:flex;flex-direction:column;gap:5px;padding:6px;border:1.5px solid #E8D8CA;border-radius:12px;background:#fff;cursor:pointer;text-align:left}
+.share-pick.on{border-color:#6B2737;background:#F6EEE6}
+.share-pick img,.share-pick-ph{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:6px;background:#EFE5DA;display:grid;place-items:center}
+.share-pick-t{font-size:12px;line-height:1.25;color:#342D29;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.share-pick-n{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 13px 'Work Sans',sans-serif;color:#fff;background:#6B2737}
+.share-pick:not(.on) .share-pick-n{background:rgba(255,255,255,.85);border:1.5px solid #CDBFB2}
+.share-zoom{position:fixed;inset:0;z-index:9100;background:#1E1416;display:flex;flex-direction:column}
+.share-zoom-x{position:absolute;top:calc(10px + env(safe-area-inset-top));right:10px;z-index:2;width:46px;height:46px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;display:grid;place-items:center;cursor:pointer}
+.share-zoom-scroll{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:16px;touch-action:pan-x pan-y pinch-zoom}
+.share-zoom-scroll img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;cursor:zoom-in}
+.share-zoom.big .share-zoom-scroll{display:block}
+.share-zoom.big .share-zoom-scroll img{max-width:none;max-height:none;width:1080px;cursor:zoom-out}
+.share-zoom-bar{display:flex;flex-direction:column;gap:8px;align-items:stretch;padding:12px 16px calc(14px + env(safe-area-inset-bottom));color:#E8DCD4;font-size:13px;text-align:center}
+.share-zoom-bar .btn{min-height:50px;display:flex;align-items:center;justify-content:center;gap:8px}
 .share-ov{position:fixed;inset:0;z-index:9000;background:rgba(40,20,20,.45);display:flex;align-items:flex-end;justify-content:center}
 .share-sheet{width:100%;max-width:480px;max-height:94vh;overflow:auto;background:#FBF5EC;border-radius:22px 22px 0 0;padding:14px 16px calc(18px + env(safe-area-inset-bottom));box-sizing:border-box}
 @media(min-width:700px){.share-ov{align-items:center}.share-sheet{border-radius:22px}}
@@ -2312,6 +2341,7 @@ body.ds-v1 .ins-row .btn{width:auto!important;flex-shrink:0;white-space:nowrap}
 .share-group>span{font-size:13px;font-weight:700;color:#6A5F58}
 .share-row{display:flex;gap:6px}.share-row.wrap{flex-wrap:wrap}
 .share-row .share-chip{flex:1}
+.share-row.wrap .share-chip{flex:1 1 auto;white-space:nowrap}
 .share-chip{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid #E8D8CA;background:#FFFCF7;color:#342D29;font:600 13.5px 'Work Sans',sans-serif;cursor:pointer}
 .share-chip.on{background:#6B2737;border-color:#6B2737;color:#fff}
 .share-seg{display:grid;grid-template-columns:1fr 1fr;background:#EFE5DA;border-radius:12px;padding:4px}
@@ -2350,7 +2380,7 @@ body.ds-v1 .ins-row .btn{width:auto!important;flex-shrink:0;white-space:nowrap}
 .cat-cover-read .btn{margin-top:8px;align-self:flex-start;width:auto}
 </style>
 </head>
-<body data-build="17.15" class="auth-checking ds-v1">
+<body data-build="17.17" class="auth-checking ds-v1">
 <svg class="ic-sprite" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><symbol id="i-ajuda" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.1V16h5v-.1c0-.8.4-1.6 1.1-2.1A6 6 0 0 0 12 3Z"/></symbol><symbol id="i-carregando" viewBox="0 0 24 24"><path d="M7 3h10M7 21h10"/><path d="M8 3c0 4 8 5 8 9s-8 5-8 9"/><path d="M16 3c0 4-8 5-8 9s8 5 8 9"/></symbol><symbol id="i-sair" viewBox="0 0 24 24"><path d="M15 4h4v16h-4"/><path d="M10 8l-4 4 4 4M6 12h10"/></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol><symbol id="i-repetir" viewBox="0 0 24 24"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></symbol><symbol id="i-seta" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol><symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></symbol><symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol><symbol id="i-mais" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="i-lapis" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></symbol><symbol id="i-lixeira" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/><path d="M10 11v6M14 11v6"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol><symbol id="i-lanterna" viewBox="0 0 24 24"><path d="M8 3h8v5l-2 3v10h-4V11L8 8z"/><path d="M8 7h8"/><path d="M12 14v2"/></symbol><symbol id="i-borracha" viewBox="0 0 24 24"><path d="M15 4l5 5-9 9H7l-3-3z"/><path d="M10 9l5 5"/><path d="M7 20h13"/></symbol><symbol id="i-engrenagem" viewBox="0 0 24 24"><path d="M12.2 2h-.4a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.3a2 2 0 0 1-2 0l-.2-.1a2 2 0 0 0-2.7.7l-.2.4a2 2 0 0 0 .7 2.7l.2.1a2 2 0 0 1 1 1.7v.5a2 2 0 0 1-1 1.7l-.2.1a2 2 0 0 0-.7 2.7l.2.4a2 2 0 0 0 2.7.7l.2-.1a2 2 0 0 1 2 0l.4.3a2 2 0 0 1 1 1.7v.2a2 2 0 0 0 2 2h.4a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.3a2 2 0 0 1 2 0l.2.1a2 2 0 0 0 2.7-.7l.2-.4a2 2 0 0 0-.7-2.7l-.2-.1a2 2 0 0 1-1-1.7v-.5a2 2 0 0 1 1-1.7l.2-.1a2 2 0 0 0 .7-2.7l-.2-.4a2 2 0 0 0-2.7-.7l-.2.1a2 2 0 0 1-2 0l-.4-.3a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-lupa" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol><symbol id="i-pular" viewBox="0 0 24 24"><path d="M5 6l8 6-8 6z"/><path d="M18 6v12"/></symbol><symbol id="i-restaurar" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/></symbol><symbol id="i-lista" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r=".8"/><circle cx="4" cy="12" r=".8"/><circle cx="4" cy="18" r=".8"/></symbol><symbol id="i-sucesso" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/></symbol><symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.3" r=".6"/></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r=".6"/></symbol><symbol id="i-pergunta" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.6 2.6 0 1 1 3.6 2.4c-.8.4-1.1.9-1.1 1.7v.4"/><circle cx="12" cy="17" r=".6"/></symbol><symbol id="i-cadeado" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol><symbol id="i-cadeado-aberto" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 7.6-1.7"/></symbol><symbol id="i-chave" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2.5 2.5M14 9l2 2"/></symbol><symbol id="i-sem-conexao" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M5 12.5a10 10 0 0 1 4-2.3M19 12.5a10 10 0 0 0-3.2-2"/><circle cx="12" cy="19.5" r=".6"/></symbol><symbol id="i-cartao" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></symbol><symbol id="i-cupom" viewBox="0 0 24 24"><path d="M4 7h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4z"/><path d="M14 7v10" stroke-dasharray="2 2"/></symbol><symbol id="i-envelope" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6.5L20.5 7"/></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol><symbol id="i-arquivar" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="4.5" rx="1"/><path d="M5 9v10h14V9"/><path d="M10 13h4"/></symbol><symbol id="i-imagem" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M20.5 16l-5-5-8 8.5"/></symbol><symbol id="i-sino" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol><symbol id="i-raio" viewBox="0 0 24 24"><path d="M13 2.5L5 13.5h6l-1 8 8-11h-6z"/></symbol><symbol id="i-entrada" viewBox="0 0 24 24"><path d="M4 13l2-8h12l2 8v6H4z"/><path d="M4 13h4.5l1 2h5l1-2H20"/><path d="M12 5v6M9.5 8.5L12 11l2.5-2.5"/></symbol><symbol id="i-calendario" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol><symbol id="i-local" viewBox="0 0 24 24"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></symbol><symbol id="i-material" viewBox="0 0 24 24"><path d="M6 3.5h11.5v17H6a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 6 3.5z"/><path d="M4.5 17.5A1.5 1.5 0 0 1 6 16h11.5"/><path d="M9 8h5"/></symbol><symbol id="i-livro" viewBox="0 0 24 24"><path d="M4 5c3-1.5 5.5-1.5 8 0v15c-2.5-1.5-5-1.5-8 0z"/><path d="M20 5c-3-1.5-5.5-1.5-8 0v15c2.5-1.5 5-1.5 8 0z"/></symbol><symbol id="i-livros" viewBox="0 0 24 24"><rect x="4" y="4" width="4" height="16" rx="1"/><rect x="9.5" y="6" width="4" height="14" rx="1"/><path d="M15.5 7.5l3.8-1 3 13.2-3.8 1z"/></symbol><symbol id="i-ia" viewBox="0 0 24 24"><path d="M12 3l1.4 4.1 4.1 1.4-4.1 1.4L12 14l-1.4-4.1-4.1-1.4 4.1-1.4z"/><path d="M18.5 14l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/><path d="M6 15l.7 1.8 1.8.7-1.8.7L6 20l-.7-1.8-1.8-.7 1.8-.7z"/></symbol><symbol id="i-dica" viewBox="0 0 24 24"><path d="M9 17h6"/><path d="M10 20.5h4"/><path d="M8.5 14a5.5 5.5 0 1 1 7 0c-.9.8-1.5 1.7-1.5 3h-4c0-1.3-.6-2.2-1.5-3z"/></symbol><symbol id="i-clima" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><path d="M8 2v1.3M2 8h1.3M3.8 3.8l.9.9M12.2 3.8l-.9.9"/><path d="M9 19h9a3.5 3.5 0 0 0 0-7 5 5 0 0 0-9.5 1.5A2.8 2.8 0 0 0 9 19z"/></symbol><symbol id="i-familia" viewBox="0 0 24 24"><circle cx="8" cy="7" r="2.6"/><circle cx="16.5" cy="7.5" r="2.2"/><path d="M3.5 19v-2.5a4.5 4.5 0 0 1 9 0V19"/><path d="M13.5 19v-2a3.3 3.3 0 0 1 6.6 0v2"/></symbol><symbol id="i-pessoa" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></symbol><symbol id="i-crianca" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4.5"/><path d="M11 4.6c.4-1.3 1.8-2 3.1-1.6"/><path d="M6.5 21a5.5 5.5 0 0 1 11 0"/></symbol><symbol id="i-ano-escolar" viewBox="0 0 24 24"><path d="M2.5 9L12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c1.5 1.5 3.5 2.2 5.5 2.2s4-.7 5.5-2.2V11"/><path d="M21.5 9v5"/></symbol><symbol id="i-peca" viewBox="0 0 24 24"><path d="M5 8h3a2 2 0 1 1 4 0h3v3a2 2 0 1 1 0 4v4h-4a2 2 0 1 0-4 0H5v-4a2 2 0 1 0 0-4z"/></symbol><symbol id="i-documento" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5"/><path d="M9 13h7M9 17h5"/></symbol><symbol id="i-nuvem" viewBox="0 0 24 24"><path d="M7 18h10.5a4 4 0 0 0 .6-7.9A6 6 0 0 0 6.6 9 4.5 4.5 0 0 0 7 18z"/></symbol><symbol id="i-pastas" viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/><path d="M3 7V5h6l2 2"/></symbol><symbol id="i-celular" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></symbol><symbol id="i-balao" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol><symbol id="i-alvo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol><symbol id="i-olho" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-estrela" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></symbol><symbol id="i-filtro" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></symbol><symbol id="i-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol><symbol id="i-imprimir" viewBox="0 0 24 24"><path d="M7 9V3h10v6"/><rect x="3.5" y="9" width="17" height="8" rx="2"/><path d="M7 14h10v7H7z"/></symbol><symbol id="i-compartilhar" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></symbol></svg>
 <header>
   <div class="header-branding">
@@ -5310,7 +5340,7 @@ async function editPendingBookData(id){
 
 /* ===== Padronização do catálogo (v17.6) ===== */
 const CAT_FIELD={title:"Título",authors:"Autor",publisher:"Editora",isbn13:"ISBN"};
-function catChangesHtml(changes){return (changes||[]).map(c=>`<div class="cat-chg"><span>${CAT_FIELD[c.field]||c.field}</span><s>${esc(c.from||"(vazio)")}</s><b>${esc(c.to||"(vazio)")}</b></div>`).join("")}
+function catChangesHtml(changes){return (changes||[]).map(c=>`<div class="cat-chg"><span>${CAT_FIELD[c.field]||c.field}</span><s>${esc(c.from||"(vazio)")}</s><b>${esc(c.to||"(vazio)")}</b>${c.unverified?`<em class="cat-confira">pela IA, confira</em>`:""}</div>`).join("")}
 async function approvePendingStandard(id){
  const b=(pendingCommunityBooksCache||[]).find(x=>x.id===id);
  const card=document.querySelector(`[data-pending-book="${CSS.escape(id)}"]`);card?.classList.add("is-busy");
@@ -5334,7 +5364,7 @@ async function catalogAiSuggest(id,onDone){
  catch(e){const {msg}=catAiErr(e);body.innerHTML=`<div class="notice">${esc(msg)}</div><div class="cat-sug-actions"><button type="button" class="btn" id="catSugRetry">Tentar de novo</button></div>`;ov.querySelector("#catSugRetry").onclick=()=>catalogAiSuggest(id,onDone);return}
  const same=data.same_as,changes=data.changes||[];
  body.innerHTML=`${same?`<div class="cat-same"><b>Parece ser este livro do catálogo:</b><div class="cat-same-row">${same.thumbnail?`<img src="${esc(same.thumbnail)}" alt="">`:""}<div><b>${esc(same.title)}</b><span>${esc([(same.authors||[]).join(", "),same.publisher].filter(Boolean).join(" · "))}</span></div></div><button type="button" class="btn small" id="catSameMerge">Mesclar com este</button></div>`:""}
-  ${changes.length?`<div class="cat-sug-list">${changes.map((c,i)=>`<label class="cat-sug-item"><input type="checkbox" checked data-i="${i}"><span class="cat-chg"><span>${CAT_FIELD[c.field]||c.field}</span><s>${esc(c.from||"(vazio)")}</s><b>${esc(c.to||"(vazio)")}</b></span></label>`).join("")}</div>
+  ${changes.length?`<div class="cat-sug-list">${changes.map((c,i)=>`<label class="cat-sug-item"><input type="checkbox"${c.unverified?"":" checked"} data-i="${i}"><span class="cat-chg"><span>${CAT_FIELD[c.field]||c.field}</span><s>${esc(c.from||"(vazio)")}</s><b>${esc(c.to||"(vazio)")}</b>${c.unverified?`<em class="cat-confira">pela IA, confira</em>`:""}</span></label>`).join("")}</div>
   <div class="cat-sug-actions"><button type="button" class="btn success" id="catSugApply">Aplicar selecionadas</button><button type="button" class="btn" id="catSugIgnore">Ignorar</button></div>`:`<div class="meta">A IA não encontrou nada para corrigir neste cadastro.</div>`}`;
  ov.querySelector("#catSameMerge")?.addEventListener("click",async()=>{
   try{await backendFetch(`/community-books/${encodeURIComponent(id)}/merge`,{method:"POST",body:JSON.stringify({target_type:"community",target_book_id:same.community_book_id})});catCloseSuggest();showNotice("Cadastros mesclados. Os históricos das famílias foram preservados.",{title:"Livro atualizado",icon:"✅"});onDone?.("merged")}
@@ -5350,18 +5380,36 @@ async function catalogAiSuggest(id,onDone){
 /* ---- Revisão em lote ---- */
 let catReview={items:[],aiPending:[],aiRunning:false,aiStop:false,aiDone:0,aiTotal:0};
 function catAiBtnLabel(){const b=$("catAiBtn");if(b)b.textContent=catReview.checked?`Revisar com IA (${catReview.aiPending.length} pendente${catReview.aiPending.length===1?"":"s"})`:"Revisar com IA"}
+function catAuthorGroupsHtml(){
+ const gs=catReview.authorGroups||[];if(!gs.length)return "";
+ return `<div class="cat-auth"><b>Autores com grafia parecida · ${gs.length}</b><span class="meta">Escolha a grafia certa. Os outros livros passam a usar ela (dá para desfazer).</span>${gs.map((g,gi)=>`<div class="cat-auth-group">${g.variants.map((v,vi)=>`<div class="cat-auth-row${g.suggested===v.name?" sug":""}"><div><b>${esc(v.name)}</b><span>${v.count} livro${v.count===1?"":"s"}: ${esc(v.books.slice(0,2).map(b=>b.title).join(" · "))}${v.books.length>2?"…":""}</span></div><button type="button" class="btn small${g.suggested===v.name?" success":""}" onclick="catAuthorUse(${gi},${vi})">Usar este</button></div>`).join("")}<button type="button" class="btn small cat-auth-ign" onclick="catAuthorIgnore(${gi})">São pessoas diferentes</button></div>`).join("")}</div>`;
+}
+async function catAuthorUse(gi,vi){
+ const g=catReview.authorGroups?.[gi];if(!g)return;const target=g.variants[vi].name,keys=new Set(g.variants.filter((v,i)=>i!==vi).map(v=>bookNormText(v.name)));
+ const books=new Map();g.variants.forEach((v,i)=>{if(i!==vi)v.books.forEach(b=>books.set(b.id,b))});
+ let ok=0,fail=0;
+ for(const b of books.values()){const authors=(b.authors||[]).map(a=>keys.has(bookNormText(a))?target:a);
+  try{await backendFetch(`/community-books/${encodeURIComponent(b.id)}/standardize`,{method:"PUT",body:JSON.stringify({authors,source:"rule"})});ok++}catch(e){fail++}}
+ catReview.authorGroups.splice(gi,1);catReviewRender();try{catLoadRevisions()}catch(e){}
+ showNotice(`${ok} livro(s) agora com "${target}".${fail?` ${fail} não foram atualizados.`:""} Dá para desfazer em Ferramentas técnicas do catálogo.`,{title:"Autor corrigido",icon:fail?"⚠️":"✅"});
+}
+async function catAuthorIgnore(gi){
+ const g=catReview.authorGroups?.[gi];if(!g)return;
+ try{await backendFetch("/community-books/author-ignore",{method:"POST",body:JSON.stringify({key:g.key})});catReview.authorGroups.splice(gi,1);catReviewRender()}
+ catch(e){showNotice("Não foi possível ignorar: "+(e.message||e),{type:"error"})}
+}
 function catReviewRender(){
  const box=$("catReviewList");if(!box)return;
  const items=catReview.items;
  const prog=catReview.aiRunning?`<div class="cat-prog"><span class="ai-spinner" aria-hidden="true"></span>IA revisando ${catReview.aiDone} de ${catReview.aiTotal}${catReview.aiFails?` · ${catReview.aiFails} com erro`:""}… <button type="button" class="btn small" onclick="catReview.aiStop=true">Parar</button></div>`:"";
- box.innerHTML=prog+(items.length?`<div class="cat-rev-bar"><b>${items.length} livro(s) com correção</b><button type="button" class="btn success small" onclick="catApplyAll()">Aplicar todos</button></div>`+items.map((x,i)=>`<div class="cat-rev-row" id="catRev${i}">
+ box.innerHTML=prog+catAuthorGroupsHtml()+(items.length?`<div class="cat-rev-bar"><b>${items.length} livro(s) com correção</b><button type="button" class="btn success small" onclick="catApplyAll()">Aplicar todos</button></div>`+items.map((x,i)=>`<div class="cat-rev-row" id="catRev${i}">
    <div class="cat-rev-main">${x.thumbnail?`<img src="${esc(x.thumbnail)}" alt="">`:""}<div>${catChangesHtml(x.changes)}<span class="cat-src">${x.source==="ai"?"Sugestão da IA":"Regra de padronização"}</span></div></div>
    <div class="cat-rev-actions"><button type="button" class="btn small" onclick="catApplyOne(${i})">Aplicar</button><button type="button" class="btn small" onclick="catSkip(${i})">Ignorar</button></div></div>`).join(""):(catReview.checked?`<div class="meta">Nenhuma correção pendente.</div>`:""));
 }
 async function catCheckRules(resetAll=false){
  const box=$("catReviewList");if(box)box.innerHTML='<div class="meta">Verificando o catálogo…</div>';
- try{const d=await backendFetch("/community-books/standardize-preview"+(resetAll?"?all=1":""));catReview.aiPending=d.ai_pending_ids||[];catReview.items=(d.items||[]).map(x=>({...x,source:"rule"}));catReview.checked=true;catReviewRender();catAiBtnLabel();
-  if($("catReviewSummary"))$("catReviewSummary").textContent=`${d.total||0} livros aprovados · ${catReview.items.length} fora do padrão pela regra${d.rule_ignored?` (${d.rule_ignored} ignorados)`:""} · ${d.ai_reviewed||0} já revisados pela IA.`;
+ try{const d=await backendFetch("/community-books/standardize-preview"+(resetAll?"?all=1":""));catReview.aiPending=d.ai_pending_ids||[];catReview.items=(d.items||[]).map(x=>({...x,source:"rule"}));catReview.authorGroups=d.author_groups||[];catReview.checked=true;catReviewRender();catAiBtnLabel();
+  if($("catReviewSummary"))$("catReviewSummary").textContent=`${d.total||0} livros aprovados · ${catReview.items.length} fora do padrão pela regra${d.rule_ignored?` (${d.rule_ignored} ignorados)`:""} · ${d.ai_reviewed||0} já revisados pela IA${catReview.authorGroups.length?` · ${catReview.authorGroups.length} grupo(s) de autores parecidos`:""}.`;
   return true}
  catch(e){if(box)box.innerHTML=`<div class="notice">Não foi possível verificar: ${esc(e.message||e)}</div>`;return false}
 }
@@ -5376,7 +5424,7 @@ async function catRunAi(resetAll=false){
  let stopMsg="";
  const worker=async()=>{while(ids.length&&!catReview.aiStop){const id=ids.shift();
   try{const d=await catAiCall(id);
-   if(d?.changes?.length){const pos=catReview.items.findIndex(x=>x.id===id);const row={id,current:d.current,proposed:d.suggestion,changes:d.changes,source:"ai",thumbnail:catReview.items[pos]?.thumbnail||""};if(pos>=0)catReview.items[pos]=row;else catReview.items.push(row)}}
+   if(d?.changes?.length){const pos=catReview.items.findIndex(x=>x.id===id);const row={id,current:d.current,proposed:d.suggestion,changes:d.changes,source:"ai",needsCheck:d.changes.some(c=>c.unverified),thumbnail:catReview.items[pos]?.thumbnail||""};if(pos>=0)catReview.items[pos]=row;else catReview.items.push(row)}}
   catch(e){console.warn("[catálogo] IA:",id,e);const {code,msg}=catAiErr(e);
    if(code==="AI_RATE_LIMIT"||code==="AI_BUSY"||code==="AI_BILLING"||code==="AI_CONFIG"){stopMsg=msg;catReview.aiStop=true;break}
    catReview.aiFails++;catReview.aiLastErr=msg}
@@ -5396,10 +5444,12 @@ async function catApplyOne(i,silent=false){
 }
 function catSkip(i){const x=catReview.items[i];if(!x)return;catReview.items.splice(i,1);catReviewRender();backendFetch(`/community-books/${encodeURIComponent(x.id)}/review-mark`,{method:"POST",body:JSON.stringify({kind:x.source==="ai"?"ai":"rule",result:"ignored"})}).catch(()=>{})}
 async function catApplyAll(){
- const n=catReview.items.length;if(!n||!confirm(`Aplicar ${n} correção(ões)? Cada uma pode ser desfeita depois.`))return;
- for(let i=0;i<catReview.items.length;i++)await catApplyOne(i,true);
- const fails=catReview.items.filter(x=>!x.applied).length;catReview.items=catReview.items.filter(x=>!x.applied);catReviewRender();catLoadRevisions();
- showNotice(fails?`${n-fails} aplicadas, ${fails} com erro.`:`${n} correções aplicadas.`,{title:"Catálogo padronizado",icon:"✅"});
+ const skip=catReview.items.filter(x=>x.needsCheck).length,n=catReview.items.length-skip;
+ if(!n)return showNotice("Só sobraram correções de autor feitas pela IA sem referência. Confira e aplique uma a uma.",{title:"Confira antes",icon:"🔎"});
+ if(!confirm(`Aplicar ${n} correção(ões)?${skip?` ${skip} com "pela IA, confira" ficam para você aplicar uma a uma.`:""} Cada uma pode ser desfeita depois.`))return;
+ for(let i=0;i<catReview.items.length;i++)if(!catReview.items[i].needsCheck)await catApplyOne(i,true);
+ const fails=catReview.items.filter(x=>!x.applied&&!x.needsCheck).length;catReview.items=catReview.items.filter(x=>!x.applied);catReviewRender();catLoadRevisions();
+ showNotice(`${fails?`${n-fails} aplicadas, ${fails} com erro.`:`${n} correções aplicadas.`}${skip?` ${skip} esperando conferência.`:""}`,{title:"Catálogo padronizado",icon:"✅"});
 }
 async function catLoadRevisions(){
  const box=$("catRevisionsList");if(!box)return;
@@ -9340,7 +9390,7 @@ function openShareSheet(opts={}){
  const st=shareStats();if(!st.done.length)return showNotice("Conclua um livro para compartilhar.",{title:"Nada para compartilhar ainda",icon:"📚"});
  let name="nome";try{name=localStorage.getItem(SHARE_NAME_KEY)||"nome"}catch(e){}
  const bookId=opts.bookId&&st.done.some(b=>b.id===opts.bookId)?opts.bookId:st.done[st.done.length-1].id;
- shareState={mode:opts.mode||"total",bookId,format:"story",name,st};
+ shareState={mode:opts.mode||"total",bookId,format:"story",name,st,picks:{total:[],year:[]},view:"main"};
  closeShareSheet();
  const ov=document.createElement("div");ov.id="shareOverlay";ov.className="share-ov no-print";
  ov.innerHTML=`<div class="share-sheet" role="dialog" aria-modal="true" aria-labelledby="shareTitle"><div class="share-head"><h3 id="shareTitle">Compartilhar</h3><button type="button" class="share-x" aria-label="Fechar" onclick="closeShareSheet()">${ic("x")}</button></div><div class="share-body" id="shareBody"></div></div>`;
@@ -9349,17 +9399,33 @@ function openShareSheet(opts={}){
 }
 function closeShareSheet(){document.getElementById("shareOverlay")?.remove()}
 function shareSet(k,v){shareState[k]=v;if(k==="name"){try{localStorage.setItem(SHARE_NAME_KEY,v)}catch(e){}}renderShareSheet()}
+const SHARE_PICK_MAX={total:5,year:17};
+function sharePickList(mode){const st=shareState.st;return (mode==="year"?(st.yearList.length?st.yearList:st.done):(st.thisYear.length?st.thisYear:st.done)).slice().reverse()}
+function sharePickToggle(id){const s=shareState,arr=s.picks[s.mode],i=arr.indexOf(id);if(i>=0)arr.splice(i,1);else if(arr.length<SHARE_PICK_MAX[s.mode])arr.push(id);else return showNotice(`Dá para escolher até ${SHARE_PICK_MAX[s.mode]} capas.`,{title:"Limite de capas",icon:"📚"});renderSharePicker()}
+function renderSharePicker(){
+ const box=document.getElementById("shareBody");if(!box)return;const s=shareState,arr=s.picks[s.mode],max=SHARE_PICK_MAX[s.mode];
+ box.innerHTML=`<div class="share-pick-head"><b>Escolher capas</b><span class="meta">${arr.length} de ${max} · na ordem em que você tocar</span></div><div class="share-pick-list">${sharePickList(s.mode).map(b=>{const n=arr.indexOf(b.id)+1;return `<button type="button" class="share-pick${n?" on":""}" aria-pressed="${!!n}" onclick="sharePickToggle('${esc(b.id)}')">${b.thumbnail?`<img src="${esc(b.thumbnail)}" alt="">`:`<span class="share-pick-ph">${ic("livro")}</span>`}<span class="share-pick-t">${esc(b.title||"Livro")}</span><span class="share-pick-n">${n||""}</span></button>`}).join("")}</div><div class="share-actions"><button type="button" class="btn success" onclick="shareState.view='main';renderShareSheet()">Pronto</button><button type="button" class="btn" onclick="shareState.picks[shareState.mode]=[];shareState.view='main';renderShareSheet()">Usar os mais recentes</button></div>`;
+}
+function shareZoom(){
+ const s=shareState;if(!s?.canvas)return;document.getElementById("shareZoom")?.remove();
+ const z=document.createElement("div");z.id="shareZoom";z.className="share-zoom";z.setAttribute("role","dialog");z.setAttribute("aria-label","Imagem em tela cheia");
+ z.innerHTML=`<button type="button" class="share-zoom-x" aria-label="Fechar">${ic("x")}</button><div class="share-zoom-scroll"><img alt="Imagem para compartilhar" src="${s.canvas.toDataURL("image/png")}"></div><div class="share-zoom-bar"><span>Toque na imagem para ampliar</span><button type="button" class="btn success">${ic("compartilhar")} Compartilhar</button></div>`;
+ const img=z.querySelector("img");img.onclick=()=>z.classList.toggle("big");
+ z.querySelector(".share-zoom-x").onclick=()=>z.remove();z.querySelector(".share-zoom-bar .btn").onclick=()=>{z.remove();shareSend(false)};
+ document.body.appendChild(z);
+}
 function renderShareSheet(){
- const box=document.getElementById("shareBody");if(!box||!shareState)return;const s=shareState,{child}=shareChild(),fn=firstName(child?.name||"");
+ const box=document.getElementById("shareBody");if(!box||!shareState)return;if(shareState.view==="pick")return renderSharePicker();const s=shareState,{child}=shareChild(),fn=firstName(child?.name||"");
  const chip=(k,v,label)=>`<button type="button" class="share-chip${s[k]===v?" on":""}" aria-pressed="${s[k]===v}" onclick="shareSet('${k}','${v}')">${esc(label)}</button>`;
  box.innerHTML=`<div class="share-group"><span>O quê</span><div class="share-row">${chip("mode","book","Livro")}${chip("mode","total","Total")}${chip("mode","year","Ano todo")}</div></div>
-  <div class="share-preview" id="sharePreview"><span class="ai-spinner" aria-hidden="true"></span></div>
+  <div class="share-preview" id="sharePreview" role="button" tabindex="0" aria-label="Abrir imagem em tela cheia" onclick="shareZoom()"><span class="ai-spinner" aria-hidden="true"></span></div>
+  ${s.mode!=="book"?`<button type="button" class="share-pick-btn" onclick="shareState.view='pick';renderShareSheet()">${ic("livros")} Escolher capas${s.picks[s.mode].length?` · ${s.picks[s.mode].length} escolhida${s.picks[s.mode].length===1?"":"s"}`:""}</button>`:""}
   <div class="share-group"><span>Formato</span><div class="share-seg">${chip("format","story","Story")}${chip("format","feed","Feed")}</div></div>
   <div class="share-group"><span>Mostrar nome?</span><div class="share-row wrap">${fn?chip("name","nome",fn):""}${chip("name","leitora","Nossa leitora")}${chip("name","leitor","Nosso leitor")}${chip("name","sem","Sem nome")}</div></div>
   <div class="share-actions"><button type="button" class="btn success" id="shareGo">${ic("compartilhar")} Compartilhar</button><button type="button" class="btn" id="shareDl">Baixar imagem</button><span class="meta">Abre o menu do celular. Escolha Instagram.</span></div>`;
- const token=Symbol();s.token=token;
+ const token=Symbol();s.token=token;s.canvas=null;
  box.querySelector("#shareGo").onclick=()=>shareSend(false);box.querySelector("#shareDl").onclick=()=>shareSend(true);
- drawShareImage().then(cv=>{if(s.token!==token||!cv)return;s.canvas=cv;const pv=document.getElementById("sharePreview");if(pv){pv.innerHTML="";const img=new Image();img.alt="Prévia da imagem";img.src=cv.toDataURL("image/jpeg",0.82);img.className="share-img "+s.format;pv.appendChild(img)}})
+ drawShareImage().then(cv=>{if(s.token!==token||!cv)return;s.canvas=cv;const pv=document.getElementById("sharePreview");if(pv){pv.innerHTML="";const img=new Image();img.alt="Prévia da imagem";img.src=cv.toDataURL("image/jpeg",0.82);img.className="share-img "+s.format;pv.appendChild(img);const hint=document.createElement("span");hint.className="share-zoom-hint";hint.textContent="Toque para ver maior";pv.appendChild(hint)}})
   .catch(e=>{console.warn("[compartilhar]",e);const pv=document.getElementById("sharePreview");if(pv)pv.innerHTML=`<div class="meta">Não foi possível montar a imagem.</div>`});
 }
 async function shareSend(download){
@@ -9418,7 +9484,7 @@ async function drawShareImage(){
   ctx.fillStyle="#F2E3DA";ctx.font=`650 ${feed?54:62}px ${SERIF}`;ctx.fillText(who?`${who} leu`:(useYear?"Este ano já são":"Já são"),M,y);
   ctx.fillStyle="#FBF5EC";const big=feed?300:420;ctx.font=`750 ${big}px ${SERIF}`;ctx.fillText(String(n),M-10,y+big*.88);
   y+=big*.88+(feed?80:100);ctx.fillStyle="#DDBA78";ctx.font=`italic 650 ${feed?72:92}px ${SERIF}`;ctx.fillText(n===1?(useYear?"livro este ano":"livro lido"):(useYear?"livros este ano":"livros lidos"),M,y);
-  const recent=list.slice(-5).reverse(),cw=feed?170:260,ch=cw*1.43,cy=y+(feed?50:110);
+  const pk=s.picks?.total||[],recent=pk.length?pk.map(id=>list.find(b=>b.id===id)||st.done.find(b=>b.id===id)).filter(Boolean):list.slice(-5).reverse(),cw=feed?170:260,ch=cw*1.43,cy=y+(feed?50:110);
   const imgs=await Promise.all(recent.map(b=>shareLoadImg(b.thumbnail)));
   const rots=[-8,-2,4,-5,7],span=W-2*M-cw,step=recent.length>1?span/(recent.length-1):0;
   recent.forEach((b,i)=>shareCover(ctx,imgs[i],b,M+i*step,cy+(i%2?0:40),cw,ch,rots[i],i));
@@ -9447,7 +9513,7 @@ async function drawShareImage(){
   let y=M+(feed?130:230);ctx.fillStyle="#441015";ctx.font=`750 ${feed?76:92}px ${SERIF}`;
   const head=s.name==="nome"&&who?["O ano de leituras",`de ${who}`]:s.name==="leitora"?["O ano de leituras","da nossa leitora"]:s.name==="leitor"?["O ano de leituras","do nosso leitor"]:["Nosso ano","de leituras"];
   head.forEach(l=>{ctx.fillText(l,M,y);y+=feed?84:104});
-  const cols=6,gap=14,cw=(W-2*M-gap*(cols-1))/cols,chh=cw*1.5,rows=feed?2:3,maxN=cols*rows,showN=list.length>maxN?maxN-1:list.length,shown=list.slice(-showN).reverse();
+  const cols=6,gap=14,cw=(W-2*M-gap*(cols-1))/cols,chh=cw*1.5,rows=feed?2:3,maxN=cols*rows,showN=list.length>maxN?maxN-1:list.length,pky=(s.picks?.year||[]).map(id=>list.find(b=>b.id===id)||st.done.find(b=>b.id===id)).filter(Boolean),shown=pky.length?pky.slice(0,showN):list.slice(-showN).reverse();
   const imgs=await Promise.all(shown.map(b=>shareLoadImg(b.thumbnail)));y+=feed?0:20;
   shown.forEach((b,i)=>shareCover(ctx,imgs[i],b,M+(i%cols)*(cw+gap),y+Math.floor(i/cols)*(chh+gap),cw,chh,0,i));
   if(list.length>maxN){const i=maxN-1,x0=M+(i%cols)*(cw+gap),y0=y+Math.floor(i/cols)*(chh+gap);ctx.fillStyle="#441015";shareRound(ctx,x0,y0,cw,chh,8);ctx.fill();ctx.fillStyle="#DDBA78";ctx.font=`700 40px ${SANS}`;ctx.textAlign="center";ctx.fillText(`+${list.length-showN}`,x0+cw/2,y0+chh/2+14);ctx.textAlign="left"}
@@ -10661,7 +10727,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "17.15";
+const APP_VERSION = "17.17";
 queueMicrotask(()=>{ const el=document.getElementById("healthFrontendVersion"); if(el) el.textContent=`v${APP_VERSION}`; });
 
 let deferredInstallPrompt=null;
