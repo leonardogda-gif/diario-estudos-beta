@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#441015">
 <title>Diário de Estudos</title>
 
-<link rel="manifest" href="/manifest.json?v=17.14">
+<link rel="manifest" href="/manifest.json?v=17.15">
 <link rel="icon" type="image/png" sizes="32x32" href="/icon-192.png">
 <link rel="icon" type="image/png" sizes="48x48" href="/icon-192.png">
 
@@ -2297,6 +2297,33 @@ body.ds-v1 .ins-row .btn{width:auto!important;flex-shrink:0;white-space:nowrap}
 .reading-done-more{flex-shrink:0;width:44px;height:44px;border:0;border-radius:10px;background:transparent;display:grid;place-items:center;cursor:pointer}
 .reading-done-more svg{width:18px;height:18px;fill:#8A7F78}
 .reading-done-all{width:100%;min-height:44px;margin-top:8px}
+.reading-done-section h3{display:flex;align-items:center;gap:8px}
+.reading-done-section h3 .reading-done-toggle{flex:1}
+.reading-share-btn{flex-shrink:0;width:44px;height:44px;border:1px solid #E8D8CA;border-radius:12px;background:#FFFCF7;display:grid;place-items:center;cursor:pointer;color:#6B2737}
+.reading-share-btn .ic{width:18px;height:18px}
+.share-ov{position:fixed;inset:0;z-index:9000;background:rgba(40,20,20,.45);display:flex;align-items:flex-end;justify-content:center}
+.share-sheet{width:100%;max-width:480px;max-height:94vh;overflow:auto;background:#FBF5EC;border-radius:22px 22px 0 0;padding:14px 16px calc(18px + env(safe-area-inset-bottom));box-sizing:border-box}
+@media(min-width:700px){.share-ov{align-items:center}.share-sheet{border-radius:22px}}
+.share-head{display:flex;align-items:center;justify-content:space-between}
+.share-head h3{margin:0;font-family:Fraunces,Georgia,serif;font-size:22px;color:#441015}
+.share-x{width:44px;height:44px;border:0;background:transparent;border-radius:12px;display:grid;place-items:center;cursor:pointer;color:#441015}
+.share-body{display:flex;flex-direction:column;gap:14px;margin-top:6px}
+.share-group{display:flex;flex-direction:column;gap:7px}
+.share-group>span{font-size:13px;font-weight:700;color:#6A5F58}
+.share-row{display:flex;gap:6px}.share-row.wrap{flex-wrap:wrap}
+.share-row .share-chip{flex:1}
+.share-chip{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid #E8D8CA;background:#FFFCF7;color:#342D29;font:600 13.5px 'Work Sans',sans-serif;cursor:pointer}
+.share-chip.on{background:#6B2737;border-color:#6B2737;color:#fff}
+.share-seg{display:grid;grid-template-columns:1fr 1fr;background:#EFE5DA;border-radius:12px;padding:4px}
+.share-seg .share-chip{border:0;border-radius:9px;background:transparent;color:#441015}
+.share-seg .share-chip.on{background:#fff;color:#441015;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.share-preview{min-height:250px;display:grid;place-items:center;background:#F2E8DF;border-radius:18px;padding:12px}
+.share-img{display:block;max-width:100%;border-radius:10px;box-shadow:0 10px 24px rgba(68,16,21,.22)}
+.share-img.story{max-height:40vh}.share-img.feed{max-height:34vh}
+.share-actions{display:flex;flex-direction:column;gap:8px}
+.share-actions .btn{width:100%;min-height:50px;display:flex;align-items:center;justify-content:center;gap:8px}
+.share-actions .meta{text-align:center}
+
 
 /* ===== Capa no painel (v17.10) ===== */
 .acl-hero-btn{position:relative;flex-shrink:0;padding:0;border:0;background:transparent;cursor:zoom-in;border-radius:6px}
@@ -2323,7 +2350,7 @@ body.ds-v1 .ins-row .btn{width:auto!important;flex-shrink:0;white-space:nowrap}
 .cat-cover-read .btn{margin-top:8px;align-self:flex-start;width:auto}
 </style>
 </head>
-<body data-build="17.14" class="auth-checking ds-v1">
+<body data-build="17.15" class="auth-checking ds-v1">
 <svg class="ic-sprite" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><symbol id="i-ajuda" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.1V16h5v-.1c0-.8.4-1.6 1.1-2.1A6 6 0 0 0 12 3Z"/></symbol><symbol id="i-carregando" viewBox="0 0 24 24"><path d="M7 3h10M7 21h10"/><path d="M8 3c0 4 8 5 8 9s-8 5-8 9"/><path d="M16 3c0 4-8 5-8 9s8 5 8 9"/></symbol><symbol id="i-sair" viewBox="0 0 24 24"><path d="M15 4h4v16h-4"/><path d="M10 8l-4 4 4 4M6 12h10"/></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol><symbol id="i-repetir" viewBox="0 0 24 24"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></symbol><symbol id="i-seta" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol><symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></symbol><symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol><symbol id="i-mais" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="i-lapis" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></symbol><symbol id="i-lixeira" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/><path d="M10 11v6M14 11v6"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol><symbol id="i-lanterna" viewBox="0 0 24 24"><path d="M8 3h8v5l-2 3v10h-4V11L8 8z"/><path d="M8 7h8"/><path d="M12 14v2"/></symbol><symbol id="i-borracha" viewBox="0 0 24 24"><path d="M15 4l5 5-9 9H7l-3-3z"/><path d="M10 9l5 5"/><path d="M7 20h13"/></symbol><symbol id="i-engrenagem" viewBox="0 0 24 24"><path d="M12.2 2h-.4a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.3a2 2 0 0 1-2 0l-.2-.1a2 2 0 0 0-2.7.7l-.2.4a2 2 0 0 0 .7 2.7l.2.1a2 2 0 0 1 1 1.7v.5a2 2 0 0 1-1 1.7l-.2.1a2 2 0 0 0-.7 2.7l.2.4a2 2 0 0 0 2.7.7l.2-.1a2 2 0 0 1 2 0l.4.3a2 2 0 0 1 1 1.7v.2a2 2 0 0 0 2 2h.4a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.3a2 2 0 0 1 2 0l.2.1a2 2 0 0 0 2.7-.7l.2-.4a2 2 0 0 0-.7-2.7l-.2-.1a2 2 0 0 1-1-1.7v-.5a2 2 0 0 1 1-1.7l.2-.1a2 2 0 0 0 .7-2.7l-.2-.4a2 2 0 0 0-2.7-.7l-.2.1a2 2 0 0 1-2 0l-.4-.3a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-lupa" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol><symbol id="i-pular" viewBox="0 0 24 24"><path d="M5 6l8 6-8 6z"/><path d="M18 6v12"/></symbol><symbol id="i-restaurar" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/></symbol><symbol id="i-lista" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r=".8"/><circle cx="4" cy="12" r=".8"/><circle cx="4" cy="18" r=".8"/></symbol><symbol id="i-sucesso" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/></symbol><symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.3" r=".6"/></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r=".6"/></symbol><symbol id="i-pergunta" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.6 2.6 0 1 1 3.6 2.4c-.8.4-1.1.9-1.1 1.7v.4"/><circle cx="12" cy="17" r=".6"/></symbol><symbol id="i-cadeado" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol><symbol id="i-cadeado-aberto" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 7.6-1.7"/></symbol><symbol id="i-chave" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2.5 2.5M14 9l2 2"/></symbol><symbol id="i-sem-conexao" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M5 12.5a10 10 0 0 1 4-2.3M19 12.5a10 10 0 0 0-3.2-2"/><circle cx="12" cy="19.5" r=".6"/></symbol><symbol id="i-cartao" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></symbol><symbol id="i-cupom" viewBox="0 0 24 24"><path d="M4 7h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4z"/><path d="M14 7v10" stroke-dasharray="2 2"/></symbol><symbol id="i-envelope" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6.5L20.5 7"/></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol><symbol id="i-arquivar" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="4.5" rx="1"/><path d="M5 9v10h14V9"/><path d="M10 13h4"/></symbol><symbol id="i-imagem" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M20.5 16l-5-5-8 8.5"/></symbol><symbol id="i-sino" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol><symbol id="i-raio" viewBox="0 0 24 24"><path d="M13 2.5L5 13.5h6l-1 8 8-11h-6z"/></symbol><symbol id="i-entrada" viewBox="0 0 24 24"><path d="M4 13l2-8h12l2 8v6H4z"/><path d="M4 13h4.5l1 2h5l1-2H20"/><path d="M12 5v6M9.5 8.5L12 11l2.5-2.5"/></symbol><symbol id="i-calendario" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol><symbol id="i-local" viewBox="0 0 24 24"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></symbol><symbol id="i-material" viewBox="0 0 24 24"><path d="M6 3.5h11.5v17H6a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 6 3.5z"/><path d="M4.5 17.5A1.5 1.5 0 0 1 6 16h11.5"/><path d="M9 8h5"/></symbol><symbol id="i-livro" viewBox="0 0 24 24"><path d="M4 5c3-1.5 5.5-1.5 8 0v15c-2.5-1.5-5-1.5-8 0z"/><path d="M20 5c-3-1.5-5.5-1.5-8 0v15c2.5-1.5 5-1.5 8 0z"/></symbol><symbol id="i-livros" viewBox="0 0 24 24"><rect x="4" y="4" width="4" height="16" rx="1"/><rect x="9.5" y="6" width="4" height="14" rx="1"/><path d="M15.5 7.5l3.8-1 3 13.2-3.8 1z"/></symbol><symbol id="i-ia" viewBox="0 0 24 24"><path d="M12 3l1.4 4.1 4.1 1.4-4.1 1.4L12 14l-1.4-4.1-4.1-1.4 4.1-1.4z"/><path d="M18.5 14l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/><path d="M6 15l.7 1.8 1.8.7-1.8.7L6 20l-.7-1.8-1.8-.7 1.8-.7z"/></symbol><symbol id="i-dica" viewBox="0 0 24 24"><path d="M9 17h6"/><path d="M10 20.5h4"/><path d="M8.5 14a5.5 5.5 0 1 1 7 0c-.9.8-1.5 1.7-1.5 3h-4c0-1.3-.6-2.2-1.5-3z"/></symbol><symbol id="i-clima" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><path d="M8 2v1.3M2 8h1.3M3.8 3.8l.9.9M12.2 3.8l-.9.9"/><path d="M9 19h9a3.5 3.5 0 0 0 0-7 5 5 0 0 0-9.5 1.5A2.8 2.8 0 0 0 9 19z"/></symbol><symbol id="i-familia" viewBox="0 0 24 24"><circle cx="8" cy="7" r="2.6"/><circle cx="16.5" cy="7.5" r="2.2"/><path d="M3.5 19v-2.5a4.5 4.5 0 0 1 9 0V19"/><path d="M13.5 19v-2a3.3 3.3 0 0 1 6.6 0v2"/></symbol><symbol id="i-pessoa" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></symbol><symbol id="i-crianca" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4.5"/><path d="M11 4.6c.4-1.3 1.8-2 3.1-1.6"/><path d="M6.5 21a5.5 5.5 0 0 1 11 0"/></symbol><symbol id="i-ano-escolar" viewBox="0 0 24 24"><path d="M2.5 9L12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c1.5 1.5 3.5 2.2 5.5 2.2s4-.7 5.5-2.2V11"/><path d="M21.5 9v5"/></symbol><symbol id="i-peca" viewBox="0 0 24 24"><path d="M5 8h3a2 2 0 1 1 4 0h3v3a2 2 0 1 1 0 4v4h-4a2 2 0 1 0-4 0H5v-4a2 2 0 1 0 0-4z"/></symbol><symbol id="i-documento" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5"/><path d="M9 13h7M9 17h5"/></symbol><symbol id="i-nuvem" viewBox="0 0 24 24"><path d="M7 18h10.5a4 4 0 0 0 .6-7.9A6 6 0 0 0 6.6 9 4.5 4.5 0 0 0 7 18z"/></symbol><symbol id="i-pastas" viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/><path d="M3 7V5h6l2 2"/></symbol><symbol id="i-celular" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></symbol><symbol id="i-balao" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol><symbol id="i-alvo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol><symbol id="i-olho" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-estrela" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></symbol><symbol id="i-filtro" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></symbol><symbol id="i-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol><symbol id="i-imprimir" viewBox="0 0 24 24"><path d="M7 9V3h10v6"/><rect x="3.5" y="9" width="17" height="8" rx="2"/><path d="M7 14h10v7H7z"/></symbol><symbol id="i-compartilhar" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></symbol></svg>
 <header>
   <div class="header-branding">
@@ -5294,14 +5321,17 @@ async function approvePendingStandard(id){
  }catch(e){card?.classList.remove("is-busy");showNotice("Não foi possível aprovar: "+(e.message||e),{type:"error"})}
 }
 function catCloseSuggest(){document.getElementById("catSuggestOverlay")?.remove()}
+const CAT_AI_MSG={AI_RATE_LIMIT:"IA ocupada (limite do plano gratuito). Tente em 1 minuto.",AI_BUSY:"IA do Google sobrecarregada. Tente em 1 minuto.",AI_TIMEOUT:"A IA demorou demais. Tente de novo.",AI_BILLING:"Problema na chave ou no faturamento da API do Gemini.",AI_CONFIG:"Problema na configuração da IA (chave ou modelo)."};
+function catAiErr(e){const code=e?.payload?.code||(e?.code==="CLIENT_TIMEOUT"?"AI_TIMEOUT":"");return {code,msg:CAT_AI_MSG[code]||e?.message||"Não foi possível consultar a IA agora."}}
+function catAiCall(id){return Promise.race([backendFetch(`/community-books/${encodeURIComponent(id)}/ai-suggest`,{method:"POST"}),new Promise((_,rej)=>setTimeout(()=>{const er=new Error("A IA demorou demais");er.code="CLIENT_TIMEOUT";rej(er)},45000))])}
 async function catalogAiSuggest(id,onDone){
  catCloseSuggest();
  const ov=document.createElement("div");ov.id="catSuggestOverlay";ov.className="cat-sug-overlay";
  ov.innerHTML=`<div class="cat-sug" role="dialog" aria-modal="true" aria-label="Sugestão da IA"><div class="cat-sug-head"><h3>Sugestão da IA</h3><button type="button" class="cat-sug-x" aria-label="Fechar" onclick="catCloseSuggest()">✕</button></div><div class="cat-sug-body"><div class="ai-period-loading"><span class="ai-spinner" aria-hidden="true"></span>Comparando com o catálogo e o Google Books…</div></div></div>`;
  ov.addEventListener("click",e=>{if(e.target===ov)catCloseSuggest()});document.body.appendChild(ov);
  const body=ov.querySelector(".cat-sug-body");
- let data;try{data=await backendFetch(`/community-books/${encodeURIComponent(id)}/ai-suggest`,{method:"POST"})}
- catch(e){body.innerHTML=`<div class="notice">${esc(e.message||"Não foi possível consultar a IA agora.")}</div>`;return}
+ let data;try{data=await catAiCall(id)}
+ catch(e){const {msg}=catAiErr(e);body.innerHTML=`<div class="notice">${esc(msg)}</div><div class="cat-sug-actions"><button type="button" class="btn" id="catSugRetry">Tentar de novo</button></div>`;ov.querySelector("#catSugRetry").onclick=()=>catalogAiSuggest(id,onDone);return}
  const same=data.same_as,changes=data.changes||[];
  body.innerHTML=`${same?`<div class="cat-same"><b>Parece ser este livro do catálogo:</b><div class="cat-same-row">${same.thumbnail?`<img src="${esc(same.thumbnail)}" alt="">`:""}<div><b>${esc(same.title)}</b><span>${esc([(same.authors||[]).join(", "),same.publisher].filter(Boolean).join(" · "))}</span></div></div><button type="button" class="btn small" id="catSameMerge">Mesclar com este</button></div>`:""}
   ${changes.length?`<div class="cat-sug-list">${changes.map((c,i)=>`<label class="cat-sug-item"><input type="checkbox" checked data-i="${i}"><span class="cat-chg"><span>${CAT_FIELD[c.field]||c.field}</span><s>${esc(c.from||"(vazio)")}</s><b>${esc(c.to||"(vazio)")}</b></span></label>`).join("")}</div>
@@ -5345,16 +5375,16 @@ async function catRunAi(resetAll=false){
  catReview.aiRunning=true;catReview.aiStop=false;catReview.aiDone=0;catReview.aiTotal=ids.length;catReview.aiFails=0;catReview.aiLastErr="";catReviewRender();
  let stopMsg="";
  const worker=async()=>{while(ids.length&&!catReview.aiStop){const id=ids.shift();
-  try{const d=await Promise.race([backendFetch(`/community-books/${encodeURIComponent(id)}/ai-suggest`,{method:"POST"}),new Promise((_,rej)=>setTimeout(()=>rej(new Error("A IA demorou demais")),45000))]);
+  try{const d=await catAiCall(id);
    if(d?.changes?.length){const pos=catReview.items.findIndex(x=>x.id===id);const row={id,current:d.current,proposed:d.suggestion,changes:d.changes,source:"ai",thumbnail:catReview.items[pos]?.thumbnail||""};if(pos>=0)catReview.items[pos]=row;else catReview.items.push(row)}}
-  catch(e){console.warn("[catálogo] IA:",id,e);const code=e?.payload?.code;
-   if(code==="AI_RATE_LIMIT"||code==="AI_BILLING"||code==="AI_CONFIG"){stopMsg=e.message;catReview.aiStop=true;break}
-   catReview.aiFails++;catReview.aiLastErr=e?.message||String(e)}
+  catch(e){console.warn("[catálogo] IA:",id,e);const {code,msg}=catAiErr(e);
+   if(code==="AI_RATE_LIMIT"||code==="AI_BUSY"||code==="AI_BILLING"||code==="AI_CONFIG"){stopMsg=msg;catReview.aiStop=true;break}
+   catReview.aiFails++;catReview.aiLastErr=msg}
   catReview.aiPending=catReview.aiPending.filter(x=>x!==id);
   catReview.aiDone++;catReviewRender();catAiBtnLabel();
   if(ids.length&&!catReview.aiStop)await new Promise(r=>setTimeout(r,1500))}};
  await worker();
- if(stopMsg){catReview.aiRunning=false;catReviewRender();return showNotice(`${stopMsg} ${catReview.aiDone} livro(s) foram revisados; os outros continuam pendentes para a próxima vez.`,{title:"Revisão pausada",icon:"⏸️"})}
+ if(stopMsg){catReview.aiRunning=false;catReviewRender();return showNotice(`${stopMsg} ${catReview.aiDone} revisado(s) · ${catReview.aiPending.length} ainda pendente(s) para a próxima vez.`,{title:"Revisão pausada",icon:"⏸️"})}
  catReview.aiRunning=false;catReviewRender();
  const found=catReview.items.filter(x=>x.source==="ai").length;
  showNotice(catReview.aiFails?`${catReview.aiDone-catReview.aiFails} revisado(s), ${catReview.aiFails} com erro. Último erro: ${catReview.aiLastErr}`:`${catReview.aiDone} livro(s) revisado(s). ${found?`${found} com sugestão de correção na lista.`:"Nenhuma correção sugerida."}`,{title:catReview.aiFails?"Revisão com erros":"Revisão concluída",icon:catReview.aiFails?"⚠️":"✅"});
@@ -9290,6 +9320,146 @@ async function refreshPlannedReadingsAgenda(){
  const box=$("plannedReadingsAgenda");if(!box)return;const kids=state.family.children.filter(c=>!c.archived&&!c.legacyOrphan),visible=planViewChildFilter==="all"?kids:kids.filter(c=>c.id===planViewChildFilter);const lists=await Promise.all(visible.map(async child=>({child,books:(await readingBooksForChild(child.id)).filter(b=>b.status==="Planejado")})));if(!$("plannedReadingsAgenda"))return;const items=lists.flatMap(({child,books})=>books.map(book=>({child,book}))).sort((a,b)=>String(a.book.started_at||"").localeCompare(String(b.book.started_at||"")));
  box.innerHTML=items.length?planSectionHtml("readings","Leituras planejadas",items.length,items.map(({child,book})=>`<div class="plan-card reading-plan-card"><div class="plan-date">${book.started_at?fmtDate(book.started_at):"Sem data"} · ${esc(child.name)}</div><div class="entry-title">${esc(book.title||"Livro")}</div><div class="meta">Leitura planejada${book.target_finish_at?` · previsão de conclusão ${esc(fmtDate(book.target_finish_at))}`:""}</div><div class="entry-actions"><button class="btn success small" onclick="startPlannedBook('${book.id}')">Iniciar leitura</button></div></div>`).join(""),true):"";
 }
+/* ---- Compartilhar leituras (v17.15): imagem gerada no aparelho + menu de compartilhar do celular ---- */
+const SHARE_NAME_KEY="DE_SHARE_NAME_V1",SHARE_HINT_KEY="DE_SHARE_HINTS_V1";
+const SHARE_MONTHS=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+let shareState=null;const shareImgCache=new Map();
+function shareChild(){const cid=readingChildId();return {cid,child:state.family.children.find(c=>c.id===cid)}}
+function shareBooks(){const {cid}=shareChild();return (window.readingBooksByChild?.[cid]||window.__lastReadingBooks||[]).filter(b=>b&&(!b.childId||b.childId===cid))}
+function shareDone(){return shareBooks().filter(b=>b.status==="Concluído"&&b.finished_at).sort((a,b)=>String(a.finished_at).localeCompare(String(b.finished_at))||String(a.id).localeCompare(String(b.id)))}
+function shareHintAllowed(){let n=0;try{n=Number(localStorage.getItem(SHARE_HINT_KEY)||0)}catch(e){}if(n>=3)return false;try{localStorage.setItem(SHARE_HINT_KEY,String(n+1))}catch(e){}return true}
+function shareStats(){
+ const done=shareDone(),y=new Date().getFullYear(),inYear=yy=>done.filter(b=>String(b.finished_at).slice(0,4)===String(yy));
+ let retroYear=y;if(new Date().getMonth()===0&&inYear(y).length<3&&inYear(y-1).length)retroYear=y-1;
+ const yearList=inYear(retroYear),authors={},months=new Array(12).fill(0);
+ yearList.forEach(b=>{(b.authors||[]).forEach(a=>{const k=String(a||"").trim();if(k)authors[k]=(authors[k]||0)+1});const m=Number(String(b.finished_at).slice(5,7))-1;if(m>=0)months[m]++});
+ const topAuthor=Object.entries(authors).sort((a,b)=>b[1]-a[1])[0];const bestMonth=months.some(Boolean)?months.indexOf(Math.max(...months)):-1;
+ return {done,year:y,thisYear:inYear(y),retroYear,yearList,authorCount:Object.keys(authors).length,topAuthor:topAuthor&&topAuthor[1]>=2?topAuthor[0]:"",bestMonth:bestMonth>=0?SHARE_MONTHS[bestMonth]:""};
+}
+function openShareSheet(opts={}){
+ const st=shareStats();if(!st.done.length)return showNotice("Conclua um livro para compartilhar.",{title:"Nada para compartilhar ainda",icon:"📚"});
+ let name="nome";try{name=localStorage.getItem(SHARE_NAME_KEY)||"nome"}catch(e){}
+ const bookId=opts.bookId&&st.done.some(b=>b.id===opts.bookId)?opts.bookId:st.done[st.done.length-1].id;
+ shareState={mode:opts.mode||"total",bookId,format:"story",name,st};
+ closeShareSheet();
+ const ov=document.createElement("div");ov.id="shareOverlay";ov.className="share-ov no-print";
+ ov.innerHTML=`<div class="share-sheet" role="dialog" aria-modal="true" aria-labelledby="shareTitle"><div class="share-head"><h3 id="shareTitle">Compartilhar</h3><button type="button" class="share-x" aria-label="Fechar" onclick="closeShareSheet()">${ic("x")}</button></div><div class="share-body" id="shareBody"></div></div>`;
+ ov.addEventListener("click",e=>{if(e.target===ov)closeShareSheet()});document.body.appendChild(ov);
+ renderShareSheet();
+}
+function closeShareSheet(){document.getElementById("shareOverlay")?.remove()}
+function shareSet(k,v){shareState[k]=v;if(k==="name"){try{localStorage.setItem(SHARE_NAME_KEY,v)}catch(e){}}renderShareSheet()}
+function renderShareSheet(){
+ const box=document.getElementById("shareBody");if(!box||!shareState)return;const s=shareState,{child}=shareChild(),fn=firstName(child?.name||"");
+ const chip=(k,v,label)=>`<button type="button" class="share-chip${s[k]===v?" on":""}" aria-pressed="${s[k]===v}" onclick="shareSet('${k}','${v}')">${esc(label)}</button>`;
+ box.innerHTML=`<div class="share-group"><span>O quê</span><div class="share-row">${chip("mode","book","Livro")}${chip("mode","total","Total")}${chip("mode","year","Ano todo")}</div></div>
+  <div class="share-preview" id="sharePreview"><span class="ai-spinner" aria-hidden="true"></span></div>
+  <div class="share-group"><span>Formato</span><div class="share-seg">${chip("format","story","Story")}${chip("format","feed","Feed")}</div></div>
+  <div class="share-group"><span>Mostrar nome?</span><div class="share-row wrap">${fn?chip("name","nome",fn):""}${chip("name","leitora","Nossa leitora")}${chip("name","leitor","Nosso leitor")}${chip("name","sem","Sem nome")}</div></div>
+  <div class="share-actions"><button type="button" class="btn success" id="shareGo">${ic("compartilhar")} Compartilhar</button><button type="button" class="btn" id="shareDl">Baixar imagem</button><span class="meta">Abre o menu do celular. Escolha Instagram.</span></div>`;
+ const token=Symbol();s.token=token;
+ box.querySelector("#shareGo").onclick=()=>shareSend(false);box.querySelector("#shareDl").onclick=()=>shareSend(true);
+ drawShareImage().then(cv=>{if(s.token!==token||!cv)return;s.canvas=cv;const pv=document.getElementById("sharePreview");if(pv){pv.innerHTML="";const img=new Image();img.alt="Prévia da imagem";img.src=cv.toDataURL("image/jpeg",0.82);img.className="share-img "+s.format;pv.appendChild(img)}})
+  .catch(e=>{console.warn("[compartilhar]",e);const pv=document.getElementById("sharePreview");if(pv)pv.innerHTML=`<div class="meta">Não foi possível montar a imagem.</div>`});
+}
+async function shareSend(download){
+ const s=shareState;if(!s?.canvas)return;
+ const blob=await new Promise(r=>s.canvas.toBlob(r,"image/png"));if(!blob)return showNotice("Não foi possível gerar a imagem.",{type:"error"});
+ const file=new File([blob],`diario-leitura-${s.mode}-${today()}.png`,{type:"image/png"});
+ if(!download&&navigator.canShare&&navigator.canShare({files:[file]})){
+  try{await navigator.share({files:[file]});closeShareSheet();return}catch(e){if(e?.name==="AbortError")return;console.warn("[compartilhar] share:",e)}
+ }
+ const a=document.createElement("a"),u=URL.createObjectURL(blob);a.href=u;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);
+ if(!download)showNotice("Este aparelho não abriu o menu de compartilhar. A imagem foi baixada: poste pelo Instagram a partir da galeria.",{title:"Imagem baixada",icon:"⬇️"});
+}
+function shareLoadImg(src){
+ if(!src)return Promise.resolve(null);if(shareImgCache.has(src))return shareImgCache.get(src);
+ const fromUrl=u=>new Promise(res=>{const im=new Image();im.onload=()=>res(im);im.onerror=()=>res(null);im.src=u});
+ const p=(async()=>{
+  if(src.startsWith("data:"))return fromUrl(src);
+  const tmo=(pr,ms)=>Promise.race([pr,new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")),ms))]);
+  if(src.startsWith(BACKEND_URL+"/covers/")){try{const r=await tmo(fetch(src,{mode:"cors",redirect:"manual"}),6000);if(r.ok&&String(r.headers.get("content-type")||"").startsWith("image/"))return fromUrl(URL.createObjectURL(await r.blob()))}catch(e){}}
+  try{const d=await tmo(backendFetch("/cover-proxy?url="+encodeURIComponent(src)),8000);if(d?.data_url)return fromUrl(d.data_url)}catch(e){console.warn("[compartilhar] capa:",e?.message||e)}
+  return null})();
+ shareImgCache.set(src,p);return p;
+}
+function shareWrap(ctx,text,maxW,maxLines){
+ const words=String(text||"").split(/\s+/).filter(Boolean),lines=[];let cur="";
+ for(const w of words){const t=cur?cur+" "+w:w;if(ctx.measureText(t).width<=maxW||!cur)cur=t;else{lines.push(cur);cur=w}}if(cur)lines.push(cur);
+ if(lines.length>maxLines){const keep=lines.slice(0,maxLines);let last=keep[maxLines-1];while(last&&ctx.measureText(last+"…").width>maxW)last=last.slice(0,-1);keep[maxLines-1]=last.trim()+"…";return keep}
+ return lines;
+}
+function shareRound(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+const SHARE_PH=["#E8D44A","#4B4A86","#B23A3A","#2C3E86","#7B5BC4","#4DA3D9","#5E8A3A","#C9772E","#9ED1C8","#E9A3C0","#D9C9A0"];
+function shareCover(ctx,img,book,x,y,w,h,rot,i){
+ ctx.save();ctx.translate(x+w/2,y+h/2);ctx.rotate((rot||0)*Math.PI/180);ctx.shadowColor="rgba(0,0,0,.32)";ctx.shadowBlur=w*.18;ctx.shadowOffsetY=w*.07;
+ shareRound(ctx,-w/2,-h/2,w,h,Math.max(6,w*.05));ctx.fillStyle=SHARE_PH[(i||0)%SHARE_PH.length];ctx.fill();ctx.shadowColor="transparent";
+ if(img){ctx.save();shareRound(ctx,-w/2,-h/2,w,h,Math.max(6,w*.05));ctx.clip();const sc=Math.max(w/img.width,h/img.height),iw=img.width*sc,ih=img.height*sc;ctx.drawImage(img,-iw/2,-ih/2,iw,ih);ctx.restore()}
+ else{ctx.fillStyle="rgba(255,255,255,.92)";ctx.font=`700 ${Math.round(w*.11)}px "Work Sans",sans-serif`;ctx.textBaseline="top";const ls=shareWrap(ctx,book?.title||"",w*.8,4);ls.forEach((l,k)=>ctx.fillText(l,-w/2+w*.1,-h/2+w*.1+k*w*.14))}
+ ctx.restore();
+}
+function shareWho(kind){
+ const s=shareState,{child}=shareChild(),fn=firstName(child?.name||"");
+ if(s.name==="nome"&&fn)return fn;if(s.name==="leitora")return "Nossa leitora";if(s.name==="leitor")return "Nosso leitor";return "";
+}
+async function drawShareImage(){
+ const s=shareState,st=s.st,W=1080,H=s.format==="story"?1920:1350,feed=s.format==="feed";
+ try{await Promise.all([document.fonts.load('750 80px "Fraunces"'),document.fonts.load('650 40px "Fraunces"'),document.fonts.load('600 40px "Work Sans"'),document.fonts.load('700 40px "Work Sans"')])}catch(e){}
+ const cv=document.createElement("canvas");cv.width=W;cv.height=H;const ctx=cv.getContext("2d");ctx.textBaseline="alphabetic";
+ const SERIF='"Fraunces",Georgia,serif',SANS='"Work Sans",system-ui,sans-serif',M=88;
+ const brand=(color)=>{ctx.fillStyle=color;ctx.font=`650 30px ${SERIF}`;ctx.textAlign="right";ctx.fillText("Meu Diário de Estudos",W-M,H-M);ctx.textAlign="left"};
+ const who=shareWho();
+ if(s.mode==="total"){
+  const useYear=st.thisYear.length>0,list=useYear?st.thisYear:st.done,n=list.length;
+  ctx.fillStyle="#441015";ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle="rgba(221,186,120,.35)";ctx.lineWidth=3;ctx.beginPath();ctx.arc(W-40,120,420,0,Math.PI*2);ctx.stroke();ctx.strokeStyle="rgba(221,186,120,.22)";ctx.beginPath();ctx.arc(W-40,120,300,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle="#DDBA78";ctx.font=`600 32px ${SANS}`;ctx.fillText("Marco de leitura",M,M+30);
+  let y=feed?300:480;
+  ctx.fillStyle="#F2E3DA";ctx.font=`650 ${feed?54:62}px ${SERIF}`;ctx.fillText(who?`${who} leu`:(useYear?"Este ano já são":"Já são"),M,y);
+  ctx.fillStyle="#FBF5EC";const big=feed?300:420;ctx.font=`750 ${big}px ${SERIF}`;ctx.fillText(String(n),M-10,y+big*.88);
+  y+=big*.88+(feed?80:100);ctx.fillStyle="#DDBA78";ctx.font=`italic 650 ${feed?72:92}px ${SERIF}`;ctx.fillText(n===1?(useYear?"livro este ano":"livro lido"):(useYear?"livros este ano":"livros lidos"),M,y);
+  const recent=list.slice(-5).reverse(),cw=feed?170:260,ch=cw*1.43,cy=y+(feed?50:110);
+  const imgs=await Promise.all(recent.map(b=>shareLoadImg(b.thumbnail)));
+  const rots=[-8,-2,4,-5,7],span=W-2*M-cw,step=recent.length>1?span/(recent.length-1):0;
+  recent.forEach((b,i)=>shareCover(ctx,imgs[i],b,M+i*step,cy+(i%2?0:40),cw,ch,rots[i],i));
+  if(n>recent.length){const t=`+ ${n-recent.length} livro${n-recent.length===1?"":"s"}`;ctx.font=`700 30px ${SANS}`;const tw=ctx.measureText(t).width+48;const tx=(W-tw)/2,ty=cy+ch+(feed?0:20);ctx.fillStyle="#DDBA78";shareRound(ctx,tx,ty,tw,60,30);ctx.fill();ctx.fillStyle="#441015";ctx.fillText(t,tx+24,ty+41)}
+  ctx.fillStyle="#F2E3DA";ctx.font=`500 30px ${SANS}`;ctx.fillText("Cada página conta.",M,H-M);brand("#DDBA78");
+ }else if(s.mode==="book"){
+  const b=st.done.find(x=>x.id===s.bookId)||st.done[st.done.length-1],yr=String(b.finished_at).slice(0,4),nYear=st.done.filter(x=>String(x.finished_at).slice(0,4)===yr).findIndex(x=>x.id===b.id)+1;
+  const days=b.started_at?Math.max(1,Math.round((new Date(String(b.finished_at).slice(0,10)+"T00:00:00")-new Date(String(b.started_at).slice(0,10)+"T00:00:00"))/86400000)+1):0;
+  ctx.fillStyle="#FBF5EC";ctx.fillRect(0,0,W,H);ctx.fillStyle="#F2E3DA";ctx.fillRect(0,0,W,feed?560:1000);
+  const pill=who?`${who} terminou!`:"Terminei!";ctx.font=`700 34px ${SANS}`;const pw=ctx.measureText(pill).width+110,px=(W-pw)/2,py=feed?70:110;ctx.fillStyle="#3E5636";shareRound(ctx,px,py,pw,72,36);ctx.fill();
+  ctx.strokeStyle="#fff";ctx.lineWidth=7;ctx.lineCap="round";ctx.lineJoin="round";ctx.beginPath();ctx.moveTo(px+32,py+37);ctx.lineTo(px+44,py+49);ctx.lineTo(px+64,py+25);ctx.stroke();ctx.fillStyle="#fff";ctx.fillText(pill,px+80,py+48);
+  const cw=feed?330:560,chh=cw*1.42,cx=(W-cw)/2,cy=py+(feed?120:190);shareCover(ctx,await shareLoadImg(b.thumbnail),b,cx,cy,cw,chh,-3,0);
+  let y=cy+chh+(feed?90:140);ctx.textAlign="center";ctx.fillStyle="#441015";ctx.font=`750 ${feed?54:68}px ${SERIF}`;
+  shareWrap(ctx,b.title||"Livro",W-2*M,feed?2:3).forEach(l=>{ctx.fillText(l,W/2,y);y+=feed?62:80});
+  const au=(b.authors||[]).join(", ");if(au){ctx.fillStyle="#6A5F58";ctx.font=`500 ${feed?32:38}px ${SANS}`;ctx.fillText(shareWrap(ctx,au,W-2*M,1)[0],W/2,y+(feed?4:10));y+=feed?50:70}
+  const chips=[nYear>0?`Livro nº ${nYear} de ${yr}`:"",days?`Lido em ${days} dia${days===1?"":"s"}`:""].filter(Boolean);
+  ctx.font=`600 30px ${SANS}`;const cws=chips.map(c=>ctx.measureText(c).width+56),tot=cws.reduce((a,c)=>a+c,0)+(chips.length-1)*20;let x=(W-tot)/2;y+=feed?20:40;
+  ctx.textAlign="left";chips.forEach((c,i)=>{ctx.fillStyle="#fff";shareRound(ctx,x,y,cws[i],64,32);ctx.fill();ctx.strokeStyle="#E8D8CA";ctx.lineWidth=2;ctx.stroke();ctx.fillStyle="#441015";ctx.fillText(c,x+28,y+43);x+=cws[i]+20});
+  if(!feed){ctx.textAlign="center";ctx.fillStyle="#6B2737";ctx.font=`italic 650 46px ${SERIF}`;ctx.fillText("Qual será o próximo?",W/2,H-M-70);ctx.textAlign="left"}
+  ctx.textAlign="center";ctx.fillStyle="#8A7F78";ctx.font=`650 30px ${SERIF}`;ctx.fillText("Meu Diário de Estudos",W/2,H-M+10);ctx.textAlign="left";
+ }else{
+  const list=st.yearList.length?st.yearList:st.done,yr=st.yearList.length?st.retroYear:"";
+  ctx.fillStyle="#FBF5EC";ctx.fillRect(0,0,W,H);
+  ctx.fillStyle="#6B2737";ctx.font=`700 32px ${SANS}`;ctx.fillText(yr?`Retrospectiva ${yr}`:"Retrospectiva",M,M+30);
+  ctx.textAlign="right";ctx.fillStyle="#8A7F78";ctx.font=`650 28px ${SERIF}`;ctx.fillText("Meu Diário de Estudos",W-M,M+30);ctx.textAlign="left";
+  let y=M+(feed?130:230);ctx.fillStyle="#441015";ctx.font=`750 ${feed?76:92}px ${SERIF}`;
+  const head=s.name==="nome"&&who?["O ano de leituras",`de ${who}`]:s.name==="leitora"?["O ano de leituras","da nossa leitora"]:s.name==="leitor"?["O ano de leituras","do nosso leitor"]:["Nosso ano","de leituras"];
+  head.forEach(l=>{ctx.fillText(l,M,y);y+=feed?84:104});
+  const cols=6,gap=14,cw=(W-2*M-gap*(cols-1))/cols,chh=cw*1.5,rows=feed?2:3,maxN=cols*rows,showN=list.length>maxN?maxN-1:list.length,shown=list.slice(-showN).reverse();
+  const imgs=await Promise.all(shown.map(b=>shareLoadImg(b.thumbnail)));y+=feed?0:20;
+  shown.forEach((b,i)=>shareCover(ctx,imgs[i],b,M+(i%cols)*(cw+gap),y+Math.floor(i/cols)*(chh+gap),cw,chh,0,i));
+  if(list.length>maxN){const i=maxN-1,x0=M+(i%cols)*(cw+gap),y0=y+Math.floor(i/cols)*(chh+gap);ctx.fillStyle="#441015";shareRound(ctx,x0,y0,cw,chh,8);ctx.fill();ctx.fillStyle="#DDBA78";ctx.font=`700 40px ${SANS}`;ctx.textAlign="center";ctx.fillText(`+${list.length-showN}`,x0+cw/2,y0+chh/2+14);ctx.textAlign="left"}
+  y+=Math.ceil(Math.min(list.length,maxN)/cols)*(chh+gap)+(feed?30:90);
+  const stats=[[String(list.length),list.length===1?"livro lido":"livros lidos"],[String(st.authorCount||"–"),"autores diferentes"],[st.bestMonth||"–","mês com mais leituras"]];
+  const sw=(W-2*M-2*24)/3,sh=feed?150:180;
+  stats.forEach(([v,l],i)=>{const x0=M+i*(sw+24);ctx.fillStyle="#fff";shareRound(ctx,x0,y,sw,sh,26);ctx.fill();ctx.strokeStyle="#E8D8CA";ctx.lineWidth=2;ctx.stroke();ctx.fillStyle="#441015";let fs=v.length>6?44:72;ctx.font=`750 ${fs}px ${SERIF}`;while(ctx.measureText(v).width>sw-48&&fs>28){fs-=4;ctx.font=`750 ${fs}px ${SERIF}`}ctx.fillText(v,x0+24,y+(feed?80:96));ctx.fillStyle="#6A5F58";ctx.font=`500 26px ${SANS}`;shareWrap(ctx,l,sw-48,2).forEach((t,k)=>ctx.fillText(t,x0+24,y+(feed?116:136)+k*30))});
+  if(st.topAuthor){const ly=H-M;ctx.strokeStyle="#E8D8CA";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(M,ly-70);ctx.lineTo(W-M,ly-70);ctx.stroke();ctx.fillStyle="#6A5F58";ctx.font=`500 32px ${SANS}`;ctx.fillText("Autor favorito",M,ly);ctx.textAlign="right";ctx.fillStyle="#441015";ctx.font=`750 40px ${SERIF}`;ctx.fillText(shareWrap(ctx,st.topAuthor,W-2*M-300,1)[0],W-M,ly);ctx.textAlign="left"}
+  else{ctx.fillStyle="#6B2737";ctx.font=`italic 650 40px ${SERIF}`;ctx.fillText("Cada página conta.",M,H-M)}
+ }
+ return cv;
+}
 let readingDoneShowAll=false,readingDoneOpen=true;
 function readingRowMenu(id){const el=document.getElementById("rdm_"+id);if(el)el.classList.toggle("hidden")}
 function renderReadingCards(books){
@@ -9317,11 +9487,11 @@ function renderReadingCards(books){
    <div class="reading-actions"><button class="btn small reading-main-action" type="button" onclick="startPlannedBook('${b.id}')">Iniciar leitura</button><button class="btn small reading-icon-action reading-edit-icon" type="button" onclick="editFamilyBookReading('${b.id}')" aria-label="Editar planejamento" title="Editar leitura">${ic("lapis")}</button></div></div></div>`;
  const done=b=>`<div class="reading-done-row" data-reading-book-id="${esc(b.id)}">${cover(b,"small")}
    <div class="reading-done-main"><b>${esc(b.title)}</b><span><i class="st-check" aria-hidden="true">✓</i>${b.finished_at?(b.started_at&&b.started_at.slice(0,10)!==String(b.finished_at).slice(0,10)?`Lido de ${fmtDate(b.started_at).slice(0,5)} a ${fmtDate(b.finished_at).slice(0,5)}`:`Lido em ${fmtDate(b.finished_at).slice(0,5)}`):"Concluído"}</span>${b.catalog_status==="pending"?`<span class="reading-status st-neutral">Aguardando validação</span>`:""}
-   <div id="rdm_${esc(b.id)}" class="reading-done-menu hidden"><button type="button" class="btn small" onclick="editFamilyBookReading('${b.id}')">${ic("lapis")} Editar</button><button type="button" class="btn small" onclick="reopenCompletedBook('${b.id}')">Reabrir leitura</button>${b.can_edit_catalog?`<button type="button" class="btn small" onclick="changePendingBookCover('${esc(b.id)}')">${b.thumbnail?"Trocar foto":"Adicionar foto"}</button><button type="button" class="btn small" onclick="editPendingBookData('${esc(b.id)}')">Corrigir dados</button>`:""}</div></div>
+   <div id="rdm_${esc(b.id)}" class="reading-done-menu hidden"><button type="button" class="btn small" onclick="openShareSheet({mode:'book',bookId:'${esc(b.id)}'})">${ic("compartilhar")} Compartilhar</button><button type="button" class="btn small" onclick="editFamilyBookReading('${b.id}')">${ic("lapis")} Editar</button><button type="button" class="btn small" onclick="reopenCompletedBook('${b.id}')">Reabrir leitura</button>${b.can_edit_catalog?`<button type="button" class="btn small" onclick="changePendingBookCover('${esc(b.id)}')">${b.thumbnail?"Trocar foto":"Adicionar foto"}</button><button type="button" class="btn small" onclick="editPendingBookData('${esc(b.id)}')">Corrigir dados</button>`:""}</div></div>
    <button type="button" class="reading-done-more" aria-label="Opções de ${esc(b.title||"livro")}" onclick="readingRowMenu('${esc(b.id)}')"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></button></div>`;
  const section=(title,list,fn)=>list.length?`<div class="reading-section"><h3>${title} · ${list.length}</h3><div class="reading-list">${list.map(fn).join("")}</div></div>`:"";
  const doneList=groups["Concluído"],doneShown=readingDoneShowAll?doneList:doneList.slice(0,3);
- const doneHtml=doneList.length?`<div class="reading-section reading-done-section${readingDoneOpen?"":" closed"}"><h3><button type="button" class="reading-done-toggle" aria-expanded="${readingDoneOpen}" onclick="readingDoneOpen=!readingDoneOpen;renderReadingCards(window.__lastReadingBooks||[])">Concluídos · ${doneList.length}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></h3>${readingDoneOpen?`<div class="reading-done-list">${doneShown.map(done).join("")}</div>${doneList.length>3?`<button type="button" class="btn reading-done-all" onclick="readingDoneShowAll=!readingDoneShowAll;renderReadingCards(window.__lastReadingBooks||[])">${readingDoneShowAll?"Mostrar só os recentes":`Ver todos (${doneList.length})`}</button>`:""}`:""}</div>`:"";
+ const doneHtml=doneList.length?`<div class="reading-section reading-done-section${readingDoneOpen?"":" closed"}"><h3><button type="button" class="reading-done-toggle" aria-expanded="${readingDoneOpen}" onclick="readingDoneOpen=!readingDoneOpen;renderReadingCards(window.__lastReadingBooks||[])">Concluídos · ${doneList.length}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><button type="button" class="reading-share-btn" aria-label="Compartilhar leituras" title="Compartilhar leituras" onclick="openShareSheet({mode:'total'})">${ic("compartilhar")}</button></h3>${readingDoneOpen?`<div class="reading-done-list">${doneShown.map(done).join("")}</div>${doneList.length>3?`<button type="button" class="btn reading-done-all" onclick="readingDoneShowAll=!readingDoneShowAll;renderReadingCards(window.__lastReadingBooks||[])">${readingDoneShowAll?"Mostrar só os recentes":`Ver todos (${doneList.length})`}</button>`:""}`:""}</div>`:"";
  window.__lastReadingBooks=books;
  box.innerHTML=books.length?section("Lendo agora",groups.Lendo,reading)+section("Próximas leituras",groups.Planejado,planned)+doneHtml:emptyStateHtml("livro","Nenhum livro ainda",`Acompanhe os livros ${(()=>{const c=state.family.children.find(x=>x.id===readingChildId());return c?"de "+firstName(c.name):"da criança"})()}, do planejado ao concluído. Dá para buscar pelo título ou ler o código de barras.`,[{label:"Adicionar livro",icon:"mais",onclick:"openBookSearch()"}])
 }
@@ -9747,7 +9917,7 @@ async function confirmReadingCompletion(){
  if(b.started_at&&finished<b.started_at)return showNotice(`A conclusão não pode ser anterior ao início da leitura (${fmtDate(b.started_at)}).`);
  const btn=$("readingCompleteConfirm");if(btn){btn.disabled=true;btn.textContent="Concluindo…"}
  const entryId=createOrUpdateReadingCompletion(b,finished,notes);
- try{await patchReadingBook(b,{status:"Concluído",finished_at:finished,completion_activity_id:entryId});closeReadingCompleteModal();await renderReadingPage();renderDashboard();renderPlans();}
+ try{await patchReadingBook(b,{status:"Concluído",finished_at:finished,completion_activity_id:entryId});closeReadingCompleteModal();await renderReadingPage();renderDashboard();renderPlans();const doneId=b.id;showToast("Livro concluído",shareHintAllowed()?[{label:"Compartilhar",run:()=>openShareSheet({mode:"book",bookId:doneId})}]:[]);}
  catch(e){showNotice("O registro foi salvo, mas não foi possível atualizar o livro: "+(e.message||e))}
  finally{if(btn){btn.disabled=false;btn.textContent="✓ Concluir leitura"}}
 }
@@ -10491,7 +10661,7 @@ document.addEventListener("click",e=>{
 </script>
 
 <script>
-const APP_VERSION = "17.14";
+const APP_VERSION = "17.15";
 queueMicrotask(()=>{ const el=document.getElementById("healthFrontendVersion"); if(el) el.textContent=`v${APP_VERSION}`; });
 
 let deferredInstallPrompt=null;
